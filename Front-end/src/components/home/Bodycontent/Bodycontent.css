@@ -1,0 +1,349 @@
+:root {
+   --transparent: transparent;
+   --redTheme: #FF3814;
+   --lightYellow: #FCF5E8;
+   --normalGreen: #B1CC74;
+   --lightGreen: #E8FCC2;
+   --white: #fff;
+   --textColor: #252a32;
+   --black: #7c7a7a;
+   --lightGrey: #F2F2F2;
+   --yellowTheme: #ffdd4d;
+}
+
+/* * {
+   font-family: calibri, sans-serif;
+} */
+
+.bannerCarousel-div {
+   padding-top: 15px;
+}
+
+.shopnow-btn {
+   background-color: var(--normalGreen);
+   color: var(--white);
+}
+
+.shopnow-btn:hover {
+   background-color: var(--lightGreen);
+   color: var(--normalGreen);
+   font-weight: bold;
+   text-shadow: 0 0 3px var(--lightGrey);
+}
+
+.offers-main-div {
+   display: flex;
+   justify-content: space-between;
+   padding: 15px 0;
+
+   >:nth-child(2) {
+      margin: 0 15px;
+   }
+}
+
+.individual-div {
+   flex: 1;
+   width: 33.33%;
+   padding: 5px 100px 5px 15px;
+   border-radius: 0.8rem;
+}
+
+.heading-title {
+   color: #9AAB56;
+   font-weight: 700;
+   text-align: center;
+   padding: 0;
+   margin-top: 2rem;
+   filter: drop-shadow(0px 0px 2px var(--lightGrey));
+}
+
+/* Bottom div styles */
+.trending-items-container {
+   display: flex;
+   justify-content: space-between;
+   margin-top: 5rem;
+}
+
+.trending-items-sub-div {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   background-color: #fff;
+   box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+   padding: 1.4rem;
+   border-radius: 1.1rem;
+}
+
+.trending-items-sub-div:hover {
+   background-color: var(--normalGreen);
+   color: #fff;
+   cursor: pointer;
+}
+
+.trending-items-sub-div:hover .trending-items-button {
+   background-color: white;
+   color: var(--normalGreen);
+}
+
+.trending-items-sub-div>img {
+   margin-top: -75px;
+   width: 7rem;
+   filter: drop-shadow(1px 18px 14px #666666);
+   padding: 1px;
+}
+
+.trending-items-title {
+   font-weight: 600;
+   width: 7.5rem;
+   text-align: center;
+   margin: 10px;
+}
+
+.trending-items-btn {
+   font-weight: 600;
+   text-align: center;
+   width: 100%;
+   margin: 10px;
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+}
+
+.trending-items-sub-div>div {
+   font-size: 12px;
+   font-weight: 500;
+   width: 100%;
+   display: flex;
+   justify-content: space-between;
+   margin-bottom: 0px;
+   padding: 6px 0;
+   border-top: 2px solid var(--lightGreen);
+   border-bottom: 2px solid var(--lightGreen);
+}
+
+.trending-items-button {
+   background-color: var(--normalGreen);
+   border-radius: 6px;
+   font-weight: 700;
+   color: #fff;
+   padding: 0.2rem 0.6rem;
+   font-size: 15px;
+   border: none;
+}
+
+.trending-items-button:hover {
+   filter: drop-shadow(0px 0px 6px var(--white));
+}
+
+.trending-items-decrp {
+   text-wrap: nowrap;
+}
+
+/* Healthy menu */
+.healthy-btn {
+   width: 10rem;
+   margin: 1rem 0rem;
+}
+
+.healthy-card {
+   /* border: 1px solid black; */
+   background-image: radial-gradient(#c5d18f, var(--normalGreen));
+   border-radius: 1rem;
+   color: white;
+   margin: 0;
+}
+
+.healthy-heading {
+   color: #fff;
+   text-shadow: 0 0 4px var(--black);
+   font-size: 2rem;
+   font-weight: 700;
+   padding: 0.5rem;
+   /* padding-left: 0rem; */
+}
+
+.healthy-para {
+   font-size: 1rem;
+   color: white;
+   text-align: justify;
+}
+
+.healthy-img {
+   height: 15rem;
+   border-radius: 0.6rem;
+}
+
+/* delivery and payment */
+.payment-icon {
+   height: 3rem;
+   width: 3rem;
+   margin: 0.5rem;
+   margin-left: 1rem;
+   margin-top: 0rem;
+   /* filter: brightness(0) invert(1); */
+}
+
+.payment-btn-md {
+   width: 10rem;
+   height: 3rem;
+}
+
+.payment-btn {
+   background-color: var(--lightGreen);
+   color: var(--normalGreen);
+}
+
+.payment-btn:hover {
+   background-color: var(--lightGreen);
+   color: var(--black);
+   text-shadow: 0 0 2px var(--white);
+}
+
+/* thankyou section */
+.thankyou-section {
+   background-image: radial-gradient(#c5d18f, var(--normalGreen));
+   border-radius: 1rem;
+}
+
+.thankyou-heading {
+   color: white;
+   text-shadow: 0 0 4px var(--black);
+   font-size: 2rem;
+   font-weight: 700;
+   padding: 0.5rem;
+   padding-top: 0.8rem;
+   /* padding-left: 0rem; */
+}
+
+.thankyou-para {
+   font-size: 1rem;
+   color: white;
+   text-align: justify;
+}
+
+.thankyou-img1 {
+   -webkit-filter: drop-shadow(5px 5px 5px #222);
+   filter: drop-shadow(5px 5px 5px #222);
+}
+
+.thankyou-img2 {
+   height: 14rem;
+   width: 100%;
+   margin: 1.5rem 0rem;
+   padding: 0rem 4rem;
+   -webkit-filter: drop-shadow(5px 5px 5px #222);
+   filter: drop-shadow(5px 5px 5px #222);
+}
+
+.thankyou-b {
+   color: white;
+}
+
+#tq-model-content {
+   background-image: radial-gradient(#c5d18f, var(--normalGreen));
+}
+
+/* model */
+.modal-content {
+   background-image: linear-gradient(#ff9966, #ff5e62);
+   color: white;
+}
+
+.model-btn-div {
+   background-image: linear-gradient(to right, #ddd6f3 0%, #5b86e5 100%);
+   border-radius: 5rem;
+   box-sizing: border-box;
+   display: block;
+   margin: auto;
+   z-index: 2;
+}
+
+.model-btn-div button {
+   align-items: center;
+   background: #6dd5ed;
+   color: #000;
+   border-radius: 5rem;
+   display: flex;
+   justify-content: center;
+   transition: background 0.5s ease;
+}
+
+.model-btn-div:hover button {
+   background: transparent;
+   color: #fff;
+}
+
+/* icons */
+
+
+.followus-heading {
+   color: #132b45;
+   font-size: 2rem;
+   font-weight: 700;
+   padding: 0.5rem;
+}
+
+/* new social media icon styles */
+.icon {
+   color: #fff;
+   animation: first_color .5s ease-in-out infinite alternate;
+}
+
+.icon:nth-child(2) {
+   animation-name: second_color;
+}
+
+.icon:nth-child(3) {
+   animation-name: third_color;
+}
+
+@keyframes first_color {
+   0% {
+      text-shadow: 0 0 10px #ff1177, 0 0 20px #d6249f, 0 0 30px #285aeb;
+   }
+
+   100% {
+      text-shadow: 0 0 5px #ff1177, 0 0 10px #d6249f, 0 0 15px #285aeb;
+   }
+}
+
+@keyframes second_color {
+   0% {
+      text-shadow: 0 0 10px #1877f2,
+         0 0 20px #1459b3,
+         0 0 30px #179bff;
+   }
+
+   100% {
+      text-shadow: 0 0 5px #1877f2,
+         0 0 10px #1459b3,
+         0 0 15px #179bff;
+   }
+}
+
+@keyframes third_color {
+   0% {
+      text-shadow: 0 0 10px #25d366,
+         0 0 20px #48ee85,
+         0 0 30px #0ec0a5;
+   }
+
+   100% {
+      text-shadow: 0 0 5px #25d366,
+         0 0 10px #48ee85,
+         0 0 15px #0ec0a5;
+   }
+}
+
+.copyright-div {
+   margin-top: 0px;
+   text-align: center;
+}
+
+.loading-div {
+   /* background-color: teal; */
+   height: 65vh;
+   display: flex;
+   justify-content: center;
+   align-items: end;
+}

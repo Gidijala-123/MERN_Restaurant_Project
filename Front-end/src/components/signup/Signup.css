@@ -1,0 +1,401 @@
+@import url("https://fonts.googleapis.com/css?family=Montserrat:400,800");
+
+/* * {
+   box-sizing: border-box;
+   font-family: sans-serif;
+   text-align: center;
+} */
+
+.signlog-div {
+   background-image: url('../../../../public/sign-up-login/two-min.jpg');
+   background-repeat: no-repeat;
+   background-size: cover;
+   background-position: 0 0;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   flex-direction: column;
+   font-family: "Montserrat", sans-serif;
+   height: 100vh;
+   /* margin: -20px 0 50px; */
+}
+
+.heading-h1 {
+   font-weight: bold;
+   margin: 0;
+   text-shadow: 0 0 4px #ff4b2b, 0 0 3px #b0afaf;
+   color: #000;
+}
+
+.signup-heading {
+   display: flex;
+   flex-direction: row;
+   justify-content: center;
+   align-items: center;
+   margin: 1.5rem;
+}
+
+.login-heading {
+   display: flex;
+   flex-direction: row;
+   justify-content: center;
+   align-items: center;
+   margin: 1.5rem;
+}
+
+.login-text {
+   margin-right: -5px;
+}
+
+.heading-img {
+   width: 2rem;
+}
+
+/* h2 {
+   text-align: center;
+} */
+
+.description {
+   font-size: 14px;
+   font-weight: 100;
+   line-height: 20px;
+   letter-spacing: 0.5px;
+   margin: 20px 0 30px;
+}
+
+.span-tag {
+   font-size: 12px;
+}
+
+/* a {
+   color: #333;
+   font-size: 14px;
+   text-decoration: none;
+   margin: 15px 0;
+} */
+
+/* Shared styles for both buttons */
+.Btn,
+.Btn2 {
+   width: 140px;
+   height: 40px;
+   border: none;
+   border-radius: 10px;
+   background: linear-gradient(to right, #77530a, #ffd277, #77530a, #77530a, #ffd277, #77530a);
+   background-size: 250%;
+   background-position: left;
+   color: #ffd277;
+   position: relative;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   cursor: pointer;
+   transition-duration: 1s;
+   overflow: hidden;
+}
+
+.Btn::before,
+.Btn2::before {
+   position: absolute;
+   content: "";
+   color: #ffd277;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   width: 97%;
+   height: 90%;
+   border-radius: 8px;
+   transition-duration: 1s;
+   background-color: rgba(0, 0, 0, 0.842);
+   background-size: 200%;
+}
+
+.Btn:hover,
+.Btn2:hover {
+   background-position: right;
+   transition-duration: 1s;
+}
+
+.Btn:hover::before,
+.Btn2:hover::before {
+   background-position: right;
+   transition-duration: 1s;
+}
+
+.Btn:active,
+.Btn2:active {
+   transform: scale(0.95);
+}
+
+/* Specific content for each button */
+.Btn::before {
+   content: "Login Page";
+}
+
+.Btn2::before {
+   content: "Signup Page";
+}
+
+/* Yoinked from CodePen, but improved the animation
+so that it is smooth among other more minor things */
+
+.codepen-button {
+   display: block;
+   cursor: pointer;
+   color: #fff;
+   margin: 15px auto auto auto;
+   position: relative;
+   text-decoration: none;
+   font-weight: 600;
+   border-radius: 10px;
+   overflow: hidden;
+   padding: 3px;
+   isolation: isolate;
+   border: 0;
+}
+
+.codepen-button:hover {
+   color: #fff;
+}
+
+.codepen-button::before {
+   content: "";
+   position: absolute;
+   top: 0;
+   left: 0;
+   width: 400%;
+   height: 100%;
+   background: linear-gradient(115deg, #4fcf70, #fad648, #a767e5, #12bcfe, #44ce7b);
+   background-size: 25% 100%;
+   animation: an-at-keyframe-css-at-rule-that-translates-via-the-transform-property-the-background-by-negative-25-percent-of-its-width-so-that-it-gives-a-nice-border-animation_-We-use-the-translate-property-to-have-a-nice-transition-so-it_s-not-a-jerk-of-a-start-or-stop .75s linear infinite;
+   animation-play-state: paused;
+   translate: -5% 0%;
+   transition: translate 0.25s ease-out;
+}
+
+.codepen-button:hover::before {
+   animation-play-state: running;
+   transition-duration: 0.75s;
+   translate: 0% 0%;
+}
+
+@keyframes an-at-keyframe-css-at-rule-that-translates-via-the-transform-property-the-background-by-negative-25-percent-of-its-width-so-that-it-gives-a-nice-border-animation_-We-use-the-translate-property-to-have-a-nice-transition-so-it_s-not-a-jerk-of-a-start-or-stop {
+   to {
+      transform: translateX(-25%);
+   }
+}
+
+.codepen-button span {
+   position: relative;
+   display: block;
+   padding: 0.5rem 1rem;
+   font-size: 1rem;
+   background: #000;
+   border-radius: 8px;
+   height: 100%;
+}
+
+.form-div {
+   background-color: #ffffff;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   flex-direction: column;
+   padding: 35px 50px;
+   height: 100%;
+   text-align: center;
+}
+
+.text-input {
+   background-color: #eee;
+   border: none;
+   padding: 12px 15px;
+   margin: 8px 0;
+   width: 100%;
+   border-radius: 7px;
+}
+
+.container {
+   background-color: #fff;
+   border-radius: 10px;
+   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+   position: relative;
+   overflow: hidden;
+   width: 768px;
+   max-width: 100%;
+   min-height: 480px;
+}
+
+.form-container {
+   position: absolute;
+   top: 0;
+   height: 100%;
+   transition: all 0.6s ease-in-out;
+}
+
+.sign-in-container {
+   left: 0;
+   width: 50%;
+   z-index: 2;
+   background-color: #ffffff;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   flex-direction: column;
+   padding: 0 50px;
+   height: 100%;
+   text-align: center;
+}
+
+.container.right-panel-active .sign-in-container {
+   transform: translateX(100%);
+}
+
+.sign-up-container {
+   left: 0;
+   width: 50%;
+   opacity: 0;
+   z-index: 1;
+}
+
+.container.right-panel-active .sign-up-container {
+   transform: translateX(100%);
+   opacity: 1;
+   z-index: 5;
+   animation: show 0.6s;
+}
+
+@keyframes show {
+
+   0%,
+   49.99% {
+      opacity: 0;
+      z-index: 1;
+   }
+
+   50%,
+   100% {
+      opacity: 1;
+      z-index: 5;
+   }
+}
+
+.overlay-container {
+   position: absolute;
+   top: 0;
+   left: 50%;
+   width: 50%;
+   height: 100%;
+   overflow: hidden;
+   transition: transform 0.6s ease-in-out;
+   z-index: 100;
+}
+
+.container.right-panel-active .overlay-container {
+   transform: translateX(-100%);
+}
+
+.overlay {
+   background-image: url('../../../../public/banner-images/banner3.jpg');
+   /* background: -webkit-linear-gradient(to right, #ff4b2b, #ff416c); */
+   /* background: linear-gradient(to right, #ff4b2b, #ff416c); */
+   background-repeat: no-repeat;
+   background-size: cover;
+   background-position: 0 0;
+   color: #ffffff;
+   position: relative;
+   left: -100%;
+   height: 100%;
+   width: 200%;
+   transform: translateX(0);
+   transition: transform 0.6s ease-in-out;
+}
+
+.container.right-panel-active .overlay {
+   transform: translateX(50%);
+}
+
+.overlay-panel {
+   position: absolute;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   flex-direction: column;
+   padding: 0 40px;
+   text-align: center;
+   top: 0;
+   height: 100%;
+   width: 50%;
+   transform: translateX(0);
+   transition: transform 0.6s ease-in-out;
+}
+
+.overlay-left {
+   transform: translateX(-20%);
+}
+
+.container.right-panel-active .overlay-left {
+   transform: translateX(0);
+}
+
+.overlay-right {
+   right: 0;
+   transform: translateX(0);
+}
+
+.container.right-panel-active .overlay-right {
+   transform: translateX(20%);
+}
+
+.social-container {
+   margin: 20px 0;
+}
+
+.social-container a {
+   border: 1px solid #dddddd;
+   border-radius: 50%;
+   display: inline-flex;
+   justify-content: center;
+   align-items: center;
+   margin: 0 5px;
+   height: 40px;
+   width: 40px;
+
+}
+
+/* .social:nth-child(1) {
+   background-color: #ff0000;
+}
+
+.social:nth-child(2) {
+   background-color: #3b5998;
+}
+
+.social:nth-child(3) {
+   background-color: #0a66c2;
+} */
+
+/* footer {
+   background-color: #222;
+   color: #fff;
+   font-size: 14px;
+   bottom: 0;
+   position: fixed;
+   left: 0;
+   right: 0;
+   text-align: center;
+   z-index: 999;
+}
+
+footer p {
+   margin: 10px 0;
+}
+
+footer i {
+   color: red;
+}
+
+footer a {
+   color: #3c97bf;
+   text-decoration: none;
+} */

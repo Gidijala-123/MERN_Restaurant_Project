@@ -1,0 +1,16 @@
+.breadcrumb-div {
+  margin-top: calc(100% - 98%);
+   position: sticky;
+}
+
+.breadcrumb-link {
+   font-weight: bold !important;
+   color: #6f713e !important;
+   font-size: 14px !important;
+
+}
+
+.breadcrumb-link:hover {
+   color: white !important;
+}
+

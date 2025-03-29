@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Responsive Navbar with Cart</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <style>
+      /* Basic styles for navbar */
+      /* You can add more styles as needed */
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #333;
+        color: #fff;
+        padding: 10px;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+      }
+
+      .nav-links {
+        list-style: none;
+        display: flex;
+      }
+
+      .nav-links li {
+        margin-right: 20px;
+      }
+
+      .nav-links li a {
+        color: #fff;
+        text-decoration: none;
+      }
+
+      /* Styles for the cart pop-up */
+      .cart-popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 20px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        z-index: 1000;
+      }
+    </style>
+
+    <nav class="navbar">
+      <div class="logo">Your Logo</div>
+      <ul class="nav-links">
+        <li><a href="#">Home</a></li>
+        <!-- Add other navigation links -->
+        <li>
+          <a href="#" id="cart-icon">Cart <span class="cart-count">0</span></a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="cart-popup" id="cart-popup">
+      <!-- Pop-up content will be added dynamically via JavaScript -->
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const cartIcon = document.getElementById("cart-icon");
+        const cartPopup = document.getElementById("cart-popup");
+
+        cartIcon.addEventListener("click", function () {
+          // Simulated data of food items in the cart
+          const cartItems = [
+            { name: "Item 1", cost: 10, quantity: 2 },
+            { name: "Item 2", cost: 15, quantity: 1 },
+            // Add more items as needed
+          ];
+
+          // Generate HTML for cart items
+          const cartContent = cartItems
+            .map(
+              (item) => `
+                  <div>
+                  <p>${item.name}</p>
+                  <p>Cost: $${item.cost}</p>
+                  <p>Quantity: ${item.quantity}</p>
+                  </div>
+               `
+            )
+            .join("");
+
+          // Calculate total cost
+          const totalCost = cartItems.reduce(
+            (total, item) => total + item.cost * item.quantity,
+            0
+          );
+
+          // Calculate GST (assuming 18%)
+          const gst = totalCost * 0.18;
+
+          // Generate HTML for total and GST
+          const totalHtml = `
+            <div>
+            <p>Total: $${totalCost}</p>
+            <p>GST (18%): $${gst.toFixed(2)}</p>
+            </div>
+         `;
+
+          // Display cart content in the pop-up
+          cartPopup.innerHTML = `${cartContent}${totalHtml}`;
+
+          // Show the cart pop-up
+          cartPopup.style.display = "block";
+        });
+      });
+    </script>
+  </body>
+</html>
