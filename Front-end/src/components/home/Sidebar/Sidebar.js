@@ -146,7 +146,7 @@ export default function Sidebar() {
           </IconButton>
           <div className="nav-logo">
             <img
-              src="../../../../public/footer-images/logo.png"
+              src="../../../public/footer-images/logo.png"
               alt="kitchen-logo"
               className="fa fa-spin kitchen-logo "
             />
