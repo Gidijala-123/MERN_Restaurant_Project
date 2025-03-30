@@ -19,7 +19,10 @@ function Signup() {
   const navigate = useNavigate();
 
   // Dynamically determine the API URL
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:1234";
+  const API_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:1234"
+      : process.env.REACT_APP_API_URL;
 
   const checkInternetConnection = () => {
     if (!navigator.onLine) {
