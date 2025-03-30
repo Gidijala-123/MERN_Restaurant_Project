@@ -18,6 +18,6 @@ app.use(express.json());
 app.use("/api/signupLoginRouter", require("./routers/signupLoginRouter"));
 
 const products = require("./controllers/products");
-app.get("/products", (req, res) => {
+app.get("api/products", (req, res) => {
   res.send(products);
 });
