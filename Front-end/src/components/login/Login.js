@@ -52,7 +52,7 @@ function SignInForm() {
 
     try {
       const res = await axios.post(
-        `${API_URL}/api/signupLoginRouter/loginUser`,
+        `${API_URL}/api/signupLoginRouter/loginUser`.replace(/\/\//g, "/"),
         {
           uemail,
           upassword,
