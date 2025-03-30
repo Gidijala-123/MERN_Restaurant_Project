@@ -107,7 +107,7 @@ const Drawer = styled(MuiDrawer, {
 
 export default function Sidebar() {
   const theme = useTheme();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false); // Set to false to collapse the sidebar by default
 
   const handleDrawerOpen = () => {
     setOpen(true);

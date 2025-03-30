@@ -28,9 +28,21 @@ app.get("/products", (req, res) => {
   res.send(products);
 });
 
-// Serve static files from the React app
+// Serve static files from the React app with proper MIME types
 const buildPath = path.join(__dirname, "../Front-end/build");
-app.use(express.static(buildPath));
+app.use(
+  express.static(buildPath, {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith(".css")) {
+        res.set("Content-Type", "text/css");
+      }
+      // Add other MIME types if needed
+      if (filePath.endsWith(".js")) {
+        res.set("Content-Type", "application/javascript");
+      }
+    },
+  })
+);
 
 // Catch-all handler to serve React's `index.html` for unknown routes
 app.get("*", (req, res) => {
