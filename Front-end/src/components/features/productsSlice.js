@@ -10,7 +10,9 @@ export const productsFetch = createAsyncThunk(
   "products/productsFetch",
   async (id = null, rejectWithValue) => {
     try {
-      const response = await axios.get("https://localhost:1234/products");
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL || "http://localhost:1234"}/products`
+      );
       //  It'll handle error if data is not found in response.data
       return response?.data;
     } catch (err) {

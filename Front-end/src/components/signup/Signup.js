@@ -18,6 +18,9 @@ function Signup() {
   const [upassword, setUpassword] = useState("");
   const navigate = useNavigate();
 
+  // Dynamically determine the API URL
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:1234";
+
   const toggleSignupLogin = (text) => {
     if (text !== type) {
       setType(text);
@@ -31,54 +34,53 @@ function Signup() {
 
   const signupOnSubmit = async (e) => {
     e.preventDefault();
-    if (upassword.length < 8) {
-      setValidation((prev) => ({
-        ...prev,
-        passwordError: "Password must contain at least 8 characters",
-      }));
-      return;
-    } else {
-      setValidation((prev) => ({
-        ...prev,
-        passwordError: "",
-      }));
-    }
 
+    // Reset validation errors
+    setValidation({
+      nameError: "",
+      passwordError: "",
+      emailError: "",
+      apiError: "",
+      successMessage: "",
+    });
+
+    // Validate name
     if (uname.length < 7) {
       setValidation((prev) => ({
         ...prev,
         nameError: "Name must contain at least 7 characters",
       }));
       return;
-    } else {
-      setValidation((prev) => ({
-        ...prev,
-        nameError: "",
-      }));
     }
 
+    // Validate email
     if (!validateEmail(uemail)) {
       setValidation((prev) => ({
         ...prev,
         emailError: "Invalid email format",
       }));
       return;
-    } else {
+    }
+
+    // Validate password
+    if (upassword.length < 8) {
       setValidation((prev) => ({
         ...prev,
-        emailError: "",
+        passwordError: "Password must contain at least 8 characters",
       }));
+      return;
     }
 
     try {
       const res = await axios.post(
-        "http://localhost:1234/api/signupLoginRouter/registerUser",
+        `${API_URL}/api/signupLoginRouter/registerUser`,
         {
           uname,
           uemail,
           upassword,
         }
       );
+
       if (res.status === 200) {
         setValidation((prev) => ({
           ...prev,
@@ -104,17 +106,11 @@ function Signup() {
         className={`container ${type === "signUp" ? "right-panel-active" : ""}`}
         id="container"
       >
+        {/* Signup Form */}
         <div className="form-container sign-up-container">
           <form className="form-div" onSubmit={signupOnSubmit}>
             <div className="signup-heading">
               <h1 className="heading-h1">SIGNUP</h1>
-              {/* <span className="span-tag">
-                <img
-                  className="heading-img"
-                  src="/edit.png"
-                  alt="signup-heading"
-                />
-              </span> */}
             </div>
             <input
               autoComplete="off"
@@ -156,7 +152,11 @@ function Signup() {
             </button>
           </form>
         </div>
+
+        {/* Login Component */}
         {type === "signIn" && <Login />}
+
+        {/* Overlay Section */}
         <div className="overlay-container">
           <div className="overlay">
             <div className="overlay-panel overlay-left">
