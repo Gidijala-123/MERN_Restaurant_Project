@@ -38,19 +38,19 @@ const Bodycontent = (props) => {
 
   const ourOffers = [
     {
-      image: "../../../../public/footer-images/drinks.jpg",
+      image: "/footer-images/drinks.jpg",
       category: "Fresh Veggies",
       description: "FRESH SUMMER DRINKS WITH JUST",
       cost: "121.00",
     },
     {
-      image: "../../../../public/footer-images/veggies.jpg",
+      image: "/footer-images/veggies.jpg",
       category: "Ice Creams",
       description: "FRESH SUMMER WITH JUST",
       cost: "190.00",
     },
     {
-      image: "../../../../public/footer-images/ice_cream.jpg",
+      image: "/footer-images/ice_cream.jpg",
       category: "Cool Beverages",
       description: "FRESH SUMMER WITH JUST",
       cost: "99.00",
@@ -77,10 +77,7 @@ const Bodycontent = (props) => {
       {isLoading ? (
         <div className="loading-div">
           <video width="640" height="360" autoPlay loop muted>
-            <source
-              src="../../../../public/footer-images/loading.mp4"
-              type="video/mp4"
-            />
+            <source src="/footer-images/loading.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </div>
@@ -171,7 +168,7 @@ const Bodycontent = (props) => {
           <h2 className="heading-title">
             <span>
               <img
-                src={`../../../../public/bodycontent-icons/growth-graph.png`}
+                src={`/bodycontent-icons/growth-graph.png`}
                 alt="Flaticon Icon"
                 width="30"
                 height="25"
@@ -236,7 +233,7 @@ const Bodycontent = (props) => {
                 <div className="col-12 col-md-5">
                   <img
                     className="healthy-img w-100 mb-3 mt-md-3"
-                    src="../../../../public/banner-images/banner0.jpg"
+                    src="/banner-images/banner0.jpg"
                     alt="healty-img"
                   />
                 </div>
@@ -284,7 +281,7 @@ const Bodycontent = (props) => {
                 <div className="col-12 col-md-5 order-md-last">
                   <img
                     className="healthy-img w-100 mb-3 mt-md-3"
-                    src="../../../../public/footer-images/deliverypayment.jpg"
+                    src="/footer-images/deliverypayment.jpg"
                     alt="healthy-img"
                   />
                 </div>
@@ -306,22 +303,22 @@ const Bodycontent = (props) => {
                     <img
                       alt="payment-img"
                       className="payment-icon mt-3"
-                      src="../../../../public/footer-images/paypal.png"
+                      src="/footer-images/paypal.png"
                     />
                     <img
                       alt="payment-img"
                       className="payment-icon mt-3"
-                      src="../../../../public/footer-images/visa.png"
+                      src="/footer-images/visa.png"
                     />
                     <img
                       alt="payment-img"
                       className="payment-icon mt-3"
-                      src="../../../../public/footer-images/americanexpress.png"
+                      src="/footer-images/americanexpress.png"
                     />
                     <img
                       alt="payment-img"
                       className="payment-icon mt-3"
-                      src="../../../../public/footer-images/mastercard.png"
+                      src="/footer-images/mastercard.png"
                     />
                     <button
                       className="payment-btn-md btn bg-warning rounded-pill text-black font-weight-bold ml-3 mt-3 d-none d-md-block"
@@ -696,14 +693,14 @@ const Bodycontent = (props) => {
                   <img
                     alt="thankyou"
                     className="thankyou-img1 w-100"
-                    src="../../../../public/footer-images/gift1.png"
+                    src="/footer-images/gift1.png"
                   />
                 </div>
                 <div className="col-12 col-md-5 order-md-last d-none d-md-block">
                   <img
                     alt="thankyou"
                     className="thankyou-img2"
-                    src="../../../../public/footer-images/gift1.png"
+                    src="/footer-images/gift1.png"
                   />
                 </div>
                 <div className="col-12 col-md-7 m-md-auto">
