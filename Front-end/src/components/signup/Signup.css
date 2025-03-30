@@ -7,7 +7,7 @@
 } */
 
 .signlog-div {
-   background-image: url('../../../../public/sign-up-login/two-min.jpg');
+   background-image: url('../../../public/sign-up-login/two-min.jpg');
    background-repeat: no-repeat;
    background-size: cover;
    background-position: 0 0;
@@ -296,7 +296,8 @@ so that it is smooth among other more minor things */
 }
 
 .overlay {
-   background-image: url('../../../../public/banner-images/banner3.jpg');
+   background-image: url('../../../public/banner-images/banner3.jpg');
+
    /* background: -webkit-linear-gradient(to right, #ff4b2b, #ff416c); */
    /* background: linear-gradient(to right, #ff4b2b, #ff416c); */
    background-repeat: no-repeat;
