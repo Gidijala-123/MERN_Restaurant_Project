@@ -140,7 +140,7 @@ const Cart = () => {
                 </div>
                 <div className="cart-summary-img">
                   <img
-                    src="../../../../public/footer-images/cart.png"
+                    src="/footer-images/cart.png"
                     alt="cart-logo"
                     style={{ width: "2rem" }}
                   />
