@@ -13,9 +13,11 @@ function SignInForm() {
   const [upassword, setUpassword] = useState("");
   const navigate = useNavigate();
 
-  // Dynamically determine the API URL
-  const API_URL =
-    process.env.REACT_APP_API_URL || "https://your-render-url.com";
+  // Dynamically determine the API URL based on environment
+  const API_BASE_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:1234"
+      : process.env.REACT_APP_API_URL;
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -52,7 +54,7 @@ function SignInForm() {
 
     try {
       const res = await axios.post(
-        `${API_URL}/api/signupLoginRouter/loginUser`.replace(/\/\//g, "/"),
+        `${API_BASE_URL}/api/signupLoginRouter/loginUser`.replace(/\/\//g, "/"),
         {
           uemail,
           upassword,
