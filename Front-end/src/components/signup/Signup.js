@@ -21,6 +21,14 @@ function Signup() {
   // Dynamically determine the API URL
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:1234";
 
+  const checkInternetConnection = () => {
+    if (!navigator.onLine) {
+      alert("No internet connection. Please check your network.");
+      return false;
+    }
+    return true;
+  };
+
   const toggleSignupLogin = (text) => {
     if (text !== type) {
       setType(text);
@@ -34,6 +42,10 @@ function Signup() {
 
   const signupOnSubmit = async (e) => {
     e.preventDefault();
+
+    if (!checkInternetConnection()) {
+      return; // Stop execution if there is no internet
+    }
 
     // Reset validation errors
     setValidation({
