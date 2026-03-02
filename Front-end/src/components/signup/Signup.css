@@ -298,9 +298,11 @@
 
 @media (max-width: 768px) {
   .container {
-    min-height: 650px;
-    width: 100%;
-    border-radius: 0;
+    min-height: 450px;
+    width: 95%;
+    border-radius: 20px;
+    flex-direction: column;
+    overflow-y: auto;
   }
 
   .overlay-container {
@@ -308,31 +310,47 @@
   }
 
   .form-container {
+    position: relative;
     width: 100% !important;
-    padding: 0 30px;
+    padding: 30px 20px;
     transform: none !important;
-    background: transparent;
+    background: #fff;
+    opacity: 1 !important;
+    z-index: 5 !important;
+    min-height: auto;
   }
 
   .signlog-div {
-    padding: 0;
+    padding: 10px;
+    background-attachment: scroll;
   }
 
-  .sign-up-container {
-    opacity: 0;
-    pointer-events: none;
+  .sign-up-container,
+  .sign-in-container {
+    position: relative;
+    display: none;
   }
 
   .container.right-panel-active .sign-in-container {
-    opacity: 0;
-    pointer-events: none;
-    transform: none;
+    display: none;
   }
 
   .container.right-panel-active .sign-up-container {
-    opacity: 1;
-    pointer-events: all;
+    display: flex;
     transform: none;
+  }
+
+  /* Show active form on mobile */
+  .container:not(.right-panel-active) .sign-in-container {
+    display: flex;
+  }
+
+  .heading-h1 {
+    font-size: 24px;
+  }
+
+  .description {
+    font-size: 13px;
   }
 }
 

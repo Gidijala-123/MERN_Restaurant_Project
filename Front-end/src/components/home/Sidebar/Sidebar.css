@@ -330,17 +330,50 @@
 
 @media (max-width: 768px) {
    .dashboard-header-fixed {
-      height: 64px !important;
-      gap: 8px !important;
+      height: 60px !important;
+      gap: 6px !important;
+      padding: 0 8px !important;
+   }
+
+   .brand-area {
+      flex: 0 0 140px !important;
+   }
+
+   .website-logo {
+      width: 24px !important;
+      height: 24px !important;
+   }
+
+   .brand-text .title {
+      font-size: 14px !important;
+   }
+
+   .brand-text .subtitle {
+      font-size: 9px !important;
    }
 
    .actions-area {
-      gap: 8px !important;
+      gap: 4px !important;
+      flex: 1 1 auto !important;
    }
 
    .actions-area .user-avatar {
-      width: 32px !important;
-      height: 32px !important;
+      width: 28px !important;
+      height: 28px !important;
+   }
+
+   .MuiIconButton-root {
+      padding: 4px !important;
+   }
+}
+
+@media (max-width: 480px) {
+   .brand-area {
+      flex: 0 0 120px !important;
+   }
+
+   .brand-text .subtitle {
+      display: none !important;
    }
 }
 

@@ -329,16 +329,45 @@ img {
    .trending-items-container {
       margin-top: 10px;
       gap: 15px;
+      padding: 10px 5px 20px 5px !important;
    }
 
    .trending-items-sub-div {
-      flex: 0 0 200px;
-      height: 300px;
+      flex: 0 0 180px !important;
+      min-height: 240px !important;
+      padding: 0.8rem !important;
    }
 
    .trending-items-sub-div>img {
-      height: 120px;
-      margin-top: 0;
+      height: 100px !important;
+      margin-bottom: 5px !important;
+   }
+
+   .trending-items-title {
+      font-size: 13px !important;
+      min-height: 32px !important;
+   }
+
+   .trending-rating,
+   .discount-rating {
+      font-size: 10px !important;
+      gap: 4px !important;
+      margin-bottom: 4px !important;
+   }
+
+   .trending-items-button {
+      padding: 4px 10px !important;
+      font-size: 11px !important;
+   }
+}
+
+@media (max-width: 480px) {
+   .trending-items-sub-div {
+      flex: 0 0 160px !important;
+   }
+
+   .heading-title {
+      font-size: 18px !important;
    }
 }
 
