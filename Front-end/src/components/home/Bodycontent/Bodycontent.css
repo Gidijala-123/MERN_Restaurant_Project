@@ -266,17 +266,6 @@ img {
    /* Push to bottom if space allows */
 }
 
-.trending-items-btn {
-   width: 100%;
-   display: flex;
-   justify-content: space-between;
-   align-items: center;
-   margin-top: 10px;
-   /* Space from description */
-   padding-top: 0;
-   /* Reset padding */
-}
-
 .trending-items-sub-div:hover {
    transform: translateY(-5px);
    box-shadow: var(--shadow-md);
@@ -336,38 +325,6 @@ img {
    font-weight: 400;
 }
 
-.trending-items-decrp-container {
-   font-size: 11px;
-   font-weight: 500;
-   width: 100%;
-   display: flex;
-   justify-content: space-between;
-   padding: 6px 0;
-   border-top: 1px solid var(--border-light);
-   color: var(--text-sub);
-}
-
-.trending-items-btn {
-   width: 100%;
-   display: flex;
-   justify-content: space-between;
-   align-items: center;
-   margin-top: auto;
-   /* Push to bottom */
-   padding-top: 10px;
-}
-
-.trending-items-button {
-   background: var(--primary-gradient);
-   border-radius: 6px;
-   font-weight: 700;
-   color: #fff !important;
-   padding: 5px 12px;
-   font-size: 12px;
-   border: none;
-   transition: all 0.3s ease;
-}
-
 @media (max-width: 768px) {
    .trending-items-container {
       margin-top: 10px;
@@ -385,20 +342,16 @@ img {
    }
 }
 
-color: var(--text-sub);
-}
-
 .trending-items-btn {
-   font-weight: 700;
-   text-align: center;
    width: 100%;
-   margin-top: 15px;
    display: flex;
    justify-content: space-between;
    align-items: center;
+   margin-top: 15px;
    padding: 0;
    border: none;
    color: var(--primary);
+   font-weight: 700;
 }
 
 .trending-items-button {

@@ -134,10 +134,11 @@
    font-weight: 600;
 }
 
-font-size: 14px;
-font-size: 16px;
-font-weight: 800;
-color: var(--text-main);
+.greeting-area .primary {
+   font-size: 14px;
+   font-weight: 800;
+   color: var(--text-main);
+}
 
 .search-area {
    display: flex;
@@ -249,81 +250,87 @@ color: var(--text-main);
    gap: 8px;
 }
 
-display: none;
-}
-}
+/* Cleanup corrupted blocks */
 
-.search-area {
+.search-area-mobile {
    display: none;
 }
 
-.dashboard-header {
+.dashboard-header-mobile {
    grid-template-columns: minmax(160px, 1fr) minmax(160px, 1fr);
 }
 
 .brand-text .title {
+   font-weight: 800;
+   color: #ff6a00;
+   font-size: 18px;
+}
 
-   .profile-card {
-      border: 1px solid var(--border-light);
-      border-radius: 20px;
-      box-shadow: var(--shadow-md);
-      background: var(--white);
+.profile-card {
+   border: 1px solid var(--border-light);
+   border-radius: 20px;
+   box-shadow: var(--shadow-md);
+   background: var(--white);
+}
+
+.profile-avatar {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   width: 56px;
+   height: 56px;
+   border: 2px solid var(--primary);
+   color: var(--primary);
+   background: var(--white);
+   font-weight: 800;
+   border-radius: 50%;
+}
+
+.profile-card-header {
+   border-bottom: 1px solid var(--border-light);
+   background: var(--bg-light);
+}
+
+/* Fix corrupted navbar rules by enforcing final layout overrides */
+.dashboard-header-fixed {
+   display: flex !important;
+   flex-wrap: nowrap !important;
+   align-items: center !important;
+   gap: 12px !important;
+   height: 72px !important;
+   padding: 0 16px !important;
+   overflow: hidden !important;
+}
+
+@media (max-width: 992px) {
+   .greeting-area {
+      display: none !important;
    }
 
-   .profile-card-header {
-      border-bottom: 1px solid var(--border-light);
-      background: var(--bg-light);
+   .search-main-div {
+      width: 100% !important;
+      margin: 10px 0 !important;
+   }
+}
+
+@media (max-width: 768px) {
+   .dashboard-header-fixed {
+      height: 64px !important;
+      gap: 8px !important;
    }
 
-   .profile-avatar {
-      width: 56px;
-      height: 56px;
-      border: 2px solid var(--primary);
-      color: var(--primary);
-      background: var(--white);
-      font-weight: 800;
+   .actions-area {
+      gap: 8px !important;
    }
 
-   /* Fix corrupted navbar rules by enforcing final layout overrides */
-   .dashboard-header {
-      display: flex !important;
-      flex-wrap: nowrap !important;
-      align-items: center !important;
-      gap: 12px !important;
-      height: 72px !important;
-      padding: 0 16px !important;
-      overflow: hidden !important;
+   .actions-area .user-avatar {
+      width: 32px !important;
+      height: 32px !important;
    }
+}
 
-   @media (max-width: 992px) {
-      .greeting-area {
-         display: none !important;
-      }
-
-      .search-main-div {
-         width: 100% !important;
-         margin: 10px 0 !important;
-      }
+@media (max-width: 576px) {
+   .search-area-mobile {
+      display: none !important;
    }
-
-   @media (max-width: 768px) {
-      .dashboard-header {
-         height: 64px !important;
-         gap: 8px !important;
-      }
-
-      .actions-area {
-         gap: 8px !important;
-      }
-
-      .actions-area .user-avatar {
-         width: 32px !important;
-         height: 32px !important;
-      }
-   }
-
-   @media (max-width: 576px) {
-      .search-area {
-         display: none !important;
-      }
-   }
+}
