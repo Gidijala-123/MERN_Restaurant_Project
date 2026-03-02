@@ -25,7 +25,7 @@ dbConnection();
  */
 app.use(
   cors({
-    origin: "https://mern-restaurant-project-1-n4oh.onrender.com",
+    origin: "https://gbr-kitchen.onrender.com",
     credentials: true,
   })
 ); // Enable Cross-Origin Resource Sharing
