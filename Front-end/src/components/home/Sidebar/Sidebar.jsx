@@ -8,7 +8,6 @@ import {
   Toolbar,
   List,
   CssBaseline,
-  Divider,
   IconButton,
   ListItem,
   ListItemButton,
@@ -70,16 +69,16 @@ import { useTheme as useAppTheme } from "../../../context/ThemeContext";
 
 // carttttt
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import SearchBar from "../Bodycontent/SEARCH_COMPONENT/SearchBar";
+import { addToCart } from "../../features/cartSlice";
+import { useGetAllProductsQuery } from "../../features/productsApi";
 
 const drawerWidth = 240;
 
 const Sidebar_Items = [
   { text: "Hot Offers", icon: <HomeIcon /> },
   { text: "Orders", icon: <OrdersIcon /> },
-  { text: "Favorites", icon: <FavoritesIcon /> },
-  { text: "Bookmarks", icon: <FavoritesIcon /> }, // Added Bookmarks item
   { text: "Settings", icon: <SettingsIcon /> },
   { text: "Logout", icon: <LogoutIcon />, action: "logout" },
 ];
@@ -268,10 +267,93 @@ export default function Sidebar() {
   };
 
   // cartttttt
+  const dispatch = useDispatch();
   const { cartItems } = useSelector((state) => state.cart);
   const quantity = cartItems.reduce((total, cartItem) => {
     return total + cartItem.cartQuantity;
   }, 0);
+  const [showFavoritesModal, setShowFavoritesModal] = useState(false);
+  const { data } = useGetAllProductsQuery();
+
+  const computeFavorites = () => {
+    const trendingBookmarked = JSON.parse(
+      localStorage.getItem("trendingBookmarked") || "{}"
+    );
+    const discountBookmarked = JSON.parse(
+      localStorage.getItem("discountBookmarked") || "{}"
+    );
+    const favorites = [];
+    // Trending from API data
+    data?.forEach((product) => {
+      if (trendingBookmarked[product.id]) {
+        favorites.push({ ...product, section: "trending" });
+      }
+    });
+    // Discount static items
+    const discountItems = [
+      {
+        id: 101,
+        title: "Cheesy Pepperoni Pizza",
+        oldPrice: 499,
+        newPrice: 299,
+        discount: "40% OFF",
+        img: "/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg",
+        desc: "Extra cheese & crispy crust",
+        rating: 4.8,
+        reviews: 120,
+      },
+      {
+        id: 102,
+        title: "Crispy Chicken Burger",
+        oldPrice: 250,
+        newPrice: 149,
+        discount: "40% OFF",
+        img: "/footer-images/burger.png",
+        desc: "Spicy mayo & fresh lettuce",
+        rating: 4.5,
+        reviews: 85,
+      },
+      {
+        id: 103,
+        title: "Garden Fresh Salad",
+        oldPrice: 180,
+        newPrice: 99,
+        discount: "45% OFF",
+        img: "/footer-images/salads.jpg",
+        desc: "Organic veggies & olive oil",
+        rating: 4.7,
+        reviews: 60,
+      },
+      {
+        id: 104,
+        title: "Choco Lava Cake",
+        oldPrice: 150,
+        newPrice: 75,
+        discount: "50% OFF",
+        img: "/footer-images/desserts.jpg",
+        desc: "Melting hot chocolate center",
+        rating: 4.9,
+        reviews: 210,
+      },
+      {
+        id: 105,
+        title: "Fresh Fruit Mojito",
+        oldPrice: 120,
+        newPrice: 59,
+        discount: "50% OFF",
+        img: "/footer-images/cooldrinks.png",
+        desc: "Refreshing mint & lime",
+        rating: 4.6,
+        reviews: 45,
+      },
+    ];
+    discountItems.forEach((item) => {
+      if (discountBookmarked[item.id]) {
+        favorites.push({ ...item, price: item.newPrice, section: "discount" });
+      }
+    });
+    return favorites;
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -372,6 +454,12 @@ export default function Sidebar() {
                 {appTheme === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
               </IconButton>
               <IconButton
+                color="inherit"
+                onClick={() => setShowFavoritesModal(true)}
+              >
+                <FavoritesIcon />
+              </IconButton>
+              <IconButton
                 size="large"
                 color="inherit"
                 component={Link}
@@ -430,13 +518,16 @@ export default function Sidebar() {
             )}
           </IconButton>
         </DrawerHeader>
-        <Divider />
         <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
           <List>
             {Sidebar_Items.filter(
               (i) => i.text !== "Settings" && i.text !== "Logout"
             ).map((item) => (
-              <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
+              <ListItem
+                key={item.text}
+                disablePadding
+                sx={{ display: "block" }}
+              >
                 <ListItemButton
                   selected={activeSidebarItem === item.text}
                   onClick={() => {
@@ -474,13 +565,19 @@ export default function Sidebar() {
                   >
                     {item.icon}
                   </ListItemIcon>
-                  <ListItemText primary={item.text} sx={{ opacity: open ? 1 : 0 }} />
+                  <ListItemText
+                    primary={item.text}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
                 </ListItemButton>
               </ListItem>
             ))}
-            <Divider />
             {Category_Items.map((item) => (
-              <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
+              <ListItem
+                key={item.text}
+                disablePadding
+                sx={{ display: "block" }}
+              >
                 <ListItemButton
                   selected={activeSidebarItem === item.text}
                   onClick={() => {
@@ -518,66 +615,72 @@ export default function Sidebar() {
                   >
                     {item.icon}
                   </ListItemIcon>
-                  <ListItemText primary={item.text} sx={{ opacity: open ? 1 : 0 }} />
+                  <ListItemText
+                    primary={item.text}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
                 </ListItemButton>
               </ListItem>
             ))}
           </List>
           <Box sx={{ flexGrow: 1 }} />
-          <Divider />
           <List>
-            {Sidebar_Items.filter((i) => i.text === "Settings" || i.text === "Logout").map(
-              (item) => (
-                <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
-                  <ListItemButton
-                    selected={activeSidebarItem === item.text}
-                    onClick={() => {
-                      if (item.action === "logout") {
-                        handleLogout();
-                      } else {
-                        const targetSection = sectionMap[item.text] || "Home";
-                        handleSectionChange(targetSection, item.text);
-                      }
-                    }}
-                    sx={{
-                      minHeight: 48,
-                      justifyContent: open ? "initial" : "center",
-                      px: 2.5,
-                      "&.Mui-selected": {
-                        background: "var(--primary-gradient)",
+            {Sidebar_Items.filter(
+              (i) => i.text === "Settings" || i.text === "Logout"
+            ).map((item) => (
+              <ListItem
+                key={item.text}
+                disablePadding
+                sx={{ display: "block" }}
+              >
+                <ListItemButton
+                  selected={activeSidebarItem === item.text}
+                  onClick={() => {
+                    if (item.action === "logout") {
+                      handleLogout();
+                    } else {
+                      const targetSection = sectionMap[item.text] || "Home";
+                      handleSectionChange(targetSection, item.text);
+                    }
+                  }}
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    "&.Mui-selected": {
+                      background: "var(--primary-gradient)",
+                      color: "white",
+                      "& .MuiListItemIcon-root": {
                         color: "white",
-                        "& .MuiListItemIcon-root": {
-                          color: "white",
-                        },
-                        "&:hover": {
-                          background: "var(--primary-gradient)",
-                          opacity: 0.9,
-                        },
+                      },
+                      "&:hover": {
+                        background: "var(--primary-gradient)",
+                        opacity: 0.9,
+                      },
+                    },
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                      color:
+                        activeSidebarItem === item.text ? "white" : "inherit",
+                      "& .MuiSvgIcon-root": {
+                        fontSize: 24,
                       },
                     }}
                   >
-                    <ListItemIcon
-                      sx={{
-                        minWidth: 0,
-                        mr: open ? 3 : "auto",
-                        justifyContent: "center",
-                        color:
-                          activeSidebarItem === item.text ? "white" : "inherit",
-                        "& .MuiSvgIcon-root": {
-                          fontSize: 24,
-                        },
-                      }}
-                    >
-                      {item.icon}
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={item.text}
-                      sx={{ opacity: open ? 1 : 0 }}
-                    />
-                  </ListItemButton>
-                </ListItem>
-              )
-            )}
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={item.text}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            ))}
           </List>
         </Box>
       </Drawer>
@@ -791,6 +894,74 @@ export default function Sidebar() {
           >
             Save Changes
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Favorites Popup */}
+      <Dialog
+        open={showFavoritesModal}
+        onClose={() => setShowFavoritesModal(false)}
+        fullWidth
+        maxWidth="lg"
+      >
+        <DialogTitle
+          sx={{
+            fontWeight: 800,
+            color: "var(--primary)",
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          <FavoritesIcon fontSize="small" />
+          My Favorites
+        </DialogTitle>
+        <DialogContent dividers sx={{ p: 2 }}>
+          <Box className="favorites-grid">
+            {computeFavorites().length > 0 ? (
+              computeFavorites().map((item) => (
+                <div className="trending-items-sub-div" key={item.id}>
+                  <img src={item.img} alt={item.title} />
+                  <p className="trending-items-title">{item.title}</p>
+                  <div className="trending-card-details-wrapper">
+                    <div className="trending-rating">
+                      <span>⭐ {item.rating}</span>
+                      <span className="reviews-text">
+                        ({item.reviews} reviews)
+                      </span>
+                    </div>
+                    <div className="trending-items-btn">
+                      <b>₹{item.price}</b>
+                      <button
+                        onClick={() => dispatch(addToCart(item))}
+                        className="trending-items-button"
+                      >
+                        + ADD
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <Box sx={{ width: "100%", textAlign: "center", py: 4 }}>
+                <i
+                  className="far fa-heart"
+                  style={{
+                    fontSize: "48px",
+                    color: "var(--text-sub)",
+                    marginBottom: "20px",
+                  }}
+                />
+                <Typography>No favorites yet!</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Items you like will appear here.
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowFavoritesModal(false)}>Close</Button>
         </DialogActions>
       </Dialog>
     </Box>

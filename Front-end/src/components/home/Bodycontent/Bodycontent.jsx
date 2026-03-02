@@ -32,18 +32,112 @@ const Bodycontent = (props) => {
   const [trendingBookmarked, setTrendingBookmarked] = useState({});
   const [showFilter, setShowFilter] = useState(false);
 
+  // Load bookmarks from localStorage on mount
+  React.useEffect(() => {
+    const savedDiscount = JSON.parse(
+      localStorage.getItem("discountBookmarked") || "{}"
+    );
+    const savedTrending = JSON.parse(
+      localStorage.getItem("trendingBookmarked") || "{}"
+    );
+    setDiscountBookmarked(savedDiscount);
+    setTrendingBookmarked(savedTrending);
+  }, []);
+
   const handleBookmarkToggle = (itemId, section) => {
     if (section === "discount") {
-      setDiscountBookmarked((prev) => ({
-        ...prev,
-        [itemId]: !prev[itemId],
-      }));
+      const updated = {
+        ...discountBookmarked,
+        [itemId]: !discountBookmarked[itemId],
+      };
+      setDiscountBookmarked(updated);
+      localStorage.setItem("discountBookmarked", JSON.stringify(updated));
     } else if (section === "trending") {
-      setTrendingBookmarked((prev) => ({
-        ...prev,
-        [itemId]: !prev[itemId],
-      }));
+      const updated = {
+        ...trendingBookmarked,
+        [itemId]: !trendingBookmarked[itemId],
+      };
+      setTrendingBookmarked(updated);
+      localStorage.setItem("trendingBookmarked", JSON.stringify(updated));
     }
+  };
+
+  const getFavorites = () => {
+    const favorites = [];
+
+    // Check trending items (from API data)
+    data?.forEach((product) => {
+      if (trendingBookmarked[product.id]) {
+        favorites.push({ ...product, section: "trending" });
+      }
+    });
+
+    // Check discount items
+    const discountItems = [
+      {
+        id: 101,
+        title: "Cheesy Pepperoni Pizza",
+        oldPrice: 499,
+        newPrice: 299,
+        discount: "40% OFF",
+        img: "/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg",
+        desc: "Extra cheese & crispy crust",
+        rating: 4.8,
+        reviews: 120,
+      },
+      {
+        id: 102,
+        title: "Crispy Chicken Burger",
+        oldPrice: 250,
+        newPrice: 149,
+        discount: "40% OFF",
+        img: "/footer-images/burger.png",
+        desc: "Spicy mayo & fresh lettuce",
+        rating: 4.5,
+        reviews: 85,
+      },
+      {
+        id: 103,
+        title: "Garden Fresh Salad",
+        oldPrice: 180,
+        newPrice: 99,
+        discount: "45% OFF",
+        img: "/footer-images/salads.jpg",
+        desc: "Organic veggies & olive oil",
+        rating: 4.7,
+        reviews: 60,
+      },
+      {
+        id: 104,
+        title: "Choco Lava Cake",
+        oldPrice: 150,
+        newPrice: 75,
+        discount: "50% OFF",
+        img: "/footer-images/desserts.jpg",
+        desc: "Melting hot chocolate center",
+        rating: 4.9,
+        reviews: 210,
+      },
+      {
+        id: 105,
+        title: "Fresh Fruit Mojito",
+        oldPrice: 120,
+        newPrice: 59,
+        discount: "50% OFF",
+        img: "/footer-images/cooldrinks.png",
+        desc: "Refreshing mint & lime",
+        rating: 4.6,
+        reviews: 45,
+      },
+    ];
+
+    discountItems.forEach((item) => {
+      if (discountBookmarked[item.id]) {
+        favorites.push({ ...item, price: item.newPrice, section: "discount" });
+      }
+    });
+
+    return favorites;
   };
 
   // Sync with props.currentSection
@@ -275,9 +369,15 @@ const Bodycontent = (props) => {
                     ].map((item, index) => (
                       <div className="discount-item" key={`${i}-${index}`}>
                         <i
-                          className={`bookmark-icon ${
+                          className={`${
                             discountBookmarked[item.id] ? "fas" : "far"
-                          }`}
+                          } fa-heart bookmark-icon`}
+                          title={
+                            discountBookmarked[item.id]
+                              ? "Remove from favorites"
+                              : "Add to favorites"
+                          }
+                          aria-label="favorite-toggle"
                           onClick={() =>
                             handleBookmarkToggle(item.id, "discount")
                           }
@@ -321,9 +421,15 @@ const Bodycontent = (props) => {
               return (
                 <div className="trending-items-sub-div" key={product.id}>
                   <i
-                    className={`bookmark-icon ${
+                    className={`${
                       trendingBookmarked[product.id] ? "fas" : "far"
-                    }`}
+                    } fa-heart bookmark-icon`}
+                    title={
+                      trendingBookmarked[product.id]
+                        ? "Remove from favorites"
+                        : "Add to favorites"
+                    }
+                    aria-label="favorite-toggle"
                     onClick={() => handleBookmarkToggle(product.id, "trending")}
                   ></i>
                   <img src={product.img} alt="trending-items-img " />

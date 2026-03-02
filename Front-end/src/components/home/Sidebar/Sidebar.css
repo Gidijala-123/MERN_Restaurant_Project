@@ -120,6 +120,60 @@
    color: var(--text-sub);
 }
 
+/* Favorites popup compact grid */
+.favorites-grid {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+   gap: 12px;
+   align-items: start;
+}
+
+@media (min-width: 1280px) {
+   .favorites-grid {
+      grid-template-columns: repeat(10, 1fr);
+   }
+}
+
+.favorites-grid .trending-items-sub-div {
+   flex: none;
+   width: auto;
+   min-height: auto;
+   padding: 10px;
+   border-radius: 12px;
+}
+
+.favorites-grid .trending-items-sub-div>img {
+   height: 90px;
+   width: 100%;
+   object-fit: cover;
+   border-radius: 8px;
+}
+
+.favorites-grid .trending-items-title {
+   font-size: 12px;
+   font-weight: 700;
+   margin-top: 6px;
+   text-align: center;
+}
+
+.favorites-grid .trending-card-details-wrapper {
+   padding-top: 6px;
+}
+
+.favorites-grid .trending-rating span {
+   font-size: 11px;
+}
+
+.favorites-grid .trending-items-btn b {
+   font-size: 12px;
+}
+
+.favorites-grid .trending-items-button {
+   padding: 6px 10px;
+   font-size: 11px;
+   border-radius: 8px;
+}
+
 .greeting-area {
    display: flex;
    flex-direction: column;

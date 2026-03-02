@@ -403,11 +403,16 @@ img {
    color: var(--text-sub);
    cursor: pointer;
    z-index: 3;
-   transition: color 0.2s ease;
+   transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .bookmark-icon.fas {
    color: var(--primary);
+   transform: scale(1.05);
+}
+
+.bookmark-icon:hover {
+   transform: scale(1.15);
 }
 
 .main-action-btn {
