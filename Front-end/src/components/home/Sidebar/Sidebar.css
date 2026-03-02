@@ -212,6 +212,21 @@
    color: var(--text-main) !important;
 }
 
+[data-theme='dark'] .website-logo,
+[data-theme='dark'] .website-logo-mini {
+   filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
+}
+
+[data-theme='dark'] .user-avatar {
+   border-color: var(--primary);
+   box-shadow: 0 0 15px rgba(255, 109, 0, 0.3);
+}
+
+[data-theme='dark'] .MuiAppBar-root {
+   background-color: var(--nav-bg) !important;
+   border-bottom: 1px solid var(--border-light) !important;
+}
+
 /* Custom Search Bar Alignment in Sidebar */
 .search-main-div {
    margin: 0 20px;

@@ -30,6 +30,24 @@
   --nav-bg: #1e1e1e;
 }
 
+[data-theme='dark'] img:not(.website-logo):not(.website-logo-mini) {
+  filter: brightness(0.8) contrast(1.1);
+  border: 1px solid var(--border-light);
+}
+
+[data-theme='dark'] .MuiPaper-root {
+  background-color: var(--white) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme='dark'] .MuiTypography-root {
+  color: var(--text-main) !important;
+}
+
+[data-theme='dark'] .MuiIconButton-root {
+  color: var(--text-main) !important;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

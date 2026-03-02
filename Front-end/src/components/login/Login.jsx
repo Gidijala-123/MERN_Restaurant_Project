@@ -3,13 +3,16 @@ import { useNavigate } from "react-router-dom";
 import "../signup/Signup.css";
 import axios from "axios";
 import { loginSchema } from "../../validations/schemas";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
-function SignInForm() {
+function SignInForm({ toggleMobile }) {
   const [validationErrors, setValidationErrors] = useState({});
   const [apiError, setApiError] = useState("");
 
   const [uemail, setUemail] = useState("");
   const [upassword, setUpassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:1111";
@@ -53,38 +56,57 @@ function SignInForm() {
   };
 
   return (
-    <div className="form-container sign-in-container">
-      <form className="form-div" onSubmit={loginOnSubmit}>
-        <div className="login-heading">
-          <h1 className="heading-h1">LOGIN</h1>
-        </div>
+    <form className="form-div" onSubmit={loginOnSubmit}>
+      <div className="login-heading">
+        <h1 className="heading-h1">Welcome Back</h1>
+        <p className="description">
+          Enter your credentials to access your account
+        </p>
+      </div>
+      <div className="input-group">
         <input
           className="text-input"
           type="email"
           value={uemail}
           onChange={(e) => setUemail(e.target.value)}
           placeholder="Email Address"
+          required
         />
         <span className="span-tag error-text">{validationErrors.uemail}</span>
+      </div>
 
-        <input
-          className="text-input"
-          type="password"
-          value={upassword}
-          onChange={(e) => setUpassword(e.target.value)}
-          placeholder="Password"
-        />
+      <div className="input-group">
+        <div className="password-wrapper">
+          <input
+            className="text-input"
+            type={showPassword ? "text" : "password"}
+            value={upassword}
+            onChange={(e) => setUpassword(e.target.value)}
+            placeholder="Password"
+            required
+          />
+          <span
+            className="password-toggle"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? <VisibilityOff /> : <Visibility />}
+          </span>
+        </div>
         <span className="span-tag error-text">
           {validationErrors.upassword}
         </span>
+      </div>
 
-        <span className="span-tag error-text">{apiError}</span>
+      <span className="span-tag error-text">{apiError}</span>
 
-        <button className="codepen-button">
-          <span className="btn-span">Login</span>
-        </button>
-      </form>
-    </div>
+      <button className="codepen-button" type="submit">
+        Login
+      </button>
+
+      <div className="mobile-toggle">
+        Don't have an account? <span onClick={toggleMobile}>Sign Up</span>
+      </div>
+    </form>
   );
 }
 

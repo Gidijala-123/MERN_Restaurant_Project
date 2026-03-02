@@ -1,7 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Signup from "./components/signup/Signup";
-import Login from "./components/login/Login";
 import "./App.css";
 import Sidebar from "./components/home/Sidebar/Sidebar";
 import VideoComponent from "./components/home/Del/Del";
@@ -25,10 +24,8 @@ function App() {
         {/* ToastContainer displays alert messages across the application */}
         <ToastContainer />
         <Routes>
-          {/* Default route points to Signup page */}
+          {/* Default route points to combined Signup/Login page */}
           <Route path="/" element={<Signup> </Signup>}></Route>
-          {/* User Login route */}
-          <Route path="/login" element={<Login> </Login>}></Route>
           {/* Main Home/Dashboard route with Sidebar */}
           <Route path="/home" element={<Sidebar> </Sidebar>}></Route>
           {/* Temporary/Development route for video testing */}

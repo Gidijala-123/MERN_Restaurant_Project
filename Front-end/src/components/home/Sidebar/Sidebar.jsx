@@ -212,7 +212,7 @@ export default function Sidebar() {
     setTimeout(() => {
       localStorage.removeItem("token");
       localStorage.removeItem("userName");
-      window.location.href = "/login";
+      window.location.href = "/";
     }, 3000);
   };
 
@@ -368,13 +368,8 @@ export default function Sidebar() {
                 whiteSpace: "nowrap",
               }}
             >
-              <IconButton color="inherit">
-                <Badge variant="dot" color="warning" overlap="circular">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
-              <IconButton color="inherit">
-                <SettingsIcon />
+              <IconButton color="inherit" onClick={toggleTheme}>
+                {appTheme === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
               </IconButton>
               <IconButton
                 size="large"
