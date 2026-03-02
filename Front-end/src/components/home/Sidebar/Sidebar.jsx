@@ -65,7 +65,7 @@ import "./Sidebar.css";
 import React, { useState, useEffect } from "react";
 import { Sidebar_Content } from "../../../APIs/Sidebar";
 import Bodycontent from "../Bodycontent/Bodycontent";
-import LocalMallIcon from "@mui/icons-material/LocalMall";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useTheme as useAppTheme } from "../../../context/ThemeContext";
 
 // carttttt
@@ -384,7 +384,7 @@ export default function Sidebar() {
                 sx={{ p: { xs: 1, sm: 1.5 } }}
               >
                 <Badge badgeContent={quantity} color="error">
-                  <LocalMallIcon fontSize="small" />
+                  <ShoppingCartIcon fontSize="small" />
                 </Badge>
               </IconButton>
               <img
@@ -436,107 +436,155 @@ export default function Sidebar() {
           </IconButton>
         </DrawerHeader>
         <Divider />
-        <List>
-          {Sidebar_Items.map((item) => (
-            <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
-              <ListItemButton
-                selected={activeSidebarItem === item.text}
-                onClick={() => {
-                  if (item.action === "logout") {
-                    handleLogout();
-                  } else {
+        <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+          <List>
+            {Sidebar_Items.filter(
+              (i) => i.text !== "Settings" && i.text !== "Logout"
+            ).map((item) => (
+              <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
+                <ListItemButton
+                  selected={activeSidebarItem === item.text}
+                  onClick={() => {
                     const targetSection = sectionMap[item.text] || "Home";
                     handleSectionChange(targetSection, item.text);
-                  }
-                }}
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? "initial" : "center",
-                  px: 2.5,
-                  "&.Mui-selected": {
-                    background: "var(--primary-gradient)",
-                    color: "white",
-                    "& .MuiListItemIcon-root": {
-                      color: "white",
-                    },
-                    "&:hover": {
-                      background: "var(--primary-gradient)",
-                      opacity: 0.9,
-                    },
-                  },
-                }}
-              >
-                <ListItemIcon
+                  }}
                   sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : "auto",
-                    justifyContent: "center",
-                    color:
-                      activeSidebarItem === item.text ? "white" : "inherit",
-                    "& .MuiSvgIcon-root": {
-                      fontSize: 24,
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    "&.Mui-selected": {
+                      background: "var(--primary-gradient)",
+                      color: "white",
+                      "& .MuiListItemIcon-root": {
+                        color: "white",
+                      },
+                      "&:hover": {
+                        background: "var(--primary-gradient)",
+                        opacity: 0.9,
+                      },
                     },
                   }}
                 >
-                  {item.icon}
-                </ListItemIcon>
-
-                <ListItemText
-                  primary={item.text}
-                  sx={{ opacity: open ? 1 : 0 }}
-                />
-              </ListItemButton>
-            </ListItem>
-          ))}
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                      color:
+                        activeSidebarItem === item.text ? "white" : "inherit",
+                      "& .MuiSvgIcon-root": {
+                        fontSize: 24,
+                      },
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={item.text} sx={{ opacity: open ? 1 : 0 }} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+            <Divider />
+            {Category_Items.map((item) => (
+              <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
+                <ListItemButton
+                  selected={activeSidebarItem === item.text}
+                  onClick={() => {
+                    const targetSection = sectionMap[item.text] || "Home";
+                    handleSectionChange(targetSection, item.text);
+                  }}
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    "&.Mui-selected": {
+                      background: "var(--primary-gradient)",
+                      color: "white",
+                      "& .MuiListItemIcon-root": {
+                        color: "white",
+                      },
+                      "&:hover": {
+                        background: "var(--primary-gradient)",
+                        opacity: 0.9,
+                      },
+                    },
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                      color:
+                        activeSidebarItem === item.text ? "white" : "inherit",
+                      "& .MuiSvgIcon-root": {
+                        fontSize: 24,
+                      },
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={item.text} sx={{ opacity: open ? 1 : 0 }} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+          <Box sx={{ flexGrow: 1 }} />
           <Divider />
-          {Category_Items.map((item) => (
-            <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
-              <ListItemButton
-                selected={activeSidebarItem === item.text}
-                onClick={() => {
-                  const targetSection = sectionMap[item.text] || "Home";
-                  handleSectionChange(targetSection, item.text);
-                }}
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? "initial" : "center",
-                  px: 2.5,
-                  "&.Mui-selected": {
-                    background: "var(--primary-gradient)",
-                    color: "white",
-                    "& .MuiListItemIcon-root": {
-                      color: "white",
-                    },
-                    "&:hover": {
-                      background: "var(--primary-gradient)",
-                      opacity: 0.9,
-                    },
-                  },
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : "auto",
-                    justifyContent: "center",
-                    color:
-                      activeSidebarItem === item.text ? "white" : "inherit",
-                    "& .MuiSvgIcon-root": {
-                      fontSize: 24,
-                    },
-                  }}
-                >
-                  {item.icon}
-                </ListItemIcon>
-
-                <ListItemText
-                  primary={item.text}
-                  sx={{ opacity: open ? 1 : 0 }}
-                />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+          <List>
+            {Sidebar_Items.filter((i) => i.text === "Settings" || i.text === "Logout").map(
+              (item) => (
+                <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
+                  <ListItemButton
+                    selected={activeSidebarItem === item.text}
+                    onClick={() => {
+                      if (item.action === "logout") {
+                        handleLogout();
+                      } else {
+                        const targetSection = sectionMap[item.text] || "Home";
+                        handleSectionChange(targetSection, item.text);
+                      }
+                    }}
+                    sx={{
+                      minHeight: 48,
+                      justifyContent: open ? "initial" : "center",
+                      px: 2.5,
+                      "&.Mui-selected": {
+                        background: "var(--primary-gradient)",
+                        color: "white",
+                        "& .MuiListItemIcon-root": {
+                          color: "white",
+                        },
+                        "&:hover": {
+                          background: "var(--primary-gradient)",
+                          opacity: 0.9,
+                        },
+                      },
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : "auto",
+                        justifyContent: "center",
+                        color:
+                          activeSidebarItem === item.text ? "white" : "inherit",
+                        "& .MuiSvgIcon-root": {
+                          fontSize: 24,
+                        },
+                      }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.text}
+                      sx={{ opacity: open ? 1 : 0 }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              )
+            )}
+          </List>
+        </Box>
       </Drawer>
       <Box
         component="main"
