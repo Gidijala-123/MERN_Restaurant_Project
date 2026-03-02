@@ -163,26 +163,60 @@ const Bodycontent = (props) => {
     }
   };
 
-  const ourOffers = [
-    {
-      image: "/footer-images/drinks.jpg",
-      category: "Fresh Veggies",
-      description: "FRESH SUMMER DRINKS WITH JUST",
-      cost: "121.00",
-    },
-    {
-      image: "/footer-images/veggies.jpg",
-      category: "Ice Creams",
-      description: "FRESH SUMMER WITH JUST",
-      cost: "190.00",
-    },
-    {
-      image: "/footer-images/ice_cream.jpg",
-      category: "Cool Beverages",
-      description: "FRESH SUMMER WITH JUST",
-      cost: "99.00",
-    },
+  const CATEGORY_LIST = [
+    "Fruits",
+    "Vegetables",
+    "Drinks",
+    "Bakery",
+    "Buffer & Eggs",
+    "Milk & Creams",
+    "Meats",
+    "Fish",
   ];
+
+  const CATEGORY_ITEMS = Object.fromEntries(
+    CATEGORY_LIST.map((cat) => [cat, []])
+  );
+
+  const TOTAL_ITEMS = 36;
+  const IMAGE_KEYWORDS = {
+    Fruits: "fresh-fruit,fruits,apple,banana,citrus",
+    Vegetables: "vegetables,greens,broccoli,carrot,lettuce",
+    Drinks: "drinks,juice,smoothie,mojito",
+    Bakery: "bakery,bread,croissant,cake,pastry",
+    "Buffer & Eggs": "eggs,breakfast",
+    "Milk & Creams": "milk,ice-cream,cream,dairy",
+    Meats: "meat,steak,chicken,bbq",
+    Fish: "fish,seafood,salmon,sushi",
+  };
+  const IMAGE_FALLBACK = {
+    Fruits: "/footer-images/veggies.jpg",
+    Vegetables: "/footer-images/veggies.jpg",
+    Drinks: "/footer-images/drinks.jpg",
+    Bakery: "/footer-images/desserts.jpg",
+    "Buffer & Eggs": "/footer-images/burger.png",
+    "Milk & Creams": "/footer-images/ice_cream.jpg",
+    Meats: "/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg",
+    Fish: "/footer-images/desserts.jpg",
+  };
+  const PRODUCTS = Array.from({ length: TOTAL_ITEMS }, (_, i) => {
+    const cat = CATEGORY_LIST[i % CATEGORY_LIST.length];
+    const base = cat.toLowerCase().replace(/[^\w]+/g, "-");
+    const item = {
+      id: `${base}-${i + 1}`,
+      name: `${cat} Item ${i + 1}`,
+      price: 60 + ((i * 17) % 240),
+      rating: (4 + (i % 6) * 0.1).toFixed(1),
+      calories: 150 + i * 15,
+      image: `https://source.unsplash.com/600x400/?${encodeURIComponent(
+        IMAGE_KEYWORDS[cat]
+      )}&sig=${i}`,
+      imageFallback: IMAGE_FALLBACK[cat],
+      category: cat,
+    };
+    CATEGORY_ITEMS[cat].push(item);
+    return item;
+  });
 
   //  carttttt
   const { data, err, isLoading } = useGetAllProductsQuery();
@@ -215,56 +249,167 @@ const Bodycontent = (props) => {
         <p>An error occured..!</p>
       ) : (
         <>
-          {/* Banner Carousel */}
-          <div className="banner-carousel-wrapper">
-            <div className="filter-trigger-container">
-              <button
-                className="filter-trigger-btn"
-                onClick={() => setShowFilter(true)}
-              >
-                <i className="fas fa-filter"></i>
-                <span>Filter</span>
-              </button>
-            </div>
-            {Object.entries(navTocomponents)?.map(
-              ([key, value]) =>
-                value &&
-                (key === "Home" ? (
-                  <div
-                    key={key}
-                    className="bannerCarousel-div"
-                    style={{
-                      width: "100%",
-                      maxWidth: "100%",
-                      overflow: "hidden",
-                      boxSizing: "border-box",
-                    }}
-                  >
-                    <div style={containerStyles}>
-                      <BannerCarousel sideopen={props.open} />
+          {(() => {
+            const allowed = [
+              "Fruits",
+              "Vegetables",
+              "Drinks",
+              "Bakery",
+              "Buffer & Eggs",
+              "Milk & Creams",
+              "Meats",
+              "Fish",
+            ];
+            const isCategory = allowed.includes(props.activeCategory);
+            if (isCategory) {
+              const filtered = CATEGORY_ITEMS[props.activeCategory] || [];
+              const chunk = (arr, size) =>
+                arr.reduce((rows, item, idx) => {
+                  const r = Math.floor(idx / size);
+                  (rows[r] || (rows[r] = [])).push(item);
+                  return rows;
+                }, []);
+              const rows = chunk(filtered, 6);
+              return (
+                <>
+                  <h2 className="heading-title">{props.activeCategory}</h2>
+                  {filtered.length === 0 ? (
+                    <div
+                      style={{
+                        width: "100%",
+                        textAlign: "center",
+                        padding: "30px",
+                      }}
+                    >
+                      <h4>No items found</h4>
+                      <p>Try a different category</p>
                     </div>
-                  </div>
-                ) : key === "FreshFood" ? (
-                  <FreshFood key={key} />
-                ) : key === "Bakery" ? (
-                  <Bakery key={key} />
-                ) : key === "Drinks" ? (
-                  <Drinks key={key} />
-                ) : key === "Shop" ? (
-                  <Shop key={key} />
-                ) : key === "Pages" ? (
-                  <Pages key={key} />
-                ) : key === "Blog" ? (
-                  <Blog key={key} />
-                ) : (
-                  <Contact key={key} />
-                ))
-            )}
-          </div>
+                  ) : (
+                    rows.map((row, idx) => (
+                      <div className="category-viewport" key={`row-${idx}`}>
+                        <div
+                          className={`category-track ${
+                            idx % 2 === 0 ? "scroll-left" : "scroll-right"
+                          }`}
+                        >
+                          {[...row, ...row].map((item, j) => (
+                            <div
+                              className="trending-items-sub-div"
+                              key={`${item.id}-${j}`}
+                            >
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                onError={(e) => {
+                                  e.currentTarget.src = item.imageFallback;
+                                }}
+                              />
+                              <p className="trending-items-title">
+                                {item.name}
+                              </p>
+                              <div className="trending-card-details-wrapper">
+                                <div className="trending-rating">
+                                  <span>⭐ {item.rating}</span>
+                                  <span className="reviews-text">(200+)</span>
+                                </div>
+                                <div className="trending-items-decrp-container">
+                                  <span className="trending-items-decrp">
+                                    {item.calories} kcal
+                                  </span>
+                                  <b>•</b>
+                                  <span className="trending-items-decrp">
+                                    Serves 1
+                                  </span>
+                                </div>
+                                <div className="trending-items-btn">
+                                  <b>&#8377;{item.price}</b>
+                                  <button
+                                    onClick={() =>
+                                      handleAddToCart({
+                                        id: item.id,
+                                        title: item.name,
+                                        price: item.price,
+                                        img: item.image,
+                                      })
+                                    }
+                                    className="trending-items-button"
+                                  >
+                                    + ADD
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </>
+              );
+            }
+            return null;
+          })()}
+          {![
+            "Fruits",
+            "Vegetables",
+            "Drinks",
+            "Bakery",
+            "Buffer & Eggs",
+            "Milk & Creams",
+            "Meats",
+            "Fish",
+          ].includes(props.activeCategory) && (
+            <>
+              {/* Banner Carousel */}
+              <div className="banner-carousel-wrapper">
+                <div className="filter-trigger-container">
+                  <button
+                    className="filter-trigger-btn"
+                    onClick={() => setShowFilter(true)}
+                  >
+                    <i className="fas fa-filter"></i>
+                    <span>Filter</span>
+                  </button>
+                </div>
+                {Object.entries(navTocomponents)?.map(
+                  ([key, value]) =>
+                    value &&
+                    (key === "Home" ? (
+                      <div
+                        key={key}
+                        className="bannerCarousel-div"
+                        style={{
+                          width: "100%",
+                          maxWidth: "100%",
+                          overflow: "hidden",
+                          boxSizing: "border-box",
+                        }}
+                      >
+                        <div style={containerStyles}>
+                          <BannerCarousel sideopen={props.open} />
+                        </div>
+                      </div>
+                    ) : key === "FreshFood" ? (
+                      <FreshFood key={key} />
+                    ) : key === "Bakery" ? (
+                      <Bakery key={key} />
+                    ) : key === "Drinks" ? (
+                      <Drinks key={key} />
+                    ) : key === "Shop" ? (
+                      <Shop key={key} />
+                    ) : key === "Pages" ? (
+                      <Pages key={key} />
+                    ) : key === "Blog" ? (
+                      <Blog key={key} />
+                    ) : (
+                      <Contact key={key} />
+                    ))
+                )}
+              </div>
 
-          {/* Our offers */}
-          <h2 className="heading-title">
-            {/* <span>
+              {/* Our offers */}
+              <h2 className="heading-title">
+                {/* <span>
               <img
                 src={`/bodycontent-icons/sale-time.png`}
                 alt="Flaticon Icon"
@@ -274,31 +419,171 @@ const Bodycontent = (props) => {
               />
               &#8197;
             </span> */}
-            Our Offers
-          </h2>
-          <div className="offers-main-div">
-            {ourOffers?.map((each, index) => (
-              <div
-                key={index}
-                className="individual-div"
-                style={{
-                  backgroundImage: `url(${each.image})`,
-                  backgroundSize: "cover",
-                  backgroundRepeat: "no-repeat",
-                  // backgroundPosition: "center",
-                  padding: "20px",
-                  color: "#fff",
-                  textAlign: "center",
-                }}
-              >
-                <p>{each.category}</p>
-                <h4>
-                  {each.description} &#8377;{each.cost}
-                </h4>
-                <button className="btn shopnow-btn ">SHOP NOW</button>
+                Our Offers
+              </h2>
+              <div className="offers-main-div">
+                {(() => {
+                  const allowed = [
+                    "Fruits",
+                    "Vegetables",
+                    "Drinks",
+                    "Bakery",
+                    "Buffer & Eggs",
+                    "Milk & Creams",
+                    "Meats",
+                    "Fish",
+                  ];
+                  const isCategory = allowed.includes(props.activeCategory);
+                  const filtered = isCategory
+                    ? PRODUCTS.filter(
+                        (p) => p.category === props.activeCategory
+                      )
+                    : PRODUCTS;
+                  if (filtered.length === 0) {
+                    return (
+                      <div
+                        style={{
+                          width: "100%",
+                          textAlign: "center",
+                          padding: "30px",
+                        }}
+                      >
+                        <h4>No items found</h4>
+                        <p>Try a different category</p>
+                      </div>
+                    );
+                  }
+                  return filtered.map((each) => (
+                    <div key={each.id} className="offer-card">
+                      <img
+                        className="offer-image"
+                        src={each.image}
+                        alt={each.name}
+                        onError={(e) => {
+                          e.currentTarget.src = IMAGE_FALLBACK[each.category];
+                        }}
+                      />
+                      <span className="offer-cat">{each.category}</span>
+                      <div className="offer-title">
+                        {each.name} &#8377;{each.price}
+                      </div>
+                      <button className="btn shopnow-btn">SHOP NOW</button>
+                    </div>
+                  ));
+                })()}
               </div>
-            ))}
-          </div>
+
+              <div className="preview-section">
+                <div className="preview-section-header">
+                  <h2 className="heading-title">Popular Dishes</h2>
+                  <span
+                    className="view-all-link"
+                    onClick={() =>
+                      props.onSectionChange &&
+                      props.onSectionChange("Home", "Bakery")
+                    }
+                  >
+                    View All
+                  </span>
+                </div>
+                <div className="trending-items-container">
+                  {PRODUCTS.filter((p) => p.category === "Bakery")
+                    .slice(0, 6)
+                    .map((item) => (
+                      <div className="trending-items-sub-div" key={item.id}>
+                        <img
+                          src={item.imageFallback}
+                          alt={item.name}
+                          onError={(e) => {
+                            e.currentTarget.src =
+                              IMAGE_FALLBACK["Bakery"] ||
+                              "/footer-images/desserts.jpg";
+                          }}
+                        />
+                        <p className="trending-items-title">{item.name}</p>
+                        <div className="trending-card-details-wrapper">
+                          <div className="trending-rating">
+                            <span>⭐ 4.8</span>
+                            <span className="reviews-text">(120+)</span>
+                          </div>
+                          <div className="trending-items-btn">
+                            <b>&#8377;{item.price}</b>
+                            <button
+                              onClick={() =>
+                                handleAddToCart({
+                                  id: item.id,
+                                  title: item.name,
+                                  price: item.price,
+                                  img: item.image,
+                                })
+                              }
+                              className="trending-items-button"
+                            >
+                              + ADD
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+
+              <div className="preview-section">
+                <div className="preview-section-header">
+                  <h2 className="heading-title">Recent Orders</h2>
+                  <span
+                    className="view-all-link"
+                    onClick={() =>
+                      props.onSectionChange &&
+                      props.onSectionChange("Home", "Meats")
+                    }
+                  >
+                    View All
+                  </span>
+                </div>
+                <div className="trending-items-container">
+                  {PRODUCTS.filter((p) => p.category === "Meats")
+                    .slice(0, 6)
+                    .map((item) => (
+                      <div className="trending-items-sub-div" key={item.id}>
+                        <img
+                          src={item.imageFallback}
+                          alt={item.name}
+                          onError={(e) => {
+                            e.currentTarget.src =
+                              IMAGE_FALLBACK["Meats"] ||
+                              "/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg";
+                          }}
+                        />
+                        <p className="trending-items-title">{item.name}</p>
+                        <div className="trending-card-details-wrapper">
+                          <div className="trending-rating">
+                            <span>⭐ 4.7</span>
+                            <span className="reviews-text">(90+)</span>
+                          </div>
+                          <div className="trending-items-btn">
+                            <b>&#8377;{item.price}</b>
+                            <button
+                              onClick={() =>
+                                handleAddToCart({
+                                  id: item.id,
+                                  title: item.name,
+                                  price: item.price,
+                                  img: item.image,
+                                })
+                              }
+                              className="trending-items-button"
+                            >
+                              + ADD
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Today's Discount Sale Marquee */}
           <div className="discount-sale-container">

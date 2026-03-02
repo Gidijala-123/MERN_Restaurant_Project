@@ -78,7 +78,6 @@ const drawerWidth = 240;
 
 const Sidebar_Items = [
   { text: "Hot Offers", icon: <HomeIcon /> },
-  { text: "Orders", icon: <OrdersIcon /> },
   { text: "Settings", icon: <SettingsIcon /> },
   { text: "Logout", icon: <LogoutIcon />, action: "logout" },
 ];
@@ -176,6 +175,7 @@ export default function Sidebar() {
   const [open, setOpen] = useState(false); // Set to false to collapse the sidebar by default
   const [currentSection, setCurrentSection] = useState("Home");
   const [activeSidebarItem, setActiveSidebarItem] = useState("Hot Offers");
+  const [activeCategory, setActiveCategory] = useState("Hot Offers");
   const [userName, setUserName] = useState("");
   const [logoutMessage, setLogoutMessage] = useState("");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -248,14 +248,13 @@ export default function Sidebar() {
     setCurrentSection(section);
     if (sidebarItem) {
       setActiveSidebarItem(sidebarItem);
+      setActiveCategory(sidebarItem);
     }
   };
 
   // Map sidebar items to Bodycontent sections
   const sectionMap = {
     "Hot Offers": "Home",
-    "New Arrivals": "Shop",
-    "Deals Of The Day": "Shop",
     Fruits: "FreshFood",
     Vegetables: "FreshFood",
     Drinks: "Drinks",
@@ -697,6 +696,7 @@ export default function Sidebar() {
         <Bodycontent
           open={open}
           currentSection={currentSection}
+          activeCategory={activeCategory}
           onSectionChange={handleSectionChange}
         />
       </Box>
