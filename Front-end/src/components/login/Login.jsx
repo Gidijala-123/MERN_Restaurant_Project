@@ -7,12 +7,12 @@ import { loginSchema } from "../../validations/schemas";
 function SignInForm() {
   const [validationErrors, setValidationErrors] = useState({});
   const [apiError, setApiError] = useState("");
-  
+
   const [uemail, setUemail] = useState("");
   const [upassword, setUpassword] = useState("");
   const navigate = useNavigate();
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:1111";
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:1111";
 
   const loginOnSubmit = async (e) => {
     e.preventDefault();
@@ -66,7 +66,7 @@ function SignInForm() {
           placeholder="Email Address"
         />
         <span className="span-tag error-text">{validationErrors.uemail}</span>
-        
+
         <input
           className="text-input"
           type="password"
@@ -74,10 +74,12 @@ function SignInForm() {
           onChange={(e) => setUpassword(e.target.value)}
           placeholder="Password"
         />
-        <span className="span-tag error-text">{validationErrors.upassword}</span>
-        
+        <span className="span-tag error-text">
+          {validationErrors.upassword}
+        </span>
+
         <span className="span-tag error-text">{apiError}</span>
-        
+
         <button className="codepen-button">
           <span className="btn-span">Login</span>
         </button>
