@@ -10,14 +10,28 @@
    background-image: url('../../../public/sign-up-login/signup-bg.jpg');
    background-repeat: no-repeat;
    background-size: cover;
-   background-position: 0 0;
+   background-position: center;
    display: flex;
    justify-content: center;
    align-items: center;
    flex-direction: column;
    font-family: "Montserrat", sans-serif;
-   height: 100vh;
-   /* margin: -20px 0 50px; */
+   min-height: 100vh;
+   padding: 20px;
+}
+
+@media (max-width: 576px) {
+   .container-main {
+      width: 100% !important;
+      margin: 10px !important;
+      min-height: 500px !important;
+   }
+   .form-container {
+      width: 100% !important;
+   }
+   .overlay-container {
+      display: none !important;
+   }
 }
 
 .heading-h1 {
@@ -65,6 +79,20 @@
 
 .span-tag {
    font-size: 12px;
+}
+
+.error-text {
+   color: #ed1f24;
+   margin-bottom: 5px;
+   display: block;
+   text-align: left;
+   width: 80%;
+}
+
+.success-text {
+   color: #48c479;
+   margin-bottom: 5px;
+   display: block;
 }
 
 /* a {

@@ -1,16 +1,25 @@
 .breadcrumb-div {
-  margin-top: calc(100% - 98%);
+   margin-top: 5px;
+   margin-bottom: 15px;
+   /* Increased separation */
    position: sticky;
 }
 
 .breadcrumb-link {
    font-weight: bold !important;
-   color: #6f713e !important;
+   color: #8E9F4F !important;
    font-size: 14px !important;
+}
 
+[data-theme='dark'] .breadcrumb-link {
+   color: #ACBF60 !important;
 }
 
 .breadcrumb-link:hover {
    color: white !important;
+   background-color: rgba(172, 191, 96, 0.2) !important;
 }
 
+[data-theme='dark'] .breadcrumb-link:hover {
+   background-color: rgba(172, 191, 96, 0.3) !important;
+}

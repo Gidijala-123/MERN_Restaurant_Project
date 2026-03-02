@@ -1,6 +1,10 @@
-const mongoose = require("mongoose");
-const moment = require("moment");
+import mongoose from "mongoose";
+import moment from "moment";
 
+/**
+ * Schema definition for Employee/User model
+ * Used for signup, login, and user profile management
+ */
 const EmployeeSchema = mongoose.Schema({
   uname: {
     type: String,
@@ -9,17 +13,36 @@ const EmployeeSchema = mongoose.Schema({
   uemail: {
     type: String,
     required: [true, "Enter your mail"],
+    unique: true, // Ensures email addresses are unique in the collection
   },
   upassword: {
     type: String,
     required: [true, "Enter your password"],
   },
   createdDate: {
-    // type: Date,
-    // default: Date.now,
-    type: String, // Store the date as a string
-    default: moment().format("DD-MM-YYYY"), // Format the default date as "05-11-2023"
+    type: String,
+    // Automatically sets current date in DD-MM-YYYY format
+    default: () => moment().format("DD-MM-YYYY"),
   },
+  bookmarks: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "products_coll", // Assuming your products collection is named 'products_coll'
+    },
+  ],
+  cart: [
+    {
+      productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "products_coll",
+      },
+      quantity: {
+        type: Number,
+        default: 1,
+      },
+    },
+  ],
 });
 
-module.exports = mongoose.model("signupLogin_coll", EmployeeSchema);
+const EmployeeModel = mongoose.model("signupLogin_coll", EmployeeSchema);
+export default EmployeeModel;

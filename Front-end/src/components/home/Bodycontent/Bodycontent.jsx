@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import BreadcrumbsComponent from "../BreadCrumb/BreadCrumb";
 import BannerCarousel from "../BannerCarousel/BannerCarousel";
 import FreshFood from "./FRESHFOOD/FreshFood";
 import Bakery from "./BAKERY/Bakery";
@@ -10,6 +9,7 @@ import Blog from "./BLOG/Blog";
 import Contact from "./CONTACT/Contact";
 import "./Bodycontent.css";
 import Footer from "./FOOTER/Footer";
+import Filter from "./FILTER_COMPONENT/Filter";
 
 // carttttt
 import { useDispatch } from "react-redux";
@@ -28,12 +28,45 @@ const Bodycontent = (props) => {
     Contact: false,
   });
 
+  const [discountBookmarked, setDiscountBookmarked] = useState({});
+  const [trendingBookmarked, setTrendingBookmarked] = useState({});
+  const [showFilter, setShowFilter] = useState(false);
+
+  const handleBookmarkToggle = (itemId, section) => {
+    if (section === "discount") {
+      setDiscountBookmarked((prev) => ({
+        ...prev,
+        [itemId]: !prev[itemId],
+      }));
+    } else if (section === "trending") {
+      setTrendingBookmarked((prev) => ({
+        ...prev,
+        [itemId]: !prev[itemId],
+      }));
+    }
+  };
+
+  // Sync with props.currentSection
+  React.useEffect(() => {
+    if (props.currentSection) {
+      setNav((prev) => ({
+        ...Object.fromEntries(
+          Object.keys(prev).map((key) => [key, key === props.currentSection])
+        ),
+      }));
+    }
+  }, [props.currentSection]);
+
   const goTo = (section) => {
-    setNav((prev) => ({
-      ...Object.fromEntries(
-        Object.keys(prev).map((key) => [key, key === section])
-      ),
-    }));
+    if (props.onSectionChange) {
+      props.onSectionChange(section);
+    } else {
+      setNav((prev) => ({
+        ...Object.fromEntries(
+          Object.keys(prev).map((key) => [key, key === section])
+        ),
+      }));
+    }
   };
 
   const ourOffers = [
@@ -68,8 +101,11 @@ const Bodycontent = (props) => {
 
   const containerStyles = {
     width: "100%",
-    height: "32rem",
     margin: "0 auto",
+    maxWidth: "100%",
+    overflow: "hidden",
+    boxSizing: "border-box",
+    position: "relative",
   };
 
   return (
@@ -85,25 +121,31 @@ const Bodycontent = (props) => {
         <p>An error occured..!</p>
       ) : (
         <>
-          {/* Bread Crumb */}
-          <div>
-            <BreadcrumbsComponent
-              className="breadcrumb-div"
-              navC={navTocomponents}
-              setHome={() => goTo("Home")}
-              setFreshFood={() => goTo("FreshFood")}
-              setBakery={() => goTo("Bakery")}
-              setDrinks={() => goTo("Drinks")}
-              setShop={() => goTo("Shop")}
-              setPages={() => goTo("Pages")}
-              setBlog={() => goTo("Blog")}
-              setContact={() => goTo("Contact")}
-            />
+          {/* Banner Carousel */}
+          <div className="banner-carousel-wrapper">
+            <div className="filter-trigger-container">
+              <button
+                className="filter-trigger-btn"
+                onClick={() => setShowFilter(true)}
+              >
+                <i className="fas fa-filter"></i>
+                <span>Filter</span>
+              </button>
+            </div>
             {Object.entries(navTocomponents)?.map(
               ([key, value]) =>
                 value &&
                 (key === "Home" ? (
-                  <div className="bannerCarousel-div">
+                  <div
+                    key={key}
+                    className="bannerCarousel-div"
+                    style={{
+                      width: "100%",
+                      maxWidth: "100%",
+                      overflow: "hidden",
+                      boxSizing: "border-box",
+                    }}
+                  >
                     <div style={containerStyles}>
                       <BannerCarousel sideopen={props.open} />
                     </div>
@@ -140,11 +182,11 @@ const Bodycontent = (props) => {
             </span> */}
             Our Offers
           </h2>
-          <div className="offers-main-div d-flex flex-md-row flex-sm-column justify-content-between">
+          <div className="offers-main-div">
             {ourOffers?.map((each, index) => (
               <div
                 key={index}
-                className="individual-div col-12 col-md-4"
+                className="individual-div"
                 style={{
                   backgroundImage: `url(${each.image})`,
                   backgroundSize: "cover",
@@ -164,181 +206,349 @@ const Bodycontent = (props) => {
             ))}
           </div>
 
+          {/* Today's Discount Sale Marquee */}
+          <div className="discount-sale-container">
+            <div className="discount-title-wrapper">
+              <span className="discount-badge">LIVE SALE</span>
+              <h2 className="heading-title m-0">Today's Discount Sale</h2>
+            </div>
+            <div className="marquee-viewport">
+              <div className="marquee-track">
+                {[...Array(2)].map((_, i) => (
+                  <React.Fragment key={i}>
+                    {[
+                      {
+                        id: 101,
+                        title: "Cheesy Pepperoni Pizza",
+                        oldPrice: 499,
+                        newPrice: 299,
+                        discount: "40% OFF",
+                        img: "/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg",
+                        desc: "Extra cheese & crispy crust",
+                        rating: 4.8,
+                        reviews: 120,
+                      },
+                      {
+                        id: 102,
+                        title: "Crispy Chicken Burger",
+                        oldPrice: 250,
+                        newPrice: 149,
+                        discount: "40% OFF",
+                        img: "/footer-images/burger.png",
+                        desc: "Spicy mayo & fresh lettuce",
+                        rating: 4.5,
+                        reviews: 85,
+                      },
+                      {
+                        id: 103,
+                        title: "Garden Fresh Salad",
+                        oldPrice: 180,
+                        newPrice: 99,
+                        discount: "45% OFF",
+                        img: "/footer-images/salads.jpg",
+                        desc: "Organic veggies & olive oil",
+                        rating: 4.7,
+                        reviews: 60,
+                      },
+                      {
+                        id: 104,
+                        title: "Choco Lava Cake",
+                        oldPrice: 150,
+                        newPrice: 75,
+                        discount: "50% OFF",
+                        img: "/footer-images/desserts.jpg",
+                        desc: "Melting hot chocolate center",
+                        rating: 4.9,
+                        reviews: 210,
+                      },
+                      {
+                        id: 105,
+                        title: "Fresh Fruit Mojito",
+                        oldPrice: 120,
+                        newPrice: 59,
+                        discount: "50% OFF",
+                        img: "/footer-images/cooldrinks.png",
+                        desc: "Refreshing mint & lime",
+                        rating: 4.6,
+                        reviews: 45,
+                      },
+                    ].map((item, index) => (
+                      <div className="discount-item" key={`${i}-${index}`}>
+                        <i
+                          className={`bookmark-icon ${
+                            discountBookmarked[item.id] ? "fas" : "far"
+                          }`}
+                          onClick={() =>
+                            handleBookmarkToggle(item.id, "discount")
+                          }
+                        ></i>
+                        <div className="discount-tag">{item.discount}</div>
+                        <img src={item.img} alt={item.title} />
+                        <div className="discount-info">
+                          <h4>{item.title}</h4>
+                          <div className="discount-rating">
+                            <span>⭐ {item.rating}</span>
+                            <span className="reviews-text">
+                              ({item.reviews} reviews)
+                            </span>
+                          </div>
+                          <div className="discount-pricing">
+                            <span className="old-price">₹{item.oldPrice}</span>
+                            <span className="new-price">₹{item.newPrice}</span>
+                          </div>
+                          <button className="btn btn-sm">Grab Now</button>
+                        </div>
+                      </div>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* Trending today */}
           <h2 className="heading-title">
-            <span>
-              <img
-                src={`/bodycontent-icons/growth-graph.png`}
-                alt="Flaticon Icon"
-                width="30"
-                height="25"
-                className="header-text-icon"
-              />
-              &#8197;
-            </span>
+            <img
+              src={`/bodycontent-icons/trending.png`}
+              alt="Trending"
+              className="header-text-icon"
+              style={{ width: "30px", height: "30px" }}
+            />
             Trending Today
           </h2>
-          <div className="trending-items-container d-flex flex-row flex-md-row flex-sm-column justify-content-between ">
+          <div className="trending-items-container">
             {data?.map((product) => {
               return (
                 <div className="trending-items-sub-div" key={product.id}>
+                  <i
+                    className={`bookmark-icon ${
+                      trendingBookmarked[product.id] ? "fas" : "far"
+                    }`}
+                    onClick={() => handleBookmarkToggle(product.id, "trending")}
+                  ></i>
                   <img src={product.img} alt="trending-items-img " />
                   <p className="trending-items-title">{product.title}</p>
-                  <div>
-                    <span className="trending-items-decrp">
-                      {product.decrp}
-                    </span>
-                    <b>&#x2B29;</b>
-                    <span className="trending-items-decrp">
-                      {product.serves}
-                    </span>
+                  <div className="trending-card-details-wrapper">
+                    <div className="trending-rating">
+                      <span>⭐ {product.rating || "4.5"}</span>
+                      <span className="reviews-text">
+                        ({product.reviews || "100+"} reviews)
+                      </span>
+                    </div>
+                    <div className="trending-items-decrp-container">
+                      <span className="trending-items-decrp">
+                        {product.decrp}
+                      </span>
+                      <b>&#x2B29;</b>
+                      <span className="trending-items-decrp">
+                        {product.serves}
+                      </span>
+                    </div>
+                    <div className="trending-items-btn">
+                      <b>&#8377;{product.price}</b>
+                      <button
+                        onClick={() => handleAddToCart(product)}
+                        className="trending-items-button"
+                      >
+                        + ADD
+                      </button>
+                    </div>
                   </div>
-                  <p className="trending-items-btn">
-                    <b>&#8377;{product.price}</b>
-                    <button
-                      onClick={() => handleAddToCart(product)}
-                      className="trending-items-button"
-                    >
-                      + ADD
-                    </button>
-                  </p>
                 </div>
               );
             })}
           </div>
           {/* <Cart cartItems={cartItems} /> */}
 
-          {/* Healthy Card */}
+          {/* Chef's Special Section */}
           <h2 className="heading-title">
-            {/* <span>
-              <img
-                src={`/bodycontent-icons/growth-graph.png`}
-                alt="Flaticon Icon"
-                width="30"
-                height="25"
-                className="header-text-icon"
-              />
-              &#8197;
-            </span> */}
-            Healthy Card
+            <img
+              src={`/bodycontent-icons/growth-graph.png`}
+              alt="Chef Special"
+              className="header-text-icon"
+              style={{ width: "30px", height: "30px" }}
+            />
+            Chef's Special
           </h2>
-          <div className="healthy-card">
-            <div className="container-fluid m-0">
-              <div className="row">
-                <div className="col-12 col-md-7 d-md-none">
-                  <h1 className="col-12 healthy-heading">
-                    Fresh, Healthy, Organic, Delicious Fruits
-                  </h1>
+          <div className="chefs-special-card">
+            <div className="row align-items-center">
+              <div className="col-md-5">
+                <img
+                  className="special-img"
+                  src="/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg"
+                  alt="special-dish"
+                />
+              </div>
+              <div className="col-md-7">
+                <h1 className="special-heading">
+                  Experience Our Signature Smoked BBQ Ribs
+                </h1>
+                <p className="special-para">
+                  Slow-cooked for 12 hours with our secret spice rub and glazed
+                  with house-made honey bourbon sauce. Served with crispy slaw
+                  and buttery cornbread. A taste that brings people back again
+                  and again!
+                </p>
+                <div className="special-meta">
+                  <span>⭐ 4.9 (500+ Reviews)</span>
+                  <span>🔥 Most Ordered This Week</span>
                 </div>
-                <div className="col-12 col-md-5">
+                <button className="main-action-btn">
+                  Order Signature Dish
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Why Choose Us Section */}
+          <h2 className="heading-title">
+            <img
+              src="/footer-images/best-price.png"
+              alt="Why Choose Us"
+              className="header-text-icon"
+              style={{ width: "30px", height: "30px" }}
+            />
+            Why Choose Us
+          </h2>
+          <div className="why-choose-us-section">
+            <div className="feature-grid">
+              <div className="feature-card">
+                <div className="feature-icon-wrapper">
                   <img
-                    className="healthy-img w-100 mb-3 mt-md-3"
-                    src="/banner-images/banner0.jpg"
-                    alt="healty-img"
+                    src="/footer-images/noun_fresh food_3374221.png"
+                    alt="Fresh Food"
                   />
                 </div>
-                <div className="col-12 col-md-7 m-md-auto">
-                  <h1 className="col-12 healthy-heading d-none d-md-block">
-                    Fresh, Healthy, Organic, Delicious Fruits
-                  </h1>
-                  <p className="healthy-para pl-2 pr-2">
-                    Say no to harmful chemicals and go fully organic with our
-                    range of fresh fruits and veggies. Pamper your body and your
-                    senses with the true and unadulterated gifts from mother
-                    nature. with the true and unadulterated gifts from mother
-                    nature.
-                  </p>
-                  <button className="healthy-btn btn bg-success rounded-pill text-white ml-2">
-                    Watch Video
-                  </button>
+                <h3>Fresh Food</h3>
+                <p>
+                  We provide only the freshest ingredients from local organic
+                  farms.
+                </p>
+              </div>
+              <div className="feature-card">
+                <div className="feature-icon-wrapper">
+                  <img src="/footer-images/best-price.png" alt="Best Price" />
                 </div>
+                <h3>Best Price</h3>
+                <p>
+                  Enjoy premium quality food at the most competitive prices in
+                  town.
+                </p>
+              </div>
+              <div className="feature-card">
+                <div className="feature-icon-wrapper">
+                  <img
+                    src="/footer-images/iconfinder_FoodDelivery-food-delivery-meal-order_6071826.png"
+                    alt="Fast Delivery"
+                  />
+                </div>
+                <h3>Fast Delivery</h3>
+                <p>
+                  Hot and fresh meals delivered to your doorstep in under 30
+                  minutes.
+                </p>
+              </div>
+              <div className="feature-card">
+                <div className="feature-icon-wrapper">
+                  <i
+                    className="fas fa-headset"
+                    style={{ fontSize: "30px", color: "var(--primary)" }}
+                  ></i>
+                </div>
+                <h3>24/7 Support</h3>
+                <p>
+                  Our dedicated support team is always ready to assist you
+                  anytime.
+                </p>
               </div>
             </div>
           </div>
 
           {/* Delivery Payments */}
           <h2 className="heading-title">
-            {/* <span>
-              <img
-                src={`/bodycontent-icons/growth-graph.png`}
-                alt="Flaticon Icon"
-                width="30"
-                height="25"
-                className="header-text-icon"
-              />
-              &#8197;
-            </span> */}
+            <img
+              src={`/bodycontent-icons/sale-time.png`}
+              alt="Delivery"
+              className="header-text-icon"
+              style={{ width: "30px", height: "30px" }}
+            />
             Delivery and Payments
           </h2>
-          <div className="delivery-payments-section healthy-card">
-            <div className="container-fluid">
-              <div className="row">
-                <div className="col-12 col-md-7 d-md-none">
-                  <h1 className="col-12 healthy-heading">
-                    Delivery and payment
-                  </h1>
-                </div>
-                <div className="col-12 col-md-5 order-md-last">
-                  <img
-                    className="healthy-img w-100 mb-3 mt-md-3"
-                    src="/footer-images/deliverypayment.jpg"
-                    alt="healthy-img"
-                  />
-                </div>
-                <div className="col-12 col-md-7 m-md-auto">
-                  <h1 className="col-12 healthy-heading d-none d-md-block">
-                    Delivery and Payments
-                  </h1>
-                  <p className="healthy-para pl-2 pr-2">
-                    Enjoy hassle free payment with the plenitude of payment
-                    options available for you. Get live tracking and locate your
-                    food on a live map. It's quite a sight to see your food
-                    arrive to your door. Plus, you get a
-                    <em>
-                      <b> 5% discount </b>
-                    </em>
-                    on every order every time you pay online.
+          <div className="delivery-payment-section">
+            <div className="delivery-content">
+              <h2 className="special-heading">Delivery and Payments</h2>
+              <p className="special-para">
+                Enjoy hassle-free payment with the plenitude of payment options
+                available for you. Get live tracking and locate your food on a
+                live map. It's quite a sight to see your food arrive to your
+                door. Plus, you get a 5% discount on every order every time you
+                pay online.
+              </p>
+              <div className="payment-methods">
+                <div className="payment-providers">
+                  <p
+                    style={{
+                      fontSize: "0.85rem",
+                      opacity: 0.9,
+                      marginBottom: "12px",
+                      fontWeight: "600",
+                      textTransform: "uppercase",
+                      letterSpacing: "1px",
+                    }}
+                  >
+                    Card Payments
                   </p>
-                  <div className="d-flex flex-row justify-content-center justify-content-md-start">
-                    <img
-                      alt="payment-img"
-                      className="payment-icon mt-3"
-                      src="/footer-images/paypal.png"
-                    />
-                    <img
-                      alt="payment-img"
-                      className="payment-icon mt-3"
-                      src="/footer-images/visa.png"
-                    />
-                    <img
-                      alt="payment-img"
-                      className="payment-icon mt-3"
-                      src="/footer-images/americanexpress.png"
-                    />
-                    <img
-                      alt="payment-img"
-                      className="payment-icon mt-3"
-                      src="/footer-images/mastercard.png"
-                    />
-                    <button
-                      className="payment-btn-md btn bg-warning rounded-pill text-black font-weight-bold ml-3 mt-3 d-none d-md-block"
-                      data-toggle="modal"
-                      data-target="#staticBackdrop"
-                    >
-                      Order Now
-                    </button>
-                  </div>
-                  <div className="text-center d-md-none">
-                    <button
-                      className="payment-btn-xm btn bg-warning rounded-pill text-black font-weight-bold ml-2 mb-3 mt-1"
-                      data-toggle="modal"
-                      data-target="#staticBackdrop"
-                    >
-                      Order Now
-                    </button>
+                  <div
+                    style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}
+                  >
+                    <img src="/footer-images/paypal.png" alt="paypal" />
+                    <img src="/footer-images/visa.png" alt="visa" />
+                    <img src="/footer-images/mastercard.png" alt="mastercard" />
                   </div>
                 </div>
+                <div className="alternative-methods">
+                  <p
+                    style={{
+                      fontSize: "0.85rem",
+                      opacity: 0.9,
+                      marginBottom: "12px",
+                      fontWeight: "600",
+                      textTransform: "uppercase",
+                      letterSpacing: "1px",
+                    }}
+                  >
+                    Alternative Methods
+                  </p>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
+                    }}
+                  >
+                    <i
+                      className="fas fa-money-bill-wave"
+                      style={{ fontSize: "1.8rem", color: "#fff" }}
+                    ></i>
+                    <span style={{ fontWeight: "700", fontSize: "1.1rem" }}>
+                      Cash on Delivery
+                    </span>
+                  </div>
+                </div>
+                <button
+                  className="main-action-btn"
+                  style={{ marginLeft: "auto" }}
+                >
+                  Order Now
+                </button>
               </div>
+            </div>
+            <div className="payment-img-container">
+              <img
+                src="/footer-images/deliverypayment.jpg"
+                alt="delivery"
+                className="delivery-img"
+              />
             </div>
           </div>
 
@@ -669,66 +879,47 @@ const Bodycontent = (props) => {
 
           {/* Thank you section */}
           <h2 className="heading-title">
-            {/* <span>
-              <img
-                src={`/bodycontent-icons/growth-graph.png`}
-                alt="Flaticon Icon"
-                width="30"
-                height="25"
-                className="header-text-icon"
-              />
-              &#8197;
-            </span> */}
+            <img
+              src={`/footer-images/best-price.png`}
+              alt="Thank You"
+              className="header-text-icon"
+              style={{ width: "30px", height: "30px" }}
+            />
             Thank You
           </h2>
           <div className="thankyou-section">
-            <div className="container-fluid">
-              <div className="row">
-                <div className="col-12 col-md-7 d-md-none">
-                  <h1 className="thankyou-heading">
-                    Thank you for being a valuable customer to us
-                  </h1>
-                </div>
-                <div className="col-12 d-md-none mb-3">
-                  <img
-                    alt="thankyou"
-                    className="thankyou-img1 w-100"
-                    src="/footer-images/gift1.png"
-                  />
-                </div>
-                <div className="col-12 col-md-5 order-md-last d-none d-md-block">
-                  <img
-                    alt="thankyou"
-                    className="thankyou-img2"
-                    src="/footer-images/gift1.png"
-                  />
-                </div>
-                <div className="col-12 col-md-7 m-md-auto">
-                  <h1 className="thankyou-heading d-none d-md-block">
-                    Thank you for being a valuable customer to us
-                  </h1>
-                  <p className="thankyou-para">
-                    Thankyou for choosing us for your food delivery. Hope we
-                    reached your expectation. Here is a small gift from our side
-                  </p>
-                  <b className="thankyou-b">keep visiting...THANKYOU!</b>
+            <div className="row align-items-center">
+              <div className="col-md-7">
+                <h1 className="thankyou-heading">
+                  Thank you for being a valuable customer to us
+                </h1>
+                <p className="thankyou-para">
+                  We appreciate your trust in us. We hope you enjoyed our food
+                  and service. Here is a small gift from our side for your next
+                  order.
+                </p>
+                <b className="thankyou-b">Keep visiting - TASTY KITCHEN</b>
+                <div className="mt-3">
                   <button
-                    className="payment-btn-md payment-btn btn rounded-pill font-weight-bold my-3 d-none d-md-block"
+                    className="main-action-btn"
                     data-toggle="modal"
                     data-target="#ThankyouexampleModal"
                   >
                     Redeem Now
                   </button>
                 </div>
-                <div className="text-center d-md-none m-3">
-                  <button
-                    className="btn payment-btn rounded-pill font-weight-bold mb-3 mt-1"
-                    data-toggle="modal"
-                    data-target="#ThankyouexampleModal"
-                  >
-                    Redeem Now
-                  </button>
-                </div>
+              </div>
+              <div className="col-md-5">
+                <img
+                  src="/footer-images/gift1.png"
+                  alt="gift-box"
+                  style={{
+                    width: "100%",
+                    maxWidth: "300px",
+                    margin: "0 auto",
+                    display: "block",
+                  }}
+                />
               </div>
             </div>
           </div>
@@ -774,46 +965,37 @@ const Bodycontent = (props) => {
             </div>
           </div>
 
-          {/* Follow Us */}
-          <div className="follow-us d-flex flex-column justify-content-center">
-            <div className="container-fluid">
-              <div className="row">
-                <h2 className="heading-title col-12">
-                  {/* <span>
-                    <img
-                      src={`/bodycontent-icons/growth-graph.png`}
-                      alt="Flaticon Icon"
-                      width="30"
-                      height="25"
-                      className="header-text-icon"
-                    />
-                    &#8197;
-                  </span> */}
-                  Follow Us
-                </h2>
-
-                <div className="col-12 d-flex-flex-row-justify-content-center mb-3 text-center">
-                  <span className="fa-stack fa-lg">
-                    <i className="icon fa fa-facebook" />
-                  </span>
-                  <span className="fa-stack fa-lg">
-                    <i className="icon fa fa-instagram" />
-                  </span>
-                  <span className="fa-stack fa-lg">
-                    <i className="icon fa fa-whatsapp" />
-                  </span>
-                  <span className="fa-stack fa-lg">
-                    <i className="icon fa fa-github" />
-                  </span>
-                  <span className="fa-stack fa-lg">
-                    <i className="icon fa fa-linkedin" />
-                  </span>
-                </div>
+          {/* Download App Section */}
+          <div className="download-app-section">
+            <div className="download-app-content">
+              <h2>Experience the best with our Mobile App</h2>
+              <p>
+                Download our app for exclusive deals, live order tracking, and a
+                smoother ordering experience.
+              </p>
+              <div className="app-buttons">
+                <a href="#" className="app-btn">
+                  <i className="fab fa-apple"></i>
+                  <div className="app-btn-text">
+                    <span>Download on the</span>
+                    <strong>App Store</strong>
+                  </div>
+                </a>
+                <a href="#" className="app-btn">
+                  <i className="fab fa-google-play"></i>
+                  <div className="app-btn-text">
+                    <span>Get it on</span>
+                    <strong>Google Play</strong>
+                  </div>
+                </a>
               </div>
             </div>
           </div>
 
           <Footer />
+
+          {/* Filter Overlay */}
+          {showFilter && <Filter onClose={() => setShowFilter(false)} />}
         </>
       )}
     </div>

@@ -15,18 +15,30 @@ const breadcrumbItems = [
 ];
 
 function BreadcrumbsComponent({ navC, ...setters }) {
-  const handleButtonClick = (key, setter) => () => setter(key);
+  const handleButtonClick = (key, label) => () => {
+    // Standardize the key name from the label or use the explicit key
+    const setterName = `set${label.replace(/\s+/g, "")}`;
+    if (setters[setterName]) {
+      setters[setterName]();
+    }
+  };
 
   return (
     <div className="breadcrumb-div">
-      <Breadcrumbs maxItems={2} aria-label="breadcrumb">
+      <Breadcrumbs maxItems={8} aria-label="breadcrumb">
         {breadcrumbItems.map(({ label, key }) => (
           <Button
             key={key}
             className="breadcrumb-link"
             underline="hover"
-            sx={{ backgroundColor: navC[key] ? "#ACBF60" : "" }}
-            onClick={handleButtonClick(key, setters[`set${label}`])}
+            sx={{ 
+              backgroundColor: navC[key] ? "#ACBF60" : "transparent",
+              color: navC[key] ? "white" : "inherit",
+              "&:hover": {
+                backgroundColor: navC[key] ? "#8E9F4F" : "rgba(172, 191, 96, 0.1)"
+              }
+            }}
+            onClick={handleButtonClick(key, label)}
           >
             {label}
           </Button>
