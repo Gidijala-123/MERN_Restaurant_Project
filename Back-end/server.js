@@ -11,8 +11,8 @@ import errorHandler from "./middleware/errorHandling.js";
 dotenv.config();
 
 // Setup for ES modules to handle directory paths
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 1111;
@@ -23,7 +23,12 @@ dbConnection();
 /**
  * Middleware setup
  */
-app.use(cors()); // Enable Cross-Origin Resource Sharing
+app.use(
+  cors({
+    origin: "https://mern-restaurant-project-1-n4oh.onrender.com",
+    credentials: true,
+  })
+); // Enable Cross-Origin Resource Sharing
 app.use(express.json()); // Body parser for JSON data
 
 /**
@@ -46,13 +51,13 @@ app.use(errorHandler);
  * Static file serving for Frontend (React/Vite)
  */
 // Path to the compiled frontend assets
-const buildPath = path.join(__dirname, "../Front-end/build");
-app.use(express.static(buildPath));
+// const buildPath = path.join(__dirname, "../Front-end/build");
+// app.use(express.static(buildPath));
 
-// Catch-all handler to support client-side routing in React
-app.get("*", (req, res) => {
-  res.sendFile(path.join(buildPath, "index.html"));
-});
+// // Catch-all handler to support client-side routing in React
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(buildPath, "index.html"));
+// });
 
 /**
  * Start Express server
