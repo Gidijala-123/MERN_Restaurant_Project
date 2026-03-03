@@ -1054,8 +1054,8 @@ img {
 .trending-title-wrapper {
    display: flex;
    align-items: center;
-   padding: 0 2.5rem;
-   margin-bottom: 0.625rem;
+   padding: 0 40px;
+   margin-bottom: 20px;
 }
 
 .trending-badge {
@@ -1105,7 +1105,7 @@ img {
    display: flex;
    align-items: center;
    padding: 0 40px;
-   margin-bottom: 10px;
+   margin-bottom: 20px;
 }
 
 .discount-badge {
