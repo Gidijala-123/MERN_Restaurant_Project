@@ -697,15 +697,7 @@ const Bodycontent = (props) => {
           <div className="trending-today-container">
             <div className="trending-title-wrapper">
               <span className="trending-badge">TRENDING</span>
-              <h2 className="heading-title m-0">
-                <img
-                  src={`/bodycontent-icons/trending.png`}
-                  alt="Trending"
-                  className="header-text-icon"
-                  style={{ width: "30px", height: "30px" }}
-                />
-                Trending Today
-              </h2>
+              <h2 className="heading-title m-0">Trending Today</h2>
             </div>
             <div className="trending-viewport">
               <div className="trending-track">

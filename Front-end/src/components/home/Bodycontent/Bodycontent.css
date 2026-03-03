@@ -198,18 +198,21 @@ img {
 
 /* Custom Scrollbar Styling for all horizontal containers */
 .trending-items-container::-webkit-scrollbar,
-.marquee-viewport::-webkit-scrollbar {
+.marquee-viewport::-webkit-scrollbar,
+.trending-viewport::-webkit-scrollbar {
    height: 0.5rem;
 }
 
 .trending-items-container::-webkit-scrollbar-track,
-.marquee-viewport::-webkit-scrollbar-track {
+.marquee-viewport::-webkit-scrollbar-track,
+.trending-viewport::-webkit-scrollbar-track {
    background: rgba(0, 0, 0, 0.05);
    border-radius: 0.625rem;
 }
 
 .trending-items-container::-webkit-scrollbar-thumb,
-.marquee-viewport::-webkit-scrollbar-thumb {
+.marquee-viewport::-webkit-scrollbar-thumb,
+.trending-viewport::-webkit-scrollbar-thumb {
    background: var(--primary-gradient);
    border-radius: 0.625rem;
    border: 0.125rem solid transparent;
@@ -217,7 +220,8 @@ img {
 }
 
 .trending-items-container::-webkit-scrollbar-thumb:hover,
-.marquee-viewport::-webkit-scrollbar-thumb:hover {
+.marquee-viewport::-webkit-scrollbar-thumb:hover,
+.trending-viewport::-webkit-scrollbar-thumb:hover {
    background: var(--primary-dark);
 }
 
@@ -1323,7 +1327,7 @@ img {
 }
 
 .trending-today-container .trending-items-sub-div>img {
-   width: 100% !important;
+   width: 62% !important;
    height: 7.5rem !important;
    object-fit: cover !important;
    border-radius: 0.75rem;
