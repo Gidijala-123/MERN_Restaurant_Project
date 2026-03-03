@@ -854,6 +854,28 @@ img {
    padding: 20px 0;
 }
 
+.offers-scroll {
+   max-height: 47rem;
+   overflow-y: auto;
+   padding-right: 6px;
+}
+
+.offers-scroll::-webkit-scrollbar {
+   width: 8px;
+}
+
+.offers-scroll::-webkit-scrollbar-track {
+   background: rgba(0, 0, 0, 0.05);
+   border-radius: 10px;
+}
+
+.offers-scroll::-webkit-scrollbar-thumb {
+   background: var(--primary-gradient);
+   border-radius: 10px;
+   border: 2px solid transparent;
+   background-clip: content-box;
+}
+
 @media (max-width: 576px) {
    .offers-main-div {
       grid-template-columns: 1fr;

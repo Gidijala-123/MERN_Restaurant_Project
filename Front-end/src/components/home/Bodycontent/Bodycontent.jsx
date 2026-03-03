@@ -421,7 +421,8 @@ const Bodycontent = (props) => {
             </span> */}
                 Our Offers
               </h2>
-              <div className="offers-main-div">
+              <div className="offers-scroll">
+                <div className="offers-main-div">
                 {(() => {
                   const allowed = [
                     "Fruits",
@@ -471,6 +472,7 @@ const Bodycontent = (props) => {
                     </div>
                   ));
                 })()}
+                </div>
               </div>
 
               <div className="preview-section">
