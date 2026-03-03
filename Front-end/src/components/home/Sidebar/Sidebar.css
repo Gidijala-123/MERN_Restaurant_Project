@@ -123,7 +123,7 @@
 /* Favorites popup compact grid */
 .favorites-grid {
    display: grid;
-   grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+   grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
    gap: 1rem;
    align-items: center;
    padding: 0.5rem 1rem;
@@ -131,7 +131,7 @@
 
 @media (min-width: 1280px) {
    .favorites-grid {
-      grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
    }
 }
 
@@ -165,8 +165,8 @@
 
 .favorites-card .image-wrap img {
    position: absolute;
-   width: 55%;
-   height: 65%;
+   width: 50%;
+   height: auto;
    object-fit: cover;
    object-position: center;
 }
@@ -195,7 +195,7 @@
 }
 
 .favorites-card .title {
-   font-size: 1rem;
+   font-size: 0.8rem;
    font-weight: 700;
    color: var(--text-main);
    line-height: 1.2;
@@ -241,9 +241,9 @@
 }
 
 .favorites-card .add-btn {
-   padding: 0.55rem 0.9rem;
-   font-size: 0.85rem;
-   border-radius: 0.6rem;
+   padding: 0.3rem 0.3rem;
+   font-size: 0.75rem;
+   border-radius: 0.5rem;
    background: var(--primary-gradient);
    color: #fff;
    border: none;
