@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Signup from "./components/signup/Signup";
 import "./App.css";
 import Sidebar from "./components/home/Sidebar/Sidebar";
-import VideoComponent from "./components/home/Del/Del";
 
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
@@ -28,11 +27,6 @@ function App() {
           <Route path="/" element={<Signup> </Signup>}></Route>
           {/* Main Home/Dashboard route with Sidebar */}
           <Route path="/home" element={<Sidebar> </Sidebar>}></Route>
-          {/* Temporary/Development route for video testing */}
-          <Route
-            path="/del"
-            element={<VideoComponent> </VideoComponent>}
-          ></Route>
           {/* Shopping Cart page */}
           <Route path="/cart" exact Component={Cart} />
           {/* Post-checkout success confirmation page */}

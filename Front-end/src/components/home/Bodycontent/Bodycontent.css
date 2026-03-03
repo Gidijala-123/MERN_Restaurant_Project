@@ -858,7 +858,6 @@ img {
    max-height: 44rem;
    overflow-y: auto;
    padding-right: 0.375rem;
-   background-color: #e65100;
 }
 
 .offers-scroll::-webkit-scrollbar {
@@ -1310,5 +1309,51 @@ img {
 
    .discount-item img {
       height: 110px;
+   }
+}
+
+/* Trending Today - match Discount card sizing and spacing */
+.trending-today-container .trending-items-sub-div {
+   flex: 0 0 13.75rem;
+   min-height: 18rem;
+   padding: 0.75rem;
+   border-radius: 1.125rem;
+   margin: 0 0.9375rem;
+   box-shadow: var(--shadow-sm);
+}
+
+.trending-today-container .trending-items-sub-div>img {
+   width: 100% !important;
+   height: 7.5rem !important;
+   object-fit: cover !important;
+   border-radius: 0.75rem;
+   margin-bottom: 0.625rem;
+   padding: 0;
+}
+
+.trending-today-container .trending-card-details-wrapper {
+   padding-top: 0.5rem;
+}
+
+.trending-today-container .trending-items-title {
+   font-size: 0.875rem;
+   min-height: 2rem;
+   margin: 0.25rem 0;
+}
+
+.trending-today-container .trending-items-btn {
+   margin-top: 0.5rem;
+}
+
+@media (max-width: 48rem) {
+   .trending-today-container .trending-items-sub-div {
+      flex: 0 0 11.25rem;
+      min-height: 15rem;
+      margin: 0 0.625rem;
+      padding: 0.625rem;
+   }
+
+   .trending-today-container .trending-items-sub-div>img {
+      height: 6.25rem !important;
    }
 }
