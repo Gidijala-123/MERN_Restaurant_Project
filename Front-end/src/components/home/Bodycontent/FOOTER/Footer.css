@@ -1,30 +1,30 @@
 .footer-container {
     background-color: #1a1a1a;
     color: #ffffff;
-    padding: 60px 0 20px 0;
+    padding: 3.75rem 0 1.25rem 0;
     font-family: 'Inter', sans-serif;
 }
 
 .footer-top {
     display: flex;
     justify-content: space-around;
-    padding-bottom: 40px;
+    padding-bottom: 2.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    margin: 0 8% 50px 8%;
+    margin: 0 8% 3.125rem 8%;
 }
 
 .footer-top-item {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 0.9375rem;
 }
 
 .footer-top-icon {
-    font-size: 24px;
+    font-size: 1.5rem;
     color: var(--primary);
     background: rgba(255, 126, 95, 0.1);
-    width: 50px;
-    height: 50px;
+    width: 3.125rem;
+    height: 3.125rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -33,7 +33,7 @@
 
 .footer-top-text h4 {
     margin: 0;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 700;
 }
 
@@ -48,23 +48,23 @@
 
 .footer-top-text p {
     margin: 5px 0 0 0;
-    font-size: 14px;
+    font-size: 0.875rem;
     color: #999;
 }
 
 .footer-main {
     display: grid;
     grid-template-columns: 2fr 1fr 1.2fr 1.5fr;
-    gap: 40px;
-    margin: 0 8% 40px 8%;
+    gap: 2.5rem;
+    margin: 0 8% 2.5rem 8%;
 }
 
 .footer-col h3 {
-    font-size: 18px;
+    font-size: 1.125rem;
     font-weight: 700;
-    margin-bottom: 25px;
+    margin-bottom: 1.5625rem;
     position: relative;
-    padding-bottom: 10px;
+    padding-bottom: 0.625rem;
 }
 
 .footer-col h3::after {
@@ -72,25 +72,25 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 40px;
-    height: 2px;
+    width: 2.5rem;
+    height: 0.125rem;
     background: var(--primary-gradient);
 }
 
 .footer-about-logo {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 0.625rem;
+    margin-bottom: 1.25rem;
 }
 
 .footer-about-logo img {
-    width: 40px;
-    height: 40px;
+    width: 2.5rem;
+    height: 2.5rem;
 }
 
 .footer-about-logo span {
-    font-size: 22px;
+    font-size: 1.375rem;
     font-weight: 800;
     background: var(--primary-gradient);
     -webkit-background-clip: text;
@@ -98,10 +98,10 @@
 }
 
 .footer-about p {
-    font-size: 14px;
+    font-size: 0.875rem;
     line-height: 1.6;
     color: #bbb;
-    margin-bottom: 20px;
+    margin-bottom: 1.25rem;
 }
 
 .footer-links {
@@ -111,36 +111,36 @@
 }
 
 .footer-links li {
-    margin-bottom: 12px;
+    margin-bottom: 0.75rem;
 }
 
 .footer-links a {
     color: #bbb;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 0.875rem;
     transition: all 0.3s ease;
 }
 
 .footer-links a:hover {
     color: var(--primary);
-    padding-left: 5px;
+    padding-left: 0.3125rem;
 }
 
 .footer-social-connect h4 {
-    font-size: 16px;
-    margin-bottom: 15px;
+    font-size: 1rem;
+    margin-bottom: 0.9375rem;
     color: #eee;
 }
 
 .footer-social-icons {
     display: flex;
-    gap: 15px;
-    margin-bottom: 30px;
+    gap: 0.9375rem;
+    margin-bottom: 1.875rem;
 }
 
 .footer-social-icons a {
-    width: 35px;
-    height: 35px;
+    width: 2.1875rem;
+    height: 2.1875rem;
     background: #333;
     display: flex;
     align-items: center;
@@ -155,14 +155,14 @@
 }
 
 .footer-social-icons img {
-    width: 18px;
-    height: 18px;
+    width: 1.125rem;
+    height: 1.125rem;
     filter: invert(1);
 }
 
 .footer-subscribe h4 {
-    font-size: 16px;
-    margin-bottom: 15px;
+    font-size: 1rem;
+    margin-bottom: 0.9375rem;
     color: #eee;
 }
 
@@ -175,18 +175,18 @@
     flex: 1;
     background: #2a2a2a;
     border: 1px solid #3a3a3a;
-    padding: 10px 15px;
-    border-radius: 8px 0 0 8px;
+    padding: 0.625rem 0.9375rem;
+    border-radius: 0.5rem 0 0 0.5rem;
     color: white;
-    font-size: 14px;
+    font-size: 0.875rem;
     outline: none;
 }
 
 .subscribe-form button {
     background: var(--primary-gradient);
     border: none;
-    padding: 10px 20px;
-    border-radius: 0 8px 8px 0;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0 0.5rem 0.5rem 0;
     color: white;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -198,18 +198,18 @@
 
 .footer-bottom {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 25px;
+    padding-top: 1.5625rem;
     margin: 0 8%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 13px;
+    font-size: 0.8125rem;
     color: #777;
 }
 
 .footer-bottom-links {
     display: flex;
-    gap: 20px;
+    gap: 1.25rem;
 }
 
 .footer-bottom-links a {
@@ -227,8 +227,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    margin-bottom: 10px;
+    gap: 0.75rem;
+    margin-bottom: 0.625rem;
 }
 
 .map-branch-name {
@@ -244,11 +244,11 @@
 }
 
 .map-canvas {
-   width: 100%;
-   height: 60vh;
-   min-height: 300px;
-   border-radius: 12px;
-   overflow: hidden;
+    width: 100%;
+    height: 60vh;
+    min-height: 18.75rem;
+    border-radius: 0.75rem;
+    overflow: hidden;
 }
 
 .map-iframe {
@@ -258,33 +258,37 @@
 }
 
 .map-search {
-   margin-top: 10px;
+    margin-top: 0.625rem;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 62rem) {
     .footer-main {
         grid-template-columns: 1.5fr 1fr 1fr;
     }
+
     .footer-col:last-child {
         grid-column: span 3;
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
     .footer-top {
         flex-direction: column;
-        gap: 25px;
+        gap: 1.5625rem;
         align-items: flex-start;
     }
+
     .footer-main {
         grid-template-columns: 1fr;
     }
+
     .footer-col:last-child {
         grid-column: span 1;
     }
+
     .footer-bottom {
         flex-direction: column;
-        gap: 15px;
+        gap: 0.9375rem;
         text-align: center;
     }
 }

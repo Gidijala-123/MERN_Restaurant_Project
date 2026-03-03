@@ -5,8 +5,8 @@
    /* border: 1.8px solid #ACBF60; */
 }
 .css-1h51icj-MuiAutocomplete-root .MuiOutlinedInput-root{
-   padding:2px !important;
+   padding:0.125rem !important;
 }
 .css-md26zr-MuiInputBase-root-MuiOutlinedInput-root{
-   border-radius: 8px;
+   border-radius: 0.5rem;
 }

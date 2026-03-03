@@ -1,6 +1,6 @@
 :root {
    --darkGreen: #015c12d3;
-   --lightGreen:#719d6e;
+   --lightGreen: #719d6e;
    --redTheme: #FF3814;
    --lightYellow: #FCF5E8;
    --orange: #fda506;
@@ -13,7 +13,7 @@
 .navbar {
    background-color: var(--light-yellow);
    width: 100%;
-   height: 80px;
+   height: 5rem;
    display: flex;
    justify-content: space-between;
    padding: 0 1rem 0 0;
@@ -24,12 +24,12 @@
    font-size: 2rem;
    background: none;
    color: #000;
-   padding-bottom: 4px;
+   padding-bottom: 0.25rem;
 }
 
 .nav-menu {
    background-color: #ffffff;
-   width: 250px;
+   width: 15.625rem;
    height: 100vh;
    display: flex;
    justify-content: center;
@@ -50,13 +50,13 @@
    display: flex;
    justify-content: flex-start;
    align-items: center;
-   padding: 8px 0px 8px 16px;
+   padding: 0.5rem 0 0.5rem 1rem;
    list-style: none;
-   height: 60px;
+   height: 3.75rem;
 }
 
 .website-title {
-   font-size: 21px;
+   font-size: 1.3125rem;
    font-weight: bold;
    font-family: arial;
    color: transparent;
@@ -87,13 +87,13 @@
 .nav-text a {
    text-decoration: none;
    color: #151414;
-   font-size: 18px;
+   font-size: 1.125rem;
    width: 95%;
    height: 100%;
    display: flex;
    align-items: center;
-   padding: 0 16px;
-   border-radius: 4px;
+   padding: 0 1rem;
+   border-radius: 0.25rem;
 }
 
 .nav-text a:hover {
@@ -110,14 +110,14 @@
 
 .navbar-toggle {
    width: 100%;
-   height: 80px;
+   height: 5rem;
    display: flex;
    justify-content: flex-start;
    align-items: center;
 }
 
 span {
-   margin-left: 10px;
+   margin-left: 0.625rem;
 }
 
 
@@ -173,26 +173,26 @@ span {
 
 
 .searchbar-div input[type=text] {
-   padding: 7px;
-   font-size: 17px;
+   padding: 0.4375rem;
+   font-size: 1.0625rem;
    border: 1px solid grey;
    float: left;
    width: 80%;
    background: var(--light-yellow);
-   border-radius: 10px 0 0 10px;
+   border-radius: 0.625rem 0 0 0.625rem;
    box-shadow: none;
 }
 
 .searchbar-div button {
-   padding: 7px;
+   padding: 0.4375rem;
    background: #2196F3;
    color: white;
-   font-size: 17px;
+   font-size: 1.0625rem;
    border: 1px solid grey;
    border-left: none;
-   border-radius: 0 10px 10px 0;
+   border-radius: 0 0.625rem 0.625rem 0;
    cursor: pointer;
-   width: 50px;
+   width: 3.125rem;
 }
 
 .searchbar-div::after {
@@ -208,7 +208,7 @@ span {
    width: 16%;
 
    >.fa {
-      font-size: 20px;
+      font-size: 1.25rem;
    }
 }
 

@@ -86,19 +86,19 @@ html {
   font-size: 16px;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 75rem) {
   html {
     font-size: 15px;
   }
 }
 
-@media (max-width: 992px) {
+@media (max-width: 62rem) {
   html {
     font-size: 14px;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
   html {
     font-size: 13px;
   }
@@ -114,7 +114,7 @@ img {
 .btn {
   padding: 0.6rem 1.2rem;
   font-weight: 600;
-  border-radius: 10px;
+  border-radius: 0.625rem;
   transition: all 0.3s ease;
   white-space: nowrap;
   background: var(--primary-gradient);
@@ -128,7 +128,7 @@ img {
   box-shadow: var(--shadow-lg);
 }
 
-@media (max-width: 576px) {
+@media (max-width: 36rem) {
   .btn {
     padding: 0.5rem 1rem;
     font-size: 0.9rem;

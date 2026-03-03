@@ -423,55 +423,55 @@ const Bodycontent = (props) => {
               </h2>
               <div className="offers-scroll">
                 <div className="offers-main-div">
-                {(() => {
-                  const allowed = [
-                    "Fruits",
-                    "Vegetables",
-                    "Drinks",
-                    "Bakery",
-                    "Buffer & Eggs",
-                    "Milk & Creams",
-                    "Meats",
-                    "Fish",
-                  ];
-                  const isCategory = allowed.includes(props.activeCategory);
-                  const filtered = isCategory
-                    ? PRODUCTS.filter(
-                        (p) => p.category === props.activeCategory
-                      )
-                    : PRODUCTS;
-                  if (filtered.length === 0) {
-                    return (
-                      <div
-                        style={{
-                          width: "100%",
-                          textAlign: "center",
-                          padding: "30px",
-                        }}
-                      >
-                        <h4>No items found</h4>
-                        <p>Try a different category</p>
+                  {(() => {
+                    const allowed = [
+                      "Fruits",
+                      "Vegetables",
+                      "Drinks",
+                      "Bakery",
+                      "Buffer & Eggs",
+                      "Milk & Creams",
+                      "Meats",
+                      "Fish",
+                    ];
+                    const isCategory = allowed.includes(props.activeCategory);
+                    const filtered = isCategory
+                      ? PRODUCTS.filter(
+                          (p) => p.category === props.activeCategory
+                        )
+                      : PRODUCTS;
+                    if (filtered.length === 0) {
+                      return (
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "center",
+                            padding: "30px",
+                          }}
+                        >
+                          <h4>No items found</h4>
+                          <p>Try a different category</p>
+                        </div>
+                      );
+                    }
+                    return filtered.map((each) => (
+                      <div key={each.id} className="offer-card">
+                        <img
+                          className="offer-image"
+                          src={each.image}
+                          alt={each.name}
+                          onError={(e) => {
+                            e.currentTarget.src = IMAGE_FALLBACK[each.category];
+                          }}
+                        />
+                        <span className="offer-cat">{each.category}</span>
+                        <div className="offer-title">
+                          {each.name} &#8377;{each.price}
+                        </div>
+                        <button className="btn shopnow-btn">SHOP NOW</button>
                       </div>
-                    );
-                  }
-                  return filtered.map((each) => (
-                    <div key={each.id} className="offer-card">
-                      <img
-                        className="offer-image"
-                        src={each.image}
-                        alt={each.name}
-                        onError={(e) => {
-                          e.currentTarget.src = IMAGE_FALLBACK[each.category];
-                        }}
-                      />
-                      <span className="offer-cat">{each.category}</span>
-                      <div className="offer-title">
-                        {each.name} &#8377;{each.price}
-                      </div>
-                      <button className="btn shopnow-btn">SHOP NOW</button>
-                    </div>
-                  ));
-                })()}
+                    ));
+                  })()}
                 </div>
               </div>
 
@@ -694,62 +694,80 @@ const Bodycontent = (props) => {
           </div>
 
           {/* Trending today */}
-          <h2 className="heading-title">
-            <img
-              src={`/bodycontent-icons/trending.png`}
-              alt="Trending"
-              className="header-text-icon"
-              style={{ width: "30px", height: "30px" }}
-            />
-            Trending Today
-          </h2>
-          <div className="trending-items-container">
-            {data?.map((product) => {
-              return (
-                <div className="trending-items-sub-div" key={product.id}>
-                  <i
-                    className={`${
-                      trendingBookmarked[product.id] ? "fas" : "far"
-                    } fa-heart bookmark-icon`}
-                    title={
-                      trendingBookmarked[product.id]
-                        ? "Remove from favorites"
-                        : "Add to favorites"
-                    }
-                    aria-label="favorite-toggle"
-                    onClick={() => handleBookmarkToggle(product.id, "trending")}
-                  ></i>
-                  <img src={product.img} alt="trending-items-img " />
-                  <p className="trending-items-title">{product.title}</p>
-                  <div className="trending-card-details-wrapper">
-                    <div className="trending-rating">
-                      <span>⭐ {product.rating || "4.5"}</span>
-                      <span className="reviews-text">
-                        ({product.reviews || "100+"} reviews)
-                      </span>
-                    </div>
-                    <div className="trending-items-decrp-container">
-                      <span className="trending-items-decrp">
-                        {product.decrp}
-                      </span>
-                      <b>&#x2B29;</b>
-                      <span className="trending-items-decrp">
-                        {product.serves}
-                      </span>
-                    </div>
-                    <div className="trending-items-btn">
-                      <b>&#8377;{product.price}</b>
-                      <button
-                        onClick={() => handleAddToCart(product)}
-                        className="trending-items-button"
-                      >
-                        + ADD
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="trending-today-container">
+            <div className="trending-title-wrapper">
+              <span className="trending-badge">TRENDING</span>
+              <h2 className="heading-title m-0">
+                <img
+                  src={`/bodycontent-icons/trending.png`}
+                  alt="Trending"
+                  className="header-text-icon"
+                  style={{ width: "30px", height: "30px" }}
+                />
+                Trending Today
+              </h2>
+            </div>
+            <div className="trending-viewport">
+              <div className="trending-track">
+                {[...Array(2)].map((_, i) => (
+                  <React.Fragment key={i}>
+                    {(data || []).map((product) => {
+                      return (
+                        <div
+                          className="trending-items-sub-div"
+                          key={`${i}-${product.id}`}
+                        >
+                          <i
+                            className={`${
+                              trendingBookmarked[product.id] ? "fas" : "far"
+                            } fa-heart bookmark-icon`}
+                            title={
+                              trendingBookmarked[product.id]
+                                ? "Remove from favorites"
+                                : "Add to favorites"
+                            }
+                            aria-label="favorite-toggle"
+                            onClick={() =>
+                              handleBookmarkToggle(product.id, "trending")
+                            }
+                          ></i>
+                          <img src={product.img} alt="trending-items-img " />
+                          <p className="trending-items-title">
+                            {product.title}
+                          </p>
+                          <div className="trending-card-details-wrapper">
+                            <div className="trending-rating">
+                              <span>⭐ {product.rating || "4.5"}</span>
+                              <span className="reviews-text">
+                                ({product.reviews || "100+"} reviews)
+                              </span>
+                            </div>
+                            <div className="trending-items-decrp-container">
+                              <span className="trending-items-decrp">
+                                {product.decrp}
+                              </span>
+                              <b>&#x2B29;</b>
+                              <span className="trending-items-decrp">
+                                {product.serves}
+                              </span>
+                            </div>
+                            <div className="trending-items-btn">
+                              <b>&#8377;{product.price}</b>
+                              <button
+                                onClick={() => handleAddToCart(product)}
+                                className="trending-items-button"
+                              >
+                                + ADD
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
           </div>
           {/* <Cart cartItems={cartItems} /> */}
 

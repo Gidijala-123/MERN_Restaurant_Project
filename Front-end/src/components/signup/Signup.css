@@ -21,19 +21,19 @@
   align-items: center;
   font-family: 'Outfit', sans-serif;
   min-height: 100vh;
-  padding: 20px;
+  padding: 1.25rem;
 }
 
 .container {
   background: var(--glass-bg);
   backdrop-filter: blur(10px);
-  border-radius: 24px;
+  border-radius: 1.5rem;
   box-shadow: var(--shadow-soft);
   position: relative;
   overflow: hidden;
-  width: 900px;
+  width: 56.25rem;
   max-width: 100%;
-  min-height: 500px;
+  min-height: 31.25rem;
   border: 1px solid var(--glass-border);
   display: flex;
   transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -47,7 +47,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0 40px;
+  padding: 0 2.5rem;
   background: #fff;
 }
 
@@ -112,7 +112,7 @@
 
 .password-toggle {
   position: absolute;
-  right: 16px;
+  right: 1rem;
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
@@ -130,11 +130,11 @@
 .text-input {
   background: #f8f9fa;
   border: 2px solid transparent;
-  padding: 10px 14px;
-  margin: 6px 0;
+  padding: 0.625rem 0.875rem;
+  margin: 0.375rem 0;
   width: 100%;
-  border-radius: 12px;
-  font-size: 14px;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
   transition: all 0.3s ease;
   color: var(--text-dark);
@@ -142,30 +142,30 @@
 
 .signup-heading,
 .login-heading {
-  margin-bottom: 12px;
+  margin-bottom: 0.75rem;
   width: 100%;
 }
 
 .description {
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--text-muted);
   line-height: 1.4;
-  margin-bottom: 12px;
+  margin-bottom: 0.75rem;
 }
 
 .text-input:focus {
   outline: none;
   background: #fff;
   border-color: var(--primary-orange);
-  box-shadow: 0 0 0 4px rgba(230, 81, 0, 0.1);
+  box-shadow: 0 0 0 0.25rem rgba(230, 81, 0, 0.1);
 }
 
 .span-tag {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
-  margin-top: -2px;
-  margin-bottom: 4px;
-  min-height: 16px;
+  margin-top: -0.125rem;
+  margin-bottom: 0.25rem;
+  min-height: 1rem;
 }
 
 .error-text {
@@ -178,17 +178,17 @@
 
 .codepen-button {
   width: 100%;
-  margin-top: 12px;
+  margin-top: 0.75rem;
   background: var(--primary-gradient);
   color: #fff;
   border: none;
-  padding: 12px;
-  border-radius: 14px;
+  padding: 0.75rem;
+  border-radius: 0.875rem;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 0.9375rem;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 8px 16px rgba(230, 81, 0, 0.2);
+  box-shadow: 0 0.5rem 1rem rgba(230, 81, 0, 0.2);
 }
 
 .codepen-button:hover {
@@ -239,7 +239,7 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  padding: 0 50px;
+  padding: 0 3.125rem;
   text-align: center;
   top: 0;
   height: 100%;
@@ -249,15 +249,15 @@
 }
 
 .overlay-panel h1 {
-  font-size: 36px;
+  font-size: 2.25rem;
   font-weight: 800;
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
   letter-spacing: -1px;
 }
 
 .overlay-panel .description {
   color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 32px;
+  margin-bottom: 2rem;
 }
 
 .overlay-left {
@@ -282,10 +282,10 @@
   background: transparent;
   border: 2px solid #fff;
   color: #fff;
-  padding: 12px 40px;
-  border-radius: 14px;
+  padding: 0.75rem 2.5rem;
+  border-radius: 0.875rem;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 0.9375rem;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -296,11 +296,11 @@
   color: var(--primary-orange);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
   .container {
-    min-height: 450px;
+    min-height: 28.125rem;
     width: 95%;
-    border-radius: 20px;
+    border-radius: 1.25rem;
     flex-direction: column;
     overflow-y: auto;
   }
@@ -312,7 +312,7 @@
   .form-container {
     position: relative;
     width: 100% !important;
-    padding: 30px 20px;
+    padding: 1.875rem 1.25rem;
     transform: none !important;
     background: #fff;
     opacity: 1 !important;
@@ -321,7 +321,7 @@
   }
 
   .signlog-div {
-    padding: 10px;
+    padding: 0.625rem;
     background-attachment: scroll;
   }
 
@@ -346,18 +346,18 @@
   }
 
   .heading-h1 {
-    font-size: 24px;
+    font-size: 1.5rem;
   }
 
   .description {
-    font-size: 13px;
+    font-size: 0.8125rem;
   }
 }
 
 /* Mobile Switcher */
 .mobile-toggle {
   display: none;
-  margin-top: 24px;
+  margin-top: 1.5rem;
   font-weight: 600;
   color: var(--text-muted);
 }
@@ -367,7 +367,7 @@
   cursor: pointer;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
   .mobile-toggle {
     display: block;
     width: 100%;
@@ -376,8 +376,8 @@
 
   .form-div {
     background: #fff;
-    padding: 40px 30px;
-    border-radius: 24px;
+    padding: 2.5rem 1.875rem;
+    border-radius: 1.5rem;
     box-shadow: var(--shadow-soft);
     align-items: center;
     text-align: center;
