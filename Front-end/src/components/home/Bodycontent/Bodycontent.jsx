@@ -52,6 +52,7 @@ const Bodycontent = (props) => {
       };
       setDiscountBookmarked(updated);
       localStorage.setItem("discountBookmarked", JSON.stringify(updated));
+      window.dispatchEvent(new Event("favoritesUpdated"));
     } else if (section === "trending") {
       const updated = {
         ...trendingBookmarked,
@@ -59,6 +60,7 @@ const Bodycontent = (props) => {
       };
       setTrendingBookmarked(updated);
       localStorage.setItem("trendingBookmarked", JSON.stringify(updated));
+      window.dispatchEvent(new Event("favoritesUpdated"));
     }
   };
 

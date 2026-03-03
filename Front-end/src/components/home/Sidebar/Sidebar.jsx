@@ -187,6 +187,8 @@ export default function Sidebar() {
   });
 
   const { theme: appTheme, toggleTheme } = useAppTheme();
+  const [favoritesCount, setFavoritesCount] = useState(0);
+  const { data } = useGetAllProductsQuery();
 
   useEffect(() => {
     const storedUserName = localStorage.getItem("userName");
@@ -272,7 +274,6 @@ export default function Sidebar() {
     return total + cartItem.cartQuantity;
   }, 0);
   const [showFavoritesModal, setShowFavoritesModal] = useState(false);
-  const { data } = useGetAllProductsQuery();
 
   const computeFavorites = () => {
     const trendingBookmarked = JSON.parse(
@@ -353,6 +354,19 @@ export default function Sidebar() {
     });
     return favorites;
   };
+
+  useEffect(() => {
+    const updateFavoritesCount = () => {
+      setFavoritesCount(computeFavorites().length);
+    };
+    updateFavoritesCount();
+    window.addEventListener("storage", updateFavoritesCount);
+    window.addEventListener("favoritesUpdated", updateFavoritesCount);
+    return () => {
+      window.removeEventListener("storage", updateFavoritesCount);
+      window.removeEventListener("favoritesUpdated", updateFavoritesCount);
+    };
+  }, [data]);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -456,7 +470,9 @@ export default function Sidebar() {
                 color="inherit"
                 onClick={() => setShowFavoritesModal(true)}
               >
-                <FavoritesIcon />
+                <Badge badgeContent={favoritesCount} color="error">
+                  <FavoritesIcon />
+                </Badge>
               </IconButton>
               <IconButton
                 size="large"
@@ -920,21 +936,58 @@ export default function Sidebar() {
           <Box className="favorites-grid">
             {computeFavorites().length > 0 ? (
               computeFavorites().map((item) => (
-                <div className="trending-items-sub-div" key={item.id}>
-                  <img src={item.img} alt={item.title} />
-                  <p className="trending-items-title">{item.title}</p>
-                  <div className="trending-card-details-wrapper">
-                    <div className="trending-rating">
-                      <span>⭐ {item.rating}</span>
-                      <span className="reviews-text">
-                        ({item.reviews} reviews)
+                <div className="favorites-card" key={item.id}>
+                  <div className="image-wrap">
+                    <img src={item.img} alt={item.title} />
+                    <button
+                      className="remove-fav"
+                      title="Remove from favorites"
+                      aria-label="remove-favorite"
+                      onClick={() => {
+                        const trending = JSON.parse(
+                          localStorage.getItem("trendingBookmarked") || "{}"
+                        );
+                        const discount = JSON.parse(
+                          localStorage.getItem("discountBookmarked") || "{}"
+                        );
+                        if (item.section === "trending") {
+                          delete trending[item.id];
+                          localStorage.setItem(
+                            "trendingBookmarked",
+                            JSON.stringify(trending)
+                          );
+                        } else {
+                          delete discount[item.id];
+                          localStorage.setItem(
+                            "discountBookmarked",
+                            JSON.stringify(discount)
+                          );
+                        }
+                        window.dispatchEvent(new Event("favoritesUpdated"));
+                        setShowFavoritesModal(true);
+                      }}
+                    >
+                      <i className="fas fa-heart"></i>
+                    </button>
+                  </div>
+                  <div className="content">
+                    <div className="title">{item.title}</div>
+                    <div className="meta">
+                      <span className="rating">
+                        <span>⭐</span>
+                        <span>{item?.rating ?? "-"}</span>
+                      </span>
+                      <span className="reviews">
+                        {item?.reviews
+                          ? `(${item.reviews} reviews)`
+                          : "(reviews)"}
                       </span>
                     </div>
-                    <div className="trending-items-btn">
-                      <b>₹{item.price}</b>
+                    <div className="actions">
+                      <span className="price">₹{item.price}</span>
                       <button
                         onClick={() => dispatch(addToCart(item))}
-                        className="trending-items-button"
+                        className="add-btn"
                       >
                         + ADD
                       </button>
