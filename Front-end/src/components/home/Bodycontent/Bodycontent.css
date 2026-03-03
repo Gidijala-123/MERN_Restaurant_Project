@@ -70,6 +70,25 @@
    margin-right: 0;
 }
 
+/* Centered Loading State */
+.loading-div {
+   width: 100%;
+   min-height: calc(100vh - 12rem);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 1.25rem;
+   box-sizing: border-box;
+}
+
+.loading-div video {
+   width: min(28rem, 90vw);
+   height: auto;
+   border-radius: 1rem;
+   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+   background: var(--white);
+}
+
 /* Normalized Section Padding */
 .trending-items-container,
 .delivery-payment-section,
