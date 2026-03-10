@@ -52,7 +52,7 @@ const BannerCarousel = () => {
       <img
         src={slides[index].url}
         className={`${styles.itemImg} d-block w-100`}
-        alt="..."
+        alt={slides[index].title}
         loading="lazy"
       />
       <div
@@ -63,7 +63,14 @@ const BannerCarousel = () => {
         <p style={{ fontStyle: "italic", color: "#ffdd4d", fontWeight: "500" }}>
           Start to order food now
         </p>
-        <button className="btn" style={{ backgroundColor: "#ACBF60", color: "#fff", margin: "10px 0" }}>
+        <button
+          className="btn"
+          style={{
+            backgroundColor: "#ACBF60",
+            color: "#fff",
+            margin: "10px 0",
+          }}
+        >
           Check Out Menu
         </button>
       </div>
@@ -71,7 +78,10 @@ const BannerCarousel = () => {
   );
 
   return (
-    <div id="carouselExampleDark" className={`carousel slide ${styles.carouselRoot}`}>
+    <div
+      id="carouselExampleDark"
+      className={`carousel slide ${styles.carouselRoot}`}
+    >
       <div
         className={`carousel-inner ${styles.inner}`}
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}

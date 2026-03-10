@@ -42,6 +42,11 @@ const EmployeeSchema = mongoose.Schema({
       },
     },
   ],
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
 });
 
 const EmployeeModel = mongoose.model("signupLogin_coll", EmployeeSchema);

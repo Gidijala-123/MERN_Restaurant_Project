@@ -1,15 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import BannerCarousel from "../BannerCarousel/BannerCarousel";
-import FreshFood from "./FRESHFOOD/FreshFood";
-import Bakery from "./BAKERY/Bakery";
-import Drinks from "./DRINKS/Drinks";
-import Shop from "./SHOP/Shop";
-import Pages from "./PAGES/Pages";
-import Blog from "./BLOG/Blog";
-import Contact from "./CONTACT/Contact";
+const FreshFood = React.lazy(() => import("./FRESHFOOD/FreshFood"));
+const Bakery = React.lazy(() => import("./BAKERY/Bakery"));
+const Drinks = React.lazy(() => import("./DRINKS/Drinks"));
+const Shop = React.lazy(() => import("./SHOP/Shop"));
+const Pages = React.lazy(() => import("./PAGES/Pages"));
+const Blog = React.lazy(() => import("./BLOG/Blog"));
+const Contact = React.lazy(() => import("./CONTACT/Contact"));
 import "./Bodycontent.css";
 import Footer from "./FOOTER/Footer";
 import Filter from "./FILTER_COMPONENT/Filter";
+import SkeletonLoader from "../../common/SkeletonLoader.jsx";
+import SupportAgentIcon from "@mui/icons-material/SupportAgent";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 
 // carttttt
 import { useDispatch } from "react-redux";
@@ -170,7 +173,7 @@ const Bodycontent = (props) => {
     "Vegetables",
     "Drinks",
     "Bakery",
-    "Buffer & Eggs",
+    "Butter & Eggs",
     "Milk & Creams",
     "Meats",
     "Fish",
@@ -186,7 +189,7 @@ const Bodycontent = (props) => {
     Vegetables: "vegetables,greens,broccoli,carrot,lettuce",
     Drinks: "drinks,juice,smoothie,mojito",
     Bakery: "bakery,bread,croissant,cake,pastry",
-    "Buffer & Eggs": "eggs,breakfast",
+    "Butter & Eggs": "eggs,breakfast,butter",
     "Milk & Creams": "milk,ice-cream,cream,dairy",
     Meats: "meat,steak,chicken,bbq",
     Fish: "fish,seafood,salmon,sushi",
@@ -196,7 +199,7 @@ const Bodycontent = (props) => {
     Vegetables: "/footer-images/veggies.jpg",
     Drinks: "/footer-images/drinks.jpg",
     Bakery: "/footer-images/desserts.jpg",
-    "Buffer & Eggs": "/footer-images/burger.png",
+    "Butter & Eggs": "/footer-images/burger.png",
     "Milk & Creams": "/footer-images/ice_cream.jpg",
     Meats: "/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg",
     Fish: "/footer-images/desserts.jpg",
@@ -305,6 +308,7 @@ const Bodycontent = (props) => {
                                 onError={(e) => {
                                   e.currentTarget.src = item.imageFallback;
                                 }}
+                                loading="lazy"
                               />
                               <p className="trending-items-title">
                                 {item.name}
@@ -356,7 +360,7 @@ const Bodycontent = (props) => {
             "Vegetables",
             "Drinks",
             "Bakery",
-            "Buffer & Eggs",
+            "Butter & Eggs",
             "Milk & Creams",
             "Meats",
             "Fish",
@@ -392,19 +396,33 @@ const Bodycontent = (props) => {
                         </div>
                       </div>
                     ) : key === "FreshFood" ? (
-                      <FreshFood key={key} />
+                      <Suspense fallback={<SkeletonLoader />}>
+                        <FreshFood key={key} />
+                      </Suspense>
                     ) : key === "Bakery" ? (
-                      <Bakery key={key} />
+                      <Suspense fallback={<SkeletonLoader />}>
+                        <Bakery key={key} />
+                      </Suspense>
                     ) : key === "Drinks" ? (
-                      <Drinks key={key} />
+                      <Suspense fallback={<SkeletonLoader />}>
+                        <Drinks key={key} />
+                      </Suspense>
                     ) : key === "Shop" ? (
-                      <Shop key={key} />
+                      <Suspense fallback={<SkeletonLoader />}>
+                        <Shop key={key} />
+                      </Suspense>
                     ) : key === "Pages" ? (
-                      <Pages key={key} />
+                      <Suspense fallback={<SkeletonLoader />}>
+                        <Pages key={key} />
+                      </Suspense>
                     ) : key === "Blog" ? (
-                      <Blog key={key} />
+                      <Suspense fallback={<SkeletonLoader />}>
+                        <Blog key={key} />
+                      </Suspense>
                     ) : (
-                      <Contact key={key} />
+                      <Suspense fallback={<SkeletonLoader />}>
+                        <Contact key={key} />
+                      </Suspense>
                     ))
                 )}
               </div>
@@ -462,6 +480,7 @@ const Bodycontent = (props) => {
                           className="offer-image"
                           src={each.image}
                           alt={each.name}
+                          loading="lazy"
                           onError={(e) => {
                             e.currentTarget.src = IMAGE_FALLBACK[each.category];
                           }}
@@ -498,6 +517,7 @@ const Bodycontent = (props) => {
                         <img
                           src={item.imageFallback}
                           alt={item.name}
+                          loading="lazy"
                           onError={(e) => {
                             e.currentTarget.src =
                               IMAGE_FALLBACK["Bakery"] ||
@@ -808,7 +828,7 @@ const Bodycontent = (props) => {
           {/* Why Choose Us Section */}
           <h2 className="heading-title">
             <img
-              src="/footer-images/best-price.png"
+              src="/bodycontent-icons/growth-graph.png"
               alt="Why Choose Us"
               className="header-text-icon"
               style={{ width: "30px", height: "30px" }}
@@ -855,10 +875,9 @@ const Bodycontent = (props) => {
               </div>
               <div className="feature-card">
                 <div className="feature-icon-wrapper">
-                  <i
-                    className="fas fa-headset"
+                  <SupportAgentIcon
                     style={{ fontSize: "30px", color: "var(--primary)" }}
-                  ></i>
+                  />
                 </div>
                 <h3>24/7 Support</h3>
                 <p>
@@ -872,8 +891,8 @@ const Bodycontent = (props) => {
           {/* Delivery Payments */}
           <h2 className="heading-title">
             <img
-              src={`/bodycontent-icons/sale-time.png`}
-              alt="Delivery"
+              src="/footer-images/rupee.png"
+              alt="Delivery and Payments"
               className="header-text-icon"
               style={{ width: "30px", height: "30px" }}
             />
@@ -931,10 +950,9 @@ const Bodycontent = (props) => {
                       gap: "12px",
                     }}
                   >
-                    <i
-                      className="fas fa-money-bill-wave"
+                    <AttachMoneyIcon
                       style={{ fontSize: "1.8rem", color: "#fff" }}
-                    ></i>
+                    />
                     <span style={{ fontWeight: "700", fontSize: "1.1rem" }}>
                       Cash on Delivery
                     </span>

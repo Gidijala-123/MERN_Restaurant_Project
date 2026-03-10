@@ -62,6 +62,7 @@ import {
 
 import "./Sidebar.css";
 import React, { useState, useEffect } from "react";
+import { useMediaQuery } from "@mui/material";
 import { Sidebar_Content } from "../../../APIs/Sidebar";
 import Bodycontent from "../Bodycontent/Bodycontent";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -87,7 +88,7 @@ const Category_Items = [
   { text: "Vegetables", icon: <VeggieIcon /> },
   { text: "Drinks", icon: <DrinkIcon /> },
   { text: "Bakery", icon: <BakeryIcon /> },
-  { text: "Buffer & Eggs", icon: <EggIcon /> },
+  { text: "Butter & Eggs", icon: <EggIcon /> },
   { text: "Milk & Creams", icon: <MilkIcon /> },
   { text: "Meats", icon: <MeatIcon /> },
   { text: "Fish", icon: <FishIcon /> },
@@ -173,6 +174,7 @@ const Drawer = styled(MuiDrawer, {
 export default function Sidebar() {
   const theme = useTheme();
   const [open, setOpen] = useState(false); // Set to false to collapse the sidebar by default
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const [currentSection, setCurrentSection] = useState("Home");
   const [activeSidebarItem, setActiveSidebarItem] = useState("Hot Offers");
   const [activeCategory, setActiveCategory] = useState("Hot Offers");
@@ -205,16 +207,27 @@ export default function Sidebar() {
     }));
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     const name = userName || "back";
     setLogoutMessage(`Thank you ${name}, please visit again. See you soon!`);
     setShowLogoutModal(true);
 
+    try {
+      const base = import.meta.env.VITE_API_URL || "http://localhost:1111";
+      const csrf = await fetch(base + "/api/csrf", { credentials: "include" })
+        .then((r) => r.json())
+        .catch(() => ({}));
+      await fetch(base + "/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+        headers: { "x-csrf-token": csrf?.csrfToken || "" },
+      });
+    } catch {}
     setTimeout(() => {
       localStorage.removeItem("token");
       localStorage.removeItem("userName");
       window.location.href = "/";
-    }, 3000);
+    }, 2000);
   };
 
   const openProfile = () => {
@@ -499,7 +512,8 @@ export default function Sidebar() {
           <SearchBar onSearchChange={handleSectionChange} />
         </Box>
       </AppBar>
-      <Drawer variant="permanent" open={open}>
+      {isDesktop ? (
+        <Drawer variant="permanent" open={open}>
         <DrawerHeader>
           <Box
             className="drawer-brand"
@@ -699,6 +713,55 @@ export default function Sidebar() {
           </List>
         </Box>
       </Drawer>
+      ) : (
+        <MuiDrawer
+          variant="temporary"
+          open={open}
+          onClose={handleDrawerClose}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            display: { xs: "block", md: "none" },
+            "& .MuiDrawer-paper": {
+              width: drawerWidth,
+            },
+          }}
+        >
+          <DrawerHeader>
+            <Box className="drawer-brand" sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <img src="/footer-images/logo.png" alt="logo" className="website-logo-mini" />
+              <div className="drawer-brand-text">
+                <span className="drawer-brand-title">Tasty Kitchen</span>
+                <span className="drawer-brand-subtitle">Fresh & Healthy Food</span>
+              </div>
+            </Box>
+            <IconButton onClick={handleDrawerClose}>
+              {theme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+            </IconButton>
+          </DrawerHeader>
+          <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+            <List>
+              {Sidebar_Items.filter((i) => i.text !== "Settings" && i.text !== "Logout").map((item) => (
+                <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
+                  <ListItemButton
+                    selected={activeSidebarItem === item.text}
+                    onClick={() => {
+                      const targetSection = sectionMap[item.text] || "Home";
+                      handleSectionChange(targetSection, item.text);
+                      handleDrawerClose();
+                    }}
+                    sx={{ minHeight: 48, justifyContent: "initial", px: 2.5 }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 0, mr: 3, justifyContent: "center" }}>
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText primary={item.text} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        </MuiDrawer>
+      )}
       <Box
         component="main"
         sx={{
@@ -938,7 +1001,7 @@ export default function Sidebar() {
               computeFavorites().map((item) => (
                 <div className="favorites-card" key={item.id}>
                   <div className="image-wrap">
-                    <img src={item.img} alt={item.title} />
+                    <img src={item.img} alt={item.title} loading="lazy" />
                     <button
                       className="remove-fav"
                       title="Remove from favorites"

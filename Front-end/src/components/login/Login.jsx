@@ -5,6 +5,10 @@ import axios from "axios";
 import { loginSchema } from "../../validations/schemas";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import EmailIcon from "@mui/icons-material/Email";
+import LockIcon from "@mui/icons-material/Lock";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons";
 
 function SignInForm({ toggleMobile }) {
   const [validationErrors, setValidationErrors] = useState({});
@@ -34,24 +38,33 @@ function SignInForm({ toggleMobile }) {
     }
 
     try {
+      const csrfRes = await fetch(`${API_BASE_URL}/api/csrf`, {
+        credentials: "include",
+      });
+      const { csrfToken } = (await csrfRes.json()) || {};
       const res = await axios.post(
-        `${API_BASE_URL}/api/signupLoginRouter/loginUser`,
-        { uemail, upassword }
+        `${API_BASE_URL}/api/auth/login`,
+        { uemail, upassword },
+        { withCredentials: true, headers: { "x-csrf-token": csrfToken } }
       );
-
       if (res.status === 200) {
-        const token = res.data["Access Token"];
-        if (token) {
-          localStorage.setItem("token", token);
-        }
-        // Assuming the API response includes user data with a name field
-        if (res.data.user && res.data.user.name) {
-          localStorage.setItem("userName", res.data.user.name);
-        }
+        try {
+          const meRes = await fetch(`${API_BASE_URL}/api/auth/me`, {
+            credentials: "include",
+          });
+          if (meRes.ok) {
+            const me = await meRes.json();
+            if (me?.uname) localStorage.setItem("userName", me.uname);
+          }
+        } catch {}
         navigate("/home");
       }
     } catch (err) {
-      setApiError(err.response?.data?.Message || "Invalid email or password.");
+      const msg =
+        err.response?.data?.message ||
+        err.response?.data?.Message ||
+        "Invalid email or password.";
+      setApiError(msg);
     }
   };
 
@@ -59,30 +72,35 @@ function SignInForm({ toggleMobile }) {
     <form className="form-div" onSubmit={loginOnSubmit}>
       <div className="login-heading">
         <h1 className="heading-h1">Welcome Back</h1>
-        <p className="description">
-          Enter your credentials to access your account
-        </p>
       </div>
-      <div className="input-group">
+      <div className="input-group input-icon-wrapper">
+        <span className="input-icon">
+          <EmailIcon />
+        </span>
         <input
-          className="text-input"
+          className="text-input with-icon"
           type="email"
           value={uemail}
           onChange={(e) => setUemail(e.target.value)}
           placeholder="Email Address"
+          autoComplete="email"
           required
         />
         <span className="span-tag error-text">{validationErrors.uemail}</span>
       </div>
 
-      <div className="input-group">
+      <div className="input-group input-icon-wrapper">
+        <span className="input-icon">
+          <LockIcon />
+        </span>
         <div className="password-wrapper">
           <input
-            className="text-input"
+            className="text-input with-icon"
             type={showPassword ? "text" : "password"}
             value={upassword}
             onChange={(e) => setUpassword(e.target.value)}
             placeholder="Password"
+            autoComplete="current-password"
             required
           />
           <span
@@ -102,6 +120,32 @@ function SignInForm({ toggleMobile }) {
       <button className="codepen-button" type="submit">
         Login
       </button>
+      <div className="auth-social-row" style={{ marginTop: "0.75rem" }}>
+        <button
+          type="button"
+          className="codepen-button"
+          onClick={() =>
+            (window.location.href = `${API_BASE_URL}/api/oauth/google`)
+          }
+        >
+          <span className="btn-icon">
+            <FontAwesomeIcon icon={faGoogle} />
+          </span>{" "}
+          Login with Google
+        </button>
+        <button
+          type="button"
+          className="codepen-button"
+          onClick={() =>
+            (window.location.href = `${API_BASE_URL}/api/oauth/github`)
+          }
+        >
+          <span className="btn-icon">
+            <FontAwesomeIcon icon={faGithub} />
+          </span>{" "}
+          Login with GitHub
+        </button>
+      </div>
 
       <div className="mobile-toggle">
         Don't have an account? <span onClick={toggleMobile}>Sign Up</span>

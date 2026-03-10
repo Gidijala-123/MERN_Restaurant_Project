@@ -9,10 +9,16 @@
   --text-muted: #666;
   --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.1);
   --primary-gradient: linear-gradient(135deg, #e65100 0%, #ff8f00 100%);
+  --field-height: 52px;
+  --icon-size: 18px;
+  --icon-gutter-left: 0.875rem;
+  --icon-gutter-right: 0.875rem;
+  --btn-height: 48px;
+  --btn-font-size: 0.95rem;
 }
 
 .signlog-div {
-  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../../../public/banner-images/banner2.jpg');
+  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/banner-images/banner2.jpg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -47,8 +53,10 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0 2.5rem;
+  padding: 2rem;
   background: #fff;
+  overflow: visible;
+  box-sizing: border-box;
 }
 
 .sign-in-container {
@@ -98,6 +106,7 @@
   align-items: flex-start;
   text-align: left;
   width: 100%;
+  gap: 0.5rem;
 }
 
 .input-group {
@@ -105,9 +114,34 @@
   margin-bottom: 4px;
 }
 
+.input-icon-wrapper {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  z-index: 2;
+  font-size: 1.125rem;
+  pointer-events: none;
+}
+
+.with-icon {
+  padding-left: 2.75rem;
+}
+
 .password-wrapper {
   position: relative;
   width: 100%;
+}
+
+.password-wrapper .with-icon {
+  padding-right: 2.75rem;
 }
 
 .password-toggle {
@@ -128,22 +162,37 @@
 }
 
 .text-input {
-  background: #f8f9fa;
-  border: 2px solid transparent;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
   padding: 0.625rem 0.875rem;
   margin: 0.375rem 0;
   width: 100%;
-  border-radius: 0.75rem;
+  border-radius: 0.875rem;
   font-size: 0.875rem;
   font-weight: 500;
   transition: all 0.3s ease;
   color: var(--text-dark);
+  height: var(--field-height);
 }
 
 .signup-heading,
 .login-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
   margin-bottom: 0.75rem;
   width: 100%;
+}
+
+/* heading-h1 uses base styles */
+
+.auth-illustration {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  margin-bottom: 0.5rem;
 }
 
 .description {
@@ -183,21 +232,64 @@
   color: #fff;
   border: none;
   padding: 0.75rem;
-  border-radius: 0.875rem;
+  border-radius: 9999px;
   font-weight: 700;
   font-size: 0.9375rem;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 0.5rem 1rem rgba(230, 81, 0, 0.2);
+  box-shadow: 0 8px 16px rgba(230, 81, 0, 0.15);
+  min-height: var(--field-height);
+  text-transform: none;
 }
 
 .codepen-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(230, 81, 0, 0.3);
+  box-shadow: 0 12px 24px rgba(230, 81, 0, 0.2);
 }
 
 .codepen-button:active {
   transform: scale(0.98);
+}
+
+.btn-icon {
+  margin-right: 0.5rem;
+}
+
+.otp-row,
+.auth-social-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.otp-row>* {
+  flex: 1 1 30%;
+}
+
+.otp-input {
+  min-width: 9rem;
+  flex: 1 1 40%;
+}
+
+.auth-social-row>* {
+  flex: 1 1 45%;
+}
+
+.otp-inline-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+.otp-inline-row .text-input {
+  flex: 1 1 auto;
+}
+
+.otp-inline-row .codepen-button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  margin-top: 0.75rem;
 }
 
 .overlay-container {
@@ -217,7 +309,7 @@
 
 .overlay {
   background: var(--primary-gradient);
-  background-image: linear-gradient(rgba(230, 81, 0, 0.85), rgba(255, 143, 0, 0.85)), url('../../../public/banner-images/banner3.jpg');
+  background-image: linear-gradient(rgba(230, 81, 0, 0.92), rgba(255, 143, 0, 0.92)), url('../../../public/banner-images/banner3.jpg');
   background-size: cover;
   background-position: center;
   color: #ffffff;
@@ -283,7 +375,7 @@
   border: 2px solid #fff;
   color: #fff;
   padding: 0.75rem 2.5rem;
-  border-radius: 0.875rem;
+  border-radius: 9999px;
   font-weight: 700;
   font-size: 0.9375rem;
   cursor: pointer;
@@ -351,6 +443,20 @@
 
   .description {
     font-size: 0.8125rem;
+  }
+
+  .auth-illustration {
+    width: 40px;
+    height: 40px;
+  }
+
+  .otp-row>*,
+  .auth-social-row>* {
+    flex: 1 1 100%;
+  }
+
+  .otp-inline-row {
+    flex-wrap: wrap;
   }
 }
 

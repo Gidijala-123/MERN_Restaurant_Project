@@ -3,6 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Signup from "./components/signup/Signup";
 import "./App.css";
 import Sidebar from "./components/home/Sidebar/Sidebar";
+import PrivateRoute from "./components/auth/PrivateRoute";
+import AdminRoute from "./components/auth/AdminRoute";
+import AdminMetrics from "./components/admin/AdminMetrics";
 
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
@@ -26,9 +29,32 @@ function App() {
           {/* Default route points to combined Signup/Login page */}
           <Route path="/" element={<Signup> </Signup>}></Route>
           {/* Main Home/Dashboard route with Sidebar */}
-          <Route path="/home" element={<Sidebar> </Sidebar>}></Route>
+          <Route
+            path="/home"
+            element={
+              <PrivateRoute>
+                <Sidebar />
+              </PrivateRoute>
+            }
+          />
           {/* Shopping Cart page */}
-          <Route path="/cart" exact Component={Cart} />
+          <Route
+            path="/cart"
+            element={
+              <PrivateRoute>
+                <Cart />
+              </PrivateRoute>
+            }
+          />
+          {/* Admin Metrics */}
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminMetrics />
+              </AdminRoute>
+            }
+          />
           {/* Post-checkout success confirmation page */}
           <Route path="/checkout-success" element={<CheckoutSuccess />} />
           {/* Custom 404 page for unmatched routes */}

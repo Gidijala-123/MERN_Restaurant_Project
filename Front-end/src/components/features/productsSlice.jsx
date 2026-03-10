@@ -11,7 +11,9 @@ export const productsFetch = createAsyncThunk(
   async (id = null, { rejectWithValue }) => {
     try {
       const baseUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:1111";
-      const response = await axios.get(`${baseUrl}/products`);
+      const response = await axios.get(`${baseUrl}/products`, {
+        withCredentials: true,
+      });
       return response?.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
