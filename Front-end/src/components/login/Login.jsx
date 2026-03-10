@@ -71,6 +71,12 @@ function SignInForm({ toggleMobile }) {
   return (
     <form className="form-div" onSubmit={loginOnSubmit}>
       <div className="login-heading">
+        <img
+          src="/footer-images/user-icon.png"
+          alt="profile"
+          className="auth-illustration"
+          style={{ borderRadius: "50%" }}
+        />
         <h1 className="heading-h1">Welcome Back</h1>
       </div>
       <div className="input-group input-icon-wrapper">
