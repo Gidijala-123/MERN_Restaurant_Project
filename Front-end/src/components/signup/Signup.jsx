@@ -144,12 +144,12 @@ function Signup() {
               <h1 className="heading-h1">Create Account</h1>
               <p className="description">Enter your details to get started</p>
             </div>
-            <div className="input-group input-icon-wrapper">
-              <span className="input-icon">
-                <PersonIcon />
+            <div className="input-group mb-3">
+              <span className="input-group-text bg-light border-secondary">
+                <PersonIcon fontSize="small" />
               </span>
               <input
-                className="text-input with-icon"
+                className="form-control"
                 type="text"
                 value={uname}
                 onChange={(e) => setUname(e.target.value)}
@@ -162,12 +162,12 @@ function Signup() {
               </span>
             </div>
 
-            <div className="input-group input-icon-wrapper">
-              <span className="input-icon">
-                <EmailIcon />
+            <div className="input-group mb-3">
+              <span className="input-group-text bg-light border-secondary">
+                <EmailIcon fontSize="small" />
               </span>
               <input
-                className="text-input with-icon"
+                className="form-control"
                 type="email"
                 value={uemail}
                 onChange={(e) => setUemail(e.target.value)}
@@ -180,53 +180,53 @@ function Signup() {
               </span>
             </div>
 
-            <div className="input-group input-icon-wrapper">
-              <span className="input-icon">
-                <LockIcon />
+            <div className="input-group mb-3">
+              <span className="input-group-text bg-light border-secondary">
+                <LockIcon fontSize="small" />
               </span>
-              <div className="password-wrapper">
-                <input
-                  className="text-input with-icon"
-                  type={showPassword ? "text" : "password"}
-                  value={upassword}
-                  onChange={(e) => setUpassword(e.target.value)}
-                  placeholder="Password"
-                  autoComplete="new-password"
-                  required
-                />
-                <span
-                  className="password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </span>
-              </div>
+              <input
+                className="form-control"
+                type={showPassword ? "text" : "password"}
+                value={upassword}
+                onChange={(e) => setUpassword(e.target.value)}
+                placeholder="Password"
+                autoComplete="new-password"
+                required
+              />
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </button>
               <span className="span-tag error-text">
                 {validationErrors.upassword}
               </span>
             </div>
 
-            <div className="input-group input-icon-wrapper">
-              <span className="input-icon">
-                <LockIcon />
+            <div className="input-group mb-3">
+              <span className="input-group-text bg-light border-secondary">
+                <LockIcon fontSize="small" />
               </span>
-              <div className="password-wrapper">
-                <input
-                  className="text-input with-icon"
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={uconfirmPassword}
-                  onChange={(e) => setUconfirmPassword(e.target.value)}
-                  placeholder="Confirm Password"
-                  autoComplete="new-password"
-                  required
-                />
-                <span
-                  className="password-toggle"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                </span>
-              </div>
+              <input
+                className="form-control"
+                type={showConfirmPassword ? "text" : "password"}
+                value={uconfirmPassword}
+                onChange={(e) => setUconfirmPassword(e.target.value)}
+                placeholder="Confirm Password"
+                autoComplete="new-password"
+                required
+              />
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                aria-label="Toggle confirm password visibility"
+              >
+                {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+              </button>
               <span className="span-tag error-text">
                 {validationErrors.uconfirmPassword}
               </span>
@@ -234,31 +234,36 @@ function Signup() {
 
             <span className="span-tag error-text">{apiStatus.error}</span>
             <span className="span-tag success-text">{apiStatus.success}</span>
-            <div className="otp-inline-row">
+            <div className="input-group mb-3">
               <input
-                className="text-input with-icon"
+                className="form-control"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="Phone for OTP"
               />
-              {isOtpSent && (
-                <input
-                  className="text-input"
-                  type="text"
-                  value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value)}
-                  placeholder="Enter OTP"
-                />
-              )}
               <button
                 type="button"
-                className="codepen-button"
+                className="btn btn-outline-secondary"
                 onClick={isOtpSent ? verifyOtp : sendOtp}
               >
                 {isOtpSent ? "Verify OTP" : "Send OTP"}
               </button>
             </div>
+            {isOtpSent && (
+              <div className="input-group mb-3">
+                <span className="input-group-text bg-light border-secondary">
+                  OTP
+                </span>
+                <input
+                  className="form-control"
+                  type="text"
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value)}
+                  placeholder="Enter OTP"
+                />
+              </div>
+            )}
             <span className="span-tag success-text">{otpMsg}</span>
             <button className="codepen-button" type="submit">
               Sign Up

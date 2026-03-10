@@ -79,12 +79,12 @@ function SignInForm({ toggleMobile }) {
         />
         <h1 className="heading-h1">Welcome Back</h1>
       </div>
-      <div className="input-group input-icon-wrapper">
-        <span className="input-icon">
-          <EmailIcon />
+      <div className="input-group mb-3">
+        <span className="input-group-text bg-light border-secondary">
+          <EmailIcon fontSize="small" />
         </span>
         <input
-          className="text-input with-icon"
+          className="form-control"
           type="email"
           value={uemail}
           onChange={(e) => setUemail(e.target.value)}
@@ -92,34 +92,32 @@ function SignInForm({ toggleMobile }) {
           autoComplete="email"
           required
         />
-        <span className="span-tag error-text">{validationErrors.uemail}</span>
       </div>
+      <span className="span-tag error-text">{validationErrors.uemail}</span>
 
-      <div className="input-group input-icon-wrapper">
-        <span className="input-icon">
-          <LockIcon />
+      <div className="input-group mb-3">
+        <span className="input-group-text bg-light border-secondary">
+          <LockIcon fontSize="small" />
         </span>
-        <div className="password-wrapper">
-          <input
-            className="text-input with-icon"
-            type={showPassword ? "text" : "password"}
-            value={upassword}
-            onChange={(e) => setUpassword(e.target.value)}
-            placeholder="Password"
-            autoComplete="current-password"
-            required
-          />
-          <span
-            className="password-toggle"
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? <VisibilityOff /> : <Visibility />}
-          </span>
-        </div>
-        <span className="span-tag error-text">
-          {validationErrors.upassword}
-        </span>
+        <input
+          className="form-control"
+          type={showPassword ? "text" : "password"}
+          value={upassword}
+          onChange={(e) => setUpassword(e.target.value)}
+          placeholder="Password"
+          autoComplete="current-password"
+          required
+        />
+        <button
+          type="button"
+          className="btn btn-outline-secondary"
+          onClick={() => setShowPassword(!showPassword)}
+          aria-label="Toggle password visibility"
+        >
+          {showPassword ? <VisibilityOff /> : <Visibility />}
+        </button>
       </div>
+      <span className="span-tag error-text">{validationErrors.upassword}</span>
 
       <span className="span-tag error-text">{apiError}</span>
 
