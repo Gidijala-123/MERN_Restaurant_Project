@@ -206,6 +206,26 @@ export default function Sidebar() {
       foodType: storedFoodType,
     }));
   }, []);
+  const [avatar, setAvatar] = useState("");
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const base = import.meta.env.VITE_API_URL || "http://localhost:1111";
+        const res = await fetch(base + "/api/auth/me", {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const me = await res.json();
+          if (me?.uname) {
+            localStorage.setItem("userName", me.uname);
+            setUserName(me.uname);
+          }
+          if (me?.avatar) setAvatar(me.avatar);
+        }
+      } catch {}
+    };
+    load();
+  }, []);
 
   const handleLogout = async () => {
     const name = userName || "back";
@@ -499,7 +519,7 @@ export default function Sidebar() {
                 </Badge>
               </IconButton>
               <img
-                src="/footer-images/user-icon.png"
+                src={avatar || "/footer-images/user-icon.png"}
                 alt="user"
                 className="user-avatar"
                 onClick={openProfile}
@@ -508,211 +528,214 @@ export default function Sidebar() {
           </Box>
         </Toolbar>
         {/* Mobile Search Bar - Visible only on mobile below the main toolbar if needed, or we can just hide it on tiny screens */}
+        {/* Mobile Search Bar - Visible only on mobile below the main toolbar if needed, or we can just hide it on tiny screens */}
         <Box sx={{ display: { xs: "block", md: "none" }, px: 2, pb: 1 }}>
           <SearchBar onSearchChange={handleSectionChange} />
         </Box>
       </AppBar>
       {isDesktop ? (
         <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
+          <DrawerHeader>
+            <Box
+              className="drawer-brand"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                opacity: open ? 1 : 0,
+                visibility: open ? "visible" : "hidden",
+                transition: "opacity 0.3s ease, visibility 0.3s ease",
+                flexGrow: 1,
+              }}
+            >
+              <img
+                src="/footer-images/logo.png"
+                alt="logo"
+                className="website-logo-mini"
+              />
+              <div className="drawer-brand-text">
+                <span className="drawer-brand-title">Tasty Kitchen</span>
+                <span className="drawer-brand-subtitle">
+                  Fresh & Healthy Food
+                </span>
+              </div>
+            </Box>
+            <IconButton onClick={handleDrawerClose}>
+              {theme.direction === "rtl" ? (
+                <ChevronRightIcon />
+              ) : (
+                <ChevronLeftIcon />
+              )}
+            </IconButton>
+          </DrawerHeader>
           <Box
-            className="drawer-brand"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1.5,
-              opacity: open ? 1 : 0,
-              visibility: open ? "visible" : "hidden",
-              transition: "opacity 0.3s ease, visibility 0.3s ease",
-              flexGrow: 1,
-            }}
+            sx={{ display: "flex", flexDirection: "column", height: "100%" }}
           >
-            <img
-              src="/footer-images/logo.png"
-              alt="logo"
-              className="website-logo-mini"
-            />
-            <div className="drawer-brand-text">
-              <span className="drawer-brand-title">Tasty Kitchen</span>
-              <span className="drawer-brand-subtitle">
-                Fresh & Healthy Food
-              </span>
-            </div>
-          </Box>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? (
-              <ChevronRightIcon />
-            ) : (
-              <ChevronLeftIcon />
-            )}
-          </IconButton>
-        </DrawerHeader>
-        <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-          <List>
-            {Sidebar_Items.filter(
-              (i) => i.text !== "Settings" && i.text !== "Logout"
-            ).map((item) => (
-              <ListItem
-                key={item.text}
-                disablePadding
-                sx={{ display: "block" }}
-              >
-                <ListItemButton
-                  selected={activeSidebarItem === item.text}
-                  onClick={() => {
-                    const targetSection = sectionMap[item.text] || "Home";
-                    handleSectionChange(targetSection, item.text);
-                  }}
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? "initial" : "center",
-                    px: 2.5,
-                    "&.Mui-selected": {
-                      background: "var(--primary-gradient)",
-                      color: "white",
-                      "& .MuiListItemIcon-root": {
-                        color: "white",
-                      },
-                      "&:hover": {
-                        background: "var(--primary-gradient)",
-                        opacity: 0.9,
-                      },
-                    },
-                  }}
+            <List>
+              {Sidebar_Items.filter(
+                (i) => i.text !== "Settings" && i.text !== "Logout"
+              ).map((item) => (
+                <ListItem
+                  key={item.text}
+                  disablePadding
+                  sx={{ display: "block" }}
                 >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
-                      color:
-                        activeSidebarItem === item.text ? "white" : "inherit",
-                      "& .MuiSvgIcon-root": {
-                        fontSize: 24,
-                      },
-                    }}
-                  >
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={item.text}
-                    sx={{ opacity: open ? 1 : 0 }}
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
-            {Category_Items.map((item) => (
-              <ListItem
-                key={item.text}
-                disablePadding
-                sx={{ display: "block" }}
-              >
-                <ListItemButton
-                  selected={activeSidebarItem === item.text}
-                  onClick={() => {
-                    const targetSection = sectionMap[item.text] || "Home";
-                    handleSectionChange(targetSection, item.text);
-                  }}
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? "initial" : "center",
-                    px: 2.5,
-                    "&.Mui-selected": {
-                      background: "var(--primary-gradient)",
-                      color: "white",
-                      "& .MuiListItemIcon-root": {
-                        color: "white",
-                      },
-                      "&:hover": {
-                        background: "var(--primary-gradient)",
-                        opacity: 0.9,
-                      },
-                    },
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
-                      color:
-                        activeSidebarItem === item.text ? "white" : "inherit",
-                      "& .MuiSvgIcon-root": {
-                        fontSize: 24,
-                      },
-                    }}
-                  >
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={item.text}
-                    sx={{ opacity: open ? 1 : 0 }}
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-          <Box sx={{ flexGrow: 1 }} />
-          <List>
-            {Sidebar_Items.filter(
-              (i) => i.text === "Settings" || i.text === "Logout"
-            ).map((item) => (
-              <ListItem
-                key={item.text}
-                disablePadding
-                sx={{ display: "block" }}
-              >
-                <ListItemButton
-                  selected={activeSidebarItem === item.text}
-                  onClick={() => {
-                    if (item.action === "logout") {
-                      handleLogout();
-                    } else {
+                  <ListItemButton
+                    selected={activeSidebarItem === item.text}
+                    onClick={() => {
                       const targetSection = sectionMap[item.text] || "Home";
                       handleSectionChange(targetSection, item.text);
-                    }
-                  }}
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? "initial" : "center",
-                    px: 2.5,
-                    "&.Mui-selected": {
-                      background: "var(--primary-gradient)",
-                      color: "white",
-                      "& .MuiListItemIcon-root": {
-                        color: "white",
-                      },
-                      "&:hover": {
-                        background: "var(--primary-gradient)",
-                        opacity: 0.9,
-                      },
-                    },
-                  }}
-                >
-                  <ListItemIcon
+                    }}
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
-                      color:
-                        activeSidebarItem === item.text ? "white" : "inherit",
-                      "& .MuiSvgIcon-root": {
-                        fontSize: 24,
+                      minHeight: 48,
+                      justifyContent: open ? "initial" : "center",
+                      px: 2.5,
+                      "&.Mui-selected": {
+                        background: "var(--primary-gradient)",
+                        color: "white",
+                        "& .MuiListItemIcon-root": {
+                          color: "white",
+                        },
+                        "&:hover": {
+                          background: "var(--primary-gradient)",
+                          opacity: 0.9,
+                        },
                       },
                     }}
                   >
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={item.text}
-                    sx={{ opacity: open ? 1 : 0 }}
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      </Drawer>
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : "auto",
+                        justifyContent: "center",
+                        color:
+                          activeSidebarItem === item.text ? "white" : "inherit",
+                        "& .MuiSvgIcon-root": {
+                          fontSize: 24,
+                        },
+                      }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.text}
+                      sx={{ opacity: open ? 1 : 0 }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+              {Category_Items.map((item) => (
+                <ListItem
+                  key={item.text}
+                  disablePadding
+                  sx={{ display: "block" }}
+                >
+                  <ListItemButton
+                    selected={activeSidebarItem === item.text}
+                    onClick={() => {
+                      const targetSection = sectionMap[item.text] || "Home";
+                      handleSectionChange(targetSection, item.text);
+                    }}
+                    sx={{
+                      minHeight: 48,
+                      justifyContent: open ? "initial" : "center",
+                      px: 2.5,
+                      "&.Mui-selected": {
+                        background: "var(--primary-gradient)",
+                        color: "white",
+                        "& .MuiListItemIcon-root": {
+                          color: "white",
+                        },
+                        "&:hover": {
+                          background: "var(--primary-gradient)",
+                          opacity: 0.9,
+                        },
+                      },
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : "auto",
+                        justifyContent: "center",
+                        color:
+                          activeSidebarItem === item.text ? "white" : "inherit",
+                        "& .MuiSvgIcon-root": {
+                          fontSize: 24,
+                        },
+                      }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.text}
+                      sx={{ opacity: open ? 1 : 0 }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+            <Box sx={{ flexGrow: 1 }} />
+            <List>
+              {Sidebar_Items.filter(
+                (i) => i.text === "Settings" || i.text === "Logout"
+              ).map((item) => (
+                <ListItem
+                  key={item.text}
+                  disablePadding
+                  sx={{ display: "block" }}
+                >
+                  <ListItemButton
+                    selected={activeSidebarItem === item.text}
+                    onClick={() => {
+                      if (item.action === "logout") {
+                        handleLogout();
+                      } else {
+                        const targetSection = sectionMap[item.text] || "Home";
+                        handleSectionChange(targetSection, item.text);
+                      }
+                    }}
+                    sx={{
+                      minHeight: 48,
+                      justifyContent: open ? "initial" : "center",
+                      px: 2.5,
+                      "&.Mui-selected": {
+                        background: "var(--primary-gradient)",
+                        color: "white",
+                        "& .MuiListItemIcon-root": {
+                          color: "white",
+                        },
+                        "&:hover": {
+                          background: "var(--primary-gradient)",
+                          opacity: 0.9,
+                        },
+                      },
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : "auto",
+                        justifyContent: "center",
+                        color:
+                          activeSidebarItem === item.text ? "white" : "inherit",
+                        "& .MuiSvgIcon-root": {
+                          fontSize: 24,
+                        },
+                      }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.text}
+                      sx={{ opacity: open ? 1 : 0 }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        </Drawer>
       ) : (
         <MuiDrawer
           variant="temporary"
@@ -727,21 +750,42 @@ export default function Sidebar() {
           }}
         >
           <DrawerHeader>
-            <Box className="drawer-brand" sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              <img src="/footer-images/logo.png" alt="logo" className="website-logo-mini" />
+            <Box
+              className="drawer-brand"
+              sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
+            >
+              <img
+                src="/footer-images/logo.png"
+                alt="logo"
+                className="website-logo-mini"
+              />
               <div className="drawer-brand-text">
                 <span className="drawer-brand-title">Tasty Kitchen</span>
-                <span className="drawer-brand-subtitle">Fresh & Healthy Food</span>
+                <span className="drawer-brand-subtitle">
+                  Fresh & Healthy Food
+                </span>
               </div>
             </Box>
             <IconButton onClick={handleDrawerClose}>
-              {theme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+              {theme.direction === "rtl" ? (
+                <ChevronRightIcon />
+              ) : (
+                <ChevronLeftIcon />
+              )}
             </IconButton>
           </DrawerHeader>
-          <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+          <Box
+            sx={{ display: "flex", flexDirection: "column", height: "100%" }}
+          >
             <List>
-              {Sidebar_Items.filter((i) => i.text !== "Settings" && i.text !== "Logout").map((item) => (
-                <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
+              {Sidebar_Items.filter(
+                (i) => i.text !== "Settings" && i.text !== "Logout"
+              ).map((item) => (
+                <ListItem
+                  key={item.text}
+                  disablePadding
+                  sx={{ display: "block" }}
+                >
                   <ListItemButton
                     selected={activeSidebarItem === item.text}
                     onClick={() => {
@@ -751,7 +795,9 @@ export default function Sidebar() {
                     }}
                     sx={{ minHeight: 48, justifyContent: "initial", px: 2.5 }}
                   >
-                    <ListItemIcon sx={{ minWidth: 0, mr: 3, justifyContent: "center" }}>
+                    <ListItemIcon
+                      sx={{ minWidth: 0, mr: 3, justifyContent: "center" }}
+                    >
                       {item.icon}
                     </ListItemIcon>
                     <ListItemText primary={item.text} />

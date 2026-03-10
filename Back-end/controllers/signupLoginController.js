@@ -12,7 +12,7 @@ dotenv.config();
  * @access Public
  */
 const registerUser = asyncHandler(async (req, res) => {
-  const { uname, uemail, upassword } = req.body;
+  const { uname, uemail, upassword, avatar = "" } = req.body;
   
   // Check if user already exists in the database
   const checkForExisitingUser = await EmployeeModel.findOne({ uemail });
@@ -24,11 +24,12 @@ const registerUser = asyncHandler(async (req, res) => {
   const hashedPassword = await bcrypt.hash(upassword, 10);
   
   // Create a new user record
-  const newUser = await EmployeeModel.create({       
+  const newUser = await EmployeeModel.create({
     uname,
     uemail,
     upassword: hashedPassword,
     role: "user",
+    avatar,
   });
 
   if (newUser) {
@@ -36,6 +37,7 @@ const registerUser = asyncHandler(async (req, res) => {
       Message: "User created successfully..!",
       id: newUser.id,
       uemail: newUser.uemail,
+      avatar: newUser.avatar || "",
     });
   } else {
     return res.status(400).json({ Error: "Invalid user data" });

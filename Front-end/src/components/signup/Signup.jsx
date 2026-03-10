@@ -9,6 +9,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
+import EditIcon from "@mui/icons-material/Edit";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons";
 
@@ -27,6 +28,7 @@ function Signup() {
   const [otpCode, setOtpCode] = useState("");
   const [otpMsg, setOtpMsg] = useState("");
   const [isOtpSent, setIsOtpSent] = useState(false);
+  const [avatar, setAvatar] = useState("");
   const navigate = useNavigate();
 
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:1111";
@@ -64,7 +66,7 @@ function Signup() {
     try {
       const res = await axios.post(
         `${API_URL}/api/signupLoginRouter/registerUser`,
-        { uname, uemail, upassword }
+        { uname, uemail, upassword, avatar }
       );
 
       if (res.status === 200) {
@@ -136,11 +138,29 @@ function Signup() {
         <div className="form-container sign-up-container">
           <form className="form-div" onSubmit={signupOnSubmit}>
             <div className="signup-heading">
-              <img
-                src="/footer-images/user-icon.png"
-                alt="Create Account"
-                className="auth-illustration"
-              />
+              <div className="avatar-uploader">
+                <img
+                  src={avatar || "/footer-images/user-icon.png"}
+                  alt="avatar"
+                  className="avatar-img"
+                />
+                <label className="avatar-edit-badge">
+                  <EditIcon fontSize="small" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = () =>
+                        setAvatar(String(reader.result || ""));
+                      reader.readAsDataURL(file);
+                    }}
+                    style={{ display: "none" }}
+                  />
+                </label>
+              </div>
               <h1 className="heading-h1">Create Account</h1>
               <p className="description">Enter your details to get started</p>
             </div>

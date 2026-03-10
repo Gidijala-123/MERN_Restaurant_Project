@@ -143,7 +143,49 @@
 /* Reduce padding and enable safe scrolling for Sign Up panel */
 .form-container.sign-up-container {
   padding: 1.25rem;
+  overflow: hidden;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+.form-container.sign-up-container .form-div {
+  height: 100%;
   overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.form-container.sign-up-container .form-div {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-orange) transparent;
+}
+
+.form-container.sign-up-container .form-div::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.form-container.sign-up-container .form-div::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 8px;
+}
+
+.form-container.sign-up-container .form-div::-webkit-scrollbar-thumb {
+  background: var(--primary-gradient);
+  border-radius: 8px;
+}
+
+.form-container.sign-up-container .form-div::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, var(--secondary-orange) 0%, var(--primary-orange) 100%);
+}
+
+.form-container.sign-up-container .signup-heading {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 2;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .form-container.sign-up-container .input-group {
@@ -251,6 +293,45 @@
   border-radius: 12px;
   object-fit: cover;
   margin-bottom: 0.5rem;
+}
+
+.avatar-uploader {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 0.25rem;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid var(--secondary-orange);
+  background: #fff;
+}
+
+.avatar-edit-badge {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--primary-orange);
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.avatar-uploader:hover .avatar-edit-badge {
+  opacity: 1;
 }
 
 .description {

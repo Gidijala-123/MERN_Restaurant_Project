@@ -12,7 +12,13 @@ import dbConnection from "./config/dbConfig.js";
 import signupLoginRouter from "./routers/signupLoginRouter.js";
 import products from "./controllers/products.js";
 import errorHandler from "./middleware/errorHandling.js";
-import { login, refresh, logout, me } from "./controllers/authController.js";
+import {
+  login,
+  refresh,
+  logout,
+  me,
+  updateAvatar,
+} from "./controllers/authController.js";
 import { verifyAccessToken, requireRole } from "./middleware/auth.js";
 import { setOtp, verifyOtp } from "./services/otpStore.js";
 import { sendSmsOtp, sendWhatsAppOtp } from "./services/otpService.js";
@@ -50,6 +56,7 @@ const allowedOrigins = new Set([
   process.env.FRONTEND_URL || "http://localhost:3002",
   "https://gbr-kitchen.onrender.com",
   "http://localhost:3000",
+  "http://localhost:3001",
 ]);
 app.use(
   cors({
@@ -106,6 +113,7 @@ app.post("/api/auth/login", loginLimiter, login);
 app.get("/api/auth/refresh", refresh);
 app.post("/api/auth/logout", checkCsrf, logout);
 app.get("/api/auth/me", verifyAccessToken, me);
+app.patch("/api/auth/avatar", verifyAccessToken, checkCsrf, updateAvatar);
 // OAuth routes (activate only if env is provided)
 app.get(
   "/api/oauth/google",

@@ -19,6 +19,10 @@ const EmployeeSchema = mongoose.Schema({
     type: String,
     required: [true, "Enter your password"],
   },
+  avatar: {
+    type: String,
+    default: "", // Data URL or external URL
+  },
   createdDate: {
     type: String,
     // Automatically sets current date in DD-MM-YYYY format

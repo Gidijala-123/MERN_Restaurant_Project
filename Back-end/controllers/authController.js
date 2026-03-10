@@ -68,5 +68,22 @@ export const logout = asyncHandler(async (req, res) => {
 });
 
 export const me = asyncHandler(async (req, res) => {
-  res.json(req.tokenKey);
+  const uid = req.tokenKey?.uid;
+  if (!uid) return res.status(401).json({ message: "Unauthorized" });
+  const user = await EmployeeModel.findById(uid).select("avatar uname uemail role");
+  res.json({
+    ...req.tokenKey,
+    avatar: user?.avatar || "",
+    uname: user?.uname || req.tokenKey?.uname,
+  });
+});
+
+export const updateAvatar = asyncHandler(async (req, res) => {
+  const uid = req.tokenKey?.uid;
+  const { avatar } = req.body || {};
+  if (!uid) return res.status(401).json({ message: "Unauthorized" });
+  if (!avatar || typeof avatar !== "string")
+    return res.status(400).json({ message: "avatar string required" });
+  await EmployeeModel.findByIdAndUpdate(uid, { avatar });
+  res.json({ ok: true });
 });
