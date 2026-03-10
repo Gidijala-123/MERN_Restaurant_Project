@@ -53,5 +53,7 @@ const EmployeeSchema = mongoose.Schema({
   },
 });
 
-const EmployeeModel = mongoose.model("signupLogin_coll", EmployeeSchema);
+const EmployeeModel =
+  mongoose.models.signupLogin_coll ||
+  mongoose.model("signupLogin_coll", EmployeeSchema);
 export default EmployeeModel;

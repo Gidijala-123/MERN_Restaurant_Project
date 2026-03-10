@@ -150,31 +150,42 @@
 
 .form-container.sign-up-container .form-div {
   height: 100%;
-  overflow-y: auto;
-  padding-right: 0.25rem;
+  overflow: hidden;
+  background: #fff;
+  position: relative;
 }
 
-.form-container.sign-up-container .form-div {
+/* Scroll only the fields area, not the sticky heading */
+.form-container.sign-up-container .form-fields {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  width: 100%;
+  padding-right: 0.25rem;
+  background: #fff;
+}
+
+.form-container.sign-up-container .form-fields {
   scrollbar-width: thin;
   scrollbar-color: var(--primary-orange) transparent;
 }
 
-.form-container.sign-up-container .form-div::-webkit-scrollbar {
+.form-container.sign-up-container .form-fields::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
-.form-container.sign-up-container .form-div::-webkit-scrollbar-track {
+.form-container.sign-up-container .form-fields::-webkit-scrollbar-track {
   background: transparent;
   border-radius: 8px;
 }
 
-.form-container.sign-up-container .form-div::-webkit-scrollbar-thumb {
+.form-container.sign-up-container .form-fields::-webkit-scrollbar-thumb {
   background: var(--primary-gradient);
   border-radius: 8px;
 }
 
-.form-container.sign-up-container .form-div::-webkit-scrollbar-thumb:hover {
+.form-container.sign-up-container .form-fields::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, var(--secondary-orange) 0%, var(--primary-orange) 100%);
 }
 
@@ -182,10 +193,23 @@
   position: sticky;
   top: 0;
   background: #fff;
-  z-index: 2;
+  z-index: 20;
   padding-bottom: 0.5rem;
   margin-bottom: 0.5rem;
   border-bottom: 1px solid #f0f0f0;
+  width: 100%;
+}
+
+/* Ensure sticky header visually covers inputs while scrolling */
+.form-container.sign-up-container .signup-heading::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 12px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+  pointer-events: none;
 }
 
 .form-container.sign-up-container .input-group {

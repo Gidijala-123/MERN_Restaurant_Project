@@ -77,12 +77,21 @@ function Signup() {
         setTimeout(() => toggleSignupLogin("signIn"), 2000);
       }
     } catch (err) {
-      setApiStatus({
-        error:
-          err.response?.data?.Message ||
-          "An error occurred during registration.",
-        success: "",
-      });
+      if (err.response?.status === 403 || err.response?.status === 400) {
+        // Suppress console error for expected validation failures
+        setApiStatus({
+          error:
+            err.response?.data?.Message ||
+            err.response?.data?.Error ||
+            "An error occurred during registration.",
+          success: "",
+        });
+      } else {
+        setApiStatus({
+          error: "An unexpected error occurred during registration.",
+          success: "",
+        });
+      }
     }
   };
   const sendOtp = async () => {
@@ -164,160 +173,162 @@ function Signup() {
               <h1 className="heading-h1">Create Account</h1>
               <p className="description">Enter your details to get started</p>
             </div>
-            <div className="input-group mb-3">
-              <span className="input-group-text icon-badge">
-                <PersonIcon fontSize="small" />
-              </span>
-              <input
-                className="form-control"
-                type="text"
-                value={uname}
-                onChange={(e) => setUname(e.target.value)}
-                placeholder="Full Name"
-                autoComplete="name"
-                required
-              />
-              <span className="span-tag error-text">
-                {validationErrors.uname}
-              </span>
-            </div>
-
-            <div className="input-group mb-3">
-              <span className="input-group-text icon-badge">
-                <EmailIcon fontSize="small" />
-              </span>
-              <input
-                className="form-control"
-                type="email"
-                value={uemail}
-                onChange={(e) => setUemail(e.target.value)}
-                placeholder="Email Address"
-                autoComplete="email"
-                required
-              />
-              <span className="span-tag error-text">
-                {validationErrors.uemail}
-              </span>
-            </div>
-
-            <div className="input-group mb-3">
-              <span className="input-group-text icon-badge">
-                <LockIcon fontSize="small" />
-              </span>
-              <input
-                className="form-control"
-                type={showPassword ? "text" : "password"}
-                value={upassword}
-                onChange={(e) => setUpassword(e.target.value)}
-                placeholder="Password"
-                autoComplete="new-password"
-                required
-              />
-              <button
-                type="button"
-                className="btn password-toggle-btn"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label="Toggle password visibility"
-              >
-                {showPassword ? <VisibilityOff /> : <Visibility />}
-              </button>
-              <span className="span-tag error-text">
-                {validationErrors.upassword}
-              </span>
-            </div>
-
-            <div className="input-group mb-3">
-              <span className="input-group-text icon-badge">
-                <LockIcon fontSize="small" />
-              </span>
-              <input
-                className="form-control"
-                type={showConfirmPassword ? "text" : "password"}
-                value={uconfirmPassword}
-                onChange={(e) => setUconfirmPassword(e.target.value)}
-                placeholder="Confirm Password"
-                autoComplete="new-password"
-                required
-              />
-              <button
-                type="button"
-                className="btn password-toggle-btn"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                aria-label="Toggle confirm password visibility"
-              >
-                {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-              </button>
-              <span className="span-tag error-text">
-                {validationErrors.uconfirmPassword}
-              </span>
-            </div>
-
-            <span className="span-tag error-text">{apiStatus.error}</span>
-            <span className="span-tag success-text">{apiStatus.success}</span>
-            <div className="input-group mb-3">
-              <input
-                className="form-control"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Phone for OTP"
-              />
-              <button
-                type="button"
-                className="btn btn-outline-secondary"
-                onClick={isOtpSent ? verifyOtp : sendOtp}
-              >
-                {isOtpSent ? "Verify OTP" : "Send OTP"}
-              </button>
-            </div>
-            {isOtpSent && (
+            <div className="form-fields">
               <div className="input-group mb-3">
-                <span className="input-group-text bg-light border-secondary">
-                  OTP
+                <span className="input-group-text icon-badge">
+                  <PersonIcon fontSize="small" />
                 </span>
                 <input
                   className="form-control"
                   type="text"
-                  value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value)}
-                  placeholder="Enter OTP"
+                  value={uname}
+                  onChange={(e) => setUname(e.target.value)}
+                  placeholder="Full Name"
+                  autoComplete="name"
+                  required
                 />
+                <span className="span-tag error-text">
+                  {validationErrors.uname}
+                </span>
               </div>
-            )}
-            <span className="span-tag success-text">{otpMsg}</span>
-            <button className="codepen-button" type="submit">
-              Sign Up
-            </button>
-            <div className="auth-social-row" style={{ marginTop: "0.75rem" }}>
-              <button
-                type="button"
-                className="codepen-button"
-                onClick={() =>
-                  (window.location.href = `${API_URL}/api/oauth/google`)
-                }
-              >
-                <span className="btn-icon">
-                  <FontAwesomeIcon icon={faGoogle} />
-                </span>{" "}
-                Continue with Google
-              </button>
-              <button
-                type="button"
-                className="codepen-button"
-                onClick={() =>
-                  (window.location.href = `${API_URL}/api/oauth/github`)
-                }
-              >
-                <span className="btn-icon">
-                  <FontAwesomeIcon icon={faGithub} />
-                </span>{" "}
-                Continue with GitHub
-              </button>
-            </div>
 
-            <div className="mobile-toggle">
-              Already have an account?{" "}
-              <span onClick={() => toggleSignupLogin("signIn")}>Login</span>
+              <div className="input-group mb-3">
+                <span className="input-group-text icon-badge">
+                  <EmailIcon fontSize="small" />
+                </span>
+                <input
+                  className="form-control"
+                  type="email"
+                  value={uemail}
+                  onChange={(e) => setUemail(e.target.value)}
+                  placeholder="Email Address"
+                  autoComplete="email"
+                  required
+                />
+                <span className="span-tag error-text">
+                  {validationErrors.uemail}
+                </span>
+              </div>
+
+              <div className="input-group mb-3">
+                <span className="input-group-text icon-badge">
+                  <LockIcon fontSize="small" />
+                </span>
+                <input
+                  className="form-control"
+                  type={showPassword ? "text" : "password"}
+                  value={upassword}
+                  onChange={(e) => setUpassword(e.target.value)}
+                  placeholder="Password"
+                  autoComplete="new-password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="btn password-toggle-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </button>
+                <span className="span-tag error-text">
+                  {validationErrors.upassword}
+                </span>
+              </div>
+
+              <div className="input-group mb-3">
+                <span className="input-group-text icon-badge">
+                  <LockIcon fontSize="small" />
+                </span>
+                <input
+                  className="form-control"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={uconfirmPassword}
+                  onChange={(e) => setUconfirmPassword(e.target.value)}
+                  placeholder="Confirm Password"
+                  autoComplete="new-password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="btn password-toggle-btn"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label="Toggle confirm password visibility"
+                >
+                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                </button>
+                <span className="span-tag error-text">
+                  {validationErrors.uconfirmPassword}
+                </span>
+              </div>
+
+              <span className="span-tag error-text">{apiStatus.error}</span>
+              <span className="span-tag success-text">{apiStatus.success}</span>
+              <div className="input-group mb-3">
+                <input
+                  className="form-control"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Phone for OTP"
+                />
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={isOtpSent ? verifyOtp : sendOtp}
+                >
+                  {isOtpSent ? "Verify OTP" : "Send OTP"}
+                </button>
+              </div>
+              {isOtpSent && (
+                <div className="input-group mb-3">
+                  <span className="input-group-text bg-light border-secondary">
+                    OTP
+                  </span>
+                  <input
+                    className="form-control"
+                    type="text"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value)}
+                    placeholder="Enter OTP"
+                  />
+                </div>
+              )}
+              <span className="span-tag success-text">{otpMsg}</span>
+              <button className="codepen-button" type="submit">
+                Sign Up
+              </button>
+              <div className="auth-social-row" style={{ marginTop: "0.75rem" }}>
+                <button
+                  type="button"
+                  className="codepen-button"
+                  onClick={() =>
+                    (window.location.href = `${API_URL}/api/oauth/google`)
+                  }
+                >
+                  <span className="btn-icon">
+                    <FontAwesomeIcon icon={faGoogle} />
+                  </span>{" "}
+                  Continue with Google
+                </button>
+                <button
+                  type="button"
+                  className="codepen-button"
+                  onClick={() =>
+                    (window.location.href = `${API_URL}/api/oauth/github`)
+                  }
+                >
+                  <span className="btn-icon">
+                    <FontAwesomeIcon icon={faGithub} />
+                  </span>{" "}
+                  Continue with GitHub
+                </button>
+              </div>
+
+              <div className="mobile-toggle">
+                Already have an account?{" "}
+                <span onClick={() => toggleSignupLogin("signIn")}>Login</span>
+              </div>
             </div>
           </form>
         </div>
