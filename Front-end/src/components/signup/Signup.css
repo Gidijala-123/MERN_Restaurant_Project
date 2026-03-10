@@ -9,7 +9,7 @@
   --text-muted: #666;
   --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.1);
   --primary-gradient: linear-gradient(135deg, #e65100 0%, #ff8f00 100%);
-  --field-height: 52px;
+  --field-height: 48px;
   --icon-size: 18px;
   --icon-gutter-left: 0.875rem;
   --icon-gutter-right: 0.875rem;
@@ -103,13 +103,55 @@
 .form-div {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  align-items: flex-start;
+  gap: 6px;
   width: 100%;
 }
 
 .input-group {
   width: 100%;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
+}
+
+/* Ensure inputs/buttons in groups share height and radius */
+.input-group .form-control {
+  min-height: var(--field-height);
+  border-radius: 12px;
+}
+
+.input-group .btn {
+  min-height: var(--field-height);
+  border-radius: 12px;
+}
+
+/* Orange badge behind left icons for the 4 primary fields */
+.icon-badge {
+  background: var(--primary-gradient) !important;
+  color: #fff !important;
+  border: none !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  border-radius: 10px;
+}
+
+.icon-badge svg {
+  color: #fff;
+}
+
+/* Reduce padding and enable safe scrolling for Sign Up panel */
+.form-container.sign-up-container {
+  padding: 1.25rem;
+  overflow-y: auto;
+}
+
+.form-container.sign-up-container .input-group {
+  margin-bottom: 6px;
+}
+
+.form-container.sign-up-container .codepen-button {
+  margin-top: 0.5rem;
 }
 
 .input-icon-wrapper {
@@ -161,16 +203,11 @@
   z-index: 2;
 }
 
-color: var(--primary-orange);
-background: #ffffff;
-box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-color: var(--primary-orange);
-
 .text-input {
   background: #f7f7f8;
   border: 1px solid #e0e0e5;
   padding: 0.625rem 0.875rem;
-  margin: 0.375rem 0;
+  margin: 0.25rem 0;
   width: 100%;
   border-radius: 12px;
   font-size: 0.95rem;
@@ -248,7 +285,7 @@ color: var(--primary-orange);
 
 .codepen-button {
   width: 100%;
-  margin-top: 0.75rem;
+  margin-top: 0.5rem;
   background: var(--primary-gradient);
   color: #fff;
   border: none;
@@ -274,6 +311,37 @@ color: var(--primary-orange);
 
 .btn-icon {
   margin-right: 0.5rem;
+}
+
+/* Make password eye buttons transparent */
+.password-toggle-btn {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--text-dark) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.75rem;
+}
+
+.password-toggle-btn svg {
+  color: var(--text-dark) !important;
+}
+
+.input-group .password-toggle-btn {
+  border: 1px solid #e0e0e5 !important;
+  border-left: 0 !important;
+  margin-left: -1px;
+  /* fuse with input border */
+  border-radius: 0 12px 12px 0 !important;
+}
+
+.password-toggle-btn:hover,
+.password-toggle-btn:focus {
+  background: transparent !important;
+  border-color: var(--primary-orange) !important;
+  color: var(--primary-orange) !important;
 }
 
 .otp-row,

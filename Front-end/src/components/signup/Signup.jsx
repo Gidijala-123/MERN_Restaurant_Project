@@ -145,7 +145,7 @@ function Signup() {
               <p className="description">Enter your details to get started</p>
             </div>
             <div className="input-group mb-3">
-              <span className="input-group-text bg-light border-secondary">
+              <span className="input-group-text icon-badge">
                 <PersonIcon fontSize="small" />
               </span>
               <input
@@ -163,7 +163,7 @@ function Signup() {
             </div>
 
             <div className="input-group mb-3">
-              <span className="input-group-text bg-light border-secondary">
+              <span className="input-group-text icon-badge">
                 <EmailIcon fontSize="small" />
               </span>
               <input
@@ -181,7 +181,7 @@ function Signup() {
             </div>
 
             <div className="input-group mb-3">
-              <span className="input-group-text bg-light border-secondary">
+              <span className="input-group-text icon-badge">
                 <LockIcon fontSize="small" />
               </span>
               <input
@@ -195,7 +195,7 @@ function Signup() {
               />
               <button
                 type="button"
-                className="btn btn-outline-secondary"
+                className="btn password-toggle-btn"
                 onClick={() => setShowPassword(!showPassword)}
                 aria-label="Toggle password visibility"
               >
@@ -207,7 +207,7 @@ function Signup() {
             </div>
 
             <div className="input-group mb-3">
-              <span className="input-group-text bg-light border-secondary">
+              <span className="input-group-text icon-badge">
                 <LockIcon fontSize="small" />
               </span>
               <input
@@ -221,7 +221,7 @@ function Signup() {
               />
               <button
                 type="button"
-                className="btn btn-outline-secondary"
+                className="btn password-toggle-btn"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 aria-label="Toggle confirm password visibility"
               >
