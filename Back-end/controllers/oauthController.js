@@ -11,17 +11,18 @@ export const oauthCallback = asyncHandler(async (req, res) => {
   if (!tokenKey) return res.status(400).json({ message: "OAuth failed" });
   const accessToken = signAccess(tokenKey);
   const refreshToken = signRefresh(tokenKey);
+  const isProd = process.env.NODE_ENV === "production";
   res
     .cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
       maxAge: 15 * 60 * 1000,
     })
     .cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
   const target =

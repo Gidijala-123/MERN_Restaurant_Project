@@ -210,7 +210,9 @@ export default function Sidebar() {
   useEffect(() => {
     const load = async () => {
       try {
-        const base = import.meta.env.VITE_API_URL || "http://localhost:1111";
+        const base = (
+          import.meta.env.VITE_API_URL || "http://localhost:1111"
+        ).replace(/\/$/, "");
         const res = await fetch(base + "/api/auth/me", {
           credentials: "include",
         });

@@ -19,7 +19,9 @@ function SignInForm({ toggleMobile }) {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:1111";
+  const API_BASE_URL = (
+    import.meta.env.VITE_API_URL || "http://localhost:1111"
+  ).replace(/\/$/, "");
 
   const loginOnSubmit = async (e) => {
     e.preventDefault();

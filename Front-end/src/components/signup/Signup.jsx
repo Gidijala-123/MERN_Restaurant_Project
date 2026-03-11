@@ -31,7 +31,9 @@ function Signup() {
   const [avatar, setAvatar] = useState("");
   const navigate = useNavigate();
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:1111";
+  const API_URL = (
+    import.meta.env.VITE_API_URL || "http://localhost:1111"
+  ).replace(/\/$/, "");
 
   const toggleSignupLogin = (text) => {
     if (text !== type) {

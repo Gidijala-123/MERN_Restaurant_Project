@@ -53,7 +53,7 @@ const envOrigins = String(process.env.ALLOWED_ORIGINS || "")
   .filter(Boolean);
 const allowedOrigins = new Set([
   ...envOrigins,
-  process.env.FRONTEND_URL || "http://localhost:3002",
+  (process.env.FRONTEND_URL || "http://localhost:3002").replace(/\/$/, ""),
   "https://gbr-kitchen.onrender.com",
   "http://localhost:3000",
   "http://localhost:3001",
@@ -62,7 +62,9 @@ app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
-      if (allowedOrigins.has(origin)) return callback(null, true);
+      // Remove trailing slash for comparison
+      const normalizedOrigin = origin.replace(/\/$/, "");
+      if (allowedOrigins.has(normalizedOrigin)) return callback(null, true);
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
