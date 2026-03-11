@@ -9,7 +9,8 @@ export const verifyAccessToken = (req, res, next) => {
     (req.headers.authorization || "").replace("Bearer ", "");
   if (!token) return res.status(401).json({ message: "Unauthorized" });
   try {
-    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN);
+    const secret = process.env.ACCESS_TOKEN || "bhargava@123";
+    const decoded = jwt.verify(token, secret);
     req.tokenKey = decoded.tokenKey;
     next();
   } catch {

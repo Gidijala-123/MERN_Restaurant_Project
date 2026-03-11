@@ -6,10 +6,18 @@ import EmployeeModel from "../models/EmployeeModel.js";
 
 dotenv.config();
 
-const signAccess = (tokenKey) =>
-  jwt.sign({ tokenKey }, process.env.ACCESS_TOKEN, { expiresIn: "15m" });
-const signRefresh = (tokenKey) =>
-  jwt.sign({ tokenKey }, process.env.REFRESH_TOKEN, { expiresIn: "7d" });
+const signAccess = (tokenKey) => {
+  const secret = process.env.ACCESS_TOKEN || "bhargava@123";
+  return jwt.sign({ tokenKey }, secret, { expiresIn: "15m" });
+};
+
+const signRefresh = (tokenKey) => {
+  const secret =
+    process.env.REFRESH_TOKEN ||
+    process.env.ACCESS_TOKEN ||
+    "bhargava_refresh@123";
+  return jwt.sign({ tokenKey }, secret, { expiresIn: "7d" });
+};
 
 export const login = asyncHandler(async (req, res) => {
   const { uemail, upassword } = req.body;
@@ -45,7 +53,11 @@ export const refresh = asyncHandler(async (req, res) => {
   const token = req.cookies?.refreshToken;
   if (!token) return res.status(401).json({ message: "Unauthorized" });
   try {
-    const { tokenKey } = jwt.verify(token, process.env.REFRESH_TOKEN);
+    const secret =
+      process.env.REFRESH_TOKEN ||
+      process.env.ACCESS_TOKEN ||
+      "bhargava_refresh@123";
+    const { tokenKey } = jwt.verify(token, secret);
     const accessToken = signAccess(tokenKey);
     res
       .cookie("accessToken", accessToken, {
@@ -70,7 +82,9 @@ export const logout = asyncHandler(async (req, res) => {
 export const me = asyncHandler(async (req, res) => {
   const uid = req.tokenKey?.uid;
   if (!uid) return res.status(401).json({ message: "Unauthorized" });
-  const user = await EmployeeModel.findById(uid).select("avatar uname uemail role");
+  const user = await EmployeeModel.findById(uid).select(
+    "avatar uname uemail role"
+  );
   res.json({
     ...req.tokenKey,
     avatar: user?.avatar || "",

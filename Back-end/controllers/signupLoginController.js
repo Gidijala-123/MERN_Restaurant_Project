@@ -58,6 +58,7 @@ const loginUser = asyncHandler(async (req, res) => {
   // Verify user exists and password matches
   if (validUser && (await bcrypt.compare(upassword, validUser.upassword))) {
     // Generate JWT token containing user info
+    const secret = process.env.ACCESS_TOKEN || "bhargava@123";
     const generateToken = jwt.sign(
       {
         tokenKey: {
@@ -66,7 +67,7 @@ const loginUser = asyncHandler(async (req, res) => {
           uid: validUser.id,
         },
       },
-      process.env.ACCESS_TOKEN,
+      secret,
       { expiresIn: "30m" }
     );
     return res.status(200).json({ "Access Token": generateToken });
