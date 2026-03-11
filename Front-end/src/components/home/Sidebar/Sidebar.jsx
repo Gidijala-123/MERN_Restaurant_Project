@@ -537,7 +537,15 @@ export default function Sidebar() {
       </AppBar>
       {isDesktop ? (
         <Drawer variant="permanent" open={open}>
-          <DrawerHeader>
+          <DrawerHeader
+            sx={{
+              position: "sticky",
+              top: 0,
+              zIndex: 1,
+              background: (theme) => theme.palette.background.paper,
+              borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+            }}
+          >
             <Box
               className="drawer-brand"
               sx={{
