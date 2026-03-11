@@ -33,17 +33,18 @@ export const login = asyncHandler(async (req, res) => {
   };
   const accessToken = signAccess(tokenKey);
   const refreshToken = signRefresh(tokenKey);
+  const isProd = process.env.NODE_ENV === "production";
   res
     .cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
       maxAge: 15 * 60 * 1000,
     })
     .cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     })
     .json({ message: "ok" });
@@ -59,11 +60,12 @@ export const refresh = asyncHandler(async (req, res) => {
       "bhargava_refresh@123";
     const { tokenKey } = jwt.verify(token, secret);
     const accessToken = signAccess(tokenKey);
+    const isProd = process.env.NODE_ENV === "production";
     res
       .cookie("accessToken", accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
         maxAge: 15 * 60 * 1000,
       })
       .json({ message: "refreshed" });
@@ -73,9 +75,15 @@ export const refresh = asyncHandler(async (req, res) => {
 });
 
 export const logout = asyncHandler(async (req, res) => {
+  const isProd = process.env.NODE_ENV === "production";
+  const options = {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
+  };
   res
-    .clearCookie("accessToken")
-    .clearCookie("refreshToken")
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
     .json({ message: "logged out" });
 });
 

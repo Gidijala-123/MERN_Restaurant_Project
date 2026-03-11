@@ -2,10 +2,11 @@ import { randomBytes } from "crypto";
 
 export function issueCsrf(req, res) {
   const token = randomBytes(24).toString("hex");
+  const isProd = process.env.NODE_ENV === "production";
   res.cookie("csrfToken", token, {
     httpOnly: false,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     maxAge: 60 * 60 * 1000,
   });
   res.json({ csrfToken: token });
