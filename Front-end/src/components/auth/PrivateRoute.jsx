@@ -5,32 +5,33 @@ export default function PrivateRoute({ children }) {
   const [status, setStatus] = useState("loading");
 
   useEffect(() => {
+    // quick client-side marker: if there's no stored user name (set on login),
+    // don't even bother hitting the server – treat as unauthenticated.
+    if (!localStorage.getItem("userName")) {
+      setStatus("fail");
+      return;
+    }
+
     const check = async () => {
       try {
-        const res = await fetch(
+        const base =
           (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(
             /\/$/,
             ""
-          ) + "/api/auth/me",
-          { credentials: "include" }
-        );
-        if (res.ok) setStatus("ok");
-        else {
-          const resRefresh = await fetch(
-            (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(
-              /\/$/,
-              ""
-            ) + "/api/auth/refresh",
-            { credentials: "include" }
           );
+        const res = await fetch(base + "/api/auth/me", {
+          credentials: "include",
+        });
+        if (res.ok) {
+          setStatus("ok");
+        } else {
+          const resRefresh = await fetch(base + "/api/auth/refresh", {
+            credentials: "include",
+          });
           if (resRefresh.ok) {
-            const res2 = await fetch(
-              (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(
-                /\/$/,
-                ""
-              ) + "/api/auth/me",
-              { credentials: "include" }
-            );
+            const res2 = await fetch(base + "/api/auth/me", {
+              credentials: "include",
+            });
             setStatus(res2.ok ? "ok" : "fail");
           } else {
             setStatus("fail");
