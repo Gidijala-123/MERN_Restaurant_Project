@@ -27,6 +27,8 @@ const Footer = () => {
   const [openMap, setOpenMap] = useState(false);
   const [branchIndex, setBranchIndex] = useState(0);
   const [searchText, setSearchText] = useState("");
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterStatus, setNewsletterStatus] = useState("");
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const geocoderRef = useRef(null);
@@ -120,6 +122,39 @@ const Footer = () => {
     const idx = (branchIndex - 1 + branches.length) % branches.length;
     setBranchIndex(idx);
     await flyTo(branches[idx]);
+  };
+
+  // newsletter subscribe handler
+  const handleSubscribe = async () => {
+    if (!newsletterEmail) return setNewsletterStatus("Please enter an email");
+    try {
+      const API_URL = (
+        import.meta.env.VITE_API_URL || "http://localhost:1111"
+      ).replace(/\/$/, "");
+      const csrfRes = await fetch(`${API_URL}/api/csrf`, {
+        credentials: "include",
+      });
+      const { csrfToken } = (await csrfRes.json()) || {};
+      const res = await fetch(`${API_URL}/api/newsletter/subscribe`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": csrfToken || "",
+        },
+        body: JSON.stringify({ email: newsletterEmail }),
+      });
+      if (res.ok) {
+        setNewsletterStatus("Subscribed successfully!");
+        setNewsletterEmail("");
+      } else {
+        const data = await res.json();
+        setNewsletterStatus(data.message || "Subscription failed");
+      }
+    } catch (err) {
+      setNewsletterStatus("Subscription error");
+      console.error(err);
+    }
   };
 
   useEffect(() => {
@@ -246,11 +281,19 @@ const Footer = () => {
           <div className="footer-subscribe">
             <h4>Newsletter</h4>
             <div className="subscribe-form">
-              <input type="email" placeholder="Your Email Address" />
-              <button type="button">
+              <input
+                type="email"
+                placeholder="Your Email Address"
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+              />
+              <button type="button" onClick={handleSubscribe}>
                 <FontAwesomeIcon icon={faPaperPlane} />
               </button>
             </div>
+            {newsletterStatus && (
+              <p className="newsletter-status">{newsletterStatus}</p>
+            )}
           </div>
         </div>
       </div>
@@ -301,7 +344,7 @@ const Footer = () => {
                 title="Tasty Kitchen Map"
                 className="map-iframe"
                 src={`https://www.google.com/maps?q=${encodeURIComponent(
-                  branches[branchIndex]
+                  branches[branchIndex],
                 )}&output=embed`}
                 loading="lazy"
                 allowFullScreen

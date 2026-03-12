@@ -382,7 +382,8 @@ const Bodycontent = (props) => {
                                 loading="lazy"
                               />
                               <p className="trending-items-title">
-                                {CATEGORY_ICONS[item.category] || "🍽️"} {item.name}
+                                {CATEGORY_ICONS[item.category] || "🍽️"}{" "}
+                                {item.name}
                               </p>
                               <div className="trending-card-details-wrapper">
                                 <div className="trending-rating">
@@ -625,7 +626,9 @@ const Bodycontent = (props) => {
                               "/footer-images/desserts.jpg";
                           }}
                         />
-                        <p className="trending-items-title">{CATEGORY_ICONS[item.category] || "🍽️"} {item.name}</p>
+                        <p className="trending-items-title">
+                          {CATEGORY_ICONS[item.category] || "🍽️"} {item.name}
+                        </p>
                         <div className="trending-card-details-wrapper">
                           <div className="trending-rating">
                             <span>⭐ 4.8</span>
@@ -683,7 +686,9 @@ const Bodycontent = (props) => {
                               "/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg";
                           }}
                         />
-                        <p className="trending-items-title">{CATEGORY_ICONS[item.category] || "🍽️"} {item.name}</p>
+                        <p className="trending-items-title">
+                          {CATEGORY_ICONS[item.category] || "🍽️"} {item.name}
+                        </p>
                         <div className="trending-card-details-wrapper">
                           <div className="trending-rating">
                             <span>⭐ 4.7</span>
@@ -851,7 +856,8 @@ const Bodycontent = (props) => {
                           ></i>
                           <img src={product.img} alt="trending-items-img " />
                           <p className="trending-items-title">
-                            {CATEGORY_ICONS[product.category] || "🍽️"} {product.title}
+                            {CATEGORY_ICONS[product.category] || "🍽️"}{" "}
+                            {product.title}
                           </p>
                           <div className="trending-card-details-wrapper">
                             <div className="trending-rating">

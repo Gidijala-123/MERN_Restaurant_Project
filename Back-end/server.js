@@ -33,6 +33,8 @@ import morgan from "morgan";
 import requestId from "./middleware/requestId.js";
 import logger from "./logging/logger.js";
 import { issueCsrf, checkCsrf } from "./middleware/csrf.js";
+import newsletterRouter from "./routers/newsletterRouter.js";
+import { sendToAll as sendNewsletterToAll } from "./services/newsletterService.js";
 
 dotenv.config();
 
@@ -169,8 +171,31 @@ app.get(
 // CSRF token issue
 app.get("/api/csrf", issueCsrf);
 
+// newsletter routes
+app.use("/api/newsletter", newsletterRouter);
+
+// schedule a send every 24 hours (simple in-process timer)
+setInterval(
+  () => {
+    console.log("running scheduled newsletter send");
+    sendNewsletterToAll().catch((e) => console.error("newsletter error", e));
+  },
+  24 * 60 * 60 * 1000,
+); // 1 day
+
 // Orders (example producer entrypoint)
+import Order from "./models/OrderModel.js";
 app.post("/api/order", verifyAccessToken, checkCsrf, async (req, res) => {
+  const { items = [] } = req.body || {};
+  // persist order for newsletter personalization
+  try {
+    const userEmail = req.tokenKey?.uemail;
+    if (items.length) {
+      await Order.create({ userEmail, items });
+    }
+  } catch (err) {
+    console.error("failed to save order", err);
+  }
   res.json({ ok: true });
 });
 
