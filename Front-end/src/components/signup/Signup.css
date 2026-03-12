@@ -103,25 +103,38 @@
 .form-div {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
+  align-items: stretch;
+  gap: 0px;
+  width: 100%;
+}
+
+/* Override flex layout specifically for login form */
+.form-container.sign-in-container .form-div {
+  display: block;
   width: 100%;
 }
 
 .input-group {
   width: 100%;
   margin-bottom: 6px;
-}
-
-/* Ensure inputs/buttons in groups share height and radius */
-.input-group .form-control {
-  min-height: var(--field-height);
   border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e0e0e5;
 }
 
+/* children should be borderless and inherit height; group sets radius */
+.input-group .form-control,
+.input-group .input-group-text,
 .input-group .btn {
   min-height: var(--field-height);
-  border-radius: 12px;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* keep icon badge with its own left corner rounding */
+.input-group .input-group-text.icon-badge {
+  border-radius: 12px 0 0 12px;
 }
 
 /* Orange badge behind left icons for the 4 primary fields */
@@ -200,7 +213,7 @@
   width: 100%;
   display: flex;
   justify-content: space-evenly;
-  box-shadow: var(--primary-orange) 0px 0px 8px -2px
+  box-shadow: var(--primary-orange) 0px 0px 5px -3px
 }
 
 /* Ensure sticky header visually covers inputs while scrolling */
@@ -490,6 +503,8 @@
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  justify-content: space-between;
+  /* distribute buttons evenly */
 }
 
 .otp-row>* {

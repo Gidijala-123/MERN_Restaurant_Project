@@ -14,11 +14,9 @@ export default function PrivateRoute({ children }) {
 
     const check = async () => {
       try {
-        const base =
-          (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(
-            /\/$/,
-            ""
-          );
+        const base = (
+          import.meta.env.VITE_API_URL || "http://localhost:1111"
+        ).replace(/\/$/, "");
         const res = await fetch(base + "/api/auth/me", {
           credentials: "include",
         });
