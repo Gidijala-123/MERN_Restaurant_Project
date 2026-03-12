@@ -8,20 +8,36 @@ import { useSelector } from "react-redux";
 import "./SearchBar.css";
 import useDebounce from "../../../../hooks/useDebounce";
 
-export default function SearchBar({ onSearchChange }) {
+const SearchBar = React.memo(function SearchBar({ onSearchChange }) {
   const { items: products } = useSelector((state) => state.products);
   const [searchValue, setSearchValue] = React.useState(null);
   const [inputValue, setInputValue] = React.useState("");
   const debounced = useDebounce(inputValue, 400);
 
-  const handleSearchChange = (event, newValue) => {
-    setSearchValue(newValue);
-    if (newValue && onSearchChange) {
-      // If the selected item has a category, we could navigate there
-      // For now, let's assume searching takes them to Shop or stays on Home
-      onSearchChange("Shop");
-    }
-  };
+  // Memoize products list to prevent unnecessary recalculations
+  const memoizedProducts = React.useMemo(() => products || [], [products]);
+
+  // Memoize getOptionLabel function
+  const getOptionLabelMemo = React.useCallback((option) => {
+    if (typeof option === "string") return option;
+    return option.title || "";
+  }, []);
+
+  // Memoize handleSearchChange callback
+  const handleSearchChange = React.useCallback(
+    (event, newValue) => {
+      setSearchValue(newValue);
+      if (newValue && onSearchChange) {
+        onSearchChange("Shop");
+      }
+    },
+    [onSearchChange]
+  );
+
+  // Memoize onInputChange callback
+  const handleInputChange = React.useCallback((e, value) => {
+    setInputValue(value);
+  }, []);
 
   React.useEffect(() => {
     if (debounced && debounced.length >= 2 && onSearchChange) {
@@ -39,14 +55,11 @@ export default function SearchBar({ onSearchChange }) {
         freeSolo
         id="product-search-bar"
         disableClearable
-        options={products || []}
-        getOptionLabel={(option) => {
-          if (typeof option === "string") return option;
-          return option.title || "";
-        }}
+        options={memoizedProducts}
+        getOptionLabel={getOptionLabelMemo}
         value={searchValue}
         onChange={handleSearchChange}
-        onInputChange={(e, value) => setInputValue(value)}
+        onInputChange={handleInputChange}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -88,4 +101,6 @@ export default function SearchBar({ onSearchChange }) {
       />
     </Stack>
   );
-}
+});
+
+export default SearchBar;
