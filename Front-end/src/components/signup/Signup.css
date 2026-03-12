@@ -122,6 +122,14 @@
   border: 1px solid #e0e0e5;
 }
 
+/* small dropdown inside OTP row */
+.otp-channel-select {
+  max-width: 120px;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
 /* children should be borderless and inherit height; group sets radius */
 .input-group .form-control,
 .input-group .input-group-text,

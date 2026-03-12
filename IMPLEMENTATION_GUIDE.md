@@ -3,6 +3,7 @@
 ## ✅ Project Features & Implementations
 
 ### 1. **Rate Limiting** ✅
+
 - **Location**: `Back-end/server.js`
 - **Implementation**: Three-tier rate limiter using `express-rate-limit`:
   - General API: 100 requests per 15 minutes
@@ -10,6 +11,7 @@
   - OTP endpoint: 5 requests per 15 minutes
 
 ### 2. **Refresh Token Authentication** ✅
+
 - **Location**: `Back-end/controllers/authController.js`
 - **Implementation**:
   - Access tokens: 15-minute expiry
@@ -18,6 +20,7 @@
   - Automatic token rotation on successful refresh
 
 ### 3. **Debouncing** ✅
+
 - **Location**: `Front-end/src/hooks/useDebounce.js`
 - **Implementation**:
   - Custom React hook with 400ms delay
@@ -25,7 +28,8 @@
   - Optimizes search performance and reduces server load
 
 ### 4. **Memoization** ✅ **[NEW - IMPLEMENTED]**
-- **Location**: 
+
+- **Location**:
   - `Front-end/src/components/home/Bodycontent/SEARCH_COMPONENT/SearchBar.jsx`
 - **Implementation**:
   - `React.memo()` wraps SearchBar component
@@ -34,6 +38,7 @@
   - Optimizes performance for frequently re-rendered components
 
 ### 5. **Helmet.js** ✅
+
 - **Location**: `Back-end/server.js` (line 74)
 - **Features**:
   - HSTS (HTTP Strict Transport Security) enabled in production
@@ -42,7 +47,8 @@
   - Protects against common vulnerabilities
 
 ### 6. **OAuth 2.0 Integration** ✅
-- **Location**: 
+
+- **Location**:
   - `Back-end/config/passport.js`
   - `Back-end/controllers/oauthController.js`
 - **Providers**:
@@ -54,6 +60,7 @@
   - Email-based user identification
 
 ### 7. **Express Error Handling** ✅
+
 - **Location**: `Back-end/middleware/errorHandling.js`
 - **Error Types Handled**:
   - VALIDATION_ERROR (400)
@@ -67,6 +74,7 @@
   - Automatic error logging
 
 ### 8. **Role-Based Access Control (RBAC)** ✅
+
 - **Location**: `Back-end/middleware/auth.js`
 - **Implementation**:
   - `requireRole(...roles)` middleware function
@@ -75,6 +83,7 @@
   - Returns 403 Forbidden for unauthorized access
 
 ### 9. **Kafka Message Queue** ✅ **[NEW - FULLY INTEGRATED]**
+
 - **Location**: `Back-end/services/kafka.js`
 - **Features**:
   - Producer: Sends order events to Kafka
@@ -90,6 +99,7 @@
   ```
 
 ### 10. **Load Balancing** ✅
+
 - **Location**: `Back-end/cluster.js`
 - **Implementation**:
   - Node.js cluster module for multi-core utilization
@@ -98,7 +108,8 @@
   - Improved throughput and fault tolerance
 
 ### 11. **OTP Functionality** ✅
-- **Location**: 
+
+- **Location**:
   - `Back-end/services/otpService.js`
   - `Back-end/services/otpStore.js`
 - **Features**:
@@ -110,6 +121,7 @@
     - `POST /api/otp/verify` - Verify OTP code
 
 ### 12. **SMS OTP Integration** ✅ **[NEW - TWILIO INTEGRATED]**
+
 - **Location**: `Back-end/services/otpService.js`
 - **Providers Supported**:
   - **Twilio** (primary - paid but reliable)
@@ -123,12 +135,55 @@
    - Create a free trial account (gets $15 credit)
    - Verify your phone number
 
+### 13. **Email OTP Integration** ✅
+
+- **Location**: `Back-end/services/otpService.js`
+- **Provider**: SMTP via Nodemailer (mock fallback)
+- **Env variables** (any one of the two styles below will work):
+
+  **standard SMTP**
+
+  ```
+  OTP_PROVIDER=smtp          # required when using host/port configuration
+  SMTP_HOST=smtp.example.com
+  SMTP_PORT=587
+  SMTP_SECURE=false   # true for 465
+  SMTP_USER=youruser
+  SMTP_PASS=yourpass
+  EMAIL_FROM=otp@yourdomain.com
+  ```
+
+  **Gmail (or other well‑known service)**
+
+  ```
+  OTP_PROVIDER=gmail          # or smtp, both are accepted
+  SMTP_SERVICE=gmail          # nodemailer service name
+  SMTP_USER=your.email@gmail.com
+  SMTP_PASS=app‑specific‑password
+  EMAIL_FROM="Your Name <your.email@gmail.com>"
+  ```
+
+  _Gmail requires an application-specific password or OAuth token; do not use your normal Google account password._
+
+  The helper will warn and fall back to a mock provider if configuration is missing or incomplete.
+
+- **Usage**: set `channel: "email"` in `/api/otp/send` request body.
+- **Note**: user/email keys are normalized to lowercase for case-insensitive verification.
+- **Note**: the service uses `provider="smtp"` when `OTP_PROVIDER=smtp` in env.
+
+#### Front-end updates
+
+- `Signup.jsx` added a `channel` dropdown (sms/whatsapp/email) and a single `contact` state.
+- Input switches between phone/whatsapp number and email based on selection.
+- `sendOtp` now alerts the user and displays a message `OTP sent via ...` to indicate where the code was dispatched.
+
 2. **Get Twilio Credentials**:
    - Account SID: Find in Account Dashboard
    - Auth Token: Find in Account Dashboard
    - Twilio Phone Number: Get a free trial number
 
 3. **Configure Environment Variables** in `Backend/.env`:
+
    ```env
    OTP_PROVIDER=twilio
    TWILIO_ACCOUNT_SID=your_account_sid
@@ -138,6 +193,7 @@
    ```
 
 4. **Install Twilio SDK**:
+
    ```bash
    cd Back-end
    npm install twilio
@@ -149,11 +205,13 @@
    - Verify with sent code
 
 #### **Free Alternatives to Twilio**:
+
 - **Firebase Authentication** (includes SMS)
 - **AWS SNS** (AWS free tier eligible)
 - **MSG91** (Indian provider, free tier available)
 
 ### 13. **Mobile Responsiveness** ✅
+
 - **Breakpoints Implemented**:
   - **576px** (Extra small devices)
   - **768px** (Tablets)
@@ -172,6 +230,7 @@
 ## 🚀 Quick Start Guide
 
 ### Backend Setup:
+
 ```bash
 cd Back-end
 npm install
@@ -188,6 +247,7 @@ node cluster.js
 ```
 
 ### Frontend Setup:
+
 ```bash
 cd Front-end
 npm install
@@ -238,27 +298,29 @@ npm run dev
 ## 🔧 Configuration Details
 
 ### Rate Limiting Tiers:
+
 ```javascript
 // General endpoint
 rateLimit({
-  windowMs: 15 * 60 * 1000,  // 15 minutes
-  max: 100                    // 100 requests
-})
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests
+});
 
-// Login endpoint  
+// Login endpoint
 rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10
-})
+  max: 10,
+});
 
 // OTP endpoint
 rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5
-})
+  max: 5,
+});
 ```
 
 ### Token Expiry:
+
 ```javascript
 // Access Token: 15 minutes
 // Refresh Token: 7 days
@@ -284,12 +346,14 @@ rateLimit({
 ## 📱 Testing Credentials
 
 ### Test User:
+
 ```
 Email: test@example.com
 Password: Password@123
 ```
 
 ### Test Admin (if applicable):
+
 ```
 Email: admin@example.com
 Password: AdminPass@123
@@ -301,17 +365,20 @@ Role: admin
 ## 🐛 Troubleshooting
 
 ### SMS OTP Not Sending?
+
 1. Check `OTP_PROVIDER` env variable
 2. Verify Twilio credentials
 3. Ensure phone number format: +1XXXXXXXXXX
 4. Check Twilio free trial balance
 
 ### Kafka Connection Error?
+
 1. Ensure Kafka broker is running on localhost:9092
 2. Check `KAFKA_BROKERS` environment variable
 3. View logs: `docker logs <kafka_container>`
 
 ### OAuth Not Working?
+
 1. Verify Client ID/Secret in Google/GitHub dev console
 2. Check callback URL matches configuration
 3. Ensure redirect URLs are whitelisted
@@ -328,4 +395,4 @@ Role: admin
 
 ---
 
-*Last Updated: March 12, 2026*
+_Last Updated: March 12, 2026_

@@ -21,7 +21,11 @@ import {
 } from "./controllers/authController.js";
 import { verifyAccessToken, requireRole } from "./middleware/auth.js";
 import { setOtp, verifyOtp } from "./services/otpStore.js";
-import { sendSmsOtp, sendWhatsAppOtp } from "./services/otpService.js";
+import {
+  sendSmsOtp,
+  sendWhatsAppOtp,
+  sendEmailOtp,
+} from "./services/otpService.js";
 import passport from "passport";
 import { initPassport } from "./config/passport.js";
 import { oauthCallback, oauthFailure } from "./controllers/oauthController.js";
@@ -37,7 +41,7 @@ dotenv.config();
 // const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = process.env.PORT || 1111;
+const port = process.env.PORT || 1234;
 
 // Initialize MongoDB database connection
 dbConnection();
@@ -68,13 +72,13 @@ app.use(
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
-  })
+  }),
 );
 app.use(
   helmet({
     hsts: process.env.NODE_ENV === "production",
     crossOriginResourcePolicy: { policy: "cross-origin" },
-  })
+  }),
 );
 app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
@@ -82,7 +86,7 @@ app.use(compression());
 app.use(requestId);
 morgan.token("id", (req) => req.id);
 app.use(
-  morgan(":id :method :url :status :res[content-length] - :response-time ms")
+  morgan(":id :method :url :status :res[content-length] - :response-time ms"),
 );
 initPassport();
 app.use(passport.initialize());
@@ -92,7 +96,7 @@ app.use(
     max: 100,
     standardHeaders: true,
     legacyHeaders: false,
-  })
+  }),
 );
 
 /**
@@ -122,7 +126,7 @@ app.get(
   passport.authenticate("google", {
     scope: ["profile", "email"],
     session: false,
-  })
+  }),
 );
 app.get(
   "/api/oauth/google/callback",
@@ -130,11 +134,11 @@ app.get(
     session: false,
     failureRedirect: "/api/oauth/failure",
   }),
-  oauthCallback
+  oauthCallback,
 );
 app.get(
   "/api/oauth/github",
-  passport.authenticate("github", { scope: ["user:email"], session: false })
+  passport.authenticate("github", { scope: ["user:email"], session: false }),
 );
 app.get(
   "/api/oauth/github/callback",
@@ -142,7 +146,7 @@ app.get(
     session: false,
     failureRedirect: "/api/oauth/failure",
   }),
-  oauthCallback
+  oauthCallback,
 );
 app.get("/api/oauth/failure", oauthFailure);
 
@@ -159,7 +163,7 @@ app.get(
   requireRole("admin"),
   (req, res) => {
     res.json({ uptime: process.uptime(), memory: process.memoryUsage() });
-  }
+  },
 );
 
 // CSRF token issue
@@ -177,9 +181,29 @@ app.post("/api/otp/send", otpLimiter, checkCsrf, async (req, res) => {
   if (!to) return res.status(400).json({ message: "recipient required" });
   const code = Math.floor(100000 + Math.random() * 900000);
   setOtp(to, code);
-  const send = channel === "whatsapp" ? sendWhatsAppOtp : sendSmsOtp;
-  await send({ to, code });
-  res.json({ ok: true });
+
+  // pick appropriate sender and record result
+  let sendResult;
+  if (channel === "whatsapp") {
+    sendResult = await sendWhatsAppOtp({ to, code });
+  } else if (channel === "email") {
+    sendResult = await sendEmailOtp({ to, code });
+  } else {
+    sendResult = await sendSmsOtp({ to, code });
+  }
+
+  // log provider information for debugging
+  if (sendResult && sendResult.provider) {
+    logger.info({
+      msg: "otp_sent",
+      to,
+      channel,
+      provider: sendResult.provider,
+      error: sendResult.error || null,
+    });
+  }
+
+  res.json({ ok: true, channel, provider: sendResult?.provider });
 });
 app.post("/api/otp/verify", otpLimiter, checkCsrf, async (req, res) => {
   const { to, code } = req.body || {};

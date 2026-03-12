@@ -31,7 +31,7 @@ const SearchBar = React.memo(function SearchBar({ onSearchChange }) {
         onSearchChange("Shop");
       }
     },
-    [onSearchChange]
+    [onSearchChange],
   );
 
   // Memoize onInputChange callback

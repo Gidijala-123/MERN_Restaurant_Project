@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../signup/Signup.css";
 import Login from "../login/Login";
+import { PopupAlert } from "../common/PopupAlert";
 import axios from "axios";
 import { signupSchema } from "../../validations/schemas";
 import Visibility from "@mui/icons-material/Visibility";
@@ -24,12 +25,19 @@ function Signup() {
   const [uconfirmPassword, setUconfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [phone, setPhone] = useState("");
+  const [contact, setContact] = useState(""); // phone number or email depending on channel
+  const [channel, setChannel] = useState("email"); // sms, whatsapp, email (default changed to email)
   const [otpCode, setOtpCode] = useState("");
   const [otpMsg, setOtpMsg] = useState("");
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [avatar, setAvatar] = useState("");
+  const [popup, setPopup] = useState({ visible: false, text: "" });
   const navigate = useNavigate();
+
+  const showPopup = (msg) => {
+    setPopup({ visible: true, text: msg });
+    setTimeout(() => setPopup({ visible: false, text: "" }), 3000);
+  };
 
   const API_URL = (
     import.meta.env.VITE_API_URL || "http://localhost:1111"
@@ -42,6 +50,13 @@ function Signup() {
       setApiStatus({ error: "", success: "" });
     }
   };
+
+  // keep contact synced when using email channel
+  React.useEffect(() => {
+    if (channel === "email") {
+      setContact(uemail);
+    }
+  }, [channel, uemail]);
 
   const signupOnSubmit = async (e) => {
     e.preventDefault();
@@ -76,6 +91,19 @@ function Signup() {
           error: "",
           success: "Registration successful! You can now log in.",
         });
+        // clear form fields
+        setUname("");
+        setUemail("");
+        setUpassword("");
+        setUconfirmPassword("");
+        setContact("");
+        setAvatar("");
+        setOtpCode("");
+        setOtpMsg("");
+        setIsOtpSent(false);
+        setChannel("email");
+        setValidationErrors({});
+        // switch to login after delay
         setTimeout(() => toggleSignupLogin("signIn"), 2000);
       }
     } catch (err) {
@@ -104,14 +132,18 @@ function Signup() {
       })
         .then((r) => r.json())
         .catch(() => ({}));
-      const res = await axios.post(
-        `${API_URL}/api/otp/send`,
-        { to: phone, channel: "sms" },
-        { withCredentials: true, headers: { "x-csrf-token": csrf?.csrfToken } },
-      );
+      const payload = { to: contact, channel };
+      const res = await axios.post(`${API_URL}/api/otp/send`, payload, {
+        withCredentials: true,
+        headers: { "x-csrf-token": csrf?.csrfToken },
+      });
       if (res.status === 200) {
-        setOtpMsg("OTP sent");
+        setOtpMsg(`OTP sent via ${channel} to ${contact}`);
         setIsOtpSent(true);
+        // display styled popup message
+        showPopup(
+          `OTP has been sent to your ${channel === "email" ? "email" : channel.toUpperCase()}`,
+        );
       }
     } catch {
       setOtpMsg("Failed to send OTP");
@@ -127,249 +159,295 @@ function Signup() {
         .catch(() => ({}));
       const res = await axios.post(
         `${API_URL}/api/otp/verify`,
-        { to: phone, code: otpCode },
+        { to: contact, code: otpCode },
         { withCredentials: true, headers: { "x-csrf-token": csrf?.csrfToken } },
       );
       if (res.data?.ok) {
         setOtpMsg("OTP verified");
         setIsOtpSent(false);
         setOtpCode("");
-      } else setOtpMsg("Invalid OTP");
+        showPopup("OTP verified successfully!");
+      } else {
+        setOtpMsg("Invalid OTP");
+        showPopup("The OTP you entered is incorrect.");
+      }
     } catch {
       setOtpMsg("Failed to verify OTP");
     }
   };
 
   return (
-    <div className="signlog-div">
-      <div
-        className={`container ${type === "signUp" ? "right-panel-active" : ""}`}
-        id="container"
-      >
-        <div className="form-container sign-up-container">
-          <form className="form-div" onSubmit={signupOnSubmit}>
-            <div className="signup-heading">
-              <div className="avatar-uploader">
-                <img
-                  src={avatar || "/footer-images/user-icon.png"}
-                  alt="avatar"
-                  className="avatar-img"
-                />
-                <label className="avatar-edit-badge">
-                  <EditIcon fontSize="small" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      const reader = new FileReader();
-                      reader.onload = () =>
-                        setAvatar(String(reader.result || ""));
-                      reader.readAsDataURL(file);
-                    }}
-                    style={{ display: "none" }}
+    <>
+      {/* Premium popup alert with slide animation */}
+      <PopupAlert
+        visible={popup.visible}
+        text={popup.text}
+        onClose={() => setPopup({ visible: false, text: "" })}
+      />
+      <div className="signlog-div">
+        <div
+          className={`container ${type === "signUp" ? "right-panel-active" : ""}`}
+          id="container"
+        >
+          <div className="form-container sign-up-container">
+            <form className="form-div" onSubmit={signupOnSubmit}>
+              <div className="signup-heading">
+                <div className="avatar-uploader">
+                  <img
+                    src={avatar || "/footer-images/user-icon.png"}
+                    alt="avatar"
+                    className="avatar-img"
                   />
-                </label>
+                  <label className="avatar-edit-badge">
+                    <EditIcon fontSize="small" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = () =>
+                          setAvatar(String(reader.result || ""));
+                        reader.readAsDataURL(file);
+                      }}
+                      style={{ display: "none" }}
+                    />
+                  </label>
+                </div>
+                <h1 className="heading-h1">Create Account</h1>
               </div>
-              <h1 className="heading-h1">Create Account</h1>
-            </div>
-            <div className="form-fields">
-              <div className="input-group mb-3">
-                <span className="input-group-text icon-badge">
-                  <PersonIcon fontSize="small" />
-                </span>
-                <input
-                  className="form-control"
-                  type="text"
-                  value={uname}
-                  onChange={(e) => setUname(e.target.value)}
-                  placeholder="Full Name"
-                  autoComplete="name"
-                  required
-                />
-                <span className="span-tag error-text">
-                  {validationErrors.uname}
-                </span>
-              </div>
-
-              <div className="input-group mb-3">
-                <span className="input-group-text icon-badge">
-                  <EmailIcon fontSize="small" />
-                </span>
-                <input
-                  className="form-control"
-                  type="email"
-                  value={uemail}
-                  onChange={(e) => setUemail(e.target.value)}
-                  placeholder="Email Address"
-                  autoComplete="email"
-                  required
-                />
-                <span className="span-tag error-text">
-                  {validationErrors.uemail}
-                </span>
-              </div>
-
-              <div className="input-group mb-3">
-                <span className="input-group-text icon-badge">
-                  <LockIcon fontSize="small" />
-                </span>
-                <input
-                  className="form-control"
-                  type={showPassword ? "text" : "password"}
-                  value={upassword}
-                  onChange={(e) => setUpassword(e.target.value)}
-                  placeholder="Password"
-                  autoComplete="new-password"
-                  required
-                />
-                <button
-                  type="button"
-                  className="btn password-toggle-btn"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label="Toggle password visibility"
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </button>
-                <span className="span-tag error-text">
-                  {validationErrors.upassword}
-                </span>
-              </div>
-
-              <div className="input-group mb-3">
-                <span className="input-group-text icon-badge">
-                  <LockIcon fontSize="small" />
-                </span>
-                <input
-                  className="form-control"
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={uconfirmPassword}
-                  onChange={(e) => setUconfirmPassword(e.target.value)}
-                  placeholder="Confirm Password"
-                  autoComplete="new-password"
-                  required
-                />
-                <button
-                  type="button"
-                  className="btn password-toggle-btn"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  aria-label="Toggle confirm password visibility"
-                >
-                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                </button>
-                <span className="span-tag error-text">
-                  {validationErrors.uconfirmPassword}
-                </span>
-              </div>
-
-              <span className="span-tag error-text">{apiStatus.error}</span>
-              <span className="span-tag success-text">{apiStatus.success}</span>
-              <div className="input-group mb-3">
-                <input
-                  className="form-control"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Phone for OTP"
-                />
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary"
-                  onClick={isOtpSent ? verifyOtp : sendOtp}
-                >
-                  {isOtpSent ? "Verify OTP" : "Send OTP"}
-                </button>
-              </div>
-              {isOtpSent && (
+              <div className="form-fields">
                 <div className="input-group mb-3">
-                  <span className="input-group-text bg-light border-secondary">
-                    OTP
+                  <span className="input-group-text icon-badge">
+                    <PersonIcon fontSize="small" />
                   </span>
                   <input
                     className="form-control"
                     type="text"
-                    value={otpCode}
-                    onChange={(e) => setOtpCode(e.target.value)}
-                    placeholder="Enter OTP"
+                    value={uname}
+                    onChange={(e) => setUname(e.target.value)}
+                    placeholder="Full Name"
+                    autoComplete="name"
+                    required
                   />
+                  <span className="span-tag error-text">
+                    {validationErrors.uname}
+                  </span>
                 </div>
-              )}
-              <span className="span-tag success-text">{otpMsg}</span>
-              <button className="codepen-button" type="submit">
-                Sign Up
-              </button>
-              <div className="auth-social-row" style={{ marginTop: "0.75rem" }}>
-                <button
-                  type="button"
-                  className="codepen-button"
-                  onClick={() =>
-                    (window.location.href = `${API_URL}/api/oauth/google`)
-                  }
-                >
-                  <span className="btn-icon">
-                    <FontAwesomeIcon icon={faGoogle} />
-                  </span>{" "}
-                  Continue with Google
-                </button>
-                <button
-                  type="button"
-                  className="codepen-button"
-                  onClick={() =>
-                    (window.location.href = `${API_URL}/api/oauth/github`)
-                  }
-                >
-                  <span className="btn-icon">
-                    <FontAwesomeIcon icon={faGithub} />
-                  </span>{" "}
-                  Continue with GitHub
-                </button>
-              </div>
 
-              <div className="mobile-toggle">
-                Already have an account?{" "}
-                <span onClick={() => toggleSignupLogin("signIn")}>Login</span>
-              </div>
-            </div>
-          </form>
-        </div>
+                <div className="input-group mb-3">
+                  <span className="input-group-text icon-badge">
+                    <EmailIcon fontSize="small" />
+                  </span>
+                  <input
+                    className="form-control"
+                    type="email"
+                    value={uemail}
+                    onChange={(e) => setUemail(e.target.value)}
+                    placeholder="Email Address"
+                    autoComplete="email"
+                    required
+                  />
+                  <span className="span-tag error-text">
+                    {validationErrors.uemail}
+                  </span>
+                </div>
 
-        {type === "signIn" && (
-          <div className="form-container sign-in-container">
-            <Login toggleMobile={() => toggleSignupLogin("signUp")} />
+                <div className="input-group mb-3">
+                  <span className="input-group-text icon-badge">
+                    <LockIcon fontSize="small" />
+                  </span>
+                  <input
+                    className="form-control"
+                    type={showPassword ? "text" : "password"}
+                    value={upassword}
+                    onChange={(e) => setUpassword(e.target.value)}
+                    placeholder="Password"
+                    autoComplete="new-password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="btn password-toggle-btn"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label="Toggle password visibility"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </button>
+                  <span className="span-tag error-text">
+                    {validationErrors.upassword}
+                  </span>
+                </div>
+
+                <div className="input-group mb-3">
+                  <span className="input-group-text icon-badge">
+                    <LockIcon fontSize="small" />
+                  </span>
+                  <input
+                    className="form-control"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={uconfirmPassword}
+                    onChange={(e) => setUconfirmPassword(e.target.value)}
+                    placeholder="Confirm Password"
+                    autoComplete="new-password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="btn password-toggle-btn"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    aria-label="Toggle confirm password visibility"
+                  >
+                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                  </button>
+                  <span className="span-tag error-text">
+                    {validationErrors.uconfirmPassword}
+                  </span>
+                </div>
+
+                <span className="span-tag error-text">{apiStatus.error}</span>
+                <span className="span-tag success-text">
+                  {apiStatus.success}
+                </span>
+                <div className="input-group mb-3">
+                  <select
+                    value={channel}
+                    onChange={(e) => {
+                      setChannel(e.target.value);
+                      setContact("");
+                    }}
+                    className="form-select otp-channel-select"
+                  >
+                    <option value="sms">SMS</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="email">Email</option>
+                  </select>
+                  {channel === "email" ? (
+                    <input
+                      className="form-control"
+                      type="email"
+                      value={uemail}
+                      onChange={(e) => {
+                        setUemail(e.target.value);
+                        setContact(e.target.value);
+                      }}
+                      placeholder="Email for OTP"
+                    />
+                  ) : (
+                    <input
+                      className="form-control"
+                      type="text"
+                      value={contact}
+                      onChange={(e) => setContact(e.target.value)}
+                      placeholder={
+                        channel === "whatsapp"
+                          ? "WhatsApp number"
+                          : "+Phone for OTP"
+                      }
+                    />
+                  )}
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={isOtpSent ? verifyOtp : sendOtp}
+                  >
+                    {isOtpSent ? "Verify OTP" : "Send OTP"}
+                  </button>
+                </div>
+                {isOtpSent && (
+                  <div className="input-group mb-3">
+                    <span className="input-group-text bg-light border-secondary">
+                      OTP
+                    </span>
+                    <input
+                      className="form-control"
+                      type="text"
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value)}
+                      placeholder="Enter OTP"
+                    />
+                  </div>
+                )}
+                <span className="span-tag success-text">{otpMsg}</span>
+                <button className="codepen-button" type="submit">
+                  Sign Up
+                </button>
+                <div
+                  className="auth-social-row"
+                  style={{ marginTop: "0.75rem" }}
+                >
+                  <button
+                    type="button"
+                    className="codepen-button"
+                    onClick={() =>
+                      (window.location.href = `${API_URL}/api/oauth/google`)
+                    }
+                  >
+                    <span className="btn-icon">
+                      <FontAwesomeIcon icon={faGoogle} />
+                    </span>{" "}
+                    Continue with Google
+                  </button>
+                  <button
+                    type="button"
+                    className="codepen-button"
+                    onClick={() =>
+                      (window.location.href = `${API_URL}/api/oauth/github`)
+                    }
+                  >
+                    <span className="btn-icon">
+                      <FontAwesomeIcon icon={faGithub} />
+                    </span>{" "}
+                    Continue with GitHub
+                  </button>
+                </div>
+
+                <div className="mobile-toggle">
+                  Already have an account?{" "}
+                  <span onClick={() => toggleSignupLogin("signIn")}>Login</span>
+                </div>
+              </div>
+            </form>
           </div>
-        )}
 
-        <div className="overlay-container">
-          <div className="overlay">
-            <div className="overlay-panel overlay-left">
-              <h1>Welcome Back!</h1>
-              <p className="description">
-                To keep connected with us please login with your personal info
-              </p>
-              <button
-                className="Btn"
-                onClick={() => toggleSignupLogin("signIn")}
-              >
-                Login
-              </button>
+          {type === "signIn" && (
+            <div className="form-container sign-in-container">
+              <Login toggleMobile={() => toggleSignupLogin("signUp")} />
             </div>
-            <div className="overlay-panel overlay-right">
-              <h1>New User? Please login here</h1>
-              <p className="description">
-                Enter your personal details and start your journey with us
-              </p>
-              <button
-                className="Btn2"
-                onClick={() => toggleSignupLogin("signUp")}
-              >
-                Sign Up
-              </button>
+          )}
+
+          <div className="overlay-container">
+            <div className="overlay">
+              <div className="overlay-panel overlay-left">
+                <h1>Welcome Back!</h1>
+                <p className="description">
+                  To keep connected with us please login with your personal info
+                </p>
+                <button
+                  className="Btn"
+                  onClick={() => toggleSignupLogin("signIn")}
+                >
+                  Login
+                </button>
+              </div>
+              <div className="overlay-panel overlay-right">
+                <h1>New User? Please login here</h1>
+                <p className="description">
+                  Enter your personal details and start your journey with us
+                </p>
+                <button
+                  className="Btn2"
+                  onClick={() => toggleSignupLogin("signUp")}
+                >
+                  Sign Up
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
