@@ -38,10 +38,10 @@ const Bodycontent = (props) => {
   // Load bookmarks from localStorage on mount
   React.useEffect(() => {
     const savedDiscount = JSON.parse(
-      localStorage.getItem("discountBookmarked") || "{}"
+      localStorage.getItem("discountBookmarked") || "{}",
     );
     const savedTrending = JSON.parse(
-      localStorage.getItem("trendingBookmarked") || "{}"
+      localStorage.getItem("trendingBookmarked") || "{}",
     );
     setDiscountBookmarked(savedDiscount);
     setTrendingBookmarked(savedTrending);
@@ -150,7 +150,7 @@ const Bodycontent = (props) => {
     if (props.currentSection) {
       setNav((prev) => ({
         ...Object.fromEntries(
-          Object.keys(prev).map((key) => [key, key === props.currentSection])
+          Object.keys(prev).map((key) => [key, key === props.currentSection]),
         ),
       }));
     }
@@ -162,7 +162,7 @@ const Bodycontent = (props) => {
     } else {
       setNav((prev) => ({
         ...Object.fromEntries(
-          Object.keys(prev).map((key) => [key, key === section])
+          Object.keys(prev).map((key) => [key, key === section]),
         ),
       }));
     }
@@ -180,48 +180,119 @@ const Bodycontent = (props) => {
   ];
 
   const CATEGORY_ITEMS = Object.fromEntries(
-    CATEGORY_LIST.map((cat) => [cat, []])
+    CATEGORY_LIST.map((cat) => [cat, []]),
   );
 
+  const CATEGORY_ICONS = {
+    Fruits: "🍎",
+    Vegetables: "🥦",
+    Drinks: "🍹",
+    Bakery: "🥐",
+    "Butter & Eggs": "� eggs",
+    "Milk & Creams": "🥛",
+    Meats: "🍗",
+    Fish: "🐟",
+  };
+
+  // predefined sample products for each category
+  const SAMPLE_PRODUCTS = {
+    Fruits: [
+      { name: "Fresh Mango", price: 120, image: "/banner-images/banner0.jpg" },
+      { name: "Red Apples", price: 80, image: "/banner-images/banner1.jpg" },
+      {
+        name: "Mixed Berries",
+        price: 150,
+        image: "/banner-images/banner2.jpg",
+      },
+      { name: "Banana Bunch", price: 60, image: "/banner-images/banner3.jpg" },
+    ],
+    Vegetables: [
+      {
+        name: "Organic Spinach",
+        price: 50,
+        image: "/banner-images/banner4.jpg",
+      },
+      { name: "Broccoli", price: 70, image: "/banner-images/banner0.jpg" },
+      { name: "Tomato Basket", price: 45, image: "/banner-images/banner1.jpg" },
+      { name: "Carrot Pack", price: 55, image: "/banner-images/banner2.jpg" },
+    ],
+    Drinks: [
+      { name: "Mint Mojito", price: 90, image: "/banner-images/banner0.jpg" },
+      {
+        name: "Orange Juice",
+        price: 60,
+        image: "/banner-images/banner1.jpg",
+      },
+      { name: "Cold Coffee", price: 80, image: "/banner-images/banner2.jpg" },
+      {
+        name: "Strawberry Smoothie",
+        price: 100,
+        image: "/banner-images/banner3.jpg",
+      },
+    ],
+    Bakery: [
+      {
+        name: "Chocolate Cake",
+        price: 250,
+        image: "/banner-images/banner0.jpg",
+      },
+      {
+        name: "Butter Croissant",
+        price: 40,
+        image: "/banner-images/banner1.jpg",
+      },
+      {
+        name: "Blueberry Muffin",
+        price: 35,
+        image: "/banner-images/banner2.jpg",
+      },
+      { name: "Bagel", price: 30, image: "/banner-images/banner3.jpg" },
+    ],
+    // others can remain generic if needed
+  };
+
+  // build PRODUCTS list from samples, repeating to reach TOTAL_ITEMS
   const TOTAL_ITEMS = 36;
-  const IMAGE_KEYWORDS = {
-    Fruits: "fresh-fruit,fruits,apple,banana,citrus",
-    Vegetables: "vegetables,greens,broccoli,carrot,lettuce",
-    Drinks: "drinks,juice,smoothie,mojito",
-    Bakery: "bakery,bread,croissant,cake,pastry",
-    "Butter & Eggs": "eggs,breakfast,butter",
-    "Milk & Creams": "milk,ice-cream,cream,dairy",
-    Meats: "meat,steak,chicken,bbq",
-    Fish: "fish,seafood,salmon,sushi",
-  };
+  const PRODUCTS = [];
+
+  // optional category-specific fallback images (stored in public/banner-images).
+  // if the map is left empty the onError handler will automatically request
+  // a random Unsplash photo for the category.
   const IMAGE_FALLBACK = {
-    Fruits: "/footer-images/veggies.jpg",
-    Vegetables: "/footer-images/veggies.jpg",
-    Drinks: "/footer-images/drinks.jpg",
-    Bakery: "/footer-images/desserts.jpg",
-    "Butter & Eggs": "/footer-images/burger.png",
-    "Milk & Creams": "/footer-images/ice_cream.jpg",
-    Meats: "/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg",
-    Fish: "/footer-images/desserts.jpg",
+    Fruits: "/banner-images/banner0.jpg",
+    Vegetables: "/banner-images/banner1.jpg",
+    Drinks: "/banner-images/banner2.jpg",
+    Bakery: "/banner-images/banner3.jpg",
+    "Butter & Eggs": "/banner-images/banner4.jpg",
+    "Milk & Creams": "/banner-images/banner0.jpg",
+    Meats: "/banner-images/banner1.jpg",
+    Fish: "/banner-images/banner2.jpg",
   };
-  const PRODUCTS = Array.from({ length: TOTAL_ITEMS }, (_, i) => {
+  for (let i = 0; i < TOTAL_ITEMS; i++) {
     const cat = CATEGORY_LIST[i % CATEGORY_LIST.length];
-    const base = cat.toLowerCase().replace(/[^\w]+/g, "-");
+    const samples = SAMPLE_PRODUCTS[cat] || [];
+    const sample = samples[i % samples.length] || {
+      name: `${cat} Item`,
+      price: 70,
+      image: "",
+    };
+    const unsplashUrl = `https://source.unsplash.com/600x400/?${encodeURIComponent(sample.name)}`;
+    const primaryImage = sample.image || IMAGE_FALLBACK[cat] || unsplashUrl;
+    const fallbackImage = unsplashUrl;
     const item = {
-      id: `${base}-${i + 1}`,
-      name: `${cat} Item ${i + 1}`,
-      price: 60 + ((i * 17) % 240),
+      id: `${cat.toLowerCase().replace(/[^\w]+/g, "-")}-${i + 1}`,
+      name: sample.name,
+      price: sample.price,
       rating: (4 + (i % 6) * 0.1).toFixed(1),
       calories: 150 + i * 15,
-      image: `https://source.unsplash.com/600x400/?${encodeURIComponent(
-        IMAGE_KEYWORDS[cat]
-      )}&sig=${i}`,
-      imageFallback: IMAGE_FALLBACK[cat],
+      image: primaryImage,
+      imageFallback: fallbackImage,
+      oldPrice: i % 3 === 0 ? sample.price + 20 : null,
       category: cat,
     };
     CATEGORY_ITEMS[cat].push(item);
-    return item;
-  });
+    PRODUCTS.push(item);
+  }
 
   //  carttttt
   const { data, err, isLoading } = useGetAllProductsQuery();
@@ -311,7 +382,7 @@ const Bodycontent = (props) => {
                                 loading="lazy"
                               />
                               <p className="trending-items-title">
-                                {item.name}
+                                {CATEGORY_ICONS[item.category] || "🍽️"} {item.name}
                               </p>
                               <div className="trending-card-details-wrapper">
                                 <div className="trending-rating">
@@ -423,81 +494,110 @@ const Bodycontent = (props) => {
                       <Suspense fallback={<SkeletonLoader />}>
                         <Contact key={key} />
                       </Suspense>
-                    ))
+                    )),
                 )}
               </div>
 
               {/* Our offers */}
-              <h2 className="heading-title">
-                {/* <span>
-              <img
-                src={`/bodycontent-icons/sale-time.png`}
-                alt="Flaticon Icon"
-                width="30"
-                height="30"
-                className="header-text-icon"
-              />
-              &#8197;
-            </span> */}
-                Our Offers
-              </h2>
-              <div className="offers-scroll">
-                <div className="offers-main-div">
-                  {(() => {
-                    const allowed = [
-                      "Fruits",
-                      "Vegetables",
-                      "Drinks",
-                      "Bakery",
-                      "Buffer & Eggs",
-                      "Milk & Creams",
-                      "Meats",
-                      "Fish",
-                    ];
-                    const isCategory = allowed.includes(props.activeCategory);
-                    const filtered = isCategory
-                      ? PRODUCTS.filter(
-                          (p) => p.category === props.activeCategory
-                        )
-                      : PRODUCTS;
-                    if (filtered.length === 0) {
-                      return (
-                        <div
-                          style={{
-                            width: "100%",
-                            textAlign: "center",
-                            padding: "30px",
-                          }}
-                        >
-                          <h4>No items found</h4>
-                          <p>Try a different category</p>
+              <div className="fancy-section offers-section">
+                <div className="section-title-wrapper">
+                  <span className="section-badge">OFFERS</span>
+                  <h2 className="heading-title">Our Offers</h2>
+                </div>
+                <div className="offers-scroll">
+                  <div className="offers-main-div">
+                    {(() => {
+                      const allowed = [
+                        "Fruits",
+                        "Vegetables",
+                        "Drinks",
+                        "Bakery",
+                        "Buffer & Eggs",
+                        "Milk & Creams",
+                        "Meats",
+                        "Fish",
+                      ];
+                      const isCategory = allowed.includes(props.activeCategory);
+                      const filtered = isCategory
+                        ? PRODUCTS.filter(
+                            (p) => p.category === props.activeCategory,
+                          )
+                        : PRODUCTS;
+                      if (filtered.length === 0) {
+                        return (
+                          <div
+                            style={{
+                              width: "100%",
+                              textAlign: "center",
+                              padding: "30px",
+                            }}
+                          >
+                            <h4>No items found</h4>
+                            <p>Try a different category</p>
+                          </div>
+                        );
+                      }
+                      return filtered.map((each) => (
+                        <div key={each.id} className="offer-card">
+                          <img
+                            className="offer-image"
+                            src={each.image}
+                            alt={each.name}
+                            loading="lazy"
+                            onError={(e) => {
+                              // try per-item fallback, then category map, then Unsplash
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src =
+                                each.imageFallback ||
+                                IMAGE_FALLBACK[each.category] ||
+                                `https://source.unsplash.com/600x400/?${encodeURIComponent(
+                                  each.category,
+                                )}`;
+                            }}
+                          />
+                          <span className="offer-cat">
+                            {CATEGORY_ICONS[each.category] || "🍽️"}{" "}
+                            {each.category}
+                          </span>
+                          <div className="offer-title">{each.name}</div>
+                          <div className="offer-pricing">
+                            {each.oldPrice && (
+                              <span className="old-price">
+                                ₹{each.oldPrice}
+                              </span>
+                            )}
+                            <span
+                              className={
+                                each.oldPrice ? "new-price" : "new-price solo"
+                              }
+                            >
+                              ₹{each.price}
+                            </span>
+                          </div>
+                          <div className="trending-rating">
+                            <span>
+                              ⭐{" "}
+                              {each.rating ||
+                                (Math.random() * 1 + 4).toFixed(1)}
+                            </span>
+                            <span className="reviews-text">
+                              (
+                              {each.reviews ||
+                                Math.floor(Math.random() * 150) + 10}{" "}
+                              reviews)
+                            </span>
+                          </div>
+                          <button className="btn shopnow-btn">SHOP NOW</button>
                         </div>
-                      );
-                    }
-                    return filtered.map((each) => (
-                      <div key={each.id} className="offer-card">
-                        <img
-                          className="offer-image"
-                          src={each.image}
-                          alt={each.name}
-                          loading="lazy"
-                          onError={(e) => {
-                            e.currentTarget.src = IMAGE_FALLBACK[each.category];
-                          }}
-                        />
-                        <span className="offer-cat">{each.category}</span>
-                        <div className="offer-title">
-                          {each.name} &#8377;{each.price}
-                        </div>
-                        <button className="btn shopnow-btn">SHOP NOW</button>
-                      </div>
-                    ));
-                  })()}
+                      ));
+                    })()}
+                  </div>
                 </div>
               </div>
 
-              <div className="preview-section">
-                <div className="preview-section-header">
+              <div className="preview-section fancy-section">
+                <div className="preview-section-header section-title-wrapper">
+                  <span className="section-badge">POPULAR</span>
                   <h2 className="heading-title">Popular Dishes</h2>
                   <span
                     className="view-all-link"
@@ -515,16 +615,17 @@ const Bodycontent = (props) => {
                     .map((item) => (
                       <div className="trending-items-sub-div" key={item.id}>
                         <img
-                          src={item.imageFallback}
+                          src={item.image}
                           alt={item.name}
                           loading="lazy"
                           onError={(e) => {
                             e.currentTarget.src =
+                              item.imageFallback ||
                               IMAGE_FALLBACK["Bakery"] ||
                               "/footer-images/desserts.jpg";
                           }}
                         />
-                        <p className="trending-items-title">{item.name}</p>
+                        <p className="trending-items-title">{CATEGORY_ICONS[item.category] || "🍽️"} {item.name}</p>
                         <div className="trending-card-details-wrapper">
                           <div className="trending-rating">
                             <span>⭐ 4.8</span>
@@ -552,8 +653,9 @@ const Bodycontent = (props) => {
                 </div>
               </div>
 
-              <div className="preview-section">
-                <div className="preview-section-header">
+              <div className="preview-section fancy-section">
+                <div className="preview-section-header section-title-wrapper">
+                  <span className="section-badge">RECENT</span>
                   <h2 className="heading-title">Recent Orders</h2>
                   <span
                     className="view-all-link"
@@ -571,15 +673,17 @@ const Bodycontent = (props) => {
                     .map((item) => (
                       <div className="trending-items-sub-div" key={item.id}>
                         <img
-                          src={item.imageFallback}
+                          src={item.image}
                           alt={item.name}
                           onError={(e) => {
+                            e.currentTarget.onerror = null;
                             e.currentTarget.src =
+                              item.imageFallback ||
                               IMAGE_FALLBACK["Meats"] ||
                               "/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg";
                           }}
                         />
-                        <p className="trending-items-title">{item.name}</p>
+                        <p className="trending-items-title">{CATEGORY_ICONS[item.category] || "🍽️"} {item.name}</p>
                         <div className="trending-card-details-wrapper">
                           <div className="trending-rating">
                             <span>⭐ 4.7</span>
@@ -747,7 +851,7 @@ const Bodycontent = (props) => {
                           ></i>
                           <img src={product.img} alt="trending-items-img " />
                           <p className="trending-items-title">
-                            {product.title}
+                            {CATEGORY_ICONS[product.category] || "🍽️"} {product.title}
                           </p>
                           <div className="trending-card-details-wrapper">
                             <div className="trending-rating">
