@@ -47,7 +47,7 @@ function SignInForm({ toggleMobile }) {
       const res = await axios.post(
         `${API_BASE_URL}/api/auth/login`,
         { uemail, upassword },
-        { withCredentials: true, headers: { "x-csrf-token": csrfToken } }
+        { withCredentials: true, headers: { "x-csrf-token": csrfToken } },
       );
       if (res.status === 200) {
         try {
