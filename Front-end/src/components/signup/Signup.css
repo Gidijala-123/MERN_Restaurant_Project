@@ -200,7 +200,7 @@
   width: 100%;
   display: flex;
   justify-content: space-evenly;
-  border-bottom: 2px solid var(--primary-orange);
+  box-shadow: var(--primary-orange) 0px 0px 8px -2px
 }
 
 /* Ensure sticky header visually covers inputs while scrolling */
@@ -388,13 +388,11 @@
   color: var(--primary-orange);
   border: 1px solid #e5e7eb;
   cursor: pointer;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.2s ease;
 }
 
-.avatar-uploader:hover .avatar-edit-badge {
-  opacity: 1;
-}
+/* badge always visible – hover rule removed */
 
 .description {
   font-size: 0.875rem;
