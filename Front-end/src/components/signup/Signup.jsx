@@ -68,7 +68,7 @@ function Signup() {
     try {
       const res = await axios.post(
         `${API_URL}/api/signupLoginRouter/registerUser`,
-        { uname, uemail, upassword, avatar }
+        { uname, uemail, upassword, avatar },
       );
 
       if (res.status === 200) {
@@ -107,7 +107,7 @@ function Signup() {
       const res = await axios.post(
         `${API_URL}/api/otp/send`,
         { to: phone, channel: "sms" },
-        { withCredentials: true, headers: { "x-csrf-token": csrf?.csrfToken } }
+        { withCredentials: true, headers: { "x-csrf-token": csrf?.csrfToken } },
       );
       if (res.status === 200) {
         setOtpMsg("OTP sent");
@@ -128,7 +128,7 @@ function Signup() {
       const res = await axios.post(
         `${API_URL}/api/otp/verify`,
         { to: phone, code: otpCode },
-        { withCredentials: true, headers: { "x-csrf-token": csrf?.csrfToken } }
+        { withCredentials: true, headers: { "x-csrf-token": csrf?.csrfToken } },
       );
       if (res.data?.ok) {
         setOtpMsg("OTP verified");
@@ -173,7 +173,6 @@ function Signup() {
                 </label>
               </div>
               <h1 className="heading-h1">Create Account</h1>
-              <p className="description">Enter your details to get started</p>
             </div>
             <div className="form-fields">
               <div className="input-group mb-3">
