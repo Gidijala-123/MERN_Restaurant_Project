@@ -17,24 +17,32 @@ export default function PrivateRoute({ children }) {
         const base = (
           import.meta.env.VITE_API_URL || "http://localhost:1111"
         ).replace(/\/$/, "");
+
         const res = await fetch(base + "/api/auth/me", {
           credentials: "include",
         });
-        if (res.ok) {
+        const data = await res.json().catch(() => null);
+
+        // Server now returns authenticated=false instead of 401 when the token is missing/expired.
+        if (res.ok && data?.authenticated !== false) {
           setStatus("ok");
-        } else {
-          const resRefresh = await fetch(base + "/api/auth/refresh", {
-            credentials: "include",
-          });
-          if (resRefresh.ok) {
-            const res2 = await fetch(base + "/api/auth/me", {
-              credentials: "include",
-            });
-            setStatus(res2.ok ? "ok" : "fail");
-          } else {
-            setStatus("fail");
-          }
+          return;
         }
+
+        // Attempt to refresh token if the session is stale
+        const resRefresh = await fetch(base + "/api/auth/refresh", {
+          credentials: "include",
+        });
+        if (!resRefresh.ok) {
+          setStatus("fail");
+          return;
+        }
+
+        const res2 = await fetch(base + "/api/auth/me", {
+          credentials: "include",
+        });
+        const data2 = await res2.json().catch(() => null);
+        setStatus(res2.ok && data2?.authenticated !== false ? "ok" : "fail");
       } catch {
         setStatus("fail");
       }

@@ -121,7 +121,7 @@ const loginLimiter = rateLimit({
 app.post("/api/auth/login", loginLimiter, login);
 app.get("/api/auth/refresh", refresh);
 app.post("/api/auth/logout", checkCsrf, logout);
-app.get("/api/auth/me", verifyAccessToken, me);
+app.get("/api/auth/me", me);
 app.patch("/api/auth/avatar", verifyAccessToken, checkCsrf, updateAvatar);
 // OAuth routes (activate only if env is provided)
 app.get(

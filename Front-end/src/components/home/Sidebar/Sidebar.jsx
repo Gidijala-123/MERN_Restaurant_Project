@@ -224,6 +224,10 @@ export default function Sidebar() {
   }, []);
   const [avatar, setAvatar] = useState("");
   useEffect(() => {
+    // Avoid calling /api/auth/me on a fresh load if the user hasn't logged in.
+    // We keep the local cache (userName) as the source of truth for “logged in” state.
+    if (!localStorage.getItem("userName")) return;
+
     const load = async () => {
       try {
         const base = (

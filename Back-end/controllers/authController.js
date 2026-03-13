@@ -52,7 +52,11 @@ export const login = asyncHandler(async (req, res) => {
 
 export const refresh = asyncHandler(async (req, res) => {
   const token = req.cookies?.refreshToken;
-  if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+  // Return 200 even when refresh token is missing/invalid to avoid noisy browser errors.
+  // Client should treat authenticated=false as a sign that the session is gone.
+  if (!token) return res.status(200).json({ authenticated: false });
+
   try {
     const secret =
       process.env.REFRESH_TOKEN ||
@@ -68,9 +72,9 @@ export const refresh = asyncHandler(async (req, res) => {
         sameSite: isProd ? "none" : "lax",
         maxAge: 15 * 60 * 1000,
       })
-      .json({ message: "refreshed" });
+      .json({ authenticated: true });
   } catch {
-    return res.status(401).json({ message: "Invalid refresh token" });
+    return res.status(200).json({ authenticated: false });
   }
 });
 
@@ -88,16 +92,30 @@ export const logout = asyncHandler(async (req, res) => {
 });
 
 export const me = asyncHandler(async (req, res) => {
-  const uid = req.tokenKey?.uid;
-  if (!uid) return res.status(401).json({ message: "Unauthorized" });
-  const user = await EmployeeModel.findById(uid).select(
-    "avatar uname uemail role"
-  );
-  res.json({
-    ...req.tokenKey,
-    avatar: user?.avatar || "",
-    uname: user?.uname || req.tokenKey?.uname,
-  });
+  // Determine whether the user is authenticated based on the accessToken cookie.
+  // Always return 200 so the frontend doesn’t log a 401 in the console.
+  const token = req.cookies?.accessToken;
+  if (!token) return res.status(200).json({ authenticated: false });
+
+  try {
+    const secret = process.env.ACCESS_TOKEN || "bhargava@123";
+    const decoded = jwt.verify(token, secret);
+    const tokenKey = decoded?.tokenKey;
+    const uid = tokenKey?.uid;
+    if (!uid) return res.status(200).json({ authenticated: false });
+
+    const user = await EmployeeModel.findById(uid).select(
+      "avatar uname uemail role"
+    );
+    res.json({
+      authenticated: true,
+      ...tokenKey,
+      avatar: user?.avatar || "",
+      uname: user?.uname || tokenKey?.uname,
+    });
+  } catch {
+    return res.status(200).json({ authenticated: false });
+  }
 });
 
 export const updateAvatar = asyncHandler(async (req, res) => {
