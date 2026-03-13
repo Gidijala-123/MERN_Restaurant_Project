@@ -244,11 +244,14 @@ img {
    background: var(--primary-dark);
 }
 
-.trending-items-sub-div {
+/* Shared card styles for offers/popular/recent/discount/trending sections */
+.section-card,
+.trending-items-sub-div,
+.offer-card,
+.discount-item {
    flex: 0 0 240px;
-   /* Fixed width, no shrinking */
+   /* fixed width so the carousel is consistent */
    min-height: 17.5rem;
-   /* Allow card to expand */
    height: auto;
    display: flex;
    flex-direction: column;
@@ -261,7 +264,6 @@ img {
    border: 1px solid var(--border-light);
    position: relative;
    justify-content: space-between;
-   /* Distribute space vertically */
 }
 
 .trending-card-details-wrapper {
@@ -304,6 +306,32 @@ img {
    object-fit: contain;
    display: block;
    margin-bottom: 0.625rem;
+}
+
+.offer-description {
+   font-size: 0.85rem;
+   color: var(--text-sub);
+   text-align: center;
+   display: -webkit-box;
+   -webkit-line-clamp: 2;
+   -webkit-box-orient: vertical;
+   overflow: hidden;
+}
+
+.offer-meta {
+   display: flex;
+   justify-content: center;
+   gap: 0.75rem;
+   margin-top: 0.5rem;
+   font-size: 0.75rem;
+   color: var(--text-sub);
+}
+
+.offer-meta-item {
+   background: rgba(255, 126, 95, 0.1);
+   padding: 0.25rem 0.5rem;
+   border-radius: 999px;
+   font-weight: 600;
 }
 
 .trending-items-title {
@@ -1038,7 +1066,7 @@ img {
    font-weight: 800;
    color: var(--text-main);
    text-align: center;
-   margin: 0.25rem 0 0.5rem 0;
+   margin-top: 0.25rem;
    display: -webkit-box;
    -webkit-line-clamp: 2;
    -webkit-box-orient: vertical;

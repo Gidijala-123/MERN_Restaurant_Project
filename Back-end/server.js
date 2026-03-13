@@ -10,6 +10,7 @@ import compression from "compression";
 import mongoose from "mongoose";
 import dbConnection from "./config/dbConfig.js";
 import signupLoginRouter from "./routers/signupLoginRouter.js";
+import menuRouter from "./routers/menuRouter.js";
 import products from "./controllers/products.js";
 import errorHandler from "./middleware/errorHandling.js";
 import {
@@ -170,6 +171,9 @@ app.get(
 
 // CSRF token issue
 app.get("/api/csrf", issueCsrf);
+
+// Menu routes
+app.use("/api/menu", menuRouter);
 
 // newsletter routes
 app.use("/api/newsletter", newsletterRouter);

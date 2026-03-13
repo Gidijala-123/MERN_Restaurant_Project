@@ -17,7 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 
-// Material Icons
+// Material Icons - Only absolute core icons
 import {
   Menu as MenuIcon,
   ChevronLeft as ChevronLeftIcon,
@@ -29,15 +29,22 @@ import {
   ShoppingBag as OrdersIcon,
   Favorite as FavoritesIcon,
   Settings as SettingsIcon,
-  Home as HomeIcon,
-  Apple as AppleIcon,
-  Grass as VeggieIcon,
-  LocalDrink as DrinkIcon,
-  BakeryDining as BakeryIcon,
-  Egg as EggIcon,
-  WaterDrop as MilkIcon,
-  KebabDining as MeatIcon,
-  SetMeal as FishIcon,
+  LocalFireDepartment as HotOffersIcon,
+  Grass as VegIcon,
+  SetMeal as NonVegIcon,
+  OutdoorGrill as TandooriIcon,
+  SoupKitchen as SoupIcon,
+  LocalFlorist as SaladIcon,
+  LunchDining as SandwichIcon,
+  Star as SignatureIcon,
+  RiceBowl as BiryaniIcon,
+  RestaurantMenu as MainCourseIcon,
+  BakeryDining as RiceIcon,
+  RamenDining as SouthIndianIcon,
+  TakeoutDining as ChineseIcon,
+  LocalBar as BeverageIcon,
+  LocalDrink as CocktailIcon,
+  Icecream as DessertIcon,
   Logout as LogoutIcon,
 } from "@mui/icons-material";
 
@@ -67,6 +74,7 @@ import { Sidebar_Content } from "../../../APIs/Sidebar";
 import Bodycontent from "../Bodycontent/Bodycontent";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useTheme as useAppTheme } from "../../../context/ThemeContext";
+import { useMenu } from "../../../context/MenuContext";
 
 // carttttt
 import { Link } from "react-router-dom";
@@ -75,23 +83,30 @@ import SearchBar from "../Bodycontent/SEARCH_COMPONENT/SearchBar";
 import { addToCart } from "../../features/cartSlice";
 import { useGetAllProductsQuery } from "../../features/productsApi";
 
-const drawerWidth = 240;
+const drawerWidth = 230;
 
 const Sidebar_Items = [
-  { text: "Hot Offers", icon: <HomeIcon /> },
   { text: "Settings", icon: <SettingsIcon /> },
   { text: "Logout", icon: <LogoutIcon />, action: "logout" },
 ];
 
 const Category_Items = [
-  { text: "Fruits", icon: <AppleIcon /> },
-  { text: "Vegetables", icon: <VeggieIcon /> },
-  { text: "Drinks", icon: <DrinkIcon /> },
-  { text: "Bakery", icon: <BakeryIcon /> },
-  { text: "Butter & Eggs", icon: <EggIcon /> },
-  { text: "Milk & Creams", icon: <MilkIcon /> },
-  { text: "Meats", icon: <MeatIcon /> },
-  { text: "Fish", icon: <FishIcon /> },
+  { text: "Hot Offers", icon: <HotOffersIcon /> },
+  { text: "Veg Starters", icon: <VegIcon /> },
+  { text: "Non-Veg Starters", icon: <NonVegIcon /> },
+  { text: "Tandooris", icon: <TandooriIcon /> },
+  { text: "Soups", icon: <SoupIcon /> },
+  { text: "Salads", icon: <SaladIcon /> },
+  { text: "Sandwiches", icon: <SandwichIcon /> },
+  { text: "Signature Dishes", icon: <SignatureIcon /> },
+  { text: "Biryanis", icon: <BiryaniIcon /> },
+  { text: "Main Course", icon: <MainCourseIcon /> },
+  { text: "Rice & Breads", icon: <RiceIcon /> },
+  { text: "South Indian", icon: <SouthIndianIcon /> },
+  { text: "Chinese", icon: <ChineseIcon /> },
+  { text: "Beverages", icon: <BeverageIcon /> },
+  { text: "Cocktails/Mocktails", icon: <CocktailIcon /> },
+  { text: "Desserts", icon: <DessertIcon /> },
 ];
 
 const DrawerHeader = styled("div")(({ theme }) => ({
@@ -189,6 +204,7 @@ export default function Sidebar() {
   });
 
   const { theme: appTheme, toggleTheme } = useAppTheme();
+  const { handleCategoryChange } = useMenu();
   const [favoritesCount, setFavoritesCount] = useState(0);
   const { data } = useGetAllProductsQuery();
 
@@ -286,20 +302,29 @@ export default function Sidebar() {
     if (sidebarItem) {
       setActiveSidebarItem(sidebarItem);
       setActiveCategory(sidebarItem);
+      // Update MenuContext with the selected category
+      handleCategoryChange(sidebarItem);
     }
   };
 
   // Map sidebar items to Bodycontent sections
   const sectionMap = {
     "Hot Offers": "Home",
-    Fruits: "FreshFood",
-    Vegetables: "FreshFood",
-    Drinks: "Drinks",
-    Bakery: "Bakery",
-    "Buffer & Eggs": "FreshFood",
-    "Milk & Creams": "FreshFood",
-    Meats: "FreshFood",
-    Fish: "FreshFood",
+    "Veg Starters": "VegStarters",
+    "Non-Veg Starters": "NonVegStarters",
+    Tandooris: "Tandooris",
+    Soups: "Soups",
+    Salads: "Salads",
+    Sandwiches: "Sandwiches",
+    "Signature Dishes": "SignatureDishes",
+    Biryanis: "Biryanis",
+    "Main Course": "MainCourse",
+    "Rice & Breads": "RiceBreads",
+    "South Indian": "SouthIndian",
+    "Chinese": "IndoChinese",
+    Beverages: "Beverages",
+    "Cocktails/Mocktails": "Cocktails",
+    Desserts: "Desserts",
   };
 
   // cartttttt
@@ -312,10 +337,10 @@ export default function Sidebar() {
 
   const computeFavorites = () => {
     const trendingBookmarked = JSON.parse(
-      localStorage.getItem("trendingBookmarked") || "{}"
+      localStorage.getItem("trendingBookmarked") || "{}",
     );
     const discountBookmarked = JSON.parse(
-      localStorage.getItem("discountBookmarked") || "{}"
+      localStorage.getItem("discountBookmarked") || "{}",
     );
     const favorites = [];
     // Trending from API data
@@ -583,7 +608,7 @@ export default function Sidebar() {
           >
             <List>
               {Sidebar_Items.filter(
-                (i) => i.text !== "Settings" && i.text !== "Logout"
+                (i) => i.text !== "Settings" && i.text !== "Logout",
               ).map((item) => (
                 <ListItem
                   key={item.text}
@@ -629,7 +654,10 @@ export default function Sidebar() {
                     </ListItemIcon>
                     <ListItemText
                       primary={item.text}
-                      sx={{ opacity: open ? 1 : 0 }}
+                      sx={{
+                        opacity: open ? 1 : 0,
+                        transition: "opacity 0.25s ease",
+                      }}
                     />
                   </ListItemButton>
                 </ListItem>
@@ -679,7 +707,10 @@ export default function Sidebar() {
                     </ListItemIcon>
                     <ListItemText
                       primary={item.text}
-                      sx={{ opacity: open ? 1 : 0 }}
+                      sx={{
+                        opacity: open ? 1 : 0,
+                        transition: "opacity 0.25s ease",
+                      }}
                     />
                   </ListItemButton>
                 </ListItem>
@@ -688,7 +719,7 @@ export default function Sidebar() {
             <Box sx={{ flexGrow: 1 }} />
             <List>
               {Sidebar_Items.filter(
-                (i) => i.text === "Settings" || i.text === "Logout"
+                (i) => i.text === "Settings" || i.text === "Logout",
               ).map((item) => (
                 <ListItem
                   key={item.text}
@@ -789,7 +820,7 @@ export default function Sidebar() {
           >
             <List>
               {Sidebar_Items.filter(
-                (i) => i.text !== "Settings" && i.text !== "Logout"
+                (i) => i.text !== "Settings" && i.text !== "Logout",
               ).map((item) => (
                 <ListItem
                   key={item.text}
@@ -1064,22 +1095,22 @@ export default function Sidebar() {
                       aria-label="remove-favorite"
                       onClick={() => {
                         const trending = JSON.parse(
-                          localStorage.getItem("trendingBookmarked") || "{}"
+                          localStorage.getItem("trendingBookmarked") || "{}",
                         );
                         const discount = JSON.parse(
-                          localStorage.getItem("discountBookmarked") || "{}"
+                          localStorage.getItem("discountBookmarked") || "{}",
                         );
                         if (item.section === "trending") {
                           delete trending[item.id];
                           localStorage.setItem(
                             "trendingBookmarked",
-                            JSON.stringify(trending)
+                            JSON.stringify(trending),
                           );
                         } else {
                           delete discount[item.id];
                           localStorage.setItem(
                             "discountBookmarked",
-                            JSON.stringify(discount)
+                            JSON.stringify(discount),
                           );
                         }
                         window.dispatchEvent(new Event("favoritesUpdated"));

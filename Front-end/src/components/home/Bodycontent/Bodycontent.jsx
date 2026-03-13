@@ -7,6 +7,7 @@ const Shop = React.lazy(() => import("./SHOP/Shop"));
 const Pages = React.lazy(() => import("./PAGES/Pages"));
 const Blog = React.lazy(() => import("./BLOG/Blog"));
 const Contact = React.lazy(() => import("./CONTACT/Contact"));
+const MenuDisplay = React.lazy(() => import("./MenuDisplay"));
 import "./Bodycontent.css";
 import Footer from "./FOOTER/Footer";
 import Filter from "./FILTER_COMPONENT/Filter";
@@ -18,8 +19,12 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../features/cartSlice";
 import { useGetAllProductsQuery } from "../../features/productsApi";
+import { useMenu } from "../../../context/MenuContext";
+import MENU_DATA from "../../../data/menuData";
 
 const Bodycontent = (props) => {
+  const { selectedCategory } = useMenu();
+
   const [navTocomponents, setNav] = useState({
     Home: true,
     FreshFood: false,
@@ -188,11 +193,46 @@ const Bodycontent = (props) => {
     Vegetables: "🥦",
     Drinks: "🍹",
     Bakery: "🥐",
-    "Butter & Eggs": "� eggs",
+    "Butter & Eggs": "🍳",
     "Milk & Creams": "🥛",
     Meats: "🍗",
     Fish: "🐟",
+
+    // Indian menu categories
+    "Veg Starters": "🥗",
+    "Non-Veg Starters": "🍖",
+    Tandooris: "🔥",
+    Soups: "🥣",
+    Salads: "🥗",
+    Sandwiches: "🥪",
+    "Signature Dishes": "🏆",
+    Biryanis: "🍚",
+    "Main Course": "🍛",
+    "Rice & Breads": "🥖",
+    "South Indian": "🍛",
+    Chinese: "🥡",
+    Beverages: "🥤",
+    "Cocktails/Mocktails": "🍸",
+    Desserts: "🍰",
   };
+
+  const INDIAN_MENU_CATEGORIES = [
+    "Veg Starters",
+    "Non-Veg Starters",
+    "Tandooris",
+    "Soups",
+    "Salads",
+    "Sandwiches",
+    "Signature Dishes",
+    "Biryanis",
+    "Main Course",
+    "Rice & Breads",
+    "South Indian",
+    "Chinese",
+    "Beverages",
+    "Cocktails/Mocktails",
+    "Desserts",
+  ];
 
   // predefined sample products for each category
   const SAMPLE_PRODUCTS = {
@@ -267,6 +307,103 @@ const Bodycontent = (props) => {
     "Milk & Creams": "/banner-images/banner0.jpg",
     Meats: "/banner-images/banner1.jpg",
     Fish: "/banner-images/banner2.jpg",
+
+    // Indian menu categories (fallbacks to assets that exist in /public/footer-images)
+    "Veg Starters": "/footer-images/vegitem.jpg",
+    "Non-Veg Starters": "/footer-images/nonvegitem.jpg",
+    Tandooris: "/footer-images/meat.png",
+    Soups: "/footer-images/soups.jpg",
+    Salads: "/footer-images/salads.jpg",
+    Sandwiches: "/footer-images/burger.png",
+    "Signature Dishes": "/footer-images/food.png",
+    Biryanis: "/footer-images/chicken.png",
+    "Main Course": "/footer-images/maincourse.jpg",
+    "Rice & Breads": "/footer-images/food.png",
+    "South Indian": "/footer-images/food.png",
+    Chinese: "/footer-images/chinese.png",
+    Beverages: "/footer-images/drinks.jpg",
+    "Cocktails/Mocktails": "/footer-images/cooldrinks.png",
+    Desserts: "/footer-images/desserts.jpg",
+  };
+
+  const resolveImageSrc = (item) => {
+    // Prefer explicit image fields.
+    const candidate = item?.image || item?.img || item?.imageUrl;
+
+    // If candidate is from /menu-images, map it to a real public image (menu-images isn't included in build).
+    if (candidate?.startsWith("/menu-images/")) {
+      const filename = candidate.split("/").pop()?.toLowerCase();
+      const mapped = {
+        "samosa.jpg": "/footer-images/vegitem.jpg",
+        "paneer-tikka.jpg": "/footer-images/vegitem.jpg",
+        "spring-rolls.jpg": "/footer-images/veggies.jpg",
+        "aloo-tikki.jpg": "/footer-images/vegitem.jpg",
+        "corn-fritters.jpg": "/footer-images/vegitem.jpg",
+        "chicken-tikka.jpg": "/footer-images/chicken.png",
+        "tandoori-prawns.jpg": "/footer-images/chicken.png",
+        "fish-amritsari.jpg": "/footer-images/seafood.jpg",
+        "chicken-pakora.jpg": "/footer-images/chicken.png",
+        "mutton-seekh.jpg": "/footer-images/meat.png",
+        "tandoori-chicken-half.jpg": "/footer-images/meat.png",
+        "tandoori-fish.jpg": "/footer-images/seafood.jpg",
+        "tandoori-mushroom.jpg": "/footer-images/vegitem.jpg",
+        "tandoori-paneer.jpg": "/footer-images/vegitem.jpg",
+        "tomato-soup.jpg": "/footer-images/soups.jpg",
+        "chicken-soup.jpg": "/footer-images/soups.jpg",
+        "mulligatawny.jpg": "/footer-images/soups.jpg",
+        "veg-soup.jpg": "/footer-images/soups.jpg",
+        "greek-salad.jpg": "/footer-images/salads.jpg",
+        "chicken-salad.jpg": "/footer-images/salads.jpg",
+        "caesar-salad.jpg": "/footer-images/salads.jpg",
+        "veg-manchurian.jpg": "/footer-images/veggies.jpg",
+        "chicken-manchurian.jpg": "/footer-images/chicken.png",
+        "veg-fried-rice.jpg": "/footer-images/food.png",
+        "chicken-fried-rice.jpg": "/footer-images/food.png",
+        "paneer-butter-masala.jpg": "/footer-images/food.png",
+        "butter-chicken.jpg": "/footer-images/chicken.png",
+        "mutton-biryani.jpg": "/footer-images/chicken.png",
+        "hyd-biryani.jpg": "/footer-images/chicken.png",
+        "gulab-jamun.jpg": "/footer-images/desserts.jpg",
+        "rasmalai.jpg": "/footer-images/desserts.jpg",
+        "kheer.jpg": "/footer-images/desserts.jpg",
+        "ice-cream.jpg": "/footer-images/ice_cream.jpg",
+      }[filename];
+
+      if (mapped) {
+        return mapped;
+      }
+
+      // If we don’t have a local mapping, use the item name to fetch a relevant Unsplash image.
+      // This makes “Samosa” show a more appropriate image instead of a generic “food” asset.
+      return `https://source.unsplash.com/600x400/?${encodeURIComponent(
+        item?.name || item?.title || item?.category || "food",
+      )}`;
+    }
+
+    // If candidate exists but is not a /menu-images reference, use it.
+    if (candidate && !candidate.startsWith("/menu-images/")) {
+      return candidate;
+    }
+
+    const categoryFallback = IMAGE_FALLBACK[item?.category];
+
+    // Use a deterministic seed based on item name for consistent, realistic food images
+    const seed = encodeURIComponent(
+      (item?.name || item?.title || item?.category || "Food").replace(/\s+/g, "-").toLowerCase(),
+    );
+
+    return (
+      categoryFallback ||
+      `https://picsum.photos/seed/${seed}/600/400`
+    );
+  };
+
+  const getDiscountPercent = (item) => {
+    // Deterministic discount based on item id (stable, but varying)
+    const base = 10;
+    const range = 21; // 10-30%
+    const idSeed = Number(item?.id) || 0;
+    return base + (idSeed * 13) % range;
   };
   for (let i = 0; i < TOTAL_ITEMS; i++) {
     const cat = CATEGORY_LIST[i % CATEGORY_LIST.length];
@@ -293,6 +430,27 @@ const Bodycontent = (props) => {
     CATEGORY_ITEMS[cat].push(item);
     PRODUCTS.push(item);
   }
+
+  // Popular items (highest rated from selected category)
+  const popularItems = selectedCategory === "Hot Offers"
+    ? [...MENU_DATA].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 6)
+    : MENU_DATA.filter((item) => item.category === selectedCategory)
+        .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+        .slice(0, 6);
+
+  // Recent items (latest added from selected category)
+  const recentItems = selectedCategory === "Hot Offers"
+    ? [...MENU_DATA].slice(-6).reverse()
+    : MENU_DATA.filter((item) => item.category === selectedCategory)
+        .slice(-6)
+        .reverse();
+
+  // Trending items (top-rated from selected category)
+  const trendingItems = selectedCategory === "Hot Offers"
+    ? [...MENU_DATA].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 6)
+    : MENU_DATA.filter((item) => item.category === selectedCategory)
+        .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+        .slice(0, 6);
 
   //  carttttt
   const { data, err, isLoading } = useGetAllProductsQuery();
@@ -325,108 +483,138 @@ const Bodycontent = (props) => {
         <p>An error occured..!</p>
       ) : (
         <>
-          {(() => {
-            const allowed = [
-              "Fruits",
-              "Vegetables",
-              "Drinks",
-              "Bakery",
-              "Buffer & Eggs",
-              "Milk & Creams",
-              "Meats",
-              "Fish",
-            ];
-            const isCategory = allowed.includes(props.activeCategory);
-            if (isCategory) {
-              const filtered = CATEGORY_ITEMS[props.activeCategory] || [];
-              const chunk = (arr, size) =>
-                arr.reduce((rows, item, idx) => {
-                  const r = Math.floor(idx / size);
-                  (rows[r] || (rows[r] = [])).push(item);
-                  return rows;
-                }, []);
-              const rows = chunk(filtered, 6);
-              return (
-                <>
-                  <h2 className="heading-title">{props.activeCategory}</h2>
-                  {filtered.length === 0 ? (
-                    <div
-                      style={{
-                        width: "100%",
-                        textAlign: "center",
-                        padding: "30px",
-                      }}
-                    >
-                      <h4>No items found</h4>
-                      <p>Try a different category</p>
-                    </div>
-                  ) : (
-                    rows.map((row, idx) => (
-                      <div className="category-viewport" key={`row-${idx}`}>
+          {/* Check if it's an Indian menu category */}
+          {selectedCategory !== "Hot Offers" &&
+          [
+            "Veg Starters",
+            "Non-Veg Starters",
+            "Tandooris",
+            "Soups",
+            "Salads",
+            "Sandwiches",
+            "Signature Dishes",
+            "Biryanis",
+            "Main Course",
+            "Rice & Breads",
+            "South Indian",
+            "Chinese",
+            "Beverages",
+            "Cocktails/Mocktails",
+            "Desserts",
+          ].includes(selectedCategory) ? (
+            <Suspense fallback={<SkeletonLoader />}>
+              <MenuDisplay />
+            </Suspense>
+          ) : (
+            // Original legacy components for other categories
+            <>
+              {(() => {
+                const allowed = [
+                  "Fruits",
+                  "Vegetables",
+                  "Drinks",
+                  "Bakery",
+                  "Buffer & Eggs",
+                  "Milk & Creams",
+                  "Meats",
+                  "Fish",
+                ];
+                const isCategory = allowed.includes(props.activeCategory);
+                if (isCategory) {
+                  const filtered = CATEGORY_ITEMS[props.activeCategory] || [];
+                  const chunk = (arr, size) =>
+                    arr.reduce((rows, item, idx) => {
+                      const r = Math.floor(idx / size);
+                      (rows[r] || (rows[r] = [])).push(item);
+                      return rows;
+                    }, []);
+                  const rows = chunk(filtered, 6);
+                  return (
+                    <>
+                      <h2 className="heading-title">{props.activeCategory}</h2>
+                      {filtered.length === 0 ? (
                         <div
-                          className={`category-track ${
-                            idx % 2 === 0 ? "scroll-left" : "scroll-right"
-                          }`}
+                          style={{
+                            width: "100%",
+                            textAlign: "center",
+                            padding: "30px",
+                          }}
                         >
-                          {[...row, ...row].map((item, j) => (
-                            <div
-                              className="trending-items-sub-div"
-                              key={`${item.id}-${j}`}
-                            >
-                              <img
-                                src={item.image}
-                                alt={item.name}
-                                onError={(e) => {
-                                  e.currentTarget.src = item.imageFallback;
-                                }}
-                                loading="lazy"
-                              />
-                              <p className="trending-items-title">
-                                {CATEGORY_ICONS[item.category] || "🍽️"}{" "}
-                                {item.name}
-                              </p>
-                              <div className="trending-card-details-wrapper">
-                                <div className="trending-rating">
-                                  <span>⭐ {item.rating}</span>
-                                  <span className="reviews-text">(200+)</span>
-                                </div>
-                                <div className="trending-items-decrp-container">
-                                  <span className="trending-items-decrp">
-                                    {item.calories} kcal
-                                  </span>
-                                  <b>•</b>
-                                  <span className="trending-items-decrp">
-                                    Serves 1
-                                  </span>
-                                </div>
-                                <div className="trending-items-btn">
-                                  <b>&#8377;{item.price}</b>
-                                  <button
-                                    onClick={() =>
-                                      handleAddToCart({
-                                        id: item.id,
-                                        title: item.name,
-                                        price: item.price,
-                                        img: item.image,
-                                      })
-                                    }
-                                    className="trending-items-button"
-                                  >
-                                    + ADD
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
+                          <h4>No items found</h4>
+                          <p>Try a different category</p>
                         </div>
-                      </div>
-                    ))
-                  )}
-                </>
-              );
-            }
-            return null;
-          })()}
+                      ) : (
+                        rows.map((row, idx) => (
+                          <div className="category-viewport" key={`row-${idx}`}>
+                            <div
+                              className={`category-track ${
+                                idx % 2 === 0 ? "scroll-left" : "scroll-right"
+                              }`}
+                            >
+                              {[...row, ...row].map((item, j) => (
+                                <div
+                                  className="trending-items-sub-div"
+                                  key={`${item.id}-${j}`}
+                                >
+                                  <img
+                                    src={item.image}
+                                    alt={item.name}
+                                    onError={(e) => {
+                                      e.currentTarget.onerror = null;
+                                      e.currentTarget.src = "/footer-images/food.png";
+                                    }}
+                                    loading="lazy"
+                                  />
+                                  <p className="trending-items-title">
+                                    {CATEGORY_ICONS[item.category] || "🍽️"}{" "}
+                                    {item.name}
+                                  </p>
+                                  <div className="trending-card-details-wrapper">
+                                    <div className="trending-rating">
+                                      <span>⭐ {item.rating}</span>
+                                      <span className="reviews-text">
+                                        (200+)
+                                      </span>
+                                    </div>
+                                    <div className="trending-items-decrp-container">
+                                      <span className="trending-items-decrp">
+                                        {item.calories} kcal
+                                      </span>
+                                      <b>•</b>
+                                      <span className="trending-items-decrp">
+                                        Serves 1
+                                      </span>
+                                    </div>
+                                    <div className="trending-items-btn">
+                                      <b>&#8377;{item.price}</b>
+                                      <button
+                                        onClick={() =>
+                                          handleAddToCart({
+                                            id: item.id,
+                                            title: item.name,
+                                            price: item.price,
+                                            img: item.image,
+                                          })
+                                        }
+                                        className="trending-items-button"
+                                      >
+                                        + ADD
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </>
+                  );
+                }
+                return null;
+              })()}
+            </>
+          )}
           {![
             "Fruits",
             "Vegetables",
@@ -508,23 +696,38 @@ const Bodycontent = (props) => {
                 <div className="offers-scroll">
                   <div className="offers-main-div">
                     {(() => {
-                      const allowed = [
-                        "Fruits",
-                        "Vegetables",
-                        "Drinks",
-                        "Bakery",
-                        "Buffer & Eggs",
-                        "Milk & Creams",
-                        "Meats",
-                        "Fish",
-                      ];
-                      const isCategory = allowed.includes(props.activeCategory);
-                      const filtered = isCategory
-                        ? PRODUCTS.filter(
-                            (p) => p.category === props.activeCategory,
-                          )
-                        : PRODUCTS;
-                      if (filtered.length === 0) {
+                      const isIndianMenu = INDIAN_MENU_CATEGORIES.includes(
+                        selectedCategory,
+                      );
+
+                      const offerItems = selectedCategory === "Hot Offers"
+                        ? MENU_DATA.slice(0, 6)
+                        : isIndianMenu
+                        ? MENU_DATA.filter(
+                            (item) => item.category === selectedCategory,
+                          ).slice(0, 6)
+                        : (() => {
+                            const allowed = [
+                              "Fruits",
+                              "Vegetables",
+                              "Drinks",
+                              "Bakery",
+                              "Buffer & Eggs",
+                              "Milk & Creams",
+                              "Meats",
+                              "Fish",
+                            ];
+                            const isCategory = allowed.includes(
+                              props.activeCategory,
+                            );
+                            return isCategory
+                              ? PRODUCTS.filter(
+                                  (p) => p.category === props.activeCategory,
+                                )
+                              : PRODUCTS;
+                          })();
+
+                      if (offerItems.length === 0) {
                         return (
                           <div
                             style={{
@@ -538,29 +741,45 @@ const Bodycontent = (props) => {
                           </div>
                         );
                       }
-                      return filtered.map((each) => (
-                        <div key={each.id} className="offer-card">
+                      return offerItems.map((each) => (
+                        <div key={each.id} className="offer-card section-card">
                           <img
                             className="offer-image"
-                            src={each.image}
-                            alt={each.name}
+                            src={resolveImageSrc(each)}
+                            alt={each.name || each.title}
                             loading="lazy"
                             onError={(e) => {
-                              // try per-item fallback, then category map, then Unsplash
                               e.currentTarget.onerror = null;
-                              e.currentTarget.src =
-                                each.imageFallback ||
-                                IMAGE_FALLBACK[each.category] ||
-                                `https://source.unsplash.com/600x400/?${encodeURIComponent(
-                                  each.category,
-                                )}`;
+                              e.currentTarget.src = "/footer-images/food.png";
                             }}
                           />
                           <span className="offer-cat">
                             {CATEGORY_ICONS[each.category] || "🍽️"}{" "}
-                            {each.category}
+                            {(each.category || each.title || "").toString()}
                           </span>
-                          <div className="offer-title">{each.name}</div>
+                          <div className="offer-title">
+                            {each.name || each.title}
+                          </div>
+
+                          {each.description && (
+                            <div className="offer-description">
+                              {each.description}
+                            </div>
+                          )}
+
+                          <div className="offer-meta">
+                            {each.calories != null && (
+                              <span className="offer-meta-item">
+                                {each.calories} kcal
+                              </span>
+                            )}
+                            {each.serves != null && (
+                              <span className="offer-meta-item">
+                                Serves {each.serves}
+                              </span>
+                            )}
+                          </div>
+
                           <div className="offer-pricing">
                             {each.oldPrice && (
                               <span className="old-price">
@@ -572,14 +791,12 @@ const Bodycontent = (props) => {
                                 each.oldPrice ? "new-price" : "new-price solo"
                               }
                             >
-                              ₹{each.price}
+                              ₹{each.price || each.newPrice}
                             </span>
                           </div>
                           <div className="trending-rating">
                             <span>
-                              ⭐{" "}
-                              {each.rating ||
-                                (Math.random() * 1 + 4).toFixed(1)}
+                              ⭐ {each.rating || (Math.random() * 1 + 4).toFixed(1)}
                             </span>
                             <span className="reviews-text">
                               (
@@ -604,55 +821,56 @@ const Bodycontent = (props) => {
                     className="view-all-link"
                     onClick={() =>
                       props.onSectionChange &&
-                      props.onSectionChange("Home", "Bakery")
+                      props.onSectionChange("Home", selectedCategory)
                     }
                   >
                     View All
                   </span>
                 </div>
                 <div className="trending-items-container">
-                  {PRODUCTS.filter((p) => p.category === "Bakery")
-                    .slice(0, 6)
-                    .map((item) => (
-                      <div className="trending-items-sub-div" key={item.id}>
+                  {popularItems.map((item) => {
+                    const discount = getDiscountPercent(item);
+                    const oldPrice = item.price;
+                    const newPrice = Math.round(oldPrice * (1 - discount / 100));
+                    return (
+                      <div className="discount-item section-card" key={item.id}>
+                        <div className="discount-tag">{discount}% OFF</div>
                         <img
-                          src={item.image}
+                          src={resolveImageSrc(item)}
                           alt={item.name}
                           loading="lazy"
                           onError={(e) => {
-                            e.currentTarget.src =
-                              item.imageFallback ||
-                              IMAGE_FALLBACK["Bakery"] ||
-                              "/footer-images/desserts.jpg";
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = "/footer-images/food.png";
                           }}
                         />
-                        <p className="trending-items-title">
-                          {CATEGORY_ICONS[item.category] || "🍽️"} {item.name}
-                        </p>
-                        <div className="trending-card-details-wrapper">
-                          <div className="trending-rating">
-                            <span>⭐ 4.8</span>
-                            <span className="reviews-text">(120+)</span>
+                        <div className="discount-info">
+                          <h4>{item.name}</h4>
+                          <div className="discount-rating">
+                            <span>⭐ {item.rating}</span>
+                            <span className="reviews-text">({item.reviews} reviews)</span>
                           </div>
-                          <div className="trending-items-btn">
-                            <b>&#8377;{item.price}</b>
-                            <button
-                              onClick={() =>
-                                handleAddToCart({
-                                  id: item.id,
-                                  title: item.name,
-                                  price: item.price,
-                                  img: item.image,
-                                })
-                              }
-                              className="trending-items-button"
-                            >
-                              + ADD
-                            </button>
+                          <div className="discount-pricing">
+                            <span className="old-price">₹{oldPrice}</span>
+                            <span className="new-price">₹{newPrice}</span>
                           </div>
+                          <button
+                            className="btn btn-sm"
+                            onClick={() =>
+                              handleAddToCart({
+                                id: item.id,
+                                title: item.name,
+                                price: newPrice,
+                                img: resolveImageSrc(item),
+                              })
+                            }
+                          >
+                            Grab Now
+                          </button>
                         </div>
                       </div>
-                    ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -664,55 +882,56 @@ const Bodycontent = (props) => {
                     className="view-all-link"
                     onClick={() =>
                       props.onSectionChange &&
-                      props.onSectionChange("Home", "Meats")
+                      props.onSectionChange("Home", selectedCategory)
                     }
                   >
                     View All
                   </span>
                 </div>
                 <div className="trending-items-container">
-                  {PRODUCTS.filter((p) => p.category === "Meats")
-                    .slice(0, 6)
-                    .map((item) => (
-                      <div className="trending-items-sub-div" key={item.id}>
+                  {recentItems.map((item) => {
+                    const discount = getDiscountPercent(item);
+                    const oldPrice = item.price;
+                    const newPrice = Math.round(oldPrice * (1 - discount / 100));
+                    return (
+                      <div className="discount-item section-card" key={item.id}>
+                        <div className="discount-tag">{discount}% OFF</div>
                         <img
-                          src={item.image}
+                          src={resolveImageSrc(item)}
                           alt={item.name}
+                          loading="lazy"
                           onError={(e) => {
                             e.currentTarget.onerror = null;
-                            e.currentTarget.src =
-                              item.imageFallback ||
-                              IMAGE_FALLBACK["Meats"] ||
-                              "/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg";
+                            e.currentTarget.src = "/footer-images/food.png";
                           }}
                         />
-                        <p className="trending-items-title">
-                          {CATEGORY_ICONS[item.category] || "🍽️"} {item.name}
-                        </p>
-                        <div className="trending-card-details-wrapper">
-                          <div className="trending-rating">
-                            <span>⭐ 4.7</span>
-                            <span className="reviews-text">(90+)</span>
+                        <div className="discount-info">
+                          <h4>{item.name}</h4>
+                          <div className="discount-rating">
+                            <span>⭐ {item.rating}</span>
+                            <span className="reviews-text">({item.reviews} reviews)</span>
                           </div>
-                          <div className="trending-items-btn">
-                            <b>&#8377;{item.price}</b>
-                            <button
-                              onClick={() =>
-                                handleAddToCart({
-                                  id: item.id,
-                                  title: item.name,
-                                  price: item.price,
-                                  img: item.image,
-                                })
-                              }
-                              className="trending-items-button"
-                            >
-                              + ADD
-                            </button>
+                          <div className="discount-pricing">
+                            <span className="old-price">₹{oldPrice}</span>
+                            <span className="new-price">₹{newPrice}</span>
                           </div>
+                          <button
+                            className="btn btn-sm"
+                            onClick={() =>
+                              handleAddToCart({
+                                id: item.id,
+                                title: item.name,
+                                price: newPrice,
+                                img: resolveImageSrc(item),
+                              })
+                            }
+                          >
+                            Grab Now
+                          </button>
                         </div>
                       </div>
-                    ))}
+                    );
+                  })}
                 </div>
               </div>
             </>
@@ -785,7 +1004,7 @@ const Bodycontent = (props) => {
                         reviews: 45,
                       },
                     ].map((item, index) => (
-                      <div className="discount-item" key={`${i}-${index}`}>
+                      <div className="discount-item section-card" key={`${i}-${index}`}>
                         <i
                           className={`${
                             discountBookmarked[item.id] ? "fas" : "far"
@@ -834,60 +1053,70 @@ const Bodycontent = (props) => {
               <div className="trending-track">
                 {[...Array(2)].map((_, i) => (
                   <React.Fragment key={i}>
-                    {(data || []).map((product) => {
-                      return (
-                        <div
-                          className="trending-items-sub-div"
-                          key={`${i}-${product.id}`}
-                        >
-                          <i
-                            className={`${
-                              trendingBookmarked[product.id] ? "fas" : "far"
-                            } fa-heart bookmark-icon`}
-                            title={
-                              trendingBookmarked[product.id]
-                                ? "Remove from favorites"
-                                : "Add to favorites"
-                            }
-                            aria-label="favorite-toggle"
-                            onClick={() =>
-                              handleBookmarkToggle(product.id, "trending")
-                            }
-                          ></i>
-                          <img src={product.img} alt="trending-items-img " />
-                          <p className="trending-items-title">
-                            {CATEGORY_ICONS[product.category] || "🍽️"}{" "}
-                            {product.title}
-                          </p>
-                          <div className="trending-card-details-wrapper">
-                            <div className="trending-rating">
-                              <span>⭐ {product.rating || "4.5"}</span>
-                              <span className="reviews-text">
-                                ({product.reviews || "100+"} reviews)
-                              </span>
-                            </div>
-                            <div className="trending-items-decrp-container">
-                              <span className="trending-items-decrp">
-                                {product.decrp}
-                              </span>
-                              <b>&#x2B29;</b>
-                              <span className="trending-items-decrp">
-                                {product.serves}
-                              </span>
-                            </div>
-                            <div className="trending-items-btn">
-                              <b>&#8377;{product.price}</b>
-                              <button
-                                onClick={() => handleAddToCart(product)}
-                                className="trending-items-button"
-                              >
-                                + ADD
-                              </button>
-                            </div>
+                    {trendingItems.map((item) => (
+                      <div
+                        className="trending-items-sub-div section-card"
+                        key={`${i}-${item.id}`}
+                      >
+                        <i
+                          className={`${
+                            trendingBookmarked[item.id] ? "fas" : "far"
+                          } fa-heart bookmark-icon`}
+                          title={
+                            trendingBookmarked[item.id]
+                              ? "Remove from favorites"
+                              : "Add to favorites"
+                          }
+                          aria-label="favorite-toggle"
+                          onClick={() =>
+                            handleBookmarkToggle(item.id, "trending")
+                          }
+                        ></i>
+                        <img
+                          src={resolveImageSrc(item)}
+                          alt={item.name}
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = "/footer-images/food.png";
+                          }}
+                        />
+                        <p className="trending-items-title">
+                          {CATEGORY_ICONS[item.category] || "🍽️"} {item.name}
+                        </p>
+                        <div className="trending-card-details-wrapper">
+                          <div className="trending-items-decrp-container">
+                            <span className="trending-items-decrp">
+                              {item.description}
+                            </span>
+                          </div>
+                          <div className="trending-items-decrp-container">
+                            <span className="trending-items-decrp">
+                              {item.calories} kcal
+                            </span>
+                            <b>•</b>
+                            <span className="trending-items-decrp">
+                              Serves {item.serves}
+                            </span>
+                          </div>
+                          <div className="trending-rating">
+                            <span>⭐ {item.rating}</span>
+                            <span className="reviews-text">
+                              ({item.reviews} reviews)
+                            </span>
+                          </div>
+                          <div className="trending-items-btn">
+                            <b>&#8377;{item.price}</b>
+                            <button
+                              onClick={() => handleAddToCart(item)}
+                              className="trending-items-button"
+                            >
+                              + ADD
+                            </button>
                           </div>
                         </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                   </React.Fragment>
                 ))}
               </div>

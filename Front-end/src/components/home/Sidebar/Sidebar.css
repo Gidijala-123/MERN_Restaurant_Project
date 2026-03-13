@@ -11,7 +11,15 @@
    margin: 0.25rem 0.75rem !important;
    border-radius: 0.75rem !important;
    border: none !important;
-   transition: all 0.3s ease !important;
+   transition: background-color 0.25s ease !important;
+}
+
+.MuiListItemButton-root .MuiListItemText-root {
+   transition: opacity 0.25s ease !important;
+}
+
+.MuiDrawer-paper {
+   transition: width 0.3s ease-in-out !important;
 }
 
 .MuiListItemButton-root:hover {
@@ -26,6 +34,11 @@
 
 .MuiListItemButton-root.Mui-selected .MuiListItemIcon-root {
    color: white !important;
+   transition: color 0.2s ease !important;
+}
+
+.MuiListItemButton-root.Mui-selected .MuiListItemText-root {
+   transition: color 0.2s ease !important;
 }
 
 .MuiAppBar-root {
