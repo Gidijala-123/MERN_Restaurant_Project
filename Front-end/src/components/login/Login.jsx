@@ -7,8 +7,8 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons";
+import GoogleIcon from "@mui/icons-material/Google";
+import GitHubIcon from "@mui/icons-material/GitHub";
 
 function SignInForm({ toggleMobile }) {
   const [validationErrors, setValidationErrors] = useState({});
@@ -135,7 +135,7 @@ function SignInForm({ toggleMobile }) {
           }
         >
           <span className="btn-icon">
-            <FontAwesomeIcon icon={faGoogle} />
+            <GoogleIcon fontSize="small" />
           </span>{" "}
           Login with Google
         </button>
@@ -147,7 +147,7 @@ function SignInForm({ toggleMobile }) {
           }
         >
           <span className="btn-icon">
-            <FontAwesomeIcon icon={faGithub} />
+            <GitHubIcon fontSize="small" />
           </span>{" "}
           Login with GitHub
         </button>

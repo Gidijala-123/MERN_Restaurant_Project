@@ -206,7 +206,7 @@ img {
    flex-direction: row !important;
    flex-wrap: nowrap !important;
    overflow-x: auto !important;
-   gap: 1.25rem;
+   gap: 1rem;
    margin-top: 0.9375rem;
    /* Reduced from 6rem */
    padding: 0.9375rem 0.3125rem 1.5625rem 0.3125rem;
@@ -251,15 +251,15 @@ img {
 .discount-item {
    flex: 0 0 240px;
    /* fixed width so the carousel is consistent */
-   min-height: 17.5rem;
+   min-height: 18.5rem;
    height: auto;
    display: flex;
    flex-direction: column;
-   align-items: center;
+   align-items: flex-start;
    background-color: var(--white);
    box-shadow: var(--shadow-sm);
-   padding: 1.2rem;
-   border-radius: 1.125rem;
+   padding: 1.25rem;
+   border-radius: 1.25rem;
    transition: all 0.3s ease;
    border: 1px solid var(--border-light);
    position: relative;
@@ -299,13 +299,12 @@ img {
 
 .trending-items-sub-div>img {
    width: 100%;
-   height: 8.75rem;
-   /* Reduced image height */
-   filter: drop-shadow(0 0.5rem 0.75rem rgba(0, 0, 0, 0.1));
-   padding: 0.3125rem;
-   object-fit: contain;
+   height: 140px;
+   object-fit: cover;
+   border-radius: 12px;
+   margin-bottom: 0.75rem;
    display: block;
-   margin-bottom: 0.625rem;
+   box-shadow: 0 0.5rem 0.75rem rgba(0, 0, 0, 0.1);
 }
 
 .offer-description {
@@ -379,7 +378,7 @@ img {
 @media (max-width: 48rem) {
    .trending-items-container {
       margin-top: 0.625rem;
-      gap: 0.9375rem;
+      gap: 0.75rem;
       padding: 0.625rem 0.3125rem 1.25rem 0.3125rem !important;
    }
 
@@ -448,22 +447,34 @@ img {
 
 .bookmark-icon {
    position: absolute;
-   top: 15px;
-   right: 15px;
-   font-size: 20px;
+   top: 14px;
+   right: 14px;
+   width: 34px;
+   height: 34px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   background: rgba(255, 255, 255, 0.9);
+   border-radius: 50%;
+   border: 1px solid rgba(0, 0, 0, 0.08);
+   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+   font-size: 18px;
    color: var(--text-sub);
    cursor: pointer;
    z-index: 3;
-   transition: transform 0.2s ease, color 0.2s ease;
+   transition: all 0.2s ease;
 }
 
-.bookmark-icon.fas {
+.bookmark-icon.active {
    color: var(--primary);
+   background: rgba(255, 255, 255, 1);
+   border-color: rgba(255, 126, 95, 0.3);
    transform: scale(1.05);
 }
 
 .bookmark-icon:hover {
    transform: scale(1.15);
+   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.12);
 }
 
 .main-action-btn {
@@ -777,68 +788,6 @@ img {
    line-height: 1.5;
 }
 
-.download-app-section {
-   background: var(--primary-gradient);
-   border-radius: 1.875rem;
-   padding: 3.75rem;
-   margin-bottom: 3.75rem;
-   color: white;
-   position: relative;
-   overflow: hidden;
-}
-
-.download-app-content {
-   max-width: 37.5rem;
-}
-
-.download-app-content h2 {
-   font-size: 2.25rem;
-   font-weight: 800;
-   margin-bottom: 1.25rem;
-}
-
-.download-app-content p {
-   font-size: 1.125rem;
-   margin-bottom: 2.1875rem;
-   opacity: 0.9;
-}
-
-.app-buttons {
-   display: flex;
-   gap: 1.25rem;
-}
-
-.app-btn {
-   background: #000;
-   color: white;
-   padding: 0.75rem 1.5625rem;
-   border-radius: 0.75rem;
-   display: flex;
-   align-items: center;
-   gap: 0.75rem;
-   text-decoration: none;
-   transition: all 0.3s ease;
-}
-
-.app-btn:hover {
-   transform: scale(1.05);
-   box-shadow: 0 0.625rem 1.25rem rgba(0, 0, 0, 0.2);
-}
-
-.app-btn i {
-   font-size: 1.5rem;
-}
-
-.app-btn-text span {
-   display: block;
-   font-size: 0.625rem;
-   text-transform: uppercase;
-}
-
-.app-btn-text strong {
-   font-size: 1rem;
-}
-
 @media (max-width: 62rem) {
    .feature-grid {
       grid-template-columns: repeat(2, 1fr);
@@ -848,16 +797,6 @@ img {
 @media (max-width: 36rem) {
    .feature-grid {
       grid-template-columns: 1fr;
-   }
-
-   .download-app-section {
-      padding: 2.5rem 1.25rem;
-      text-align: center;
-   }
-
-   .app-buttons {
-      flex-direction: column;
-      align-items: center;
    }
 }
 
@@ -900,7 +839,7 @@ img {
 /* Offers Redesign - Horizontal Scrolling */
 .offers-main-div {
    display: flex;
-   gap: 1.5rem;
+   gap: 1rem;
    padding: 1.25rem 0;
    width: max-content;
    scroll-behavior: smooth;
@@ -1179,6 +1118,7 @@ img {
    width: max-content;
    animation: scrollRight 40s linear infinite;
    will-change: transform;
+   gap: 1rem;
    padding-bottom: 0.3125rem;
 }
 
@@ -1274,6 +1214,7 @@ img {
    /* Keep animation but allow manual scroll via viewport overflow */
    animation: scrollLeft 40s linear infinite;
    will-change: transform;
+   gap: 1rem;
    padding-bottom: 5px;
    /* Extra room for shadows */
 }
@@ -1299,8 +1240,7 @@ img {
    /* Allow card to expand */
    height: auto;
    flex-shrink: 0;
-   margin: 0 15px;
-   /* Reduced margin */
+   margin: 0;
    background: var(--white);
    border-radius: 18px;
    padding: 12px;
@@ -1438,25 +1378,30 @@ img {
 
 /* Trending Today - match Discount card sizing and spacing */
 .trending-today-container .trending-items-sub-div {
-   flex: 0 0 13.75rem;
-   min-height: 18rem;
-   padding: 0.75rem;
-   border-radius: 1.125rem;
-   margin: 0 0.9375rem;
+   flex: 0 0 220px;
+   width: 220px;
+   min-height: 320px;
+   padding: 12px;
+   border-radius: 18px;
+   margin: 0;
    box-shadow: var(--shadow-sm);
+   background: var(--white);
+   border: 1px solid var(--border-light);
+   position: relative;
+   overflow: hidden;
 }
 
 .trending-today-container .trending-items-sub-div>img {
-   width: 62% !important;
-   height: 7.5rem !important;
+   width: 100% !important;
+   height: 140px !important;
    object-fit: cover !important;
-   border-radius: 0.75rem;
-   margin-bottom: 0.625rem;
-   padding: 0;
+   border-radius: 12px;
+   margin-bottom: 10px;
+   display: block;
 }
 
 .trending-today-container .trending-card-details-wrapper {
-   padding-top: 0.5rem;
+   padding: 0;
 }
 
 .trending-today-container .trending-items-title {

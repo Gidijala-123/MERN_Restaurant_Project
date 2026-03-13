@@ -1,19 +1,21 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Signup from "./components/signup/Signup";
 import "./App.css";
-import Sidebar from "./components/home/Sidebar/Sidebar";
 import PrivateRoute from "./components/auth/PrivateRoute";
 import AdminRoute from "./components/auth/AdminRoute";
-import AdminMetrics from "./components/admin/AdminMetrics";
-
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
-import Notfound from "./components/home/Notfound";
-import Cart from "./components/home/CartComponent/Cart";
-import CheckoutSuccess from "./components/home/CartComponent/CheckoutSuccess";
 import { ThemeProvider } from "./context/ThemeContext";
 import { MenuProvider } from "./context/MenuContext";
+import { Suspense, lazy } from "react";
+
+// Lazy load large pages to reduce initial bundle size
+const Signup = lazy(() => import("./components/signup/Signup"));
+const Sidebar = lazy(() => import("./components/home/Sidebar/Sidebar"));
+const AdminMetrics = lazy(() => import("./components/admin/AdminMetrics"));
+const Notfound = lazy(() => import("./components/home/Notfound"));
+const Cart = lazy(() => import("./components/home/CartComponent/Cart"));
+const CheckoutSuccess = lazy(() => import("./components/home/CartComponent/CheckoutSuccess"));
 
 /**
  * Main Application Component
@@ -27,43 +29,51 @@ function App() {
         <BrowserRouter>
           {/* ToastContainer displays alert messages across the application */}
           <ToastContainer />
-          <Routes>
-            {/* Default route points to combined Signup/Login page */}
-            <Route path="/" element={<Signup> </Signup>}></Route>
-            {/* Main Home/Dashboard route with Sidebar */}
-            <Route
-              path="/home"
-              element={
-                <PrivateRoute>
-                  <Sidebar />
-                </PrivateRoute>
-              }
-            />
-            {/* Shopping Cart page */}
-            <Route
-              path="/cart"
-              element={
-                <PrivateRoute>
-                  <Cart />
-                </PrivateRoute>
-              }
-            />
-            {/* Admin Metrics */}
-            <Route
-              path="/admin"
-              element={
-                <AdminRoute>
-                  <AdminMetrics />
-                </AdminRoute>
-              }
-            />
-            {/* Post-checkout success confirmation page */}
-            <Route path="/checkout-success" element={<CheckoutSuccess />} />
-            {/* Custom 404 page for unmatched routes */}
-            <Route path="/not-found" Component={Notfound} />
-            {/* Redirect any other undefined path to Not Found page */}
-            <Route path="*" element={<Navigate to="/not-found" />} />
-          </Routes>
+          <Suspense
+            fallback={
+              <div style={{ display: "grid", placeItems: "center", minHeight: "60vh" }}>
+                Loading...
+              </div>
+            }
+          >
+            <Routes>
+              {/* Default route points to combined Signup/Login page */}
+              <Route path="/" element={<Signup />} />
+              {/* Main Home/Dashboard route with Sidebar */}
+              <Route
+                path="/home"
+                element={
+                  <PrivateRoute>
+                    <Sidebar />
+                  </PrivateRoute>
+                }
+              />
+              {/* Shopping Cart page */}
+              <Route
+                path="/cart"
+                element={
+                  <PrivateRoute>
+                    <Cart />
+                  </PrivateRoute>
+                }
+              />
+              {/* Admin Metrics */}
+              <Route
+                path="/admin"
+                element={
+                  <AdminRoute>
+                    <AdminMetrics />
+                  </AdminRoute>
+                }
+              />
+              {/* Post-checkout success confirmation page */}
+              <Route path="/checkout-success" element={<CheckoutSuccess />} />
+              {/* Custom 404 page for unmatched routes */}
+              <Route path="/not-found" element={<Notfound />} />
+              {/* Redirect any other undefined path to Not Found page */}
+              <Route path="*" element={<Navigate to="/not-found" />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </MenuProvider>
     </ThemeProvider>

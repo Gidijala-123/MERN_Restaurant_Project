@@ -10,13 +10,9 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import RoomIcon from "@mui/icons-material/Room";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faMapMarkerAlt,
-  faPhoneAlt,
-  faEnvelope,
-  faPaperPlane,
-} from "@fortawesome/free-solid-svg-icons";
+import PhoneIcon from "@mui/icons-material/Phone";
+import EmailIcon from "@mui/icons-material/Email";
+import SendIcon from "@mui/icons-material/Send";
 
 const Footer = () => {
   const branches = [
@@ -169,7 +165,7 @@ const Footer = () => {
       <div className="footer-top">
         <div className="footer-top-item">
           <div className="footer-top-icon">
-            <FontAwesomeIcon icon={faMapMarkerAlt} />
+            <RoomIcon />
           </div>
           <div className="footer-top-text">
             <h4 className="find-us-link" onClick={handleOpenMap}>
@@ -180,7 +176,7 @@ const Footer = () => {
         </div>
         <div className="footer-top-item">
           <div className="footer-top-icon">
-            <FontAwesomeIcon icon={faPhoneAlt} />
+            <PhoneIcon />
           </div>
           <div className="footer-top-text">
             <h4>Call us</h4>
@@ -189,7 +185,7 @@ const Footer = () => {
         </div>
         <div className="footer-top-item">
           <div className="footer-top-icon">
-            <FontAwesomeIcon icon={faEnvelope} />
+            <EmailIcon />
           </div>
           <div className="footer-top-text">
             <h4>Mail us</h4>
@@ -288,7 +284,7 @@ const Footer = () => {
                 onChange={(e) => setNewsletterEmail(e.target.value)}
               />
               <button type="button" onClick={handleSubscribe}>
-                <FontAwesomeIcon icon={faPaperPlane} />
+                <SendIcon />
               </button>
             </div>
             {newsletterStatus && (

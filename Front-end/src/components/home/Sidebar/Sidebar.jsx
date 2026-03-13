@@ -15,6 +15,7 @@ import {
   ListItemText,
   Badge,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 
 // Material Icons - Only absolute core icons
@@ -28,6 +29,7 @@ import {
   LightMode as LightModeIcon,
   ShoppingBag as OrdersIcon,
   Favorite as FavoritesIcon,
+  FavoriteBorder as FavoriteBorderIcon,
   Settings as SettingsIcon,
   LocalFireDepartment as HotOffersIcon,
   Grass as VegIcon,
@@ -922,13 +924,8 @@ export default function Sidebar() {
             >
               {logoutMessage}
             </Typography>
-            <Box sx={{ mt: 3 }}>
-              <img
-                src="/footer-images/logo.png"
-                alt="logo"
-                className="fa-spin"
-                style={{ width: "50px" }}
-              />
+            <Box sx={{ mt: 3, display: "flex", justifyContent: "center" }}>
+              <CircularProgress size={40} />
             </Box>
           </Box>
         </Fade>
@@ -1121,7 +1118,7 @@ export default function Sidebar() {
                         setShowFavoritesModal(true);
                       }}
                     >
-                      <i className="fas fa-heart"></i>
+                      <FavoritesIcon fontSize="small" />
                     </button>
                   </div>
                   <div className="content">
@@ -1151,12 +1148,11 @@ export default function Sidebar() {
               ))
             ) : (
               <Box sx={{ width: "100%", textAlign: "center", py: 4 }}>
-                <i
-                  className="far fa-heart"
-                  style={{
-                    fontSize: "48px",
+                <FavoriteBorderIcon
+                  sx={{
+                    fontSize: 48,
                     color: "var(--text-sub)",
-                    marginBottom: "20px",
+                    mb: 2,
                   }}
                 />
                 <Typography>No favorites yet!</Typography>

@@ -8,8 +8,6 @@ import {
   removeFromCart,
 } from "../../features/cartSlice";
 import { Link, useNavigate } from "react-router-dom";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import "./Cart.css";
 
 const Cart = () => {
@@ -26,7 +24,12 @@ const Cart = () => {
   const handleRemoveFromCart = (product) => dispatch(removeFromCart(product));
   const handleClearCart = () => dispatch(clearCart());
 
-  const generatePDF = () => {
+  const generatePDF = async () => {
+    const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+      import("jspdf"),
+      import("jspdf-autotable"),
+    ]);
+
     const doc = new jsPDF();
     const orderNo = Math.random().toString(36).substr(2, 7).toUpperCase();
     const gst = Math.ceil(cart.cartTotalAmount * 0.18);

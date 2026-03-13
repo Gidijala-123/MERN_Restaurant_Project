@@ -14,6 +14,9 @@ import Filter from "./FILTER_COMPONENT/Filter";
 import SkeletonLoader from "../../common/SkeletonLoader.jsx";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 
 // carttttt
 import { useDispatch } from "react-redux";
@@ -633,7 +636,7 @@ const Bodycontent = (props) => {
                     className="filter-trigger-btn"
                     onClick={() => setShowFilter(true)}
                   >
-                    <i className="fas fa-filter"></i>
+                    <FilterListIcon fontSize="small" />
                     <span>Filter</span>
                   </button>
                 </div>
@@ -1005,10 +1008,11 @@ const Bodycontent = (props) => {
                       },
                     ].map((item, index) => (
                       <div className="discount-item section-card" key={`${i}-${index}`}>
-                        <i
-                          className={`${
-                            discountBookmarked[item.id] ? "fas" : "far"
-                          } fa-heart bookmark-icon`}
+                        <button
+                          type="button"
+                          className={`bookmark-icon ${
+                            discountBookmarked[item.id] ? "active" : ""
+                          }`}
                           title={
                             discountBookmarked[item.id]
                               ? "Remove from favorites"
@@ -1018,7 +1022,13 @@ const Bodycontent = (props) => {
                           onClick={() =>
                             handleBookmarkToggle(item.id, "discount")
                           }
-                        ></i>
+                        >
+                          {discountBookmarked[item.id] ? (
+                            <FavoriteIcon fontSize="small" />
+                          ) : (
+                            <FavoriteBorderIcon fontSize="small" />
+                          )}
+                        </button>
                         <div className="discount-tag">{item.discount}</div>
                         <img src={item.img} alt={item.title} />
                         <div className="discount-info">
@@ -1058,10 +1068,11 @@ const Bodycontent = (props) => {
                         className="trending-items-sub-div section-card"
                         key={`${i}-${item.id}`}
                       >
-                        <i
-                          className={`${
-                            trendingBookmarked[item.id] ? "fas" : "far"
-                          } fa-heart bookmark-icon`}
+                        <button
+                          type="button"
+                          className={`bookmark-icon ${
+                            trendingBookmarked[item.id] ? "active" : ""
+                          }`}
                           title={
                             trendingBookmarked[item.id]
                               ? "Remove from favorites"
@@ -1071,7 +1082,13 @@ const Bodycontent = (props) => {
                           onClick={() =>
                             handleBookmarkToggle(item.id, "trending")
                           }
-                        ></i>
+                        >
+                          {trendingBookmarked[item.id] ? (
+                            <FavoriteIcon fontSize="small" />
+                          ) : (
+                            <FavoriteBorderIcon fontSize="small" />
+                          )}
+                        </button>
                         <img
                           src={resolveImageSrc(item)}
                           alt={item.name}
@@ -1723,33 +1740,6 @@ const Bodycontent = (props) => {
                     Save changes
                   </button>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Download App Section */}
-          <div className="download-app-section">
-            <div className="download-app-content">
-              <h2>Experience the best with our Mobile App</h2>
-              <p>
-                Download our app for exclusive deals, live order tracking, and a
-                smoother ordering experience.
-              </p>
-              <div className="app-buttons">
-                <a href="#" className="app-btn">
-                  <i className="fab fa-apple"></i>
-                  <div className="app-btn-text">
-                    <span>Download on the</span>
-                    <strong>App Store</strong>
-                  </div>
-                </a>
-                <a href="#" className="app-btn">
-                  <i className="fab fa-google-play"></i>
-                  <div className="app-btn-text">
-                    <span>Get it on</span>
-                    <strong>Google Play</strong>
-                  </div>
-                </a>
               </div>
             </div>
           </div>

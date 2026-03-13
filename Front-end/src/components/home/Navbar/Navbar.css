@@ -207,9 +207,6 @@ span {
    justify-content: space-around;
    width: 16%;
 
-   >.fa {
-      font-size: 1.25rem;
-   }
 }
 
 .categories-text {
