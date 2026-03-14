@@ -194,7 +194,7 @@ function Signup() {
               <div className="signup-heading">
                 <div className="avatar-uploader">
                   <img
-                    src={avatar || "/footer-images/user-icon.png"}
+                    src={avatar || "/user-ani.webp"}
                     alt="avatar"
                     className="avatar-img"
                   />

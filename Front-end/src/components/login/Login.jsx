@@ -74,7 +74,7 @@ function SignInForm({ toggleMobile }) {
     <form className="form-div" onSubmit={loginOnSubmit}>
       <div className="login-heading">
         <img
-          src="/footer-images/user-icon.png"
+          src="/user-ani.webp"
           alt="profile"
           className="auth-illustration"
           style={{ borderRadius: "50%" }}

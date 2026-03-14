@@ -11,15 +11,16 @@
    margin: 0.25rem 0.75rem !important;
    border-radius: 0.75rem !important;
    border: none !important;
-   transition: background-color 0.25s ease !important;
+   transition: all 0.2s ease !important;
 }
 
 .MuiListItemButton-root .MuiListItemText-root {
-   transition: opacity 0.25s ease !important;
+   transition: none !important;
 }
 
 .MuiDrawer-paper {
-   transition: width 0.3s ease-in-out !important;
+   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05) !important;
 }
 
 .MuiListItemButton-root:hover {
@@ -30,23 +31,97 @@
 .MuiListItemButton-root.Mui-selected {
    background: var(--primary-gradient) !important;
    color: white !important;
+   transition: none !important;
+   /* Instant change for background and text when selected */
 }
 
-.MuiListItemButton-root.Mui-selected .MuiListItemIcon-root {
-   color: white !important;
-   transition: color 0.2s ease !important;
-}
-
+.MuiListItemButton-root.Mui-selected .MuiListItemIcon-root,
 .MuiListItemButton-root.Mui-selected .MuiListItemText-root {
-   transition: color 0.2s ease !important;
+   color: white !important;
+   transition: none !important;
+   /* Instant change for children */
 }
 
 .MuiAppBar-root {
    background-color: var(--nav-bg) !important;
-   box-shadow: none !important;
+   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
    color: var(--text-main) !important;
    border-bottom: 1px solid var(--border-light) !important;
    box-sizing: border-box !important;
+   backdrop-filter: blur(10px);
+}
+
+.greeting-area {
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   padding: 0 1rem;
+   border-left: 1px solid var(--border-light);
+   margin-left: 0.5rem;
+}
+
+.greeting-area .secondary {
+   font-size: 0.75rem;
+   color: var(--text-sub);
+   font-weight: 500;
+   text-transform: uppercase;
+   letter-spacing: 0.5px;
+}
+
+.greeting-area .primary {
+   font-size: 1rem;
+   color: var(--text-main);
+   font-weight: 700;
+}
+
+.actions-area {
+   gap: 1.25rem !important;
+}
+
+.MuiBadge-badge {
+   font-family: 'Okra', sans-serif !important;
+}
+
+[data-theme='dark'] .MuiAppBar-root {
+   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Hamburger Icon Animation */
+.hamburger-box {
+   width: 24px;
+   height: 18px;
+   display: flex;
+   flex-direction: column;
+   justify-content: space-between;
+   position: relative;
+   cursor: pointer;
+}
+
+.hamburger-inner {
+   width: 100%;
+   height: 2px;
+   background-color: currentColor;
+   border-radius: 4px;
+   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+   transform-origin: center;
+}
+
+.hamburger-box.open .hamburger-inner:nth-child(1) {
+   transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger-box.open .hamburger-inner:nth-child(2) {
+   opacity: 0;
+   transform: translateX(-10px);
+}
+
+.hamburger-box.open .hamburger-inner:nth-child(3) {
+   transform: translateY(-8px) rotate(-45deg);
+}
+
+/* Sidebar Transition Enhancements */
+.MuiAppBar-root {
+   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .dashboard-header-fixed {

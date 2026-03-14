@@ -292,6 +292,10 @@ export default function Sidebar() {
 
 
 
+  const handleDrawerToggle = () => {
+    setOpen(!open);
+  };
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -456,15 +460,29 @@ export default function Sidebar() {
         >
           <IconButton
             color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
+            aria-label="toggle drawer"
+            onClick={handleDrawerToggle}
             edge="start"
             sx={{
-              marginRight: 5,
-              ...(open && { display: "none" }),
+              marginRight: { xs: 2, md: 5 },
+              p: 1.2, 
+              borderRadius: "12px",
+              background: appTheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                background: "var(--primary-gradient)",
+                color: "white",
+                transform: "scale(1.1)",
+                boxShadow: "0 4px 12px rgba(230, 81, 0, 0.3)"
+              },
+              zIndex: 1300 /* Ensure it stays on top */
             }}
           >
-            <MenuIcon />
+            <div className={`hamburger-box ${open ? 'open' : ''}`}>
+              <span className="hamburger-inner"></span>
+              <span className="hamburger-inner"></span>
+              <span className="hamburger-inner"></span>
+            </div>
           </IconButton>
 
           <Box
@@ -542,15 +560,56 @@ export default function Sidebar() {
                 whiteSpace: "nowrap",
               }}
             >
-              <IconButton color="inherit" onClick={toggleTheme}>
-                {appTheme === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
+              <IconButton 
+                color="inherit" 
+                onClick={toggleTheme}
+                sx={{ 
+                  p: 1.2, 
+                  borderRadius: "12px",
+                  background: appTheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    background: "var(--primary-gradient)",
+                    color: "white",
+                    transform: "rotate(15deg) scale(1.1)",
+                    boxShadow: "0 4px 12px rgba(230, 81, 0, 0.3)"
+                  }
+                }}
+              >
+                {appTheme === "dark" ? <LightModeIcon sx={{ fontSize: 22 }} /> : <DarkModeIcon sx={{ fontSize: 22 }} />}
               </IconButton>
               <IconButton
                 color="inherit"
                 onClick={() => navigate("/home/favorites")}
+                sx={{ 
+                  p: 1.2, 
+                  borderRadius: "12px",
+                  background: appTheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    background: "var(--primary-gradient)",
+                    color: "white",
+                    transform: "scale(1.1)",
+                    boxShadow: "0 4px 12px rgba(230, 81, 0, 0.3)"
+                  }
+                }}
               >
-                <Badge badgeContent={favoritesCount} color="error">
-                  <FavoritesIcon />
+                <Badge 
+                  badgeContent={favoritesCount} 
+                  sx={{
+                    "& .MuiBadge-badge": {
+                      backgroundColor: "var(--primary)",
+                      color: "white",
+                      fontWeight: 700,
+                      border: `2px solid var(--nav-bg)`,
+                      fontSize: "0.65rem",
+                      height: 18,
+                      minWidth: 18,
+                      padding: "0 4px"
+                    }
+                  }}
+                >
+                  <FavoritesIcon sx={{ fontSize: 22 }} />
                 </Badge>
               </IconButton>
               <IconButton
@@ -558,22 +617,65 @@ export default function Sidebar() {
                 color="inherit"
                 component={Link}
                 to="/cart"
-                sx={{ p: { xs: 1, sm: 1.5 } }}
+                sx={{ 
+                  p: 1.2, 
+                  borderRadius: "12px",
+                  background: appTheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    background: "var(--primary-gradient)",
+                    color: "white",
+                    transform: "scale(1.1)",
+                    boxShadow: "0 4px 12px rgba(230, 81, 0, 0.3)"
+                  }
+                }}
               >
-                <Badge badgeContent={quantity} color="error">
-                  <ShoppingCartIcon fontSize="small" />
+                <Badge 
+                  badgeContent={quantity} 
+                  sx={{
+                    "& .MuiBadge-badge": {
+                      backgroundColor: "var(--primary)",
+                      color: "white",
+                      fontWeight: 700,
+                      border: `2px solid var(--nav-bg)`,
+                      fontSize: "0.65rem",
+                      height: 18,
+                      minWidth: 18,
+                      padding: "0 4px"
+                    }
+                  }}
+                >
+                  <ShoppingCartIcon sx={{ fontSize: 22 }} />
                 </Badge>
               </IconButton>
               <IconButton
                 onClick={handleAccountMenuOpen}
-                sx={{ p: 0, borderRadius: "50%" }}
+                sx={{ 
+                  p: 0.5, 
+                  borderRadius: "14px",
+                  border: `2px solid ${isAccountMenuOpen ? "var(--primary)" : "transparent"}`,
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    borderColor: "var(--primary)",
+                    transform: "scale(1.05)"
+                  }
+                }}
                 aria-controls={isAccountMenuOpen ? "account-menu" : undefined}
                 aria-haspopup="true"
                 aria-expanded={isAccountMenuOpen ? "true" : undefined}
               >
                 <Avatar
                   src={userAvatar || undefined}
-                  sx={{ width: 36, height: 36 }}
+                  sx={{ 
+                    width: 38, 
+                    height: 38, 
+                    borderRadius: "10px",
+                    background: "var(--primary-gradient)",
+                    color: "white",
+                    fontWeight: 700,
+                    fontSize: "1.1rem",
+                    boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
+                  }}
                 >
                   {userName ? userName.charAt(0).toUpperCase() : "U"}
                 </Avatar>
@@ -583,11 +685,52 @@ export default function Sidebar() {
                 anchorEl={accountAnchorEl}
                 open={isAccountMenuOpen}
                 onClose={handleAccountMenuClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                onClick={handleAccountMenuClose}
+                PaperProps={{
+                  elevation: 0,
+                  sx: {
+                    overflow: "visible",
+                    filter: "drop-shadow(0px 8px 24px rgba(0,0,0,0.12))",
+                    mt: 1.5,
+                    borderRadius: "16px",
+                    minWidth: 180,
+                    padding: "8px",
+                    border: "1px solid var(--border-light)",
+                    background: "var(--nav-bg)",
+                    "& .MuiMenuItem-root": {
+                      borderRadius: "10px",
+                      margin: "4px 0",
+                      padding: "10px 16px",
+                      gap: "12px",
+                      fontWeight: 600,
+                      color: "var(--text-main)",
+                      transition: "all 0.2s ease",
+                      "&:hover": {
+                        background: "var(--primary-gradient)",
+                        color: "white",
+                        "& .MuiListItemIcon-root": {
+                          color: "white"
+                        }
+                      }
+                    }
+                  },
+                }}
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
               >
-                <MenuItem onClick={handleGoToSettings}>Settings</MenuItem>
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                <MenuItem onClick={handleGoToSettings}>
+                  <ListItemIcon sx={{ minWidth: "auto", color: "var(--primary)" }}>
+                    <SettingsIcon fontSize="small" />
+                  </ListItemIcon>
+                  Settings
+                </MenuItem>
+                <Divider sx={{ my: 0.5, opacity: 0.6 }} />
+                <MenuItem onClick={handleLogout}>
+                  <ListItemIcon sx={{ minWidth: "auto", color: "#f44336" }}>
+                    <LogoutIcon fontSize="small" />
+                  </ListItemIcon>
+                  Logout
+                </MenuItem>
               </Menu>
             </Box>
           </Box>
@@ -633,13 +776,6 @@ export default function Sidebar() {
                 </span>
               </div>
             </Box>
-            <IconButton onClick={handleDrawerClose}>
-              {theme.direction === "rtl" ? (
-                <ChevronRightIcon />
-              ) : (
-                <ChevronLeftIcon />
-              )}
-            </IconButton>
           </DrawerHeader>
           <Box
             sx={{ display: "flex", flexDirection: "column", height: "100%" }}
