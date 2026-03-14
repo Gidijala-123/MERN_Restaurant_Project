@@ -136,3 +136,83 @@ img {
     font-size: 0.9rem;
   }
 }
+
+/* Global loading overlay used by suspense fallbacks */
+.app-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  width: 100vw;
+  background: var(--bg-light);
+  padding: 1.5rem;
+}
+
+.app-loading__media {
+  width: min(28rem, 90vw);
+  height: auto;
+  border-radius: 1rem;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+  background: var(--white);
+  outline: none;
+  display: block;
+}
+
+.app-loading__text {
+  margin-top: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+/* Animated plate loader used across the app */
+.food-loader {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.food-loader svg {
+  width: 100%;
+  height: 100%;
+}
+
+.food-loader .plate {
+  transform-origin: 60px 70px;
+  animation: plate-spin 2.5s linear infinite;
+}
+
+.food-loader .steam {
+  opacity: 0.85;
+  animation: steam-rise 2.5s ease-in-out infinite;
+}
+
+@keyframes plate-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes steam-rise {
+  0% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+}

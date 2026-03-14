@@ -48,6 +48,14 @@ import {
   LocalDrink as CocktailIcon,
   Icecream as DessertIcon,
   Logout as LogoutIcon,
+  Email as EmailIcon,
+  Phone as PhoneIcon,
+  LocationOn as LocationIcon,
+  CreditCard as CreditCardIcon,
+  Notes as NotesIcon,
+  LocalShipping as DeliveryIcon,
+  Add as AddIcon,
+  Delete as DeleteIcon,
 } from "@mui/icons-material";
 
 import {
@@ -67,11 +75,17 @@ import {
   Grid,
   ToggleButtonGroup,
   ToggleButton,
+  InputAdornment,
+  MenuItem,
+  LinearProgress,
+  IconButton as MuiIconButton,
+  Divider,
 } from "@mui/material";
 
 import "./Sidebar.css";
 import React, { useState, useEffect } from "react";
 import { useMediaQuery } from "@mui/material";
+import { toast } from "react-toastify";
 import { Sidebar_Content } from "../../../APIs/Sidebar";
 import Bodycontent from "../Bodycontent/Bodycontent";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -201,9 +215,21 @@ export default function Sidebar() {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [profileForm, setProfileForm] = useState({
     name: "",
+    email: "",
+    phone: "",
     address: "",
+    deliveryInstructions: "",
+    paymentMethod: "Cash",
     foodType: "veg",
+    avatar: "",
+    deliverySpeed: "Standard",
+    savedAddresses: [],
+    dietaryRestrictions: [],
+    referralCode: "",
   });
+  const [avatarSizeKB, setAvatarSizeKB] = useState(0);
+  const [newAddress, setNewAddress] = useState("");
+  const [formErrors, setFormErrors] = useState({});
 
   const { theme: appTheme, toggleTheme } = useAppTheme();
   const { handleCategoryChange } = useMenu();
@@ -212,19 +238,52 @@ export default function Sidebar() {
 
   useEffect(() => {
     const storedUserName = localStorage.getItem("userName");
+    const storedAvatar = localStorage.getItem("userAvatar") || "";
     if (storedUserName) {
       setUserName(storedUserName);
     }
+    const storedEmail = localStorage.getItem("userEmail") || "";
+    const storedPhone = localStorage.getItem("userPhone") || "";
     const storedAddress = localStorage.getItem("userAddress") || "";
+    const storedInstructions = localStorage.getItem("userDeliveryInstructions") || "";
+    const storedPayment = localStorage.getItem("userPaymentMethod") || "Cash";
     const storedFoodType = localStorage.getItem("userFoodType") || "veg";
+    const storedSpeed = localStorage.getItem("userDeliverySpeed") || "Standard";
+    const storedAddresses = JSON.parse(localStorage.getItem("userSavedAddresses") || "[]");
+    const storedDietary = JSON.parse(
+      localStorage.getItem("userDietaryRestrictions") || "[]"
+    );
+    const storedReferral = localStorage.getItem("userReferralCode") || "";
+
     setProfileForm((p) => ({
       ...p,
       name: storedUserName || "",
+      email: storedEmail,
+      phone: storedPhone,
       address: storedAddress,
+      deliveryInstructions: storedInstructions,
+      paymentMethod: storedPayment,
       foodType: storedFoodType,
+      avatar: storedAvatar,
+      deliverySpeed: storedSpeed,
+      savedAddresses: storedAddresses,
+      dietaryRestrictions: storedDietary,
+      referralCode: storedReferral,
     }));
   }, []);
-  const [avatar, setAvatar] = useState("");
+
+  useEffect(() => {
+    if (!profileForm.avatar) {
+      setAvatarSizeKB(0);
+      return;
+    }
+
+    // Estimate base64 size in bytes
+    const base64String = profileForm.avatar.split(",")[1] || "";
+    const sizeInBytes = (base64String.length * 3) / 4 - (base64String.endsWith("==") ? 2 : base64String.endsWith("=") ? 1 : 0);
+    setAvatarSizeKB(Math.round(sizeInBytes / 1024));
+  }, [profileForm.avatar]);
+
   useEffect(() => {
     // Avoid calling /api/auth/me on a fresh load if the user hasn't logged in.
     // We keep the local cache (userName) as the source of truth for “logged in” state.
@@ -243,8 +302,12 @@ export default function Sidebar() {
           if (me?.uname) {
             localStorage.setItem("userName", me.uname);
             setUserName(me.uname);
+            setProfileForm((p) => ({ ...p, name: me.uname }));
           }
-          if (me?.avatar) setAvatar(me.avatar);
+          if (me?.avatar) {
+            localStorage.setItem("userAvatar", me.avatar);
+            setProfileForm((p) => ({ ...p, avatar: me.avatar }));
+          }
         }
       } catch {}
     };
@@ -278,18 +341,162 @@ export default function Sidebar() {
     setShowProfileModal(true);
   };
   const closeProfile = () => setShowProfileModal(false);
+  const addSavedAddress = () => {
+    if (newAddress.trim()) {
+      const updatedAddresses = [
+        ...profileForm.savedAddresses,
+        { id: Date.now(), text: newAddress.trim() },
+      ];
+      setProfileForm((p) => ({ ...p, savedAddresses: updatedAddresses }));
+      setNewAddress("");
+      toast.info("Address added to saved list", { position: "bottom-left" });
+    }
+  };
+
+  const removeSavedAddress = (id) => {
+    const updatedAddresses = profileForm.savedAddresses.filter(
+      (addr) => addr.id !== id
+    );
+    setProfileForm((p) => ({ ...p, savedAddresses: updatedAddresses }));
+    toast.info("Address removed", { position: "bottom-left" });
+  };
+
+  const getProfileCompletion = () => {
+    const fields = [
+      profileForm.name,
+      profileForm.email,
+      profileForm.phone,
+      profileForm.address,
+      profileForm.paymentMethod,
+      profileForm.foodType,
+      profileForm.avatar,
+    ];
+    const filledFields = fields.filter((field) => field && field !== "").length;
+    return Math.round((filledFields / fields.length) * 100);
+  };
+
   const saveProfile = () => {
-    const { name, address, foodType } = profileForm;
+    const {
+      name,
+      email,
+      phone,
+      address,
+      deliveryInstructions,
+      paymentMethod,
+      foodType,
+      avatar,
+      deliverySpeed,
+      savedAddresses,
+    } = profileForm;
+
     if (name) {
       localStorage.setItem("userName", name);
       setUserName(name);
     }
+    localStorage.setItem("userEmail", email || "");
+    localStorage.setItem("userPhone", phone || "");
     localStorage.setItem("userAddress", address || "");
+    localStorage.setItem("userDeliveryInstructions", deliveryInstructions || "");
+    localStorage.setItem("userPaymentMethod", paymentMethod || "Cash");
     localStorage.setItem("userFoodType", foodType || "veg");
+    localStorage.setItem("userDeliverySpeed", deliverySpeed || "Standard");
+    localStorage.setItem("userSavedAddresses", JSON.stringify(savedAddresses));
+
+    if (avatar) {
+      localStorage.setItem("userAvatar", avatar);
+    } else {
+      localStorage.removeItem("userAvatar");
+    }
+
+    toast.success("Profile updated successfully", { position: "bottom-left" });
     setShowProfileModal(false);
   };
   const updateField = (field) => (e) =>
     setProfileForm((p) => ({ ...p, [field]: e.target.value }));
+
+  const handleAvatarUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Resize & compress image before storing (keeps localStorage small)
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      img.onload = () => {
+        const maxSize = 512;
+        const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        // Compress to JPEG (most browsers support) with reasonable quality
+        const compressed = canvas.toDataURL("image/jpeg", 0.75);
+        setProfileForm((p) => ({ ...p, avatar: compressed }));
+      };
+      img.onerror = () => {
+        // Fallback: store original if resize fails
+        setProfileForm((p) => ({ ...p, avatar: reader.result }));
+      };
+      img.src = reader.result;
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const removeAvatar = () => {
+    setProfileForm((p) => ({ ...p, avatar: "" }));
+    localStorage.removeItem("userAvatar");
+    toast.info("Profile photo removed", { position: "bottom-left" });
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^[0-9]{10}$/;
+    return phoneRegex.test(phone.replace(/\D/g, ""));
+  };
+
+  const validateProfileForm = () => {
+    const errors = {};
+    if (!profileForm.name.trim()) errors.name = "Name is required";
+    if (profileForm.email && !validateEmail(profileForm.email))
+      errors.email = "Invalid email format";
+    if (profileForm.phone && !validatePhone(profileForm.phone))
+      errors.phone = "Phone number must be 10 digits";
+    if (!profileForm.address.trim()) errors.address = "Address is required";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const toggleDietaryRestriction = (restriction) => {
+    setProfileForm((p) => {
+      const current = p.dietaryRestrictions;
+      if (current.includes(restriction)) {
+        return {
+          ...p,
+          dietaryRestrictions: current.filter((r) => r !== restriction),
+        };
+      } else {
+        return { ...p, dietaryRestrictions: [...current, restriction] };
+      }
+    });
+  };
+
+  const validateAndSaveProfile = () => {
+    if (!validateProfileForm()) {
+      toast.error("Please fix the errors in your profile", {
+        position: "bottom-left",
+      });
+      return;
+    }
+    saveProfile();
+  };
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -552,7 +759,7 @@ export default function Sidebar() {
                 </Badge>
               </IconButton>
               <img
-                src={avatar || "/footer-images/user-icon.png"}
+                src={profileForm.avatar || "/footer-images/user-icon.png"}
                 alt="user"
                 className="user-avatar"
                 onClick={openProfile}
@@ -936,7 +1143,7 @@ export default function Sidebar() {
         open={showProfileModal}
         onClose={closeProfile}
         fullWidth
-        maxWidth="sm"
+        maxWidth="md"
       >
         <DialogTitle sx={{ fontWeight: 800, color: "var(--primary)" }}>
           Your Profile
@@ -952,9 +1159,76 @@ export default function Sidebar() {
                 p: 2,
               }}
             >
-              <Avatar className="profile-avatar">
-                {(profileForm.name || "U").charAt(0).toUpperCase()}
-              </Avatar>
+              <Box
+                sx={{
+                  position: "relative",
+                  width: 72,
+                  height: 72,
+                }}
+              >
+                <Avatar
+                  className="profile-avatar"
+                  src={profileForm.avatar || undefined}
+                  sx={{
+                    width: 72,
+                    height: 72,
+                    fontSize: 32,
+                    bgcolor: "var(--primary)",
+                  }}
+                >
+                  {(profileForm.name || "U").charAt(0).toUpperCase()}
+                </Avatar>
+                <label
+                  htmlFor="profile-avatar-upload"
+                  style={{
+                    position: "absolute",
+                    bottom: -4,
+                    right: -4,
+                    background: "var(--primary-gradient)",
+                    borderRadius: "50%",
+                    width: 32,
+                    height: 32,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    boxShadow: "0 6px 18px rgba(0,0,0,0.2)",
+                  }}
+                  title="Change photo"
+                >
+                  <input
+                    id="profile-avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={handleAvatarUpload}
+                  />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+                  </svg>
+                </label>
+                {profileForm.avatar && (
+                  <button
+                    type="button"
+                    className="avatar-remove-btn"
+                    onClick={removeAvatar}
+                    title="Remove photo"
+                  >
+                    ✕
+                  </button>
+                )}
+              </Box>
               <Box sx={{ minWidth: 0 }}>
                 <Typography sx={{ fontWeight: 800, color: "var(--text-main)" }}>
                   {profileForm.name || "Your Name"}
@@ -962,9 +1236,59 @@ export default function Sidebar() {
                 <Box
                   sx={{
                     display: "flex",
+                    flexWrap: "wrap",
+                    gap: 1,
+                    mt: 0.75,
+                    color: "var(--text-sub)",
+                    fontSize: "0.85rem",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                      minWidth: 0,
+                    }}
+                  >
+                    <EmailIcon fontSize="small" />
+                    <Typography
+                      sx={{
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {profileForm.email || "your@email.com"}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                      minWidth: 0,
+                    }}
+                  >
+                    <PhoneIcon fontSize="small" />
+                    <Typography
+                      sx={{
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {profileForm.phone || "+91 12345 67890"}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
                     alignItems: "center",
                     gap: 1,
-                    mt: 0.5,
+                    mt: 1.25,
+                    flexWrap: "wrap",
                   }}
                 >
                   <Chip
@@ -976,71 +1300,354 @@ export default function Sidebar() {
                       color: "var(--text-sub)",
                     }}
                   />
+                  <Chip
+                    icon={<CreditCardIcon sx={{ fontSize: 16 }} />}
+                    label={profileForm.paymentMethod || "Cash"}
+                    size="small"
+                    sx={{
+                      background: "var(--bg-light)",
+                      border: "1px solid var(--border-light)",
+                      color: "var(--text-sub)",
+                    }}
+                  />
+                  {avatarSizeKB > 0 && (
+                    <Typography
+                      sx={{
+                        fontSize: "0.75rem",
+                        color: "var(--text-sub)",
+                        ml: 1,
+                      }}
+                    >
+                      {avatarSizeKB} KB
+                    </Typography>
+                  )}
                 </Box>
               </Box>
             </Box>
             <CardContent sx={{ p: 2 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
+              {/* Profile Completion Progress */}
+              <Box sx={{ mb: 2.5 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 1,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: "0.85rem",
+                      fontWeight: 700,
+                      color: "var(--text-main)",
+                    }}
+                  >
+                    Profile Completion
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: "0.75rem",
+                      fontWeight: 600,
+                      color: "var(--primary)",
+                    }}
+                  >
+                    {getProfileCompletion()}%
+                  </Typography>
+                </Box>
+                <LinearProgress
+                  variant="determinate"
+                  value={getProfileCompletion()}
+                  sx={{
+                    height: 8,
+                    borderRadius: 4,
+                    background: "var(--bg-light)",
+                    "& .MuiLinearProgress-bar": {
+                      background: "var(--primary-gradient)",
+                      borderRadius: 4,
+                    },
+                  }}
+                />
+              </Box>
+
+              <Divider sx={{ my: 2 }} />
+
+              {/* Basic Information */}
+              <Typography
+                sx={{
+                  fontSize: "0.95rem",
+                  fontWeight: 700,
+                  color: "var(--text-main)",
+                  mb: 1.5,
+                }}
+              >
+                Basic Information
+              </Typography>
+
+              <Grid container spacing={2} sx={{ mb: 2.5 }}>
+                <Grid item xs={12} sm={6}>
                   <TextField
                     label="Full Name"
                     value={profileForm.name}
                     onChange={updateField("name")}
                     fullWidth
                     size="small"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <NotesIcon fontSize="small" />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Email"
+                    value={profileForm.email}
+                    onChange={updateField("email")}
+                    fullWidth
+                    size="small"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <EmailIcon fontSize="small" />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Phone"
+                    value={profileForm.phone}
+                    onChange={updateField("phone")}
+                    fullWidth
+                    size="small"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <PhoneIcon fontSize="small" />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Food Preference"
+                    select
+                    value={profileForm.foodType}
+                    onChange={(e) =>
+                      setProfileForm((p) => ({
+                        ...p,
+                        foodType: e.target.value,
+                      }))
+                    }
+                    fullWidth
+                    size="small"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <VegIcon fontSize="small" />
+                        </InputAdornment>
+                      ),
+                    }}
+                  >
+                    <MenuItem value="veg">Veg Only</MenuItem>
+                    <MenuItem value="nonveg">Non-veg</MenuItem>
+                  </TextField>
+                </Grid>
+              </Grid>
+
+              <Divider sx={{ my: 2 }} />
+
+              {/* Delivery & Payment */}
+              <Typography
+                sx={{
+                  fontSize: "0.95rem",
+                  fontWeight: 700,
+                  color: "var(--text-main)",
+                  mb: 1.5,
+                }}
+              >
+                Delivery & Payment
+              </Typography>
+
+              <Grid container spacing={2} sx={{ mb: 2.5 }}>
                 <Grid item xs={12}>
                   <TextField
-                    label="Address"
+                    label="Primary Address"
                     value={profileForm.address}
                     onChange={updateField("address")}
                     fullWidth
                     size="small"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LocationIcon fontSize="small" />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
-                <Grid item xs={12}>
-                  <ToggleButtonGroup
-                    value={profileForm.foodType}
-                    exclusive
-                    onChange={(e, v) => {
-                      if (v) {
-                        setProfileForm((p) => ({ ...p, foodType: v }));
-                      }
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Payment Method"
+                    value={profileForm.paymentMethod}
+                    onChange={updateField("paymentMethod")}
+                    select
+                    fullWidth
+                    size="small"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <CreditCardIcon fontSize="small" />
+                        </InputAdornment>
+                      ),
                     }}
-                    sx={{ width: "100%" }}
                   >
-                    <ToggleButton
-                      value="veg"
+                    {[
+                      { value: "Cash", label: "Cash on Delivery" },
+                      { value: "Card", label: "Credit / Debit Card" },
+                      { value: "UPI", label: "UPI" },
+                    ].map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Delivery Speed"
+                    value={profileForm.deliverySpeed}
+                    onChange={updateField("deliverySpeed")}
+                    select
+                    fullWidth
+                    size="small"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <DeliveryIcon fontSize="small" />
+                        </InputAdornment>
+                      ),
+                    }}
+                  >
+                    {[
+                      { value: "Standard", label: "Standard (30-45 min)" },
+                      { value: "Express", label: "Express (15-30 min)" },
+                      { value: "Scheduled", label: "Scheduled" },
+                    ].map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    label="Delivery Instructions"
+                    value={profileForm.deliveryInstructions}
+                    onChange={updateField("deliveryInstructions")}
+                    fullWidth
+                    size="small"
+                    multiline
+                    minRows={2}
+                    placeholder="E.g., Ring doorbell, Leave at gate..."
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <NotesIcon fontSize="small" />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+              </Grid>
+
+              <Divider sx={{ my: 2 }} />
+
+              {/* Saved Addresses */}
+              <Typography
+                sx={{
+                  fontSize: "0.95rem",
+                  fontWeight: 700,
+                  color: "var(--text-main)",
+                  mb: 1.5,
+                }}
+              >
+                Saved Addresses
+              </Typography>
+
+              <Grid container spacing={1.5} sx={{ mb: 2 }}>
+                {profileForm.savedAddresses.map((addr) => (
+                  <Grid item xs={12} key={addr.id}>
+                    <Box
                       sx={{
-                        flex: 1,
-                        textTransform: "none",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        p: 1.25,
+                        background: "var(--bg-light)",
                         borderRadius: "10px",
                         border: "1px solid var(--border-light)",
-                        "&.Mui-selected": {
+                      }}
+                    >
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+                        <LocationIcon sx={{ color: "var(--primary)", fontSize: 18 }} />
+                        <Typography
+                          sx={{
+                            fontSize: "0.85rem",
+                            color: "var(--text-main)",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {addr.text}
+                        </Typography>
+                      </Box>
+                      <MuiIconButton
+                        size="small"
+                        onClick={() => removeSavedAddress(addr.id)}
+                        sx={{ color: "var(--primary)" }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </MuiIconButton>
+                    </Box>
+                  </Grid>
+                ))}
+                <Grid item xs={12}>
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <TextField
+                      value={newAddress}
+                      onChange={(e) => setNewAddress(e.target.value)}
+                      placeholder="Add a new address..."
+                      fullWidth
+                      size="small"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LocationIcon fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                    <MuiIconButton
+                      onClick={addSavedAddress}
+                      sx={{
+                        background: "var(--primary-gradient)",
+                        color: "white",
+                        borderRadius: "8px",
+                        "&:hover": {
                           background: "var(--primary-gradient)",
-                          color: "#fff",
+                          opacity: 0.9,
                         },
                       }}
                     >
-                      Veg
-                    </ToggleButton>
-                    <ToggleButton
-                      value="nonveg"
-                      sx={{
-                        flex: 1,
-                        textTransform: "none",
-                        borderRadius: "10px",
-                        border: "1px solid var(--border-light)",
-                        "&.Mui-selected": {
-                          background: "var(--primary-gradient)",
-                          color: "#fff",
-                        },
-                      }}
-                    >
-                      Non-veg
-                    </ToggleButton>
-                  </ToggleButtonGroup>
+                      <AddIcon />
+                    </MuiIconButton>
+                  </Box>
                 </Grid>
               </Grid>
             </CardContent>

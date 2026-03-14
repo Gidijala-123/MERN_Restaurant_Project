@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import LoadingOverlay from "../common/LoadingOverlay";
 
 export default function PrivateRoute({ children }) {
   const [status, setStatus] = useState("loading");
@@ -50,12 +51,7 @@ export default function PrivateRoute({ children }) {
     check();
   }, []);
 
-  if (status === "loading")
-    return (
-      <div style={{ display: "grid", placeItems: "center", minHeight: "60vh" }}>
-        <div>Loading...</div>
-      </div>
-    );
+  if (status === "loading") return <LoadingOverlay message="Checking authentication..." />;
   if (status !== "ok") return <Navigate to="/" replace />;
   return children;
 }

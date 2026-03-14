@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import LoadingOverlay from "../common/LoadingOverlay";
 
 export default function AdminRoute({ children }) {
   const [status, setStatus] = useState("loading");
@@ -20,8 +21,7 @@ export default function AdminRoute({ children }) {
     check();
   }, []);
 
-  if (status === "loading")
-    return <div style={{ display: "grid", placeItems: "center", minHeight: "60vh" }}>Loading...</div>;
+  if (status === "loading") return <LoadingOverlay message="Checking permissions..." />;
   if (status !== "ok") return <Navigate to="/home" replace />;
   return children;
 }

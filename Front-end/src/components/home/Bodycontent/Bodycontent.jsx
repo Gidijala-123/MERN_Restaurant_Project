@@ -12,6 +12,7 @@ import "./Bodycontent.css";
 import Footer from "./FOOTER/Footer";
 import Filter from "./FILTER_COMPONENT/Filter";
 import SkeletonLoader from "../../common/SkeletonLoader.jsx";
+import FoodLoader from "../../common/FoodLoader";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -543,6 +544,9 @@ const Bodycontent = (props) => {
                             padding: "30px",
                           }}
                         >
+                          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+                            <FoodLoader size={100} />
+                          </div>
                           <h4>No items found</h4>
                           <p>Try a different category</p>
                         </div>
