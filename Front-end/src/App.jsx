@@ -12,6 +12,9 @@ import { Suspense, lazy } from "react";
 // Lazy load large pages to reduce initial bundle size
 const Signup = lazy(() => import("./components/signup/Signup"));
 const Sidebar = lazy(() => import("./components/home/Sidebar/Sidebar"));
+const Favorites = lazy(() => import("./components/home/Favorites"));
+const Orders = lazy(() => import("./components/home/Orders"));
+const Settings = lazy(() => import("./components/home/Settings"));
 const AdminMetrics = lazy(() => import("./components/admin/AdminMetrics"));
 const Notfound = lazy(() => import("./components/home/Notfound"));
 const Cart = lazy(() => import("./components/home/CartComponent/Cart"));
@@ -42,6 +45,30 @@ function App() {
               {/* Main Home/Dashboard route with Sidebar */}
               <Route
                 path="/home"
+                element={
+                  <PrivateRoute>
+                    <Sidebar />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/home/favorites"
+                element={
+                  <PrivateRoute>
+                    <Sidebar />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/home/orders"
+                element={
+                  <PrivateRoute>
+                    <Sidebar />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/home/settings"
                 element={
                   <PrivateRoute>
                     <Sidebar />
