@@ -16,6 +16,8 @@ import { useMenu } from "../../../context/MenuContext";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
+import PeopleIcon from "@mui/icons-material/People";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../features/cartSlice";
 import "./MenuDisplay.css";
@@ -34,6 +36,24 @@ const MenuDisplay = () => {
   const [favoriteItems, setFavoriteItems] = useState({});
 
   const subCategories = getSubCategories();
+
+  const CATEGORY_ICONS = {
+    "Veg Starters": "🥗",
+    "Non-Veg Starters": "🍗",
+    Tandooris: "🔥",
+    Soups: "🥣",
+    Salads: "🥗",
+    Sandwiches: "🥪",
+    "Signature Dishes": "🏆",
+    Biryanis: "🍚",
+    "Main Course": "🍛",
+    "Rice & Breads": "🥖",
+    "South Indian": "🍛",
+    Chinese: "🥡",
+    Beverages: "🥤",
+    "Cocktails/Mocktails": "🍸",
+    Desserts: "🍰",
+  };
 
   const handleAddToCart = (item) => {
     dispatch(
@@ -263,82 +283,62 @@ const MenuDisplay = () => {
                     </Box>
                   </Box>
 
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    {/* Name */}
+                  <CardContent sx={{ flexGrow: 1, p: 2, textAlign: "center" }}>
                     <Typography
                       variant="h6"
                       sx={{
-                        fontWeight: "600",
-                        mb: 0.5,
-                        minHeight: "2em",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
+                        fontWeight: "700",
+                        fontSize: "1.1rem",
+                        mb: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 1,
                       }}
                     >
+                      <span>{CATEGORY_ICONS[item.category] || "🍽️"}</span>
                       {item.name}
                     </Typography>
 
-                    {/* Description */}
                     <Typography
-                      variant="caption"
+                      variant="body2"
                       color="textSecondary"
                       sx={{
+                        mb: 2,
                         display: "-webkit-box",
                         WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
                         overflow: "hidden",
-                        mb: 1,
+                        fontSize: "0.8rem",
+                        lineHeight: 1.4,
+                        minHeight: "2.2rem",
+                        textAlign: "center",
                       }}
                     >
-                      {item.description}
+                      {item.description || `Delicious ${item.name} prepared with fresh ingredients and authentic spices.`}
                     </Typography>
 
-                    {/* Rating */}
+                    <Box sx={{ display: "flex", gap: 2, mb: 2, justifyContent: "center" }}>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                        <LocalFireDepartmentIcon sx={{ fontSize: 16, color: "#ff7043" }} />
+                        <Typography variant="caption" fontWeight="600" color="textSecondary">
+                          {item.calories || 250} kcal
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                        <PeopleIcon sx={{ fontSize: 16, color: "#4fc3f7" }} />
+                        <Typography variant="caption" fontWeight="600" color="textSecondary">
+                          Serves {item.serves || 1}
+                        </Typography>
+                      </Box>
+                    </Box>
+
                     <Box
                       sx={{
                         display: "flex",
                         alignItems: "center",
-                        gap: 1,
-                        mb: 1,
-                      }}
-                    >
-                      <Rating
-                        value={item.rating}
-                        readOnly
-                        size="small"
-                        precision={0.1}
-                      />
-                      <Typography variant="caption" color="textSecondary">
-                        ({item.reviews})
-                      </Typography>
-                    </Box>
-
-                    {/* Nutrition Info */}
-                    <Box
-                      sx={{ display: "flex", gap: 1, mb: 1, flexWrap: "wrap" }}
-                    >
-                      <Chip
-                        label={`${item.calories} kcal`}
-                        size="small"
-                        variant="outlined"
-                        sx={{ height: "24px" }}
-                      />
-                      <Chip
-                        label={`Serves ${item.serves}`}
-                        size="small"
-                        variant="outlined"
-                        sx={{ height: "24px" }}
-                      />
-                    </Box>
-
-                    {/* Price and Add Button */}
-                    <Box
-                      sx={{
-                        display: "flex",
                         justifyContent: "space-between",
-                        alignItems: "center",
-                        mt: 2,
+                        mt: "auto",
                       }}
                     >
                       <Typography

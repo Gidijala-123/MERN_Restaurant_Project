@@ -215,55 +215,248 @@ img {
    -webkit-overflow-scrolling: touch;
 }
 
-/* Custom Scrollbar Styling for all horizontal containers */
-.trending-items-container::-webkit-scrollbar,
-.marquee-viewport::-webkit-scrollbar,
-.trending-viewport::-webkit-scrollbar {
-   height: 0.5rem;
-}
-
-.trending-items-container::-webkit-scrollbar-track,
-.marquee-viewport::-webkit-scrollbar-track,
-.trending-viewport::-webkit-scrollbar-track {
-   background: rgba(0, 0, 0, 0.05);
-   border-radius: 0.625rem;
-}
-
-.trending-items-container::-webkit-scrollbar-thumb,
-.marquee-viewport::-webkit-scrollbar-thumb,
-.trending-viewport::-webkit-scrollbar-thumb {
-   background: var(--primary-gradient);
-   border-radius: 0.625rem;
-   border: 0.125rem solid transparent;
-   background-clip: content-box;
-}
-
-.trending-items-container::-webkit-scrollbar-thumb:hover,
-.marquee-viewport::-webkit-scrollbar-thumb:hover,
-.trending-viewport::-webkit-scrollbar-thumb:hover {
-   background: var(--primary-dark);
-}
-
-/* Shared card styles for offers/popular/recent/discount/trending sections */
+/* Enhanced Card Design - Perfectly Matching Uploaded Image */
 .section-card,
 .trending-items-sub-div,
 .offer-card,
 .discount-item {
-   flex: 0 0 240px;
-   /* fixed width so the carousel is consistent */
-   min-height: 18.5rem;
-   height: auto;
-   display: flex;
-   flex-direction: column;
-   align-items: flex-start;
-   background-color: var(--white);
-   box-shadow: var(--shadow-sm);
-   padding: 1.25rem;
-   border-radius: 1.25rem;
-   transition: all 0.3s ease;
-   border: 1px solid var(--border-light);
-   position: relative;
-   justify-content: space-between;
+   background: var(--white) !important;
+   border: 1px solid var(--border-light) !important;
+   border-radius: 24px !important;
+   /* Larger rounding matching image */
+   padding: 1.5rem !important;
+   transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+   height: 100% !important;
+   display: flex !important;
+   flex-direction: column !important;
+   align-items: center !important;
+   /* Centered content as per image */
+   text-align: center !important;
+   gap: 0.75rem !important;
+   position: relative !important;
+   flex: 0 0 260px !important;
+   /* Consistent width */
+}
+
+.section-card:hover {
+   transform: translateY(-10px) !important;
+   box-shadow: 0 20px 40px rgba(230, 81, 0, 0.1) !important;
+   border-color: var(--primary) !important;
+}
+
+/* Card Image Refinement */
+.section-card img,
+.trending-items-sub-div img,
+.discount-item img {
+   width: 100% !important;
+   height: 160px !important;
+   object-fit: cover !important;
+   border-radius: 20px !important;
+   margin-bottom: 0.5rem !important;
+   background: var(--bg-light) !important;
+}
+
+/* Card Badge - e.g. "45% OFF" */
+.card-badge {
+   position: absolute !important;
+   top: 15px !important;
+   left: 15px !important;
+   background: var(--primary-gradient) !important;
+   color: white !important;
+   padding: 4px 12px !important;
+   border-radius: 50px !important;
+   font-size: 0.65rem !important;
+   font-weight: 800 !important;
+   box-shadow: 0 4px 10px rgba(230, 81, 0, 0.3) !important;
+   z-index: 2 !important;
+}
+
+/* Heart/Bookmark Icon placement */
+.bookmark-icon {
+   position: absolute !important;
+   top: 15px !important;
+   right: 15px !important;
+   width: 32px !important;
+   height: 32px !important;
+   background: white !important;
+   border-radius: 50% !important;
+   display: flex !important;
+   align-items: center !important;
+   justify-content: center !important;
+   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+   color: #333 !important;
+   cursor: pointer !important;
+   transition: all 0.2s ease !important;
+   z-index: 2 !important;
+}
+
+/* Card Content Typography */
+.trending-items-title {
+   font-size: 1.1rem !important;
+   font-weight: 800 !important;
+   color: var(--text-main) !important;
+   margin: 0 !important;
+   line-height: 1.2 !important;
+   display: flex !important;
+   align-items: center !important;
+   justify-content: center !important;
+   /* Center text within flex title */
+   gap: 0.5rem !important;
+   width: 100% !important;
+}
+
+.title-icon {
+   font-size: 1.2rem !important;
+}
+
+.card-description {
+   font-size: 0.75rem !important;
+   color: var(--text-sub) !important;
+   line-height: 1.4 !important;
+   margin: 0.25rem 0 !important;
+   display: -webkit-box !important;
+   -webkit-line-clamp: 2 !important;
+   -webkit-box-orient: vertical !important;
+   overflow: hidden !important;
+   opacity: 0.8 !important;
+   text-align: center !important;
+   /* Explicitly center description */
+   width: 100% !important;
+}
+
+.card-meta-info {
+   display: flex !important;
+   align-items: center !important;
+   justify-content: center !important;
+   gap: 1rem !important;
+   margin: 0.25rem 0 !important;
+   width: 100% !important;
+}
+
+.meta-item {
+   display: flex !important;
+   align-items: center !important;
+   gap: 0.25rem !important;
+   font-size: 0.75rem !important;
+   font-weight: 600 !important;
+   color: var(--text-sub) !important;
+   background: var(--bg-light) !important;
+   padding: 4px 8px !important;
+   border-radius: 8px !important;
+}
+
+.trending-rating {
+   display: flex !important;
+   align-items: center !important;
+   justify-content: center !important;
+   gap: 4px !important;
+   font-size: 0.85rem !important;
+   color: var(--text-sub) !important;
+   font-weight: 600 !important;
+}
+
+.trending-rating .star {
+   color: #FFB400 !important;
+}
+
+.price-container {
+   display: flex !important;
+   align-items: center !important;
+   justify-content: center !important;
+   gap: 10px !important;
+   margin-bottom: 0.5rem !important;
+}
+
+.original-price {
+   text-decoration: line-through !important;
+   color: var(--text-sub) !important;
+   font-size: 0.85rem !important;
+   opacity: 0.6 !important;
+}
+
+.discounted-price {
+   color: var(--primary) !important;
+   font-weight: 900 !important;
+   font-size: 1.15rem !important;
+}
+
+/* "Grab Now" Style Buttons */
+.shopnow-btn,
+.trending-items-button,
+.btn-primary {
+   width: 100% !important;
+   background: var(--primary-gradient) !important;
+   color: white !important;
+   border: none !important;
+   border-radius: 14px !important;
+   padding: 10px 0 !important;
+   font-weight: 800 !important;
+   font-size: 0.9rem !important;
+   text-transform: capitalize !important;
+   transition: all 0.3s ease !important;
+   box-shadow: 0 8px 20px rgba(230, 81, 0, 0.2) !important;
+   margin-top: auto !important;
+   /* Push to bottom */
+}
+
+.shopnow-btn:hover {
+   transform: scale(1.02) !important;
+   box-shadow: 0 12px 30px rgba(230, 81, 0, 0.3) !important;
+}
+
+/* Section Header Badges Matching Image */
+.section-badge,
+.discount-badge,
+.trending-badge {
+   background: var(--primary-gradient) !important;
+   color: white !important;
+   padding: 8px 20px !important;
+   border-radius: 50px !important;
+   font-size: 0.75rem !important;
+   font-weight: 800 !important;
+   box-shadow: 0 6px 15px rgba(230, 81, 0, 0.3) !important;
+   display: inline-block !important;
+}
+
+.view-all-link {
+   background: #FFF7F0 !important;
+   color: #FF6600 !important;
+   padding: 8px 16px !important;
+   border-radius: 50px !important;
+   font-weight: 800 !important;
+   font-size: 0.85rem !important;
+   box-shadow: none !important;
+   transition: all 0.3s ease !important;
+}
+
+.view-all-link:hover {
+   background: var(--primary) !important;
+   color: white !important;
+}
+
+/* Horizontal Scrollbar Matching Image */
+.offers-scroll,
+.trending-viewport,
+.discount-sale-container .marquee-viewport {
+   padding: 1rem 0 2rem 0 !important;
+}
+
+.offers-scroll::-webkit-scrollbar,
+.trending-viewport::-webkit-scrollbar {
+   height: 6px !important;
+}
+
+.offers-scroll::-webkit-scrollbar-thumb,
+.trending-viewport::-webkit-scrollbar-thumb {
+   background: #CCC !important;
+   border-radius: 10px !important;
+}
+
+.offers-scroll::-webkit-scrollbar-track,
+.trending-viewport::-webkit-scrollbar-track {
+   background: #F0F0F0 !important;
+   border-radius: 10px !important;
 }
 
 .trending-card-details-wrapper {
