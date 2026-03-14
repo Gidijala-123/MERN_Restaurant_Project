@@ -24,7 +24,8 @@ import { useDispatch } from "react-redux";
 import { addToCart } from "../../features/cartSlice";
 import { useGetAllProductsQuery } from "../../features/productsApi";
 import { useMenu } from "../../../context/MenuContext";
-import MENU_DATA from "../../../data/menuData";
+import { MENU_DATA } from "../../../data/menuData";
+
 
 const Bodycontent = (props) => {
   const { selectedCategory } = useMenu();
@@ -43,6 +44,8 @@ const Bodycontent = (props) => {
   const [discountBookmarked, setDiscountBookmarked] = useState({});
   const [trendingBookmarked, setTrendingBookmarked] = useState({});
   const [showFilter, setShowFilter] = useState(false);
+  // Address state for billing form
+  const [addressValue, setAddressValue] = useState("");
 
   // Load bookmarks from localStorage on mount
   React.useEffect(() => {
@@ -1444,10 +1447,13 @@ const Bodycontent = (props) => {
                               type="text"
                               placeholder="1234 Main St"
                               required="required"
+                              value={addressValue || ""}
+                              onChange={e => setAddressValue(e.target.value)}
                             />
                             <div className="invalid-feedback">
                               Please enter your shipping address
                             </div>
+
                           </div>
                           <div className="mb-3">
                             <label htmlFor="address2">

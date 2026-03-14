@@ -74,7 +74,6 @@ import {
   ToggleButtonGroup,
   ToggleButton,
   InputAdornment,
-  MenuItem,
   LinearProgress,
   IconButton as MuiIconButton,
   Divider,
@@ -215,6 +214,8 @@ export default function Sidebar() {
   const [userAvatar, setUserAvatar] = useState("");
   const [logoutMessage, setLogoutMessage] = useState("");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [accountAnchorEl, setAccountAnchorEl] = useState(null);
+  const isAccountMenuOpen = Boolean(accountAnchorEl);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -268,6 +269,7 @@ export default function Sidebar() {
     const name = userName || "back";
     setLogoutMessage(`Thank you ${name}, please visit again. See you soon!`);
     setShowLogoutModal(true);
+    setAccountAnchorEl(null);
 
     try {
       const base = import.meta.env.VITE_API_URL || "http://localhost:1111";
@@ -296,6 +298,19 @@ export default function Sidebar() {
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const handleAccountMenuOpen = (event) => {
+    setAccountAnchorEl(event.currentTarget);
+  };
+
+  const handleAccountMenuClose = () => {
+    setAccountAnchorEl(null);
+  };
+
+  const handleGoToSettings = () => {
+    handleAccountMenuClose();
+    navigate("/home/settings");
   };
 
   const menuStyle = {
@@ -549,12 +564,31 @@ export default function Sidebar() {
                   <ShoppingCartIcon fontSize="small" />
                 </Badge>
               </IconButton>
-              <img
-                src={userAvatar || "/footer-images/user-icon.png"}
-                alt="user"
-                className="user-avatar"
-                onClick={() => navigate("/home/settings")}
-              />
+              <IconButton
+                onClick={handleAccountMenuOpen}
+                sx={{ p: 0, borderRadius: "50%" }}
+                aria-controls={isAccountMenuOpen ? "account-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={isAccountMenuOpen ? "true" : undefined}
+              >
+                <Avatar
+                  src={userAvatar || undefined}
+                  sx={{ width: 36, height: 36 }}
+                >
+                  {userName ? userName.charAt(0).toUpperCase() : "U"}
+                </Avatar>
+              </IconButton>
+              <Menu
+                id="account-menu"
+                anchorEl={accountAnchorEl}
+                open={isAccountMenuOpen}
+                onClose={handleAccountMenuClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+              >
+                <MenuItem onClick={handleGoToSettings}>Settings</MenuItem>
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              </Menu>
             </Box>
           </Box>
         </Toolbar>

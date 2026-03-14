@@ -1,4 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+  // Handler for Cancel button
+  const handleCancel = () => {
+    navigate("/home");
+  };
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Typography,
@@ -15,8 +19,33 @@ import {
   FormControl,
   FormLabel,
   Divider,
+  IconButton,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
-import { Person as PersonIcon, Email as EmailIcon, Phone as PhoneIcon, LocationOn as LocationIcon, CreditCard as CreditCardIcon, Notes as NotesIcon, Add as AddIcon } from "@mui/icons-material";
+
+import {
+  Person as PersonIcon,
+  Email as EmailIcon,
+  Phone as PhoneIcon,
+  LocationOn as LocationIcon,
+  CreditCard as CreditCardIcon,
+  Notes as NotesIcon,
+  Add as AddIcon,
+  Close as CloseIcon,
+  Settings as SettingsIcon,
+  Save as SaveIcon,
+  ArrowBack as ArrowBackIcon,
+  Delete as DeleteIcon,
+  Fastfood as FastfoodIcon,
+  Payment as PaymentIcon,
+  AttachMoney as AttachMoneyIcon,
+  AccountBalanceWallet as AccountBalanceWalletIcon,
+} from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const initialForm = {
@@ -36,10 +65,13 @@ const initialForm = {
 };
 
 export default function Settings() {
+  const navigate = useNavigate();
+  const initialProfileRef = useRef(null);
   const [profileForm, setProfileForm] = useState(initialForm);
   const [formErrors, setFormErrors] = useState({});
   const [newAddress, setNewAddress] = useState("");
   const [saving, setSaving] = useState(false);
+  const [discardDialogOpen, setDiscardDialogOpen] = useState(false);
 
   useEffect(() => {
     const stored = {
@@ -60,7 +92,9 @@ export default function Settings() {
     // Find a saved address matching the current primary address
     const selectedAddressId = stored.savedAddresses.find((a) => a.text === stored.address)?.id || null;
 
-    setProfileForm({ ...stored, selectedAddressId });
+    const initialState = { ...stored, selectedAddressId };
+    setProfileForm(initialState);
+    initialProfileRef.current = initialState;
   }, []);
 
   const validateEmail = (email) => {
@@ -107,7 +141,55 @@ export default function Settings() {
     setTimeout(() => {
       setSaving(false);
       toast.success("Settings saved.");
+      // Update baseline for dirty checking
+      initialProfileRef.current = { ...profileForm };
     }, 400);
+  };
+
+  const resetProfileForm = () => {
+    const stored = {
+      name: localStorage.getItem("userName") || "",
+      email: localStorage.getItem("userEmail") || "",
+      phone: localStorage.getItem("userPhone") || "",
+      address: localStorage.getItem("userAddress") || "",
+      deliveryInstructions: localStorage.getItem("userDeliveryInstructions") || "",
+      paymentMethod: localStorage.getItem("userPaymentMethod") || "Cash",
+      foodType: localStorage.getItem("userFoodType") || "veg",
+      deliverySpeed: localStorage.getItem("userDeliverySpeed") || "Standard",
+      savedAddresses: JSON.parse(localStorage.getItem("userSavedAddresses") || "[]"),
+      dietaryRestrictions: JSON.parse(localStorage.getItem("userDietaryRestrictions") || "[]"),
+      referralCode: localStorage.getItem("userReferralCode") || "",
+      avatar: localStorage.getItem("userAvatar") || "",
+    };
+
+    const selectedAddressId = stored.savedAddresses.find((a) => a.text === stored.address)?.id || null;
+    setFormErrors({});
+    const full = { ...stored, selectedAddressId };
+    setProfileForm(full);
+    initialProfileRef.current = full;
+  };
+
+  const isDirty = useMemo(() => {
+    if (!initialProfileRef.current) return false;
+    return JSON.stringify(profileForm) !== JSON.stringify(initialProfileRef.current);
+  }, [profileForm]);
+
+  const attemptClose = () => {
+    if (isDirty) {
+      setDiscardDialogOpen(true);
+    } else {
+      navigate("/home");
+    }
+  };
+
+  const confirmDiscard = () => {
+    resetProfileForm();
+    setDiscardDialogOpen(false);
+    navigate("/home");
+  };
+
+  const cancelDiscard = () => {
+    setDiscardDialogOpen(false);
   };
 
   const setField = (field) => (event) => {
@@ -197,26 +279,71 @@ export default function Settings() {
   };
 
   return (
-    <Box sx={{ p: 3, minHeight: "calc(100vh - 72px)" }}>
-      <Typography variant="h5" fontWeight={700} gutterBottom>
-        Settings
-      </Typography>
-      <Typography variant="body2" color="text.secondary" gutterBottom>
-        Manage your profile, delivery preferences, and saved addresses.
-      </Typography>
+    <Box sx={{
+      p: 3,
+      minHeight: "calc(100vh - 72px)",
+      background: "linear-gradient(135deg, #fff7f0 0%, #ffe0c3 100%)",
+      transition: 'background 0.5s',
+    }}>
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <SettingsIcon sx={{ color: 'var(--primary)', fontSize: 40, mr: 1, filter: 'drop-shadow(0 2px 6px #ffb36688)' }} />
+          <Box>
+            <Typography variant="h4" fontWeight={900} sx={{ color: 'var(--text-main)', letterSpacing: 1, textShadow: '0 2px 8px #fff3' }} gutterBottom>
+              Settings
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'var(--primary)', fontWeight: 600, opacity: 0.85, fontSize: 18 }} gutterBottom>
+              Manage your profile, delivery preferences, and saved addresses.
+            </Typography>
+          </Box>
+        </Box>
+        <IconButton onClick={attemptClose} sx={{ color: 'var(--primary)', background: 'var(--white)', boxShadow: 'var(--shadow-sm)', transition: 'box-shadow 0.2s', '&:hover': { boxShadow: 'var(--shadow-md)', background: 'var(--primary)', color: 'var(--white)' } }} aria-label="Close settings">
+          <CloseIcon />
+        </IconButton>
+      </Box>
 
-      <Card variant="outlined" sx={{ mt: 2, borderRadius: 3 }}>
-        <CardContent>
+      <Card
+        variant="outlined"
+        sx={{
+          mt: 2,
+          borderRadius: 6,
+          boxShadow: '0 8px 32px 0 #ffb36633',
+          border: '1.5px solid #ffd6a0',
+          background: 'rgba(255,255,255,0.98)',
+          transition: 'box-shadow 0.3s, transform 0.2s',
+          '&:hover': {
+            boxShadow: '0 16px 48px 0 #ffb36655',
+            transform: 'scale(1.01)',
+          },
+        }}
+      >
+        <CardContent sx={{
+          background: 'transparent',
+          borderRadius: 3,
+          boxShadow: 'none',
+          mb: 2,
+          p: 3,
+          animation: 'fade-in 0.7s',
+        }}>
           <Grid container spacing={2}>
             <Grid item xs={12} md={4}>
-              <Box sx={{ textAlign: "center" }}>
+              <Box sx={{ textAlign: "center", pb: 2, borderRight: { md: '1.5px solid #ffe0c3' }, pr: { md: 3 } }}>
                 <Avatar
                   src={profileForm.avatar || undefined}
-                  sx={{ width: 96, height: 96, mx: "auto", mb: 1 }}
+                  sx={{
+                    width: 110,
+                    height: 110,
+                    mx: "auto",
+                    mb: 1,
+                    boxShadow: '0 4px 24px #ffb36644',
+                    border: '3px solid #ffd6a0',
+                    fontSize: 40,
+                    background: '#fff7f0',
+                  }}
                 >
                   {profileForm.name ? profileForm.name.charAt(0).toUpperCase() : "U"}
                 </Avatar>
-                <Button component="label" variant="outlined" size="small" sx={{ mt: 1 }}>
+                <Button component="label" variant="outlined" size="small" sx={{ mt: 1, color: 'var(--primary)', borderColor: 'var(--primary)', fontWeight: 700, letterSpacing: 1, background: '#fff7f0', '&:hover': { background: 'var(--primary)', color: 'var(--white)', borderColor: 'var(--primary-dark)' } }}>
                   Change Photo
                   <input hidden accept="image/*" type="file" onChange={handleAvatarUpload} />
                 </Button>
@@ -225,20 +352,20 @@ export default function Settings() {
                     variant="text"
                     color="error"
                     size="small"
-                    sx={{ mt: 1 }}
+                    sx={{ mt: 1, color: 'var(--primary)', '&:hover': { color: 'var(--primary-dark)' }, fontWeight: 600 }}
                     onClick={removeAvatar}
                   >
                     Remove Photo
                   </Button>
                 )}
-                <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+                <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1, fontSize: 15, opacity: 0.7 }}>
                   {avatarSizeKB ? `${avatarSizeKB} KB` : "No photo"}
                 </Typography>
               </Box>
             </Grid>
 
             <Grid item xs={12} md={8}>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pl: { md: 3 } }}>
                 <TextField
                   label="Full Name"
                   value={profileForm.name}
@@ -250,6 +377,13 @@ export default function Settings() {
                     startAdornment: (
                       <PersonIcon sx={{ mr: 1, color: "action.active" }} />
                     ),
+                  }}
+                  sx={{
+                    background: '#fff7f0',
+                    borderRadius: 2,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                    },
                   }}
                 />
                 <TextField
@@ -264,6 +398,13 @@ export default function Settings() {
                       <EmailIcon sx={{ mr: 1, color: "action.active" }} />
                     ),
                   }}
+                  sx={{
+                    background: '#fff7f0',
+                    borderRadius: 2,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                    },
+                  }}
                 />
                 <TextField
                   label="Phone"
@@ -277,12 +418,19 @@ export default function Settings() {
                       <PhoneIcon sx={{ mr: 1, color: "action.active" }} />
                     ),
                   }}
+                  sx={{
+                    background: '#fff7f0',
+                    borderRadius: 2,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                    },
+                  }}
                 />
               </Box>
             </Grid>
           </Grid>
 
-          <Divider sx={{ my: 3 }} />
+          <Divider sx={{ my: 3, borderColor: '#ffd6a0' }} />
 
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
@@ -292,13 +440,14 @@ export default function Settings() {
                 onChange={setField("address")}
                 fullWidth
                 error={Boolean(formErrors.address)}
-                helperText={formErrors.address || "Select a saved address or type your location."}
+                helperText={formErrors.address || "Select a saved address or type your location. You can also pick a location on the map below."}
                 InputProps={{
                   startAdornment: (
                     <LocationIcon sx={{ mr: 1, color: "action.active" }} />
                   ),
                 }}
               />
+
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
@@ -309,29 +458,40 @@ export default function Settings() {
                 fullWidth
                 InputProps={{
                   startAdornment: (
-                    <CreditCardIcon sx={{ mr: 1, color: "action.active" }} />
+                    profileForm.paymentMethod === "Cash" ? (
+                      <AttachMoneyIcon sx={{ mr: 1, color: "action.active" }} />
+                    ) : profileForm.paymentMethod === "Card" ? (
+                      <CreditCardIcon sx={{ mr: 1, color: "action.active" }} />
+                    ) : profileForm.paymentMethod === "UPI" ? (
+                      <AccountBalanceWalletIcon sx={{ mr: 1, color: "action.active" }} />
+                    ) : (
+                      <PaymentIcon sx={{ mr: 1, color: "action.active" }} />
+                    )
                   ),
                 }}
               >
-                {[
+                {[ 
                   { value: "Cash", label: "Cash on Delivery" },
                   { value: "Card", label: "Credit / Debit Card" },
                   { value: "UPI", label: "UPI" },
                 ].map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
+                  <MenuItem key={option.value} value={option.value}>
+                    <Typography>{option.label}</Typography>
+                  </MenuItem>
                 ))}
               </TextField>
             </Grid>
           </Grid>
 
           <Box sx={{ mt: 3 }}>
-            <Typography variant="subtitle2" fontWeight={700} gutterBottom>
-              Saved Addresses
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <LocationIcon sx={{ color: 'var(--primary)', fontSize: 24, filter: 'drop-shadow(0 2px 6px #ffb36688)' }} />
+              <Typography variant="h6" fontWeight={900} sx={{ color: 'var(--primary)', letterSpacing: 1, textShadow: '0 2px 8px #fff3' }} gutterBottom>
+                Saved Addresses
+              </Typography>
+            </Box>
             <FormControl component="fieldset">
-              <FormLabel component="legend">Pick one to use as primary</FormLabel>
+              <FormLabel component="legend" sx={{ fontWeight: 700, color: 'var(--primary)', mb: 1 }}>Pick one to use as primary</FormLabel>
               <RadioGroup
                 value={profileForm.selectedAddressId ?? ""}
                 onChange={(e) => selectAddress(Number(e.target.value))}
@@ -342,15 +502,27 @@ export default function Settings() {
                     value={addr.id}
                     control={<Radio />}
                     label={
-                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                        <Typography sx={{ flex: 1, mr: 1 }}>{addr.text}</Typography>
-                        <Button
+                      <Box sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        width: "100%",
+                        px: 1,
+                        borderRadius: 2,
+                        transition: 'background 0.2s',
+                        '&:hover': { background: '#fff7f0' },
+                      }}>
+                        <Box sx={{ display: "flex", alignItems: "center", flex: 1, mr: 1 }}>
+                          <LocationIcon sx={{ mr: 1, color: "action.active" }} />
+                          <Typography sx={{ wordBreak: "break-word" }}>{addr.text}</Typography>
+                        </Box>
+                        <IconButton
                           size="small"
                           color="error"
                           onClick={() => removeAddress(addr.id)}
                         >
-                          Remove
-                        </Button>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
                       </Box>
                     }
                   />
@@ -370,19 +542,26 @@ export default function Settings() {
                     <LocationIcon sx={{ mr: 1, color: "action.active" }} />
                   ),
                 }}
+                sx={{
+                  background: '#fff7f0',
+                  borderRadius: 2,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                  },
+                }}
               />
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={addAddress}
-                sx={{ whiteSpace: "nowrap" }}
+                sx={{ whiteSpace: "nowrap", background: 'var(--primary)', color: 'var(--white)', fontWeight: 700, letterSpacing: 1, '&:hover': { background: 'var(--primary-dark)' } }}
               >
                 Add
               </Button>
             </Box>
           </Box>
 
-          <Divider sx={{ my: 3 }} />
+          <Divider sx={{ my: 3, borderColor: '#ffd6a0' }} />
 
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
@@ -392,11 +571,34 @@ export default function Settings() {
                 onChange={setField("deliveryInstructions")}
                 fullWidth
                 multiline
-                minRows={2}
+                minRows={1}
                 InputProps={{
                   startAdornment: (
                     <NotesIcon sx={{ mr: 1, color: "action.active" }} />
                   ),
+                }}
+                sx={{
+                  height: 56,
+                  background: '#fff7f0',
+                  borderRadius: 2,
+                  '& .MuiInputBase-root': {
+                    height: 56,
+                    alignItems: 'center',
+                    borderRadius: 2,
+                  },
+                  '& .MuiInputBase-inputMultiline': {
+                    padding: '0 14px',
+                    height: '100% !important',
+                    minHeight: '0 !important',
+                    display: 'flex',
+                    alignItems: 'center',
+                  },
+                  '& textarea': {
+                    height: '100% !important',
+                    minHeight: '0 !important',
+                    padding: '0 14px',
+                    boxSizing: 'border-box',
+                  },
                 }}
               />
             </Grid>
@@ -407,41 +609,87 @@ export default function Settings() {
                 value={profileForm.foodType}
                 onChange={setField("foodType")}
                 fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <FastfoodIcon sx={{ mr: 1, color: "action.active" }} />
+                  ),
+                }}
+                sx={{
+                  height: 56,
+                  background: '#fff7f0',
+                  borderRadius: 2,
+                  '& .MuiInputBase-root': {
+                    height: 56,
+                    alignItems: 'center',
+                    borderRadius: 2,
+                  },
+                  '& .MuiInputBase-input': {
+                    padding: '0 14px',
+                  },
+                }}
               >
-                <option value="veg">Veg Only</option>
-                <option value="nonveg">Non-veg</option>
+                <MenuItem value="veg">
+                  <Typography>Veg Only</Typography>
+                </MenuItem>
+                <MenuItem value="nonveg">
+                  <Typography>Non-veg</Typography>
+                </MenuItem>
               </TextField>
             </Grid>
           </Grid>
 
           <Box sx={{ mt: 3, display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
             <Button
+              variant="outlined"
+              color="inherit"
+              onClick={handleCancel}
+              startIcon={<ArrowBackIcon />}
+              sx={{
+                color: 'var(--primary)',
+                borderColor: 'var(--primary)',
+                fontWeight: 700,
+                letterSpacing: 1,
+                background: '#fff7f0',
+                '&:hover': { background: 'var(--primary)', color: 'var(--white)', borderColor: 'var(--primary-dark)' },
+              }}
+              disabled={saving}
+            >
+              Cancel
+            </Button>
+            <Button
               variant="contained"
-              color="primary"
               onClick={saveProfile}
               disabled={saving}
+              startIcon={<SaveIcon />}
+              sx={{
+                background: 'var(--primary)',
+                color: 'var(--white)',
+                fontWeight: 700,
+                letterSpacing: 1,
+                boxShadow: '0 2px 8px #ffb36655',
+                '&:hover': { background: 'var(--primary-dark)' },
+              }}
             >
               {saving ? "Saving..." : "Save Settings"}
             </Button>
-            <Chip
-              label={`Profile completion: ${Math.round(
-                ([
-                  profileForm.name,
-                  profileForm.email,
-                  profileForm.phone,
-                  profileForm.address,
-                  profileForm.paymentMethod,
-                  profileForm.foodType,
-                  profileForm.avatar,
-                ].filter(Boolean).length /
-                  7) *
-                  100
-              )}%`}
-              color="primary"
-            />
           </Box>
         </CardContent>
       </Card>
+
+      <Dialog open={discardDialogOpen} onClose={cancelDiscard}>
+        <DialogTitle>Discard changes?</DialogTitle>
+        <DialogContent>
+          <Typography>
+            You have unsaved changes. Do you want to discard them and leave the Settings page?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={cancelDiscard} sx={{ color: 'var(--primary)', '&:hover': { color: 'var(--primary-dark)' } }}>Keep editing</Button>
+          <Button color="error" onClick={confirmDiscard}>
+            Discard
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
