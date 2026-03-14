@@ -3,6 +3,8 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
+import os from "os";
+import cluster from "cluster";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
@@ -36,71 +38,93 @@ import logger from "./logging/logger.js";
 import { issueCsrf, checkCsrf } from "./middleware/csrf.js";
 import newsletterRouter from "./routers/newsletterRouter.js";
 import { sendToAll as sendNewsletterToAll } from "./services/newsletterService.js";
+import Order from "./models/OrderModel.js";
 
 dotenv.config();
 
-// Setup for ES modules to handle directory paths
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
+// Use Cluster module for multi-core load balancing/scaling
+if (cluster.isPrimary && process.env.NODE_ENV === "production") {
+  const numCPUs = os.cpus().length;
+  console.log(`Primary ${process.pid} is running. Forking ${numCPUs} workers...`);
 
-const app = express();
-const port = process.env.PORT || 1234;
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
 
-// Initialize MongoDB database connection
-dbConnection();
+  cluster.on("exit", (worker, code, signal) => {
+    console.log(`Worker ${worker.process.pid} died. Forking a new one...`);
+    cluster.fork();
+  });
+} else {
+  const app = express();
+  const port = process.env.PORT || 1234;
 
-/**
- * Middleware setup
- */
-app.set("trust proxy", 1);
-app.disable("x-powered-by");
-const envOrigins = String(process.env.ALLOWED_ORIGINS || "")
-  .split(",")
-  .map((s) => s.trim())
-  .filter(Boolean);
-const allowedOrigins = new Set([
-  ...envOrigins,
-  (process.env.FRONTEND_URL || "http://localhost:3002").replace(/\/$/, ""),
-  "https://gbr-kitchen.onrender.com",
-  "http://localhost:3000",
-  "http://localhost:3001",
-]);
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      // Remove trailing slash for comparison
-      const normalizedOrigin = origin.replace(/\/$/, "");
-      if (allowedOrigins.has(normalizedOrigin)) return callback(null, true);
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-  }),
-);
-app.use(
-  helmet({
-    hsts: process.env.NODE_ENV === "production",
-    crossOriginResourcePolicy: { policy: "cross-origin" },
-  }),
-);
-app.use(express.json({ limit: "5mb" }));
-app.use(cookieParser());
-app.use(compression());
-app.use(requestId);
-morgan.token("id", (req) => req.id);
-app.use(
-  morgan(":id :method :url :status :res[content-length] - :response-time ms"),
-);
-initPassport();
-app.use(passport.initialize());
-app.use(
-  rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    standardHeaders: true,
-    legacyHeaders: false,
-  }),
-);
+  // Initialize MongoDB database connection
+  dbConnection();
+
+  /**
+   * Middleware setup
+   */
+  app.set("trust proxy", 1);
+  app.disable("x-powered-by");
+  const envOrigins = String(process.env.ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const allowedOrigins = new Set([
+    ...envOrigins,
+    (process.env.FRONTEND_URL || "http://localhost:3002").replace(/\/$/, ""),
+    "https://gbr-kitchen.onrender.com",
+    "http://localhost:3000",
+    "http://localhost:3001",
+  ]);
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        // Remove trailing slash for comparison
+        const normalizedOrigin = origin.replace(/\/$/, "");
+        if (allowedOrigins.has(normalizedOrigin)) return callback(null, true);
+        return callback(new Error("Not allowed by CORS"));
+      },
+      credentials: true,
+    }),
+  );
+  app.use(
+    helmet({
+      hsts: process.env.NODE_ENV === "production",
+      crossOriginResourcePolicy: { policy: "cross-origin" },
+    }),
+  );
+  app.use(express.json({ limit: "5mb" }));
+  app.use(cookieParser());
+  app.use(compression());
+  
+  // Custom response header for performance monitoring
+  app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+      const duration = Date.now() - start;
+      logger.debug(`${req.method} ${req.originalUrl} [${res.statusCode}] - ${duration}ms`);
+    });
+    next();
+  });
+
+  app.use(requestId);
+  morgan.token("id", (req) => req.id);
+  app.use(
+    morgan(":id :method :url :status :res[content-length] - :response-time ms"),
+  );
+  initPassport();
+  app.use(passport.initialize());
+  app.use(
+    rateLimit({
+      windowMs: 15 * 60 * 1000,
+      max: 100,
+      standardHeaders: true,
+      legacyHeaders: false,
+    }),
+  );
 
 /**
  * API Routes
@@ -153,10 +177,10 @@ app.get(
 );
 app.get("/api/oauth/failure", oauthFailure);
 
-// Simple route to fetch product data
-app.get("/products", verifyAccessToken, (req, res) => {
-  res.set("Cache-Control", "public, max-age=60");
-  res.send(products);
+// Menu and product routes
+app.use("/api/menu", menuRouter);
+app.get("/products", (req, res) => {
+  res.json(products);
 });
 
 // Example admin-only endpoint (RBAC demo)
@@ -175,20 +199,19 @@ app.get("/api/csrf", issueCsrf);
 // Menu routes
 app.use("/api/menu", menuRouter);
 
-// newsletter routes
+// Newsletter
 app.use("/api/newsletter", newsletterRouter);
-
-// schedule a send every 24 hours (simple in-process timer)
-setInterval(
-  () => {
-    console.log("running scheduled newsletter send");
-    sendNewsletterToAll().catch((e) => console.error("newsletter error", e));
-  },
-  24 * 60 * 60 * 1000,
-); // 1 day
+app.post("/api/admin/broadcast-newsletter", requireRole("admin"), async (req, res) => {
+  try {
+    const { subject, body } = req.body;
+    await sendNewsletterToAll(subject, body);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // Orders (example producer entrypoint)
-import Order from "./models/OrderModel.js";
 app.post("/api/order", verifyAccessToken, checkCsrf, async (req, res) => {
   const { items = [] } = req.body || {};
   // persist order for newsletter personalization
@@ -203,80 +226,42 @@ app.post("/api/order", verifyAccessToken, checkCsrf, async (req, res) => {
   res.json({ ok: true });
 });
 
-// OTP endpoints with limiter
-const otpLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5 });
-app.post("/api/otp/send", otpLimiter, checkCsrf, async (req, res) => {
-  const { to, channel = "sms" } = req.body || {};
-  if (!to) return res.status(400).json({ message: "recipient required" });
-  const code = Math.floor(100000 + Math.random() * 900000);
-  setOtp(to, code);
+// OTP Routes
+  app.post("/api/otp/send", async (req, res) => {
+    const { channel, contact } = req.body;
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    setOtp(contact, code);
 
-  // pick appropriate sender and record result
-  let sendResult;
-  if (channel === "whatsapp") {
-    sendResult = await sendWhatsAppOtp({ to, code });
-  } else if (channel === "email") {
-    sendResult = await sendEmailOtp({ to, code });
-  } else {
-    sendResult = await sendSmsOtp({ to, code });
-  }
+    try {
+      if (channel === "sms") await sendSmsOtp(contact, code);
+      else if (channel === "whatsapp") await sendWhatsAppOtp(contact, code);
+      else await sendEmailOtp(contact, code);
+      res.json({ ok: true });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
 
-  // log provider information for debugging
-  if (sendResult && sendResult.provider) {
-    logger.info({
-      msg: "otp_sent",
-      to,
-      channel,
-      provider: sendResult.provider,
-      error: sendResult.error || null,
+  app.post("/api/otp/verify", (req, res) => {
+    const { contact, code } = req.body;
+    const isValid = verifyOtp(contact, code);
+    res.json({ ok: isValid });
+  });
+
+  // Serve static files in production
+  if (process.env.NODE_ENV === "production") {
+    const buildPath = path.join(process.cwd(), "../Front-end/dist");
+    app.use(express.static(buildPath));
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(buildPath, "index.html"));
     });
   }
 
-  res.json({ ok: true, channel, provider: sendResult?.provider });
-});
-app.post("/api/otp/verify", otpLimiter, checkCsrf, async (req, res) => {
-  const { to, code } = req.body || {};
-  if (!to || !code)
-    return res.status(400).json({ message: "to and code required" });
-  const ok = verifyOtp(to, code);
-  res.json({ ok });
-});
+  // Error handling middleware
+  app.use(errorHandler);
 
-/**
- * Error handling middleware (should be after routes)
- */
-app.use((req, res) => {
-  res.status(404).json({ message: "Not Found" });
-});
-app.use(errorHandler);
-
-/**
- * Static file serving for Frontend (React/Vite)
- */
-// Path to the compiled frontend assets
-// const buildPath = path.join(__dirname, "../Front-end/build");
-// app.use(express.static(buildPath));
-
-// // Catch-all handler to support client-side routing in React
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(buildPath, "index.html"));
-// });
-
-/**
- * Start Express server with automatic port fallback
- */
-const start = (p) => {
-  const server = app.listen(p, () => {
-    logger.info({ msg: "server_started", port: p });
+  // Start the server
+  app.listen(port, () => {
+    console.log(`Worker ${process.pid} listening on port ${port}`);
   });
-  server.on("error", (err) => {
-    if (err?.code === "EADDRINUSE") {
-      const next = p + 1;
-      logger.warn({ msg: "port_in_use", port: p, retry: next });
-      start(next);
-    } else {
-      throw err;
-    }
-  });
-};
-start(port);
+}

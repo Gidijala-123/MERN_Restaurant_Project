@@ -1,14 +1,14 @@
-export const validateRequest = (schema) => (req, res, next) => {
+export const validateRequest = (schema) => async (req, res, next) => {
   try {
-    schema.parse(req.body);
+    await schema.validate(req.body, { abortEarly: false });
     next();
   } catch (error) {
     return res.status(400).json({
       error: "Validation Failed",
-      details: error.errors.map(err => ({
-        path: err.path.join('.'),
-        message: err.message
-      }))
+      details: error.inner.map((err) => ({
+        path: err.path,
+        message: err.message,
+      })),
     });
   }
 };

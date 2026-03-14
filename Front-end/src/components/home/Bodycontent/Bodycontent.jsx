@@ -1,4 +1,4 @@
-import React, { useState, Suspense } from "react";
+import React, { useState, Suspense, useMemo, useCallback } from "react";
 import BannerCarousel from "../BannerCarousel/BannerCarousel";
 const FreshFood = React.lazy(() => import("./FRESHFOOD/FreshFood"));
 const Bakery = React.lazy(() => import("./BAKERY/Bakery"));
@@ -28,6 +28,63 @@ import { useGetAllProductsQuery } from "../../features/productsApi";
 import { useMenu } from "../../../context/MenuContext";
 import { MENU_DATA } from "../../../data/menuData";
 
+const DISCOUNT_SALE_ITEMS = [
+  {
+    id: 101,
+    title: "Cheesy Pepperoni Pizza",
+    oldPrice: 499,
+    newPrice: 299,
+    discount: "40% OFF",
+    img: "/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg",
+    desc: "Extra cheese & crispy crust",
+    rating: 4.8,
+    reviews: 120,
+  },
+  {
+    id: 102,
+    title: "Crispy Chicken Burger",
+    oldPrice: 250,
+    newPrice: 149,
+    discount: "40% OFF",
+    img: "/footer-images/burger.png",
+    desc: "Spicy mayo & fresh lettuce",
+    rating: 4.5,
+    reviews: 85,
+  },
+  {
+    id: 103,
+    title: "Garden Fresh Salad",
+    oldPrice: 180,
+    newPrice: 99,
+    discount: "45% OFF",
+    img: "/footer-images/salads.jpg",
+    desc: "Organic veggies & olive oil",
+    rating: 4.7,
+    reviews: 60,
+  },
+  {
+    id: 104,
+    title: "Choco Lava Cake",
+    oldPrice: 150,
+    newPrice: 75,
+    discount: "50% OFF",
+    img: "/footer-images/desserts.jpg",
+    desc: "Melting hot chocolate center",
+    rating: 4.9,
+    reviews: 210,
+  },
+  {
+    id: 105,
+    title: "Fresh Fruit Mojito",
+    oldPrice: 120,
+    newPrice: 59,
+    discount: "50% OFF",
+    img: "/footer-images/cooldrinks.png",
+    desc: "Refreshing mint & lime",
+    rating: 4.6,
+    reviews: 45,
+  },
+];
 
 const Bodycontent = (props) => {
   const { selectedCategory } = useMenu();
@@ -76,50 +133,48 @@ const Bodycontent = (props) => {
     setRecentBookmarked(savedRecent);
   }, []);
 
-  const handleBookmarkToggle = (itemId, section) => {
+  const handleBookmarkToggle = useCallback((itemId, section) => {
     let updated;
     if (section === "discount") {
-      updated = {
-        ...discountBookmarked,
-        [itemId]: !discountBookmarked[itemId],
-      };
-      setDiscountBookmarked(updated);
-      localStorage.setItem("discountBookmarked", JSON.stringify(updated));
+      setDiscountBookmarked((prev) => {
+        updated = { ...prev, [itemId]: !prev[itemId] };
+        localStorage.setItem("discountBookmarked", JSON.stringify(updated));
+        return updated;
+      });
     } else if (section === "trending") {
-      updated = {
-        ...trendingBookmarked,
-        [itemId]: !trendingBookmarked[itemId],
-      };
-      setTrendingBookmarked(updated);
-      localStorage.setItem("trendingBookmarked", JSON.stringify(updated));
+      setTrendingBookmarked((prev) => {
+        updated = { ...prev, [itemId]: !prev[itemId] };
+        localStorage.setItem("trendingBookmarked", JSON.stringify(updated));
+        return updated;
+      });
     } else if (section === "offer") {
-      updated = {
-        ...offerBookmarked,
-        [itemId]: !offerBookmarked[itemId],
-      };
-      setOfferBookmarked(updated);
-      localStorage.setItem("offerBookmarked", JSON.stringify(updated));
+      setOfferBookmarked((prev) => {
+        updated = { ...prev, [itemId]: !prev[itemId] };
+        localStorage.setItem("offerBookmarked", JSON.stringify(updated));
+        return updated;
+      });
     } else if (section === "popular") {
-      updated = {
-        ...popularBookmarked,
-        [itemId]: !popularBookmarked[itemId],
-      };
-      setPopularBookmarked(updated);
-      localStorage.setItem("popularBookmarked", JSON.stringify(updated));
+      setPopularBookmarked((prev) => {
+        updated = { ...prev, [itemId]: !prev[itemId] };
+        localStorage.setItem("popularBookmarked", JSON.stringify(updated));
+        return updated;
+      });
     } else if (section === "recent") {
-      updated = {
-        ...recentBookmarked,
-        [itemId]: !recentBookmarked[itemId],
-      };
-      setRecentBookmarked(updated);
-      localStorage.setItem("recentBookmarked", JSON.stringify(updated));
+      setRecentBookmarked((prev) => {
+        updated = { ...prev, [itemId]: !prev[itemId] };
+        localStorage.setItem("recentBookmarked", JSON.stringify(updated));
+        return updated;
+      });
     }
-    
+
     // Dispatch event to update navbar favorites count
     window.dispatchEvent(new Event("favoritesUpdated"));
-  };
+  }, []);
 
-  const getFavorites = () => {
+  //  carttttt
+  const { data, err, isLoading } = useGetAllProductsQuery();
+
+  const getFavorites = useMemo(() => {
     const favorites = [];
 
     // 1. Check trending items (from API data)
@@ -216,11 +271,19 @@ const Bodycontent = (props) => {
     });
 
     // Filter out duplicates (item might be in multiple categories)
-    const uniqueFavorites = Array.from(new Set(favorites.map(f => f.id)))
-      .map(id => favorites.find(f => f.id === id));
+    const uniqueFavorites = Array.from(new Set(favorites.map((f) => f.id))).map(
+      (id) => favorites.find((f) => f.id === id),
+    );
 
     return uniqueFavorites;
-  };
+  }, [
+    data,
+    discountBookmarked,
+    trendingBookmarked,
+    offerBookmarked,
+    popularBookmarked,
+    recentBookmarked,
+  ]);
 
   // Sync with props.currentSection
   React.useEffect(() => {
@@ -503,44 +566,46 @@ const Bodycontent = (props) => {
     PRODUCTS.push(item);
   }
 
-  // Popular items (highest rated from selected category)
-  const popularItems = selectedCategory === "Hot Offers"
-    ? [...MENU_DATA].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 6)
-    : MENU_DATA.filter((item) => item.category === selectedCategory)
-        .sort((a, b) => (b.rating || 0) - (a.rating || 0))
-        .slice(0, 6);
+  // Memoize filtered and sorted lists to prevent unnecessary re-calculation on every render
+  const popularItems = useMemo(() => {
+    return selectedCategory === "Hot Offers"
+      ? [...MENU_DATA].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 6)
+      : MENU_DATA.filter((item) => item.category === selectedCategory)
+          .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+          .slice(0, 6);
+  }, [selectedCategory]);
 
-  // Recent items (latest added from selected category)
-  const recentItems = selectedCategory === "Hot Offers"
-    ? [...MENU_DATA].slice(-6).reverse()
-    : MENU_DATA.filter((item) => item.category === selectedCategory)
-        .slice(-6)
-        .reverse();
+  const recentItems = useMemo(() => {
+    return selectedCategory === "Hot Offers"
+      ? [...MENU_DATA].slice(-6).reverse()
+      : MENU_DATA.filter((item) => item.category === selectedCategory)
+          .slice(-6)
+          .reverse();
+  }, [selectedCategory]);
 
-  // Trending items (top-rated from selected category)
-  const trendingItems = selectedCategory === "Hot Offers"
-    ? [...MENU_DATA].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 6)
-    : MENU_DATA.filter((item) => item.category === selectedCategory)
-        .sort((a, b) => (b.rating || 0) - (a.rating || 0))
-        .slice(0, 6);
+  const trendingItems = useMemo(() => {
+    return selectedCategory === "Hot Offers"
+      ? [...MENU_DATA].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 6)
+      : MENU_DATA.filter((item) => item.category === selectedCategory)
+          .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+          .slice(0, 6);
+  }, [selectedCategory]);
 
-  //  carttttt
-  const { data, err, isLoading } = useGetAllProductsQuery();
   const dispatch = useDispatch();
-  const handleAddToCart = (product) => {
+  const handleAddToCart = useCallback((product) => {
     dispatch(addToCart(product));
-  };
+  }, [dispatch]);
 
   // carouselllll
 
-  const containerStyles = {
+  const containerStyles = useMemo(() => ({
     width: "100%",
     margin: "0 auto",
     maxWidth: "100%",
     overflow: "hidden",
     boxSizing: "border-box",
     position: "relative",
-  };
+  }), []);
 
   return (
     <div className="home-container">
@@ -552,7 +617,10 @@ const Bodycontent = (props) => {
           </video>
         </div>
       ) : err ? (
-        <p>An error occured..!</p>
+        <div style={{ textAlign: 'center', padding: '40px' }}>
+          <h3>Oops! Something went wrong</h3>
+          <p>Please try refreshing the page or contact support if the issue persists.</p>
+        </div>
       ) : (
         <>
           {/* Check if it's an Indian menu category */}
@@ -602,7 +670,7 @@ const Bodycontent = (props) => {
                     }, []);
                   const rows = chunk(filtered, 6);
                   return (
-                    <>
+                    <React.Fragment key={props.activeCategory}>
                       <h2 className="heading-title">{props.activeCategory}</h2>
                       {filtered.length === 0 ? (
                         <div
@@ -683,7 +751,7 @@ const Bodycontent = (props) => {
                           </div>
                         ))
                       )}
-                    </>
+                    </React.Fragment>
                   );
                 }
                 return null;
@@ -775,32 +843,33 @@ const Bodycontent = (props) => {
                         selectedCategory,
                       );
 
-                      const offerItems = selectedCategory === "Hot Offers"
-                        ? MENU_DATA.slice(0, 6)
-                        : isIndianMenu
-                        ? MENU_DATA.filter(
-                            (item) => item.category === selectedCategory,
-                          ).slice(0, 6)
-                        : (() => {
-                            const allowed = [
-                              "Fruits",
-                              "Vegetables",
-                              "Drinks",
-                              "Bakery",
-                              "Buffer & Eggs",
-                              "Milk & Creams",
-                              "Meats",
-                              "Fish",
-                            ];
-                            const isCategory = allowed.includes(
-                              props.activeCategory,
-                            );
-                            return isCategory
-                              ? PRODUCTS.filter(
-                                  (p) => p.category === props.activeCategory,
-                                )
-                              : PRODUCTS;
-                          })();
+                      const offerItems =
+                        selectedCategory === "Hot Offers"
+                          ? MENU_DATA.slice(0, 6)
+                          : isIndianMenu
+                          ? MENU_DATA.filter(
+                              (item) => item.category === selectedCategory,
+                            ).slice(0, 6)
+                          : (() => {
+                              const allowed = [
+                                "Fruits",
+                                "Vegetables",
+                                "Drinks",
+                                "Bakery",
+                                "Buffer & Eggs",
+                                "Milk & Creams",
+                                "Meats",
+                                "Fish",
+                              ];
+                              const isCategory = allowed.includes(
+                                props.activeCategory,
+                              );
+                              return isCategory
+                                ? PRODUCTS.filter(
+                                    (p) => p.category === props.activeCategory,
+                                  )
+                                : PRODUCTS;
+                            })();
 
                       if (offerItems.length === 0) {
                         return (
@@ -816,74 +885,101 @@ const Bodycontent = (props) => {
                           </div>
                         );
                       }
-                      return offerItems.map((each) => (
-                        <div key={each.id} className="offer-card section-card">
-                          <div className="card-badge">
-                            {getDiscountPercent(each) > 0 ? `${getDiscountPercent(each)}% OFF` : "SPECIAL"}
-                          </div>
-                          <button
-                            type="button"
-                            className={`bookmark-icon ${
-                              offerBookmarked[each.id] ? "active" : ""
-                            }`}
-                            onClick={() => handleBookmarkToggle(each.id, "offer")}
-                          >
-                            {offerBookmarked[each.id] ? (
-                              <FavoriteIcon fontSize="small" />
-                            ) : (
-                              <FavoriteBorderIcon fontSize="small" />
-                            )}
-                          </button>
-                          <img
-                            src={resolveImageSrc(each)}
-                            alt={each.name || each.title}
-                            loading="lazy"
-                            onError={(e) => {
-                              e.currentTarget.onerror = null;
-                              e.currentTarget.src = "/footer-images/food.png";
-                            }}
-                          />
-                          <h4 className="trending-items-title">
-                            <span className="title-icon">{CATEGORY_ICONS[each.category] || "🍽️"}</span>
-                            {each.name || each.title}
-                          </h4>
-
-                          <p className="card-description">
-                            {each.description || `Delicious ${each.name || each.title} prepared with fresh ingredients and traditional spices.`}
-                          </p>
-
-                          <div className="card-meta-info">
-                            <div className="meta-item">
-                              <LocalFireDepartmentIcon sx={{ fontSize: 16, color: "#ff7043" }} />
-                              <span>{each.calories || (150 + Math.floor(Math.random() * 200))} kcal</span>
+                      return offerItems.map((each) => {
+                        const discount = getDiscountPercent(each);
+                        const isBookmarked = offerBookmarked[each.id];
+                        return (
+                          <div key={each.id} className="offer-card section-card">
+                            <div className="card-badge">
+                              {discount > 0 ? `${discount}% OFF` : "SPECIAL"}
                             </div>
-                            <div className="meta-item">
-                              <PeopleIcon sx={{ fontSize: 16, color: "#4fc3f7" }} />
-                              <span>Serves {each.serves || 1}</span>
-                            </div>
-                          </div>
-
-                          <div className="trending-rating">
-                            <span className="star">⭐</span>
-                            <span>{each.rating || (Math.random() * 1 + 4).toFixed(1)}</span>
-                            <span className="reviews-text">
-                              ({each.reviews || Math.floor(Math.random() * 150) + 10} reviews)
-                            </span>
-                          </div>
-
-                          <div className="price-container">
-                            {each.oldPrice && (
-                              <span className="original-price">
-                                ₹{each.oldPrice}
+                            <button
+                              type="button"
+                              className={`bookmark-icon ${
+                                isBookmarked ? "active" : ""
+                              }`}
+                              onClick={() => handleBookmarkToggle(each.id, "offer")}
+                            >
+                              {isBookmarked ? (
+                                <FavoriteIcon fontSize="small" />
+                              ) : (
+                                <FavoriteBorderIcon fontSize="small" />
+                              )}
+                            </button>
+                            <img
+                              src={resolveImageSrc(each)}
+                              alt={each.name || each.title}
+                              loading="lazy"
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = "/footer-images/food.png";
+                              }}
+                            />
+                            <h4 className="trending-items-title">
+                              <span className="title-icon">
+                                {CATEGORY_ICONS[each.category] || "🍽️"}
                               </span>
-                            )}
-                            <span className="discounted-price">
-                              ₹{each.price || each.newPrice}
-                            </span>
+                              {each.name || each.title}
+                            </h4>
+
+                            <p className="card-description">
+                              {each.description ||
+                                `Delicious ${
+                                  each.name || each.title
+                                } prepared with fresh ingredients and traditional spices.`}
+                            </p>
+
+                            <div className="card-meta-info">
+                              <div className="meta-item">
+                                <LocalFireDepartmentIcon
+                                  sx={{ fontSize: 16, color: "#ff7043" }}
+                                />
+                                <span>
+                                  {each.calories ||
+                                    150 + Math.floor(Math.random() * 200)}{" "}
+                                  kcal
+                                </span>
+                              </div>
+                              <div className="meta-item">
+                                <PeopleIcon
+                                  sx={{ fontSize: 16, color: "#4fc3f7" }}
+                                />
+                                <span>Serves {each.serves || 1}</span>
+                              </div>
+                            </div>
+
+                            <div className="trending-rating">
+                              <span className="star">⭐</span>
+                              <span>
+                                {each.rating ||
+                                  (Math.random() * 1 + 4).toFixed(1)}
+                              </span>
+                              <span className="reviews-text">
+                                ({each.reviews ||
+                                  Math.floor(Math.random() * 150) + 10}{" "}
+                                reviews)
+                              </span>
+                            </div>
+
+                            <div className="price-container">
+                              {each.oldPrice && (
+                                <span className="original-price">
+                                  ₹{each.oldPrice}
+                                </span>
+                              )}
+                              <span className="discounted-price">
+                                ₹{each.price || each.newPrice}
+                              </span>
+                            </div>
+                            <button
+                              className="btn shopnow-btn"
+                              onClick={() => handleAddToCart(each)}
+                            >
+                              SHOP NOW
+                            </button>
                           </div>
-                          <button className="btn shopnow-btn">SHOP NOW</button>
-                        </div>
-                      ));
+                        );
+                      });
                     })()}
                   </div>
                 </div>
@@ -1085,115 +1181,72 @@ const Bodycontent = (props) => {
               <div className="marquee-track">
                 {[...Array(2)].map((_, i) => (
                   <React.Fragment key={i}>
-                    {[
-                      {
-                        id: 101,
-                        title: "Cheesy Pepperoni Pizza",
-                        oldPrice: 499,
-                        newPrice: 299,
-                        discount: "40% OFF",
-                        img: "/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg",
-                        desc: "Extra cheese & crispy crust",
-                        rating: 4.8,
-                        reviews: 120,
-                      },
-                      {
-                        id: 102,
-                        title: "Crispy Chicken Burger",
-                        oldPrice: 250,
-                        newPrice: 149,
-                        discount: "40% OFF",
-                        img: "/footer-images/burger.png",
-                        desc: "Spicy mayo & fresh lettuce",
-                        rating: 4.5,
-                        reviews: 85,
-                      },
-                      {
-                        id: 103,
-                        title: "Garden Fresh Salad",
-                        oldPrice: 180,
-                        newPrice: 99,
-                        discount: "45% OFF",
-                        img: "/footer-images/salads.jpg",
-                        desc: "Organic veggies & olive oil",
-                        rating: 4.7,
-                        reviews: 60,
-                      },
-                      {
-                        id: 104,
-                        title: "Choco Lava Cake",
-                        oldPrice: 150,
-                        newPrice: 75,
-                        discount: "50% OFF",
-                        img: "/footer-images/desserts.jpg",
-                        desc: "Melting hot chocolate center",
-                        rating: 4.9,
-                        reviews: 210,
-                      },
-                      {
-                        id: 105,
-                        title: "Fresh Fruit Mojito",
-                        oldPrice: 120,
-                        newPrice: 59,
-                        discount: "50% OFF",
-                        img: "/footer-images/cooldrinks.png",
-                        desc: "Refreshing mint & lime",
-                        rating: 4.6,
-                        reviews: 45,
-                      },
-                    ].map((item, index) => (
-                      <div className="section-card" key={`${i}-${index}`}>
-                        <button
-                          type="button"
-                          className={`bookmark-icon ${
-                            discountBookmarked[item.id] ? "active" : ""
-                          }`}
-                          onClick={() =>
-                            handleBookmarkToggle(item.id, "discount")
-                          }
-                        >
-                          {discountBookmarked[item.id] ? (
-                            <FavoriteIcon fontSize="small" />
-                          ) : (
-                            <FavoriteBorderIcon fontSize="small" />
-                          )}
-                        </button>
-                        <div className="card-badge">{item.discount}</div>
-                        <img src={item.img} alt={item.title} />
-                        <h4 className="trending-items-title">
-                          <span className="title-icon">🔥</span>
-                          {item.title}
-                        </h4>
+                    {DISCOUNT_SALE_ITEMS.map((item, index) => {
+                      const isBookmarked = discountBookmarked[item.id];
+                      return (
+                        <div className="section-card" key={`${i}-${index}`}>
+                          <button
+                            type="button"
+                            className={`bookmark-icon ${
+                              isBookmarked ? "active" : ""
+                            }`}
+                            onClick={() =>
+                              handleBookmarkToggle(item.id, "discount")
+                            }
+                          >
+                            {isBookmarked ? (
+                              <FavoriteIcon fontSize="small" />
+                            ) : (
+                              <FavoriteBorderIcon fontSize="small" />
+                            )}
+                          </button>
+                          <div className="card-badge">{item.discount}</div>
+                          <img src={item.img} alt={item.title} loading="lazy" />
+                          <h4 className="trending-items-title">
+                            <span className="title-icon">🔥</span>
+                            {item.title}
+                          </h4>
 
-                        <p className="card-description">
-                          {item.desc || `Delicious ${item.title} at an unbeatable price for a limited time.`}
-                        </p>
+                          <p className="card-description">
+                            {item.desc || `Delicious ${item.title} at an unbeatable price for a limited time.`}
+                          </p>
 
-                        <div className="card-meta-info">
-                          <div className="meta-item">
-                            <LocalFireDepartmentIcon sx={{ fontSize: 16, color: "#ff7043" }} />
-                            <span>{180 + (index * 20)} kcal</span>
+                          <div className="card-meta-info">
+                            <div className="meta-item">
+                              <LocalFireDepartmentIcon sx={{ fontSize: 16, color: "#ff7043" }} />
+                              <span>{180 + (index * 20)} kcal</span>
+                            </div>
+                            <div className="meta-item">
+                              <PeopleIcon sx={{ fontSize: 16, color: "#4fc3f7" }} />
+                              <span>Serves 1</span>
+                            </div>
                           </div>
-                          <div className="meta-item">
-                            <PeopleIcon sx={{ fontSize: 16, color: "#4fc3f7" }} />
-                            <span>Serves 1</span>
-                          </div>
-                        </div>
 
-                        <div className="trending-rating">
-                          <span className="star">⭐</span>
-                          <span>{item.rating}</span>
-                          <span className="reviews-text">
-                            ({item.reviews} reviews)
-                          </span>
+                          <div className="trending-rating">
+                            <span className="star">⭐</span>
+                            <span>{item.rating}</span>
+                            <span className="reviews-text">
+                              ({item.reviews} reviews)
+                            </span>
+                          </div>
+                          <div className="price-container">
+                            <span className="original-price">₹{item.oldPrice}</span>
+                            <span className="discounted-price">₹{item.newPrice}</span>
+                          </div>
+                          <button 
+                            className="btn shopnow-btn"
+                            onClick={() => handleAddToCart({
+                              id: item.id,
+                              title: item.title,
+                              price: item.newPrice,
+                              img: item.img
+                            })}
+                          >
+                            Grab Now
+                          </button>
                         </div>
-                        <div className="price-container">
-                          <span className="original-price">₹{item.oldPrice}</span>
-                          <span className="discounted-price">₹{item.newPrice}</span>
-                        </div>
-                        <button className="btn shopnow-btn">Grab Now</button>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </React.Fragment>
                 ))}
               </div>
@@ -1271,7 +1324,12 @@ const Bodycontent = (props) => {
                           <span className="discounted-price">₹{item.price}</span>
                         </div>
                         <button
-                          onClick={() => handleAddToCart(item)}
+                          onClick={() => handleAddToCart({
+                            id: item.id,
+                            title: item.name,
+                            price: item.price,
+                            img: resolveImageSrc(item)
+                          })}
                           className="btn shopnow-btn"
                         >
                           + ADD

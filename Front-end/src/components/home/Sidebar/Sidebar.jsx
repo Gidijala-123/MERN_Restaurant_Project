@@ -80,7 +80,7 @@ import {
 } from "@mui/material";
 
 import "./Sidebar.css";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useMediaQuery } from "@mui/material";
 import { toast } from "react-toastify";
 import { Sidebar_Content } from "../../../APIs/Sidebar";
@@ -265,7 +265,7 @@ export default function Sidebar() {
     load();
   }, []);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     const name = userName || "back";
     setLogoutMessage(`Thank you ${name}, please visit again. See you soon!`);
     setShowLogoutModal(true);
@@ -287,41 +287,38 @@ export default function Sidebar() {
       localStorage.removeItem("userName");
       window.location.href = "/";
     }, 2000);
-  };
+  }, [userName]);
 
+  const handleDrawerToggle = useCallback(() => {
+    setOpen((prev) => !prev);
+  }, []);
 
-
-
-  const handleDrawerToggle = () => {
-    setOpen(!open);
-  };
-
-  const handleDrawerOpen = () => {
+  const handleDrawerOpen = useCallback(() => {
     setOpen(true);
-  };
+  }, []);
 
-  const handleDrawerClose = () => {
+  const handleDrawerClose = useCallback(() => {
     setOpen(false);
-  };
+  }, []);
 
-  const handleAccountMenuOpen = (event) => {
+  const handleAccountMenuOpen = useCallback((event) => {
     setAccountAnchorEl(event.currentTarget);
-  };
+  }, []);
 
-  const handleAccountMenuClose = () => {
+  const handleAccountMenuClose = useCallback(() => {
     setAccountAnchorEl(null);
-  };
+  }, []);
 
-  const handleGoToSettings = () => {
+  const handleGoToSettings = useCallback(() => {
     handleAccountMenuClose();
     navigate("/home/settings");
-  };
+  }, [handleAccountMenuClose, navigate]);
 
-  const menuStyle = {
+  const menuStyle = useMemo(() => ({
     color: appTheme === "dark" ? "white" : "inherit",
-  };
+  }), [appTheme]);
 
-  const handleSectionChange = (section, sidebarItem = null) => {
+  const handleSectionChange = useCallback((section, sidebarItem = null) => {
     setCurrentSection(section);
     if (sidebarItem) {
       setActiveSidebarItem(sidebarItem);
@@ -329,10 +326,10 @@ export default function Sidebar() {
       // Update MenuContext with the selected category
       handleCategoryChange(sidebarItem);
     }
-  };
+  }, [handleCategoryChange]);
 
   // Map sidebar items to Bodycontent sections
-  const sectionMap = {
+  const sectionMap = useMemo(() => ({
     "Hot Offers": "Home",
     "Veg Starters": "VegStarters",
     "Non-Veg Starters": "NonVegStarters",
@@ -349,16 +346,18 @@ export default function Sidebar() {
     Beverages: "Beverages",
     "Cocktails/Mocktails": "Cocktails",
     Desserts: "Desserts",
-  };
+  }), []);
 
   // cartttttt
   const dispatch = useDispatch();
   const { cartItems } = useSelector((state) => state.cart);
-  const quantity = cartItems.reduce((total, cartItem) => {
-    return total + cartItem.cartQuantity;
-  }, 0);
+  const quantity = useMemo(() => {
+    return cartItems.reduce((total, cartItem) => {
+      return total + cartItem.cartQuantity;
+    }, 0);
+  }, [cartItems]);
 
-  const computeFavorites = () => {
+  const computeFavorites = useCallback(() => {
     const trendingBookmarked = JSON.parse(
       localStorage.getItem("trendingBookmarked") || "{}",
     );
@@ -436,7 +435,7 @@ export default function Sidebar() {
       }
     });
     return favorites;
-  };
+  }, [data]);
 
   useEffect(() => {
     const updateFavoritesCount = () => {
@@ -449,7 +448,7 @@ export default function Sidebar() {
       window.removeEventListener("storage", updateFavoritesCount);
       window.removeEventListener("favoritesUpdated", updateFavoritesCount);
     };
-  }, [data]);
+  }, [computeFavorites]);
 
   return (
     <Box sx={{ display: "flex" }}>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   Box,
   Grid,
@@ -9,8 +9,6 @@ import {
   Button,
   Chip,
   Container,
-  Rating,
-  Paper,
 } from "@mui/material";
 import { useMenu } from "../../../context/MenuContext";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -18,7 +16,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import PeopleIcon from "@mui/icons-material/People";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { addToCart } from "../../features/cartSlice";
 import "./MenuDisplay.css";
 
@@ -32,12 +30,11 @@ const MenuDisplay = () => {
   } = useMenu();
 
   const dispatch = useDispatch();
-  const { cartItems } = useSelector((state) => state.cart);
   const [favoriteItems, setFavoriteItems] = useState({});
 
-  const subCategories = getSubCategories();
+  const subCategories = useMemo(() => getSubCategories(), [getSubCategories]);
 
-  const CATEGORY_ICONS = {
+  const CATEGORY_ICONS = useMemo(() => ({
     "Veg Starters": "🥗",
     "Non-Veg Starters": "🍗",
     Tandooris: "🔥",
@@ -53,9 +50,9 @@ const MenuDisplay = () => {
     Beverages: "🥤",
     "Cocktails/Mocktails": "🍸",
     Desserts: "🍰",
-  };
+  }), []);
 
-  const handleAddToCart = (item) => {
+  const handleAddToCart = useCallback((item) => {
     dispatch(
       addToCart({
         cartQuantity: 1,
@@ -65,16 +62,16 @@ const MenuDisplay = () => {
         price: item.price,
       }),
     );
-  };
+  }, [dispatch]);
 
-  const handleFavoriteToggle = (itemId) => {
+  const handleFavoriteToggle = useCallback((itemId) => {
     setFavoriteItems((prev) => ({
       ...prev,
       [itemId]: !prev[itemId],
     }));
-  };
+  }, []);
 
-  const FALLBACK_IMAGES = {
+  const FALLBACK_IMAGES = useMemo(() => ({
     "Veg Starters": "/footer-images/vegitem.jpg",
     "Non-Veg Starters": "/footer-images/nonvegitem.jpg",
     Tandooris: "/footer-images/chicken.png",
@@ -90,12 +87,12 @@ const MenuDisplay = () => {
     Beverages: "/footer-images/drinks.jpg",
     "Cocktails/Mocktails": "/footer-images/cooldrinks.png",
     Desserts: "/footer-images/desserts.jpg",
-  };
+  }), []);
 
-  const getFallbackImage = (item) => {
+  const getFallbackImage = useCallback((category) => {
     // Prefer a local placeholder image for the category
-    return FALLBACK_IMAGES[item.category] || "/footer-images/food.png";
-  };
+    return FALLBACK_IMAGES[category] || "/footer-images/food.png";
+  }, [FALLBACK_IMAGES]);
 
   if (filteredItems.length === 0) {
     return (
@@ -113,8 +110,8 @@ const MenuDisplay = () => {
   }
 
   // Group items by subcategory if applicable
-  const groupedItems =
-    selectedCategory === "Hot Offers"
+  const groupedItems = useMemo(() => {
+    return selectedCategory === "Hot Offers"
       ? { All: filteredItems }
       : subCategories.reduce((acc, subCat) => {
           acc[subCat] = filteredItems.filter(
@@ -122,6 +119,7 @@ const MenuDisplay = () => {
           );
           return acc;
         }, {});
+  }, [selectedCategory, filteredItems, subCategories]);
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -227,14 +225,15 @@ const MenuDisplay = () => {
                       height="200"
                       image={
                         item.imageUrl?.startsWith("/menu-images/")
-                          ? getFallbackImage(item)
+                          ? getFallbackImage(item.category)
                           : item.imageUrl
                       }
                       alt={item.name}
                       onError={(e) => {
                         e.currentTarget.onerror = null;
-                        e.currentTarget.src = getFallbackImage(item);
+                        e.currentTarget.src = getFallbackImage(item.category);
                       }}
+                      loading="lazy"
                       sx={{
                         objectFit: "cover",
                         transition: "transform 0.3s",

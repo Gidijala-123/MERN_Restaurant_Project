@@ -49,6 +49,7 @@ const menuItemSchema = new mongoose.Schema(
       required: true,
       min: 0,
       max: 5,
+      default: 4.0,
     },
     reviews: {
       type: Number,
@@ -90,10 +91,12 @@ const menuItemSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// Create index for faster queries
-menuItemSchema.index({ category: 1, subCategory: 1 });
-menuItemSchema.index({ name: "text", description: "text" });
+// Add indexes for performance optimization
+menuItemSchema.index({ category: 1 });
+menuItemSchema.index({ subCategory: 1 });
+menuItemSchema.index({ price: 1 });
+menuItemSchema.index({ name: "text" }); // Text index for search
 
-const MenuItem = mongoose.model("MenuItem", menuItemSchema);
+const Menu = mongoose.model("Menu", menuItemSchema);
 
-export default MenuItem;
+export default Menu;

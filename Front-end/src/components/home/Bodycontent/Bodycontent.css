@@ -237,6 +237,8 @@ img {
    position: relative !important;
    flex: 0 0 260px !important;
    /* Consistent width */
+   contain: content;
+   /* Performance optimization: content visibility */
 }
 
 .section-card:hover {
@@ -706,16 +708,18 @@ img {
    display: flex;
    flex-direction: row !important;
    /* Force horizontal on desktop */
-   align-items: center;
+   align-items: stretch;
+   /* Stretch to fill height */
    justify-content: space-between;
    gap: 2.5rem;
-   min-height: 25rem;
-   /* Ensure a consistent height */
+   min-height: auto;
+   /* Remove fixed min-height */
+   overflow: hidden;
 }
 
 .delivery-content {
-   flex: 1.2;
-   /* Text takes more space */
+   flex: 1.4;
+   /* Give content more space */
    display: flex;
    flex-direction: column;
    justify-content: center;
@@ -797,8 +801,10 @@ img {
 
 .delivery-img {
    width: 100%;
-   height: 18.75rem !important;
-   max-width: 25rem;
+   height: 100% !important;
+   /* Take full height of parent */
+   max-width: 28rem;
+   /* Slightly wider */
    object-fit: cover;
    border-radius: 1.25rem;
    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -840,10 +846,21 @@ img {
 
 @media (max-width: 62rem) {
    .delivery-payment-section {
-      flex-direction: column !important;
+      flex-direction: column-reverse !important;
+      /* Image on top on mobile */
       text-align: center;
       padding: 1.875rem;
       gap: 1.875rem;
+   }
+
+   .payment-img-container {
+      width: 100%;
+   }
+
+   .delivery-img {
+      height: 15rem !important;
+      /* Smaller image on mobile */
+      max-width: 100%;
    }
 
    .payment-methods {

@@ -1,21 +1,26 @@
-import { z } from "zod";
+import * as yup from "yup";
 
-export const signupSchema = z.object({
-  uname: z.string()
+export const signupSchema = yup.object().shape({
+  uname: yup.string()
     .min(7, "Name must contain at least 7 characters")
-    .max(50, "Name is too long"),
-  uemail: z.string()
-    .email("Invalid email format"),
-  upassword: z.string()
+    .max(50, "Name is too long")
+    .required("Full Name is required"),
+  uemail: yup.string()
+    .email("Invalid email format")
+    .required("Email Address is required"),
+  upassword: yup.string()
     .min(8, "Password must contain at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number"),
+    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+    .matches(/[0-9]/, "Password must contain at least one number")
+    .required("Password is required"),
 });
 
-export const loginSchema = z.object({
-  uemail: z.string()
-    .email("Invalid email format"),
-  upassword: z.string()
-    .min(1, "Password is required"),
+export const loginSchema = yup.object().shape({
+  uemail: yup.string()
+    .email("Invalid email format")
+    .required("Email Address is required"),
+  upassword: yup.string()
+    .min(1, "Password is required")
+    .required("Password is required"),
 });

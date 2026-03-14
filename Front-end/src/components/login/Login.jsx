@@ -28,12 +28,13 @@ function SignInForm({ toggleMobile }) {
     setValidationErrors({});
     setApiError("");
 
-    // Zod Validation
-    const result = loginSchema.safeParse({ uemail, upassword });
-    if (!result.success) {
+    // Yup Validation
+    try {
+      await loginSchema.validate({ uemail, upassword }, { abortEarly: false });
+    } catch (err) {
       const errors = {};
-      result.error.issues.forEach((err) => {
-        errors[err.path[0]] = err.message;
+      err.inner.forEach((e) => {
+        errors[e.path] = e.message;
       });
       setValidationErrors(errors);
       return;

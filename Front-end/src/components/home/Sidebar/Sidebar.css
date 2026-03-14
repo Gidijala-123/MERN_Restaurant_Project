@@ -88,8 +88,8 @@
 
 /* Hamburger Icon Animation */
 .hamburger-box {
-   width: 24px;
-   height: 18px;
+   width: 20px;
+   height: 14px;
    display: flex;
    flex-direction: column;
    justify-content: space-between;
@@ -107,7 +107,7 @@
 }
 
 .hamburger-box.open .hamburger-inner:nth-child(1) {
-   transform: translateY(8px) rotate(45deg);
+   transform: translateY(6px) rotate(45deg);
 }
 
 .hamburger-box.open .hamburger-inner:nth-child(2) {
@@ -116,7 +116,7 @@
 }
 
 .hamburger-box.open .hamburger-inner:nth-child(3) {
-   transform: translateY(-8px) rotate(-45deg);
+   transform: translateY(-6px) rotate(-45deg);
 }
 
 /* Sidebar Transition Enhancements */

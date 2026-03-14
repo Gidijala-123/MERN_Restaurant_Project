@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import moment from "moment";
 
 /**
  * Schema definition for Employee/User model
@@ -26,7 +25,13 @@ const EmployeeSchema = mongoose.Schema({
   createdDate: {
     type: String,
     // Automatically sets current date in DD-MM-YYYY format
-    default: () => moment().format("DD-MM-YYYY"),
+    default: () => {
+      const now = new Date();
+      const dd = String(now.getDate()).padStart(2, "0");
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const yyyy = now.getFullYear();
+      return `${dd}-${mm}-${yyyy}`;
+    },
   },
   bookmarks: [
     {
