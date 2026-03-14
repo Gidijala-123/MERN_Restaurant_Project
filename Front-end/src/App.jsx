@@ -8,6 +8,7 @@ import { ToastContainer } from "react-toastify";
 import { ThemeProvider } from "./context/ThemeContext";
 import { MenuProvider } from "./context/MenuContext";
 import { Suspense, lazy } from "react";
+import LoadingOverlay from "./components/common/LoadingOverlay";
 
 // Lazy load large pages to reduce initial bundle size
 const Signup = lazy(() => import("./components/signup/Signup"));
@@ -32,13 +33,7 @@ function App() {
         <BrowserRouter>
           {/* ToastContainer displays alert messages across the application */}
           <ToastContainer />
-          <Suspense
-            fallback={
-              <div style={{ display: "grid", placeItems: "center", minHeight: "60vh" }}>
-                Loading...
-              </div>
-            }
-          >
+          <Suspense fallback={<LoadingOverlay showText={false} />}>
             <Routes>
               {/* Default route points to combined Signup/Login page */}
               <Route path="/" element={<Signup />} />
