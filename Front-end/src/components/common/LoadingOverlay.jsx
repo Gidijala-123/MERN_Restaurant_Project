@@ -1,12 +1,10 @@
 import { useState } from "react";
-import FoodLoader from "./FoodLoader";
 
 export default function LoadingOverlay({ message = "Loading…", showText = false }) {
   const [ready, setReady] = useState(false);
 
   return (
     <div className="app-loading">
-      <FoodLoader size={160} />
       <video
         className="app-loading__media"
         autoPlay

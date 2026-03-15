@@ -758,16 +758,8 @@ const Bodycontent = (props) => {
               })()}
             </>
           )}
-          {![
-            "Fruits",
-            "Vegetables",
-            "Drinks",
-            "Bakery",
-            "Butter & Eggs",
-            "Milk & Creams",
-            "Meats",
-            "Fish",
-          ].includes(props.activeCategory) && (
+          {/* Main Home Content - Only show when Hot Offers is selected */}
+          {selectedCategory === "Hot Offers" && (
             <>
               {/* Banner Carousel */}
               <div className="banner-carousel-wrapper">
@@ -795,7 +787,10 @@ const Bodycontent = (props) => {
                         }}
                       >
                         <div style={containerStyles}>
-                          <BannerCarousel sideopen={props.open} />
+                          <BannerCarousel 
+                            sideopen={props.open} 
+                            onSectionChange={props.onSectionChange}
+                          />
                         </div>
                       </div>
                     ) : key === "FreshFood" ? (
@@ -1168,774 +1163,403 @@ const Bodycontent = (props) => {
                   })}
                 </div>
               </div>
-            </>
-          )}
 
-          {/* Today's Discount Sale Marquee */}
-          <div className="discount-sale-container">
-            <div className="discount-title-wrapper">
-              <span className="discount-badge">LIVE SALE</span>
-              <h2 className="heading-title m-0">Today's Discount Sale</h2>
-            </div>
-            <div className="marquee-viewport">
-              <div className="marquee-track">
-                {[...Array(2)].map((_, i) => (
-                  <React.Fragment key={i}>
-                    {DISCOUNT_SALE_ITEMS.map((item, index) => {
-                      const isBookmarked = discountBookmarked[item.id];
-                      return (
-                        <div className="section-card" key={`${i}-${index}`}>
-                          <button
-                            type="button"
-                            className={`bookmark-icon ${
-                              isBookmarked ? "active" : ""
-                            }`}
-                            onClick={() =>
-                              handleBookmarkToggle(item.id, "discount")
-                            }
-                          >
-                            {isBookmarked ? (
-                              <FavoriteIcon fontSize="small" />
-                            ) : (
-                              <FavoriteBorderIcon fontSize="small" />
-                            )}
-                          </button>
-                          <div className="card-badge">{item.discount}</div>
-                          <img src={item.img} alt={item.title} loading="lazy" />
-                          <h4 className="trending-items-title">
-                            <span className="title-icon">🔥</span>
-                            {item.title}
-                          </h4>
+              {/* Today's Discount Sale Marquee */}
+              <div className="discount-sale-container">
+                <div className="discount-title-wrapper">
+                  <span className="discount-badge">LIVE SALE</span>
+                  <h2 className="heading-title m-0">Today's Discount Sale</h2>
+                </div>
+                <div className="marquee-viewport">
+                  <div className="marquee-track">
+                    {[...Array(2)].map((_, i) => (
+                      <React.Fragment key={i}>
+                        {DISCOUNT_SALE_ITEMS.map((item, index) => {
+                          const isBookmarked = discountBookmarked[item.id];
+                          return (
+                            <div className="section-card" key={`${i}-${index}`}>
+                              <button
+                                type="button"
+                                className={`bookmark-icon ${
+                                  isBookmarked ? "active" : ""
+                                }`}
+                                onClick={() =>
+                                  handleBookmarkToggle(item.id, "discount")
+                                }
+                              >
+                                {isBookmarked ? (
+                                  <FavoriteIcon fontSize="small" />
+                                ) : (
+                                  <FavoriteBorderIcon fontSize="small" />
+                                )}
+                              </button>
+                              <div className="card-badge">{item.discount}</div>
+                              <img src={item.img} alt={item.title} loading="lazy" />
+                              <h4 className="trending-items-title">
+                                <span className="title-icon">🔥</span>
+                                {item.title}
+                              </h4>
 
-                          <p className="card-description">
-                            {item.desc || `Delicious ${item.title} at an unbeatable price for a limited time.`}
-                          </p>
+                              <p className="card-description">
+                                {item.desc || `Delicious ${item.title} at an unbeatable price for a limited time.`}
+                              </p>
 
-                          <div className="card-meta-info">
-                            <div className="meta-item">
-                              <LocalFireDepartmentIcon sx={{ fontSize: 16, color: "#ff7043" }} />
-                              <span>{180 + (index * 20)} kcal</span>
+                              <div className="card-meta-info">
+                                <div className="meta-item">
+                                  <LocalFireDepartmentIcon sx={{ fontSize: 16, color: "#ff7043" }} />
+                                  <span>{180 + (index * 20)} kcal</span>
+                                </div>
+                                <div className="meta-item">
+                                  <PeopleIcon sx={{ fontSize: 16, color: "#4fc3f7" }} />
+                                  <span>Serves 1</span>
+                                </div>
+                              </div>
+
+                              <div className="trending-rating">
+                                <span className="star">⭐</span>
+                                <span>{item.rating}</span>
+                                <span className="reviews-text">
+                                  ({item.reviews} reviews)
+                                </span>
+                              </div>
+                              <div className="price-container">
+                                <span className="original-price">₹{item.oldPrice}</span>
+                                <span className="discounted-price">₹{item.newPrice}</span>
+                              </div>
+                              <button 
+                                className="btn shopnow-btn"
+                                onClick={() => handleAddToCart({
+                                  id: item.id,
+                                  title: item.title,
+                                  price: item.newPrice,
+                                  img: item.img
+                                })}
+                              >
+                                Grab Now
+                              </button>
                             </div>
-                            <div className="meta-item">
-                              <PeopleIcon sx={{ fontSize: 16, color: "#4fc3f7" }} />
-                              <span>Serves 1</span>
-                            </div>
-                          </div>
-
-                          <div className="trending-rating">
-                            <span className="star">⭐</span>
-                            <span>{item.rating}</span>
-                            <span className="reviews-text">
-                              ({item.reviews} reviews)
-                            </span>
-                          </div>
-                          <div className="price-container">
-                            <span className="original-price">₹{item.oldPrice}</span>
-                            <span className="discounted-price">₹{item.newPrice}</span>
-                          </div>
-                          <button 
-                            className="btn shopnow-btn"
-                            onClick={() => handleAddToCart({
-                              id: item.id,
-                              title: item.title,
-                              price: item.newPrice,
-                              img: item.img
-                            })}
-                          >
-                            Grab Now
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </React.Fragment>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Trending today */}
-          <div className="trending-today-container">
-            <div className="trending-title-wrapper">
-              <span className="trending-badge">TRENDING</span>
-              <h2 className="heading-title m-0">Trending Today</h2>
-            </div>
-            <div className="trending-viewport">
-              <div className="trending-track">
-                {[...Array(2)].map((_, i) => (
-                  <React.Fragment key={i}>
-                    {trendingItems.map((item) => (
-                      <div
-                        className="section-card"
-                        key={`${i}-${item.id}`}
-                      >
-                        <div className="card-badge">TRENDING</div>
-                        <button
-                          type="button"
-                          className={`bookmark-icon ${
-                            trendingBookmarked[item.id] ? "active" : ""
-                          }`}
-                          onClick={() =>
-                            handleBookmarkToggle(item.id, "trending")
-                          }
-                        >
-                          {trendingBookmarked[item.id] ? (
-                            <FavoriteIcon fontSize="small" />
-                          ) : (
-                            <FavoriteBorderIcon fontSize="small" />
-                          )}
-                        </button>
-                        <img
-                          src={resolveImageSrc(item)}
-                          alt={item.name}
-                          loading="lazy"
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.src = "/footer-images/food.png";
-                          }}
-                        />
-                        <h4 className="trending-items-title">
-                          <span className="title-icon">{CATEGORY_ICONS[item.category] || "🍽️"}</span>
-                          {item.name}
-                        </h4>
-
-                        <p className="card-description">
-                          {item.description || `Delicious ${item.name} prepared with fresh ingredients and traditional spices.`}
-                        </p>
-
-                        <div className="card-meta-info">
-                          <div className="meta-item">
-                            <LocalFireDepartmentIcon sx={{ fontSize: 16, color: "#ff7043" }} />
-                            <span>{item.calories || (150 + Math.floor(Math.random() * 200))} kcal</span>
-                          </div>
-                          <div className="meta-item">
-                            <PeopleIcon sx={{ fontSize: 16, color: "#4fc3f7" }} />
-                            <span>Serves {item.serves || 1}</span>
-                          </div>
-                        </div>
-
-                        <div className="trending-rating">
-                          <span className="star">⭐</span>
-                          <span>{item.rating}</span>
-                          <span className="reviews-text">
-                            ({item.reviews} reviews)
-                          </span>
-                        </div>
-                        <div className="price-container">
-                          <span className="discounted-price">₹{item.price}</span>
-                        </div>
-                        <button
-                          onClick={() => handleAddToCart({
-                            id: item.id,
-                            title: item.name,
-                            price: item.price,
-                            img: resolveImageSrc(item)
-                          })}
-                          className="btn shopnow-btn"
-                        >
-                          + ADD
-                        </button>
-                      </div>
+                          );
+                        })}
+                      </React.Fragment>
                     ))}
-                  </React.Fragment>
-                ))}
-              </div>
-            </div>
-          </div>
-          {/* <Cart cartItems={cartItems} /> */}
-
-          {/* Chef's Special Section */}
-          <div className="chefs-special-card">
-            <div className="section-title-wrapper border-0">
-              <div className="section-title-left">
-                <span className="section-badge" style={{ background: 'rgba(255,255,255,0.2)', boxShadow: 'none' }}>CHEF'S CHOICE</span>
-                <h2 className="heading-title" style={{ color: 'white' }}>Chef's Special</h2>
-              </div>
-            </div>
-            <div className="row align-items-center">
-              <div className="col-md-5">
-                <img
-                  className="special-img"
-                  src="/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg"
-                  alt="special-dish"
-                />
-              </div>
-              <div className="col-md-7">
-                <h1 className="special-heading">
-                  Experience Our Signature Smoked BBQ Ribs
-                </h1>
-                <p className="special-para">
-                  Slow-cooked for 12 hours with our secret spice rub and glazed
-                  with house-made honey bourbon sauce. Served with crispy slaw
-                  and buttery cornbread. A taste that brings people back again
-                  and again!
-                </p>
-                <div className="special-meta">
-                  <span>⭐ 4.9 (500+ Reviews)</span>
-                  <span>🔥 Most Ordered This Week</span>
-                </div>
-                <button className="main-action-btn">
-                  Order Signature Dish
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Why Choose Us Section */}
-          <div className="why-choose-us-section">
-            <div className="section-title-wrapper border-0">
-              <div className="section-title-left">
-                <span className="section-badge">WHY US?</span>
-                <h2 className="heading-title">Why Choose Us</h2>
-              </div>
-            </div>
-            <div className="feature-grid">
-              <div className="feature-card">
-                <div className="feature-icon-wrapper">
-                  <img
-                    src="/footer-images/noun_fresh food_3374221.png"
-                    alt="Fresh Food"
-                  />
-                </div>
-                <h3>Fresh Food</h3>
-                <p>
-                  We provide only the freshest ingredients from local organic
-                  farms.
-                </p>
-              </div>
-              <div className="feature-card">
-                <div className="feature-icon-wrapper">
-                  <img src="/footer-images/best-price.png" alt="Best Price" />
-                </div>
-                <h3>Best Price</h3>
-                <p>
-                  Enjoy premium quality food at the most competitive prices in
-                  town.
-                </p>
-              </div>
-              <div className="feature-card">
-                <div className="feature-icon-wrapper">
-                  <img
-                    src="/footer-images/iconfinder_FoodDelivery-food-delivery-meal-order_6071826.png"
-                    alt="Fast Delivery"
-                  />
-                </div>
-                <h3>Fast Delivery</h3>
-                <p>
-                  Hot and fresh meals delivered to your doorstep in under 30
-                  minutes.
-                </p>
-              </div>
-              <div className="feature-card">
-                <div className="feature-icon-wrapper">
-                  <SupportAgentIcon
-                    style={{ fontSize: "30px", color: "var(--primary)" }}
-                  />
-                </div>
-                <h3>24/7 Support</h3>
-                <p>
-                  Our dedicated support team is always ready to assist you
-                  anytime.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Delivery Payments */}
-          <div className="delivery-payment-section">
-            <div className="section-title-wrapper border-0">
-              <div className="section-title-left">
-                <span className="section-badge" style={{ background: 'rgba(255,255,255,0.2)', boxShadow: 'none' }}>SECURE</span>
-                <h2 className="heading-title" style={{ color: 'white' }}>Delivery and Payments</h2>
-              </div>
-            </div>
-            <div className="delivery-content">
-              <h2 className="special-heading">Delivery and Payments</h2>
-              <p className="special-para">
-                Enjoy hassle-free payment with the plenitude of payment options
-                available for you. Get live tracking and locate your food on a
-                live map. It's quite a sight to see your food arrive to your
-                door. Plus, you get a 5% discount on every order every time you
-                pay online.
-              </p>
-              <div className="payment-methods">
-                <div className="payment-providers">
-                  <p
-                    style={{
-                      fontSize: "0.85rem",
-                      opacity: 0.9,
-                      marginBottom: "12px",
-                      fontWeight: "600",
-                      textTransform: "uppercase",
-                      letterSpacing: "1px",
-                    }}
-                  >
-                    Card Payments
-                  </p>
-                  <div
-                    style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}
-                  >
-                    <img src="/footer-images/paypal.png" alt="paypal" />
-                    <img src="/footer-images/visa.png" alt="visa" />
-                    <img src="/footer-images/mastercard.png" alt="mastercard" />
                   </div>
                 </div>
-                <div className="alternative-methods">
-                  <p
-                    style={{
-                      fontSize: "0.85rem",
-                      opacity: 0.9,
-                      marginBottom: "12px",
-                      fontWeight: "600",
-                      textTransform: "uppercase",
-                      letterSpacing: "1px",
-                    }}
-                  >
-                    Alternative Methods
-                  </p>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "12px",
-                    }}
-                  >
-                    <AttachMoneyIcon
-                      style={{ fontSize: "1.8rem", color: "#fff" }}
-                    />
-                    <span style={{ fontWeight: "700", fontSize: "1.1rem" }}>
-                      Cash on Delivery
-                    </span>
-                  </div>
-                </div>
-                <button
-                  className="main-action-btn"
-                  style={{ marginLeft: "auto" }}
-                >
-                  Order Now
-                </button>
               </div>
-            </div>
-            <div className="payment-img-container">
-              <img
-                src="/footer-images/deliverypayment.jpg"
-                alt="delivery"
-                className="delivery-img"
-              />
-            </div>
-          </div>
 
-          {/* Pop-up Model */}
-          <div
-            className="modal fade"
-            id="staticBackdrop"
-            data-backdrop="static"
-            data-keyboard="false"
-            tabIndex={-1}
-            aria-labelledby="staticBackdropLabel"
-            aria-hidden="true"
-          >
-            <div className="modal-dialog modal-dialog-centered ml-3 mr-3 m-md-auto">
-              <div className="modal-content mt-md-3 mb-md-3">
-                <div className="modal-header">
-                  <h5 className="modal-title" id="staticBackdropLabel">
-                    Bill Payment
-                  </h5>
-                  <button
-                    className="close"
-                    type="button"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                  >
-                    <span aria-hidden="true">×</span>
-                  </button>
+              {/* Trending today */}
+              <div className="trending-today-container">
+                <div className="trending-title-wrapper">
+                  <span className="trending-badge">TRENDING</span>
+                  <h2 className="heading-title m-0">Trending Today</h2>
                 </div>
-                <div className="modal-body">
-                  <div className="container">
-                    <div className="row">
-                      <div className="col-12">
-                        <h4 className="mb-3">Billing address</h4>
-                        <form
-                          className="needs-validation"
-                          noValidate="novalidate"
-                        >
-                          <div className="row">
-                            <div className="col-md-6 mb-3">
-                              <label htmlFor="firstName">First name</label>
-                              <input
-                                className="form-control"
-                                id="firstName"
-                                type="text"
-                                placeholder=""
-                                defaultValue=""
-                                required="required"
-                              />
-                              <div className="invalid-feedback">
-                                Valid first name is required
-                              </div>
-                            </div>
-                            <div className="col-md-6 mb-3">
-                              <label htmlFor="lastName">Last name</label>
-                              <input
-                                className="form-control"
-                                id="lastName"
-                                type="text"
-                                placeholder=""
-                                defaultValue=""
-                                required="required"
-                              />
-                              <div className="invalid-feedback">
-                                Valid last name is required
-                              </div>
-                            </div>
-                          </div>
-                          <div className="mb-3">
-                            <label htmlFor="username">Username</label>
-                            <div className="input-group">
-                              <div className="input-group-prepend">
-                                <span className="input-group-text">@</span>
-                              </div>
-                              <input
-                                className="form-control"
-                                id="username"
-                                type="text"
-                                placeholder="Username"
-                                required="required"
-                              />
-                              <div
-                                className="invalid-feedback"
-                                style={{ width: "100%" }}
-                              >
-                                Your username is required
-                              </div>
-                            </div>
-                          </div>
-                          <div className="mb-3">
-                            <label htmlFor="email">
-                              Email{" "}
-                              <span className="text-muted">(Optional)</span>
-                            </label>
-                            <input
-                              className="form-control"
-                              id="email"
-                              type="email"
-                              placeholder="you@example.com"
-                            />
-                            <div className="invalid-feedback">
-                              Please enter a valid email address for shipping
-                              updates
-                            </div>
-                          </div>
-                          <div className="mb-3">
-                            <label htmlFor="address">Address</label>
-                            <input
-                              className="form-control"
-                              id="address"
-                              type="text"
-                              placeholder="1234 Main St"
-                              required="required"
-                              value={addressValue || ""}
-                              onChange={e => setAddressValue(e.target.value)}
-                            />
-                            <div className="invalid-feedback">
-                              Please enter your shipping address
-                            </div>
-
-                          </div>
-                          <div className="mb-3">
-                            <label htmlFor="address2">
-                              Address 2{" "}
-                              <span className="text-muted">(Optional)</span>
-                            </label>
-                            <input
-                              className="form-control"
-                              id="address2"
-                              type="text"
-                              placeholder="Apartment or suite"
-                            />
-                          </div>
-                          <div className="row">
-                            <div className="col-md-5 mb-3">
-                              <label htmlFor="country">Country</label>
-                              <select
-                                className="custom-select d-block w-100"
-                                id="country"
-                                required="required"
-                              >
-                                <option value="">Choose...</option>
-                                <option>United States</option>
-                              </select>
-                              <div className="invalid-feedback">
-                                Please select a valid country
-                              </div>
-                            </div>
-                            <div className="col-md-4 mb-3">
-                              <label htmlFor="state">State</label>
-                              <select
-                                className="custom-select d-block w-100"
-                                id="state"
-                                required="required"
-                              >
-                                <option value="">Choose...</option>
-                                <option>California</option>
-                              </select>
-                              <div className="invalid-feedback">
-                                Please provide a valid state
-                              </div>
-                            </div>
-                            <div className="col-md-3 mb-3">
-                              <label htmlFor="zip">Zip</label>
-                              <input
-                                className="form-control"
-                                id="zip"
-                                type="text"
-                                placeholder=""
-                                required="required"
-                              />
-                              <div className="invalid-feedback">
-                                Zip code required
-                              </div>
-                            </div>
-                          </div>
-                          <hr className="mb-4" />
-                          <div className="custom-control custom-checkbox">
-                            <input
-                              className="custom-control-input"
-                              id="same-address"
-                              type="checkbox"
-                            />
-                            <label
-                              className="custom-control-label"
-                              htmlFor="same-address"
-                            >
-                              Shipping address is the same as my billing address
-                            </label>
-                          </div>
-                          <div className="custom-control custom-checkbox">
-                            <input
-                              className="custom-control-input"
-                              id="save-info"
-                              type="checkbox"
-                            />
-                            <label
-                              className="custom-control-label"
-                              htmlFor="save-info"
-                            >
-                              Save this information for next time
-                            </label>
-                          </div>
-                          <hr className="mb-4" />
-                          <h4 className="mb-3">Payment</h4>
-                          <div className="d-block my-3">
-                            <div className="custom-control custom-radio">
-                              <input
-                                className="custom-control-input"
-                                id="credit"
-                                name="paymentMethod"
-                                type="radio"
-                                defaultChecked="checked"
-                                required="required"
-                              />
-                              <label
-                                className="custom-control-label"
-                                htmlFor="credit"
-                              >
-                                Credit card
-                              </label>
-                            </div>
-                            <div className="custom-control custom-radio">
-                              <input
-                                className="custom-control-input"
-                                id="debit"
-                                name="paymentMethod"
-                                type="radio"
-                                required="required"
-                              />
-                              <label
-                                className="custom-control-label"
-                                htmlFor="debit"
-                              >
-                                Debit card
-                              </label>
-                            </div>
-                            <div className="custom-control custom-radio">
-                              <input
-                                className="custom-control-input"
-                                id="paypal"
-                                name="paymentMethod"
-                                type="radio"
-                                required="required"
-                              />
-                              <label
-                                className="custom-control-label"
-                                htmlFor="paypal"
-                              >
-                                Paypal
-                              </label>
-                            </div>
-                          </div>
-                          <div className="row">
-                            <div className="col-md-6 mb-3">
-                              <label htmlFor="cc-name">Name on card</label>
-                              <input
-                                className="form-control"
-                                id="cc-name"
-                                type="text"
-                                placeholder=""
-                                required="required"
-                              />
-                              <small className="text-muted">
-                                Full name as displayed on card
-                              </small>
-                              <div className="invalid-feedback">
-                                Name on card is required
-                              </div>
-                            </div>
-                            <div className="col-md-6 mb-3">
-                              <label htmlFor="cc-number">
-                                Credit card number
-                              </label>
-                              <input
-                                className="form-control"
-                                id="cc-number"
-                                type="text"
-                                placeholder=""
-                                required="required"
-                              />
-                              <div className="invalid-feedback">
-                                Credit card number is required
-                              </div>
-                            </div>
-                          </div>
-                          <div className="row">
-                            <div className="col-md-3 mb-3">
-                              <label htmlFor="cc-expiration">Expiration</label>
-                              <input
-                                className="form-control"
-                                id="cc-expiration"
-                                type="text"
-                                placeholder=""
-                                required="required"
-                              />
-                              <div className="invalid-feedback">
-                                Expiration date required
-                              </div>
-                            </div>
-                            <div className="col-md-3 mb-3">
-                              <label htmlFor="cc-expiration">CVV</label>
-                              <input
-                                className="form-control"
-                                id="cc-cvv"
-                                type="text"
-                                placeholder=""
-                                required="required"
-                              />
-                              <div className="invalid-feedback">
-                                Security code required
-                              </div>
-                            </div>
-                          </div>
-                          <hr className="mb-4" />
-                          <div className="model-btn-div">
+                <div className="trending-viewport">
+                  <div className="trending-track">
+                    {[...Array(2)].map((_, i) => (
+                      <React.Fragment key={i}>
+                        {trendingItems.map((item) => (
+                          <div
+                            className="section-card"
+                            key={`${i}-${item.id}`}
+                          >
+                            <div className="card-badge">TRENDING</div>
                             <button
-                              className="btn btn-primary btn-lg btn-block"
-                              type="submit"
+                              type="button"
+                              className={`bookmark-icon ${
+                                trendingBookmarked[item.id] ? "active" : ""
+                              }`}
+                              onClick={() =>
+                                handleBookmarkToggle(item.id, "trending")
+                              }
                             >
-                              Continue to checkout
+                              {trendingBookmarked[item.id] ? (
+                                <FavoriteIcon fontSize="small" />
+                              ) : (
+                                <FavoriteBorderIcon fontSize="small" />
+                              )}
+                            </button>
+                            <img
+                              src={resolveImageSrc(item)}
+                              alt={item.name}
+                              loading="lazy"
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = "/footer-images/food.png";
+                              }}
+                            />
+                            <h4 className="trending-items-title">
+                              <span className="title-icon">{CATEGORY_ICONS[item.category] || "🍽️"}</span>
+                              {item.name}
+                            </h4>
+
+                            <p className="card-description">
+                              {item.description || `Delicious ${item.name} prepared with fresh ingredients and traditional spices.`}
+                            </p>
+
+                            <div className="card-meta-info">
+                              <div className="meta-item">
+                                <LocalFireDepartmentIcon sx={{ fontSize: 16, color: "#ff7043" }} />
+                                <span>{item.calories || (150 + Math.floor(Math.random() * 200))} kcal</span>
+                              </div>
+                              <div className="meta-item">
+                                <PeopleIcon sx={{ fontSize: 16, color: "#4fc3f7" }} />
+                                <span>Serves {item.serves || 1}</span>
+                              </div>
+                            </div>
+
+                            <div className="trending-rating">
+                              <span className="star">⭐</span>
+                              <span>{item.rating}</span>
+                              <span className="reviews-text">
+                                ({item.reviews} reviews)
+                              </span>
+                            </div>
+                            <div className="price-container">
+                              <span className="discounted-price">₹{item.price}</span>
+                            </div>
+                            <button
+                              onClick={() => handleAddToCart({
+                                id: item.id,
+                                title: item.name,
+                                price: item.price,
+                                img: resolveImageSrc(item)
+                              })}
+                              className="btn shopnow-btn"
+                            >
+                              + ADD
                             </button>
                           </div>
-                        </form>
+                        ))}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Chef's Special Section */}
+              <div className="chefs-special-card">
+                <div className="section-title-wrapper border-0">
+                  <div className="section-title-left">
+                    <span className="section-badge" style={{ background: 'rgba(255,255,255,0.2)', boxShadow: 'none' }}>CHEF'S CHOICE</span>
+                    <h2 className="heading-title" style={{ color: 'white' }}>Chef's Special</h2>
+                  </div>
+                </div>
+                <div className="row align-items-center">
+                  <div className="col-md-5">
+                    <img
+                      className="special-img"
+                      src="/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg"
+                      alt="special-dish"
+                    />
+                  </div>
+                  <div className="col-md-7">
+                    <h1 className="special-heading">
+                      Experience Our Signature Smoked BBQ Ribs
+                    </h1>
+                    <p className="special-para">
+                      Slow-cooked for 12 hours with our secret spice rub and glazed
+                      with house-made honey bourbon sauce. Served with crispy slaw
+                      and buttery cornbread. A taste that brings people back again
+                      and again!
+                    </p>
+                    <div className="special-meta">
+                      <span>⭐ 4.9 (500+ Reviews)</span>
+                      <span>🔥 Most Ordered This Week</span>
+                    </div>
+                    <button className="main-action-btn">
+                      Order Signature Dish
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Why Choose Us Section */}
+              <div className="why-choose-us-section">
+                <div className="section-title-wrapper border-0">
+                  <div className="section-title-left">
+                    <span className="section-badge">WHY US?</span>
+                    <h2 className="heading-title">Why Choose Us</h2>
+                  </div>
+                </div>
+                <div className="feature-grid">
+                  <div className="feature-card">
+                    <div className="feature-icon-wrapper">
+                      <img
+                        src="/footer-images/noun_fresh food_3374221.png"
+                        alt="Fresh Food"
+                      />
+                    </div>
+                    <h3>Fresh Food</h3>
+                    <p>
+                      We provide only the freshest ingredients from local organic
+                      farms.
+                    </p>
+                  </div>
+                  <div className="feature-card">
+                    <div className="feature-icon-wrapper">
+                      <img src="/footer-images/best-price.png" alt="Best Price" />
+                    </div>
+                    <h3>Best Price</h3>
+                    <p>
+                      Enjoy premium quality food at the most competitive prices in
+                      town.
+                    </p>
+                  </div>
+                  <div className="feature-card">
+                    <div className="feature-icon-wrapper">
+                      <img
+                        src="/footer-images/iconfinder_FoodDelivery-food-delivery-meal-order_6071826.png"
+                        alt="Fast Delivery"
+                      />
+                    </div>
+                    <h3>Fast Delivery</h3>
+                    <p>
+                      Hot and fresh meals delivered to your doorstep in under 30
+                      minutes.
+                    </p>
+                  </div>
+                  <div className="feature-card">
+                    <div className="feature-icon-wrapper">
+                      <SupportAgentIcon
+                        style={{ fontSize: "30px", color: "var(--primary)" }}
+                      />
+                    </div>
+                    <h3>24/7 Support</h3>
+                    <p>
+                      Our dedicated support team is always ready to assist you
+                      anytime.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Delivery Payments */}
+              <div className="delivery-payment-section">
+                <div className="section-title-wrapper border-0">
+                  <div className="section-title-left">
+                    <span className="section-badge" style={{ background: 'rgba(255,255,255,0.2)', boxShadow: 'none' }}>SECURE</span>
+                    <h2 className="heading-title" style={{ color: 'white' }}>Delivery and Payments</h2>
+                  </div>
+                </div>
+                <div className="delivery-content">
+                  <h2 className="special-heading">Delivery and Payments</h2>
+                  <p className="special-para">
+                    Enjoy hassle-free payment with the plenitude of payment options
+                    available for you. Get live tracking and locate your food on a
+                    live map. It's quite a sight to see your food arrive to your
+                    door. Plus, you get a 5% discount on every order every time you
+                    pay online.
+                  </p>
+                  <div className="payment-methods">
+                    <div className="payment-providers">
+                      <p
+                        style={{
+                          fontSize: "0.85rem",
+                          opacity: 0.9,
+                          marginBottom: "12px",
+                          fontWeight: "600",
+                          textTransform: "uppercase",
+                          letterSpacing: "1px",
+                        }}
+                      >
+                        Card Payments
+                      </p>
+                      <div
+                        style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}
+                      >
+                        <img src="/footer-images/paypal.png" alt="paypal" />
+                        <img src="/footer-images/visa.png" alt="visa" />
+                        <img src="/footer-images/mastercard.png" alt="mastercard" />
                       </div>
+                    </div>
+                    <div className="alternative-methods">
+                      <p
+                        style={{
+                          fontSize: "0.85rem",
+                          opacity: 0.9,
+                          marginBottom: "12px",
+                          fontWeight: "600",
+                          textTransform: "uppercase",
+                          letterSpacing: "1px",
+                        }}
+                      >
+                        Alternative Methods
+                      </p>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "12px",
+                        }}
+                      >
+                        <AttachMoneyIcon
+                          style={{ fontSize: "1.8rem", color: "#fff" }}
+                        />
+                        <span style={{ fontWeight: "700", fontSize: "1.1rem" }}>
+                          Cash on Delivery
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      className="main-action-btn"
+                      style={{ marginLeft: "auto" }}
+                    >
+                      Order Now
+                    </button>
+                  </div>
+                </div>
+                <div className="payment-img-container">
+                  <img
+                    src="/footer-images/deliverypayment.jpg"
+                    alt="delivery"
+                    className="delivery-img"
+                  />
+                </div>
+              </div>
+
+              {/* Thank you section */}
+              <div className="thankyou-section">
+                <div className="section-title-wrapper border-0 mb-4">
+                  <div className="section-title-left">
+                    <span className="section-badge" style={{ background: 'rgba(255,255,255,0.2)', boxShadow: 'none' }}>GRATITUDE</span>
+                    <h2 className="heading-title" style={{ color: 'white', borderBottom: '2px solid rgba(255,255,255,0.3)', display: 'inline-block', paddingBottom: '5px' }}>Thank You</h2>
+                  </div>
+                </div>
+                <div className="row align-items-center">
+                  <div className="col-md-7">
+                    <div className="thankyou-content-card">
+                      <h1 className="thankyou-heading">
+                        Thank you for being a valuable customer to us
+                      </h1>
+                      <p className="thankyou-para">
+                        We appreciate your trust in us. We hope you enjoyed our food
+                        and service. Here is a small gift from our side for your next
+                        order.
+                      </p>
+                      <span className="thankyou-b">Keep visiting — TASTY KITCHEN</span>
+                      <div className="mt-2">
+                        <button
+                          className="main-action-btn"
+                          data-toggle="modal"
+                          data-target="#ThankyouexampleModal"
+                        >
+                          Redeem Now
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-5">
+                    <div className="thankyou-img-wrapper">
+                      <img
+                        src="/footer-images/gift1.png"
+                        alt="gift-box"
+                        className="thankyou-img"
+                      />
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Thank you section */}
-          <div className="thankyou-section">
-            <div className="section-title-wrapper border-0">
-              <div className="section-title-left">
-                <span className="section-badge" style={{ background: 'rgba(255,255,255,0.2)', boxShadow: 'none' }}>GRATITUDE</span>
-                <h2 className="heading-title" style={{ color: 'white' }}>Thank You</h2>
-              </div>
-            </div>
-            <div className="row align-items-center">
-              <div className="col-md-7">
-                <h1 className="thankyou-heading">
-                  Thank you for being a valuable customer to us
-                </h1>
-                <p className="thankyou-para">
-                  We appreciate your trust in us. We hope you enjoyed our food
-                  and service. Here is a small gift from our side for your next
-                  order.
-                </p>
-                <b className="thankyou-b">Keep visiting - TASTY KITCHEN</b>
-                <div className="mt-3">
-                  <button
-                    className="main-action-btn"
-                    data-toggle="modal"
-                    data-target="#ThankyouexampleModal"
-                  >
-                    Redeem Now
-                  </button>
-                </div>
-              </div>
-              <div className="col-md-5">
-                <img
-                  src="/footer-images/gift1.png"
-                  alt="gift-box"
-                  style={{
-                    width: "100%",
-                    maxWidth: "300px",
-                    margin: "0 auto",
-                    display: "block",
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-          <div
-            className="modal fade"
-            id="ThankyouexampleModal"
-            tabIndex={-1}
-            aria-labelledby="exampleModalLabel"
-            aria-hidden="true"
-          >
-            <div className="modal-dialog modal-dialog-centered ml-3 mr-3 m-md-auto">
-              <div
-                className="modal-content mt-md-3 mb-md-3"
-                id="tq-model-content"
-              >
-                <div className="modal-header">
-                  <h5 className="modal-title" id="exampleModalLabel">
-                    Here is your gift voucher!
-                  </h5>
-                  <button
-                    className="close"
-                    type="button"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                  >
-                    <span aria-hidden="true">×</span>
-                  </button>
-                </div>
-                <div className="modal-body">...</div>
-                <div className="modal-footer">
-                  <button
-                    className="btn btn-secondary"
-                    type="button"
-                    data-dismiss="modal"
-                  >
-                    Close
-                  </button>
-                  <button className="btn btn-primary" type="button">
-                    Save changes
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+            </>
+          )}
 
           <Footer />
 

@@ -133,6 +133,10 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 2),
   height: 72,
   minHeight: 72,
+  [theme.breakpoints.down("md")]: {
+    height: 120, /* Height of AppBar + Mobile Search Bar */
+    minHeight: 120,
+  },
   boxSizing: "border-box",
 }));
 
@@ -455,7 +459,12 @@ export default function Sidebar() {
       <CssBaseline />
       <AppBar position="fixed" open={open}>
         <Toolbar
-          sx={{ minHeight: 72, height: 72, px: 2, boxSizing: "border-box" }}
+          sx={{ 
+            minHeight: { xs: 64, md: 72 }, 
+            height: { xs: 64, md: 72 }, 
+            px: { xs: 1, md: 2 }, 
+            boxSizing: "border-box" 
+          }}
         >
           <IconButton
             color="inherit"
@@ -463,18 +472,21 @@ export default function Sidebar() {
             onClick={handleDrawerToggle}
             edge="start"
             sx={{
-              marginRight: { xs: 2, md: 5 },
-              p: 1.2, 
+              marginRight: { xs: 0, md: 5 }, // Reset margin for mobile
+              p: { xs: 1.5, md: 1.2 }, 
               borderRadius: "12px",
               background: appTheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
               transition: "all 0.3s ease",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               "&:hover": {
                 background: "var(--primary-gradient)",
                 color: "white",
                 transform: "scale(1.1)",
                 boxShadow: "0 4px 12px rgba(230, 81, 0, 0.3)"
               },
-              zIndex: 1300 /* Ensure it stays on top */
+              zIndex: 1300
             }}
           >
             <div className={`hamburger-box ${open ? 'open' : ''}`}>
@@ -492,8 +504,8 @@ export default function Sidebar() {
               alignItems: "center",
               gap: { xs: 1, md: 1.5 },
               width: "100%",
-              height: 72,
-              px: 0,
+              height: "100%",
+              px: { xs: 1, md: 0 },
               boxSizing: "border-box",
             }}
           >
@@ -502,25 +514,27 @@ export default function Sidebar() {
               <Box
                 className="brand-area"
                 sx={{
-                  flex: { xs: "0 0 180px", md: "0 0 220px" },
+                  flex: { xs: "0 0 140px", md: "0 0 220px" },
                   minWidth: 0,
                   opacity: 1,
                   transition: "opacity 0.3s ease",
+                  gap: { xs: 0.5, md: 1 }
                 }}
               >
                 <img
                   src="/footer-images/logo.png"
                   alt="logo"
                   className="website-logo"
+                  style={{ width: "1.75rem", height: "1.75rem" }}
                 />
                 <div className="brand-text">
-                  <span className="title">Tasty Kitchen</span>
-                  <span className="subtitle">Fresh & Healthy Food</span>
+                  <span className="title" style={{ fontSize: "0.9rem" }}>Tasty Kitchen</span>
+                  <span className="subtitle" style={{ fontSize: "0.6rem", display: { xs: "none", sm: "block" } }}>Fresh & Healthy Food</span>
                 </div>
               </Box>
             )}
-            {!open && <span className="divider-v" />}
-            {/* Greeting */}
+            {!open && <span className="divider-v" style={{ display: { xs: "none", md: "block" } }} />}
+            {/* Greeting - Hidden on mobile */}
             <Box
               className="greeting-area"
               sx={{
@@ -540,8 +554,8 @@ export default function Sidebar() {
               </span>
               <span className="primary">Welcome Back!</span>
             </Box>
-            {/* Search */}
-            <Box className="search-area" sx={{ flex: "1 1 auto", minWidth: 0 }}>
+            {/* Search - Hidden on mobile in the toolbar, shown below instead */}
+            <Box className="search-area" sx={{ flex: "1 1 auto", minWidth: 0, display: { xs: "none", md: "block" } }}>
               <div className="search-main-div" style={{ width: "100%" }}>
                 <SearchBar onSearchChange={handleSectionChange} />
               </div>
@@ -550,12 +564,12 @@ export default function Sidebar() {
             <Box
               className="actions-area"
               sx={{
-                flex: { xs: "0 0 200px", md: "0 0 280px" },
+                flex: { xs: "1 1 auto", md: "0 0 280px" },
                 minWidth: 0,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "flex-end",
-                gap: { xs: 1, md: 1.5 },
+                gap: { xs: 0.5, md: 1.5 },
                 whiteSpace: "nowrap",
               }}
             >
@@ -563,34 +577,21 @@ export default function Sidebar() {
                 color="inherit" 
                 onClick={toggleTheme}
                 sx={{ 
-                  p: 1.2, 
-                  borderRadius: "12px",
+                  p: { xs: 0.8, md: 1.2 }, 
+                  borderRadius: "10px",
                   background: appTheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-                    background: "var(--primary-gradient)",
-                    color: "white",
-                    transform: "rotate(15deg) scale(1.1)",
-                    boxShadow: "0 4px 12px rgba(230, 81, 0, 0.3)"
-                  }
+                  "&:hover": { transform: "rotate(15deg) scale(1.1)" }
                 }}
               >
-                {appTheme === "dark" ? <LightModeIcon sx={{ fontSize: 22 }} /> : <DarkModeIcon sx={{ fontSize: 22 }} />}
+                {appTheme === "dark" ? <LightModeIcon sx={{ fontSize: { xs: 18, md: 22 } }} /> : <DarkModeIcon sx={{ fontSize: { xs: 18, md: 22 } }} />}
               </IconButton>
               <IconButton
                 color="inherit"
                 onClick={() => navigate("/home/favorites")}
                 sx={{ 
-                  p: 1.2, 
-                  borderRadius: "12px",
+                  p: { xs: 0.8, md: 1.2 }, 
+                  borderRadius: "10px",
                   background: appTheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-                    background: "var(--primary-gradient)",
-                    color: "white",
-                    transform: "scale(1.1)",
-                    boxShadow: "0 4px 12px rgba(230, 81, 0, 0.3)"
-                  }
                 }}
               >
                 <Badge 
@@ -599,34 +600,23 @@ export default function Sidebar() {
                     "& .MuiBadge-badge": {
                       backgroundColor: "var(--primary)",
                       color: "white",
-                      fontWeight: 700,
-                      border: `2px solid var(--nav-bg)`,
-                      fontSize: "0.65rem",
-                      height: 18,
-                      minWidth: 18,
-                      padding: "0 4px"
+                      fontSize: "0.6rem",
+                      height: 16,
+                      minWidth: 16,
                     }
                   }}
                 >
-                  <FavoritesIcon sx={{ fontSize: 22 }} />
+                  <FavoritesIcon sx={{ fontSize: { xs: 18, md: 22 } }} />
                 </Badge>
               </IconButton>
               <IconButton
-                size="large"
                 color="inherit"
                 component={Link}
                 to="/cart"
                 sx={{ 
-                  p: 1.2, 
-                  borderRadius: "12px",
+                  p: { xs: 0.8, md: 1.2 }, 
+                  borderRadius: "10px",
                   background: appTheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-                    background: "var(--primary-gradient)",
-                    color: "white",
-                    transform: "scale(1.1)",
-                    boxShadow: "0 4px 12px rgba(230, 81, 0, 0.3)"
-                  }
                 }}
               >
                 <Badge 
@@ -635,45 +625,31 @@ export default function Sidebar() {
                     "& .MuiBadge-badge": {
                       backgroundColor: "var(--primary)",
                       color: "white",
-                      fontWeight: 700,
-                      border: `2px solid var(--nav-bg)`,
-                      fontSize: "0.65rem",
-                      height: 18,
-                      minWidth: 18,
-                      padding: "0 4px"
+                      fontSize: "0.6rem",
+                      height: 16,
+                      minWidth: 16,
                     }
                   }}
                 >
-                  <ShoppingCartIcon sx={{ fontSize: 22 }} />
+                  <ShoppingCartIcon sx={{ fontSize: { xs: 18, md: 22 } }} />
                 </Badge>
               </IconButton>
               <IconButton
                 onClick={handleAccountMenuOpen}
                 sx={{ 
                   p: 0.5, 
-                  borderRadius: "14px",
+                  borderRadius: "12px",
                   border: `2px solid ${isAccountMenuOpen ? "var(--primary)" : "transparent"}`,
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-                    borderColor: "var(--primary)",
-                    transform: "scale(1.05)"
-                  }
                 }}
-                aria-controls={isAccountMenuOpen ? "account-menu" : undefined}
-                aria-haspopup="true"
-                aria-expanded={isAccountMenuOpen ? "true" : undefined}
               >
                 <Avatar
                   src={userAvatar || undefined}
                   sx={{ 
-                    width: 38, 
-                    height: 38, 
-                    borderRadius: "10px",
+                    width: { xs: 32, md: 38 }, 
+                    height: { xs: 32, md: 38 }, 
+                    borderRadius: "8px",
                     background: "var(--primary-gradient)",
-                    color: "white",
-                    fontWeight: 700,
-                    fontSize: "1.1rem",
-                    boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
+                    fontSize: "0.9rem",
                   }}
                 >
                   {userName ? userName.charAt(0).toUpperCase() : "U"}
@@ -734,10 +710,21 @@ export default function Sidebar() {
             </Box>
           </Box>
         </Toolbar>
-        {/* Mobile Search Bar - Visible only on mobile below the main toolbar if needed, or we can just hide it on tiny screens */}
-        {/* Mobile Search Bar - Visible only on mobile below the main toolbar if needed, or we can just hide it on tiny screens */}
-        <Box sx={{ display: { xs: "block", md: "none" }, px: 2, pb: 1 }}>
-          <SearchBar onSearchChange={handleSectionChange} />
+        {/* Mobile Search Bar - Centered and refined */}
+        <Box 
+          sx={{ 
+            display: { xs: "flex", md: "none" }, 
+            px: 2, 
+            pb: 1.5,
+            width: "100%",
+            justifyContent: "center",
+            background: appTheme === "dark" ? "var(--nav-bg)" : "white",
+            borderBottom: `1px solid ${appTheme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}`
+          }}
+        >
+          <Box sx={{ width: "100%", maxWidth: "400px" }}>
+            <SearchBar onSearchChange={handleSectionChange} />
+          </Box>
         </Box>
       </AppBar>
       {isDesktop ? (
@@ -960,10 +947,13 @@ export default function Sidebar() {
             display: { xs: "block", md: "none" },
             "& .MuiDrawer-paper": {
               width: drawerWidth,
+              background: appTheme === "dark" ? "var(--nav-bg)" : "white",
+              borderRight: "none",
+              boxShadow: "10px 0 30px rgba(0,0,0,0.1)",
             },
           }}
         >
-          <DrawerHeader>
+          <DrawerHeader sx={{ borderBottom: `1px solid ${appTheme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}` }}>
             <Box
               className="drawer-brand"
               sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
@@ -972,15 +962,16 @@ export default function Sidebar() {
                 src="/footer-images/logo.png"
                 alt="logo"
                 className="website-logo-mini"
+                style={{ width: "1.5rem", height: "1.5rem" }}
               />
               <div className="drawer-brand-text">
-                <span className="drawer-brand-title">Tasty Kitchen</span>
-                <span className="drawer-brand-subtitle">
+                <span className="drawer-brand-title" style={{ fontSize: "0.9rem", fontWeight: 800, color: "var(--primary)" }}>Tasty Kitchen</span>
+                <span className="drawer-brand-subtitle" style={{ fontSize: "0.6rem", color: "var(--text-sub)" }}>
                   Fresh & Healthy Food
                 </span>
               </div>
             </Box>
-            <IconButton onClick={handleDrawerClose}>
+            <IconButton onClick={handleDrawerClose} sx={{ color: "var(--text-main)" }}>
               {theme.direction === "rtl" ? (
                 <ChevronRightIcon />
               ) : (
@@ -989,16 +980,14 @@ export default function Sidebar() {
             </IconButton>
           </DrawerHeader>
           <Box
-            sx={{ display: "flex", flexDirection: "column", height: "100%" }}
+            sx={{ display: "flex", flexDirection: "column", height: "100%", overflowY: "auto", scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" } }}
           >
-            <List>
-              {Sidebar_Items.filter(
-                (i) => i.text !== "Settings" && i.text !== "Logout",
-              ).map((item) => (
+            <List sx={{ px: 1.5, py: 2 }}>
+              {Category_Items.map((item) => (
                 <ListItem
                   key={item.text}
                   disablePadding
-                  sx={{ display: "block" }}
+                  sx={{ mb: 0.5 }}
                 >
                   <ListItemButton
                     selected={activeSidebarItem === item.text}
@@ -1007,14 +996,106 @@ export default function Sidebar() {
                       handleSectionChange(targetSection, item.text);
                       handleDrawerClose();
                     }}
-                    sx={{ minHeight: 48, justifyContent: "initial", px: 2.5 }}
+                    sx={{
+                      minHeight: 48,
+                      borderRadius: "12px",
+                      px: 2,
+                      "&.Mui-selected": {
+                        background: "var(--primary-gradient)",
+                        color: "white",
+                        "& .MuiListItemIcon-root": {
+                          color: "white",
+                        },
+                        "&:hover": {
+                          background: "var(--primary-gradient)",
+                          opacity: 0.9,
+                        },
+                      },
+                      "&:hover": {
+                        background: appTheme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                      }
+                    }}
                   >
                     <ListItemIcon
-                      sx={{ minWidth: 0, mr: 3, justifyContent: "center" }}
+                      sx={{
+                        minWidth: 0,
+                        mr: 2,
+                        color: activeSidebarItem === item.text ? "white" : "var(--primary)",
+                        "& .MuiSvgIcon-root": {
+                          fontSize: 22,
+                        },
+                      }}
                     >
                       {item.icon}
                     </ListItemIcon>
-                    <ListItemText primary={item.text} />
+                    <ListItemText 
+                      primary={item.text} 
+                      primaryTypographyProps={{ 
+                        fontSize: "0.9rem", 
+                        fontWeight: activeSidebarItem === item.text ? 700 : 500,
+                        color: activeSidebarItem === item.text ? "white" : "var(--text-main)"
+                      }} 
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+            <Box sx={{ flexGrow: 1 }} />
+            <Divider sx={{ mx: 2, opacity: 0.1 }} />
+            <List sx={{ px: 1.5, py: 2 }}>
+              {Sidebar_Items.map((item) => (
+                <ListItem
+                  key={item.text}
+                  disablePadding
+                  sx={{ mb: 0.5 }}
+                >
+                  <ListItemButton
+                    selected={activeSidebarItem === item.text}
+                    onClick={() => {
+                      if (item.action === "logout") {
+                        handleLogout();
+                      } else {
+                        const targetSection = sectionMap[item.text] || "Home";
+                        handleSectionChange(targetSection, item.text);
+                        handleDrawerClose();
+                        if (item.text === "Settings") {
+                          navigate("/home/settings");
+                        }
+                      }
+                    }}
+                    sx={{
+                      minHeight: 48,
+                      borderRadius: "12px",
+                      px: 2,
+                      "&.Mui-selected": {
+                        background: "var(--primary-gradient)",
+                        color: "white",
+                        "& .MuiListItemIcon-root": {
+                          color: "white",
+                        },
+                      },
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: 2,
+                        color: item.text === "Logout" ? "#f44336" : (activeSidebarItem === item.text ? "white" : "var(--primary)"),
+                        "& .MuiSvgIcon-root": {
+                          fontSize: 22,
+                        },
+                      }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={item.text} 
+                      primaryTypographyProps={{ 
+                        fontSize: "0.9rem", 
+                        fontWeight: activeSidebarItem === item.text ? 700 : 500,
+                        color: item.text === "Logout" ? "#f44336" : (activeSidebarItem === item.text ? "white" : "var(--text-main)")
+                      }} 
+                    />
                   </ListItemButton>
                 </ListItem>
               ))}

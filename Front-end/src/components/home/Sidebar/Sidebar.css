@@ -21,6 +21,13 @@
 .MuiDrawer-paper {
    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05) !important;
+   background-color: var(--white) !important;
+   color: var(--text-main) !important;
+}
+
+[data-theme='dark'] .MuiDrawer-paper {
+   background-color: var(--nav-bg) !important;
+   color: white !important;
 }
 
 .MuiListItemButton-root:hover {
