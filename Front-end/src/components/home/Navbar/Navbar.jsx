@@ -12,8 +12,7 @@ function Navbar() {
 
 	return (
 		<>
-			<IconContext.Provider value={{ color: "inherit" }}>
-				<div className="navbar">
+			<div className="navbar">
 					<Link to="#" className="menu-bars">
 						<FaIcons.FaBars onClick={showSidebar} />
 					</Link>
@@ -105,7 +104,7 @@ function Navbar() {
 						})}
 					</ul>
 				</nav>
-			</IconContext.Provider>
+			</div>
 		</>
 	);
 }

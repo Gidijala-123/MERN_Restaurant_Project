@@ -71,13 +71,18 @@ const SearchBar = React.memo(function SearchBar({ onSearchChange }) {
               type: "search",
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ color: "#ed1f24" }} />
+                  <SearchIcon sx={{ 
+                    color: "var(--primary)",
+                    opacity: 0.7,
+                    transition: "all 0.3s ease",
+                  }} />
                 </InputAdornment>
               ),
               sx: {
                 borderRadius: "25px",
                 backgroundColor: "var(--white)",
                 fontSize: { xs: "0.85rem", sm: "0.9rem" },
+                transition: "all 0.3s ease",
                 "& .MuiInputBase-input": {
                   color: "var(--text-main)",
                   "&::placeholder": {
@@ -94,6 +99,10 @@ const SearchBar = React.memo(function SearchBar({ onSearchChange }) {
                 "&.Mui-focused fieldset": {
                   borderColor: "var(--primary)",
                 },
+                "&:hover .MuiSvgIcon-root": {
+                  opacity: 1,
+                  transform: "scale(1.1)",
+                }
               },
             }}
           />

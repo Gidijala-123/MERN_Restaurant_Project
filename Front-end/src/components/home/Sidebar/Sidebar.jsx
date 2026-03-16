@@ -596,7 +596,12 @@ export default function Sidebar() {
                   p: { xs: 0.8, md: 1.2 }, 
                   borderRadius: "10px",
                   background: appTheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
-                  "&:hover": { transform: "rotate(15deg) scale(1.1)" }
+                  transition: "all 0.3s ease",
+                  "&:hover": { 
+                    transform: "rotate(15deg) scale(1.1)",
+                    color: "var(--primary) !important",
+                    background: "rgba(230, 81, 0, 0.1) !important"
+                  }
                 }}
               >
                 {appTheme === "dark" ? <LightModeIcon sx={{ fontSize: { xs: 18, md: 22 } }} /> : <DarkModeIcon sx={{ fontSize: { xs: 18, md: 22 } }} />}
@@ -608,6 +613,12 @@ export default function Sidebar() {
                   p: { xs: 0.8, md: 1.2 }, 
                   borderRadius: "10px",
                   background: appTheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
+                  transition: "all 0.3s ease",
+                  "&:hover": { 
+                    transform: "translateY(-3px)",
+                    color: "var(--primary) !important",
+                    background: "rgba(230, 81, 0, 0.1) !important"
+                  }
                 }}
               >
                 <Badge 
@@ -633,6 +644,12 @@ export default function Sidebar() {
                   p: { xs: 0.8, md: 1.2 }, 
                   borderRadius: "10px",
                   background: appTheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
+                  transition: "all 0.3s ease",
+                  "&:hover": { 
+                    transform: "translateY(-3px)",
+                    color: "var(--primary) !important",
+                    background: "rgba(230, 81, 0, 0.1) !important"
+                  }
                 }}
               >
                 <Badge 
@@ -656,6 +673,11 @@ export default function Sidebar() {
                   p: 0.5, 
                   borderRadius: "12px",
                   border: `2px solid ${isAccountMenuOpen ? "var(--primary)" : "transparent"}`,
+                  transition: "all 0.3s ease",
+                  "&:hover": { 
+                    transform: "scale(1.05)",
+                    background: "rgba(230, 81, 0, 0.05) !important"
+                  }
                 }}
               >
                 <Avatar

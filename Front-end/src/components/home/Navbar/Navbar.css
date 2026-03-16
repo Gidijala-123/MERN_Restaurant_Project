@@ -223,7 +223,8 @@ span {
    border: 1px solid rgba(0, 0, 0, 0.03) !important;
    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
    position: relative !important;
-   overflow: visible !important; /* Changed to visible for tooltips */
+   overflow: visible !important;
+   /* Changed to visible for tooltips */
    margin: 0 0.2rem !important;
 }
 
@@ -238,16 +239,28 @@ span {
 /* Hover Animations */
 .nav-icons-div .nav-icon:hover {
    transform: translateY(-5px) scale(1.1) !important;
-   box-shadow: 0 10px 25px rgba(255, 106, 0, 0.15) !important;
-   background: white !important;
-   color: #FF6A00 !important;
-   border-color: rgba(255, 106, 0, 0.3) !important;
+   box-shadow: 0 10px 25px rgba(230, 81, 0, 0.2) !important;
+   background: #ffffff !important;
+   border-color: var(--primary) !important;
    z-index: 10 !important;
 }
 
+/* Ensure ALL icons turn orange on hover, including SVGs inside the divs */
+.nav-icons-div .nav-icon:hover svg,
+.nav-icons-div .nav-icon:hover path,
+.nav-icons-div .nav-icon:hover span {
+   color: var(--primary) !important;
+   fill: var(--primary) !important;
+}
+
 .nav-icons-div .nav-icon[title="Profile"]:hover {
-   background: linear-gradient(135deg, #FF8C3A 0%, #FF6A00 100%) !important;
-   color: white !important;
+   background: #ffffff !important;
+   border: 1px solid var(--primary) !important;
+}
+
+.nav-icons-div .nav-icon[title="Profile"]:hover span,
+.nav-icons-div .nav-icon[title="Profile"]:hover img {
+   color: var(--primary) !important;
 }
 
 /* Tooltip on hover using data-title or title */
@@ -272,8 +285,15 @@ span {
 }
 
 @keyframes fadeInTooltip {
-   from { opacity: 0; transform: translateX(-50%) translateY(10px); }
-   to { opacity: 1; transform: translateX(-50%) translateY(0); }
+   from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(10px);
+   }
+
+   to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+   }
 }
 
 /* Ripple-like effect on hover using pseudo-element */
@@ -299,53 +319,106 @@ span {
 /* Unique Movement Animations for Navbar Icons */
 
 /* 1. Theme (Moon) - Spin & Glow */
-.nav-icons-div .nav-icon[title="Theme"]:hover svg {
+.nav-icons-div .nav-icon[title="Theme"]:hover svg,
+.nav-icons-div .nav-icon[title="Theme"]:hover path {
    animation: moonSpin 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+   color: var(--primary) !important;
+   fill: var(--primary) !important;
 }
 
 @keyframes moonSpin {
-   0% { transform: rotate(0); }
-   100% { transform: rotate(360deg); }
+   0% {
+      transform: rotate(0);
+   }
+
+   100% {
+      transform: rotate(360deg);
+   }
 }
 
 /* 2. Favorites (Heart) - Pulsing Beat */
-.nav-icons-div .nav-icon[title="Favorites"]:hover svg {
+.nav-icons-div .nav-icon[title="Favorites"]:hover svg,
+.nav-icons-div .nav-icon[title="Favorites"]:hover path {
    animation: heartBeat 0.8s ease-in-out infinite;
-   color: #ff4757;
+   color: var(--primary) !important;
+   fill: var(--primary) !important;
 }
 
 @keyframes heartBeat {
-   0% { transform: scale(1); }
-   25% { transform: scale(1.3); }
-   50% { transform: scale(1); }
-   75% { transform: scale(1.3); }
-   100% { transform: scale(1); }
+   0% {
+      transform: scale(1);
+   }
+
+   25% {
+      transform: scale(1.3);
+   }
+
+   50% {
+      transform: scale(1);
+   }
+
+   75% {
+      transform: scale(1.3);
+   }
+
+   100% {
+      transform: scale(1);
+   }
 }
 
 /* 3. Cart - Rolling/Sliding Movement */
-.nav-icons-div .nav-icon[title="Cart"]:hover svg {
+.nav-icons-div .nav-icon[title="Cart"]:hover svg,
+.nav-icons-div .nav-icon[title="Cart"]:hover path {
    animation: cartRoll 0.6s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+   color: var(--primary) !important;
+   fill: var(--primary) !important;
 }
 
 @keyframes cartRoll {
-   0% { transform: translateX(0) rotate(0); }
-   30% { transform: translateX(-5px) rotate(-10deg); }
-   60% { transform: translateX(5px) rotate(10deg); }
-   100% { transform: translateX(0) rotate(0); }
+   0% {
+      transform: translateX(0) rotate(0);
+   }
+
+   30% {
+      transform: translateX(-5px) rotate(-10deg);
+   }
+
+   60% {
+      transform: translateX(5px) rotate(10deg);
+   }
+
+   100% {
+      transform: translateX(0) rotate(0);
+   }
 }
 
 /* 4. Profile - Bounce & Scale */
 .nav-icons-div .nav-icon[title="Profile"]:hover span,
 .nav-icons-div .nav-icon[title="Profile"]:hover img {
    animation: profileBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+   color: var(--primary) !important;
 }
 
 @keyframes profileBounce {
-   0% { transform: scale(1); }
-   30% { transform: translateY(-8px) scale(1.1); }
-   50% { transform: translateY(0) scale(1.2); }
-   70% { transform: translateY(-3px) scale(1.1); }
-   100% { transform: translateY(0) scale(1.1); }
+   0% {
+      transform: scale(1);
+   }
+
+   30% {
+      transform: translateY(-8px) scale(1.1);
+   }
+
+   50% {
+      transform: translateY(0) scale(1.2);
+   }
+
+   70% {
+      transform: translateY(-3px) scale(1.1);
+   }
+
+   100% {
+      transform: translateY(0) scale(1.1);
+   }
 }
 
 /* Common Icon Transitions */
@@ -354,10 +427,6 @@ span {
 .nav-icons-div .nav-icon img {
    transition: all 0.3s ease;
    display: inline-block;
-}
-
-.nav-icons-div .nav-icon:hover svg {
-   color: #FF6A00;
 }
 
 [data-theme='dark'] .nav-icons-div .nav-icon {
