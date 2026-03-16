@@ -792,8 +792,13 @@ export default function Sidebar() {
                 src="/footer-images/logo.png"
                 alt="logo"
                 className="website-logo-mini"
+                style={{ 
+                  width: open ? "2.5rem" : "2rem", 
+                  height: open ? "2.5rem" : "2rem",
+                  transition: "width 0.3s ease, height 0.3s ease"
+                }}
               />
-              <div className="drawer-brand-text">
+              <div className="drawer-brand-text" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                 <span className="drawer-brand-title">Flavora</span>
                 <span className="drawer-brand-subtitle">
                   Fresh & Healthy Food
@@ -816,13 +821,22 @@ export default function Sidebar() {
                   <ListItemButton
                     selected={activeSidebarItem === item.text}
                     onClick={() => {
-                      const targetSection = sectionMap[item.text] || "Home";
-                      handleSectionChange(targetSection, item.text);
+                      if (item.path) {
+                        navigate(item.path);
+                      } else {
+                        const targetSection = sectionMap[item.text] || "Home";
+                        handleSectionChange(targetSection, item.text);
+                        // Ensure the URL is updated to the home page if not on a specific path
+                        if (location.pathname !== "/home") {
+                          navigate("/home");
+                        }
+                      }
                     }}
                     sx={{
                       minHeight: 48,
                       justifyContent: open ? "initial" : "center",
                       px: 2.5,
+                      transition: "background-color 0.2s ease, color 0.2s ease",
                       "&.Mui-selected": {
                         background: "var(--primary-gradient)",
                         color: "white",
@@ -871,11 +885,16 @@ export default function Sidebar() {
                     onClick={() => {
                       const targetSection = sectionMap[item.text] || "Home";
                       handleSectionChange(targetSection, item.text);
+                      // Ensure the URL is updated to the home page if not on a specific path
+                      if (location.pathname !== "/home") {
+                        navigate("/home");
+                      }
                     }}
                     sx={{
                       minHeight: 48,
                       justifyContent: open ? "initial" : "center",
                       px: 2.5,
+                      transition: "background-color 0.2s ease, color 0.2s ease",
                       "&.Mui-selected": {
                         background: "var(--primary-gradient)",
                         color: "white",
@@ -938,6 +957,7 @@ export default function Sidebar() {
                       minHeight: 48,
                       justifyContent: open ? "initial" : "center",
                       px: 2.5,
+                      transition: "background-color 0.2s ease, color 0.2s ease",
                       "&.Mui-selected": {
                         background: "var(--primary-gradient)",
                         color: "white",

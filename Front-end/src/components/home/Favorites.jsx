@@ -1,13 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Box, Typography, Grid, Card, CardContent, CardActions, Button, Chip } from "@mui/material";
+import { Box, Typography, Grid, Card, CardContent, CardActions, Button, Chip, IconButton } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useGetAllProductsQuery } from "../features/productsApi";
+import { useNavigate } from "react-router-dom";
 
 export default function Favorites() {
   const { data = [], isLoading } = useGetAllProductsQuery();
   const [discountBookmarked, setDiscountBookmarked] = useState({});
   const [trendingBookmarked, setTrendingBookmarked] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     const savedDiscount = JSON.parse(localStorage.getItem("discountBookmarked") || "{}");
@@ -106,9 +109,14 @@ export default function Favorites() {
 
   return (
     <Box sx={{ p: 3, minHeight: "calc(100vh - 72px)" }}>
-      <Typography variant="h5" fontWeight={700} gutterBottom>
-        Favorites
-      </Typography>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+        <IconButton onClick={() => navigate("/home")} sx={{ mr: 2 }}>
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography variant="h5" fontWeight={700} gutterBottom>
+          Favorites
+        </Typography>
+      </Box>
       <Typography variant="body2" color="text.secondary" gutterBottom>
         Items you bookmarked while browsing the restaurant menu.
       </Typography>
