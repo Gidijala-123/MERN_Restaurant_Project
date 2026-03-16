@@ -1,4 +1,12 @@
 import React, { useState, Suspense, useMemo, useCallback } from "react";
+import Rating from "@mui/material/Rating";
+import SentimentVeryDissatisfiedIcon from "@mui/icons-material/SentimentVeryDissatisfied";
+import SentimentDissatisfiedIcon from "@mui/icons-material/SentimentDissatisfied";
+import SentimentSatisfiedIcon from "@mui/icons-material/SentimentSatisfied";
+import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAltOutlined";
+import SentimentVerySatisfiedIcon from "@mui/icons-material/SentimentVerySatisfied";
+import { styled } from "@mui/material/styles";
+import { toast } from "react-toastify";
 import BannerCarousel from "../BannerCarousel/BannerCarousel";
 const FreshFood = React.lazy(() => import("./FRESHFOOD/FreshFood"));
 const Bakery = React.lazy(() => import("./BAKERY/Bakery"));
@@ -86,8 +94,58 @@ const DISCOUNT_SALE_ITEMS = [
   },
 ];
 
+const StyledRating = styled(Rating)(({ theme }) => ({
+  "& .MuiRating-iconEmpty .MuiSvgIcon-root": {
+    color: theme.palette.action.disabled,
+  },
+}));
+
+const customIcons = {
+  1: {
+    icon: <SentimentVeryDissatisfiedIcon color="error" />,
+    label: "Very Dissatisfied",
+  },
+  2: {
+    icon: <SentimentDissatisfiedIcon color="error" />,
+    label: "Dissatisfied",
+  },
+  3: {
+    icon: <SentimentSatisfiedIcon color="warning" />,
+    label: "Neutral",
+  },
+  4: {
+    icon: <SentimentSatisfiedAltIcon color="success" />,
+    label: "Satisfied",
+  },
+  5: {
+    icon: <SentimentVerySatisfiedIcon color="success" />,
+    label: "Very Satisfied",
+  },
+};
+
+function IconContainer(props) {
+  const { value, ...other } = props;
+  return <span {...other}>{customIcons[value].icon}</span>;
+}
+
 const Bodycontent = (props) => {
   const { selectedCategory } = useMenu();
+  const [itemRatings, setItemRatings] = useState({});
+
+  const handleRatingChange = useCallback((itemId, newValue) => {
+    setItemRatings((prev) => ({ ...prev, [itemId]: newValue }));
+    if (newValue) {
+      toast.success(`Thank you for your feedback! You rated it ${newValue} stars.`, {
+        position: "bottom-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
+    }
+  }, []);
 
   const [navTocomponents, setNav] = useState({
     Home: true,
@@ -1044,10 +1102,26 @@ const Bodycontent = (props) => {
                           </div>
                         </div>
 
-                        <div className="trending-rating">
-                          <span className="star">⭐</span>
-                          <span>{item.rating}</span>
-                          <span className="reviews-text">({item.reviews} reviews)</span>
+                        <div className="trending-rating feedback-rating" style={{ flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', fontWeight: '600' }}>Your Feedback:</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <StyledRating
+                              name={`rating-${item.id}`}
+                              value={itemRatings[item.id] || 0}
+                              onChange={(event, newValue) => handleRatingChange(item.id, newValue)}
+                              IconContainerComponent={IconContainer}
+                              getLabelText={(value) => customIcons[value].label}
+                              highlightSelectedOnly
+                            />
+                            {itemRatings[item.id] && (
+                              <span style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: '700' }}>
+                                {customIcons[itemRatings[item.id]].label}
+                              </span>
+                            )}
+                          </div>
+                          <div className="reviews-text" style={{ marginTop: '4px' }}>
+                            (Previously: ⭐ {item.rating})
+                          </div>
                         </div>
                         <div className="price-container">
                           <span className="original-price">₹{oldPrice}</span>
@@ -1535,7 +1609,7 @@ const Bodycontent = (props) => {
                         and service. Here is a small gift from our side for your next
                         order.
                       </p>
-                      <span className="thankyou-b">Keep visiting — TASTY KITCHEN</span>
+                      <span className="thankyou-b">Keep visiting — FLAVORA</span>
                       <div className="mt-2">
                         <button
                           className="main-action-btn"

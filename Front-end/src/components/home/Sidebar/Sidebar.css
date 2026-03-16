@@ -1,10 +1,22 @@
-.MuiPaper-root {
-   background-color: var(--white) !important;
-   border-right: 1px solid var(--border-light) !important;
+/* Smooth Typography and Global Reset */
+* {
+   -webkit-font-smoothing: antialiased;
+   -moz-osx-font-smoothing: grayscale;
+   text-rendering: optimizeLegibility;
+   scrollbar-width: none !important;
+   /* Firefox */
+   -ms-overflow-style: none !important;
+   /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+   display: none !important;
+   /* Hide scrollbars globally as requested */
 }
 
 .MuiTypography-root {
-   font-family: 'Okra', 'Helvetica', sans-serif !important;
+   font-family: 'Okra', 'Helvetica', 'Arial', sans-serif !important;
+   line-height: 1.5 !important;
 }
 
 .MuiListItemButton-root {
@@ -39,14 +51,12 @@
    background: var(--primary-gradient) !important;
    color: white !important;
    transition: none !important;
-   /* Instant change for background and text when selected */
 }
 
 .MuiListItemButton-root.Mui-selected .MuiListItemIcon-root,
 .MuiListItemButton-root.Mui-selected .MuiListItemText-root {
    color: white !important;
    transition: none !important;
-   /* Instant change for children */
 }
 
 .MuiAppBar-root {
@@ -56,81 +66,47 @@
    border-bottom: 1px solid var(--border-light) !important;
    box-sizing: border-box !important;
    backdrop-filter: blur(10px);
-}
-
-.greeting-area {
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
-   padding: 0 1rem;
-   border-left: 1px solid var(--border-light);
-   margin-left: 0.5rem;
-}
-
-.greeting-area .secondary {
-   font-size: 0.75rem;
-   color: var(--text-sub);
-   font-weight: 500;
-   text-transform: uppercase;
-   letter-spacing: 0.5px;
-}
-
-.greeting-area .primary {
-   font-size: 1rem;
-   color: var(--text-main);
-   font-weight: 700;
-}
-
-.actions-area {
-   gap: 1.25rem !important;
-}
-
-.MuiBadge-badge {
-   font-family: 'Okra', sans-serif !important;
-}
-
-[data-theme='dark'] .MuiAppBar-root {
-   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
-}
-
-/* Hamburger Icon Animation */
-.hamburger-box {
-   width: 20px;
-   height: 14px;
-   display: flex;
-   flex-direction: column;
-   justify-content: space-between;
-   position: relative;
-   cursor: pointer;
-}
-
-.hamburger-inner {
-   width: 100%;
-   height: 2px;
-   background-color: currentColor;
-   border-radius: 4px;
-   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-   transform-origin: center;
-}
-
-.hamburger-box.open .hamburger-inner:nth-child(1) {
-   transform: translateY(6px) rotate(45deg);
-}
-
-.hamburger-box.open .hamburger-inner:nth-child(2) {
-   opacity: 0;
-   transform: translateX(-10px);
-}
-
-.hamburger-box.open .hamburger-inner:nth-child(3) {
-   transform: translateY(-6px) rotate(-45deg);
-}
-
-/* Sidebar Transition Enhancements */
-.MuiAppBar-root {
    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
+/* Greeting Redesign */
+.greeting-area {
+   display: flex;
+   align-items: center;
+   padding: 0 1.5rem;
+   min-width: 0;
+}
+
+.greeting-content {
+   display: flex;
+   flex-direction: column;
+   line-height: 1.1;
+}
+
+.greeting-top {
+   font-size: 0.7rem;
+   color: var(--text-sub);
+   font-weight: 700;
+   text-transform: uppercase;
+   letter-spacing: 0.5px;
+   opacity: 0.8;
+}
+
+.greeting-bottom {
+   font-size: 1.05rem;
+   color: #ff6a00;
+   font-weight: 800;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   letter-spacing: -0.2px;
+}
+
+.divider-v {
+   display: none !important;
+}
+
+/* Header Structure */
 .dashboard-header-fixed {
    display: flex;
    flex-wrap: nowrap;
@@ -178,30 +154,13 @@
    color: var(--text-sub);
 }
 
-.divider-v {
-   width: 0.0625rem;
-   height: 2rem;
-   background: var(--border-light);
-}
-
+/* Sidebar Drawer Branding */
 .drawer-brand {
    display: flex;
    align-items: center;
    height: 100%;
    padding: 0;
    box-sizing: border-box;
-}
-
-.website-logo-mini {
-   width: 1.5rem;
-   height: 1.5rem;
-   object-fit: contain;
-}
-
-.drawer-brand-text {
-   display: flex;
-   flex-direction: column;
-   line-height: 1.1;
 }
 
 .drawer-brand-title {
@@ -215,19 +174,71 @@
    color: var(--text-sub);
 }
 
-/* Favorites popup compact grid */
+/* Search and Actions */
+.search-area {
+   display: flex;
+   align-items: center;
+   width: 100%;
+   flex: 1 1 auto;
+   min-width: 0;
+}
+
+.actions-area {
+   display: flex;
+   align-items: center;
+   justify-content: flex-end;
+   gap: 1.25rem;
+   flex: 0 0 17.5rem;
+   white-space: nowrap;
+   min-width: 0;
+}
+
+.user-avatar {
+   width: 2.25rem;
+   height: 2.25rem;
+   border-radius: 50%;
+   object-fit: cover;
+}
+
+/* Hamburger Icon Animation */
+.hamburger-box {
+   width: 18px;
+   height: 14px;
+   display: flex;
+   flex-direction: column;
+   justify-content: space-between;
+   position: relative;
+   cursor: pointer;
+}
+
+.hamburger-inner {
+   width: 100%;
+   height: 2px;
+   background-color: white;
+   border-radius: 4px;
+   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+   transform-origin: center;
+}
+
+.hamburger-box.open .hamburger-inner:nth-child(1) {
+   transform: translateY(6px) rotate(45deg);
+}
+
+.hamburger-box.open .hamburger-inner:nth-child(2) {
+   opacity: 0;
+   transform: translateX(-10px);
+}
+
+.hamburger-box.open .hamburger-inner:nth-child(3) {
+   transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Favorites and Profile styles (compact) */
 .favorites-grid {
    display: grid;
    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
    gap: 1rem;
-   align-items: center;
    padding: 0.5rem 1rem;
-}
-
-@media (min-width: 1280px) {
-   .favorites-grid {
-      grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
-   }
 }
 
 .favorites-card {
@@ -239,7 +250,6 @@
    flex-direction: column;
    overflow: hidden;
    transition: transform 0.2s ease, box-shadow 0.2s ease;
-   height: 100%;
 }
 
 .favorites-card:hover {
@@ -247,518 +257,29 @@
    box-shadow: 0 10px 24px rgba(18, 18, 18, 0.12);
 }
 
-.favorites-card .image-wrap {
-   position: relative;
-   width: 100%;
-   aspect-ratio: 16 / 9;
-   overflow: hidden;
-   background: var(--bg-light);
-   display: flex;
-   align-items: center;
-   justify-content: center;
-}
-
-.favorites-card .image-wrap img {
-   position: absolute;
-   width: 50%;
-   height: auto;
-   object-fit: cover;
-   object-position: center;
-}
-
-.favorites-card .remove-fav {
-   position: absolute;
-   top: 0.5rem;
-   right: 0.5rem;
-   width: 2rem;
-   height: 2rem;
-   border-radius: 50%;
-   background: var(--white);
-   border: 1px solid var(--border-light);
-   display: grid;
-   place-items: center;
-   color: var(--primary);
-   box-shadow: var(--shadow-sm);
-}
-
-.favorites-card .content {
-   padding: 0.75rem;
-   display: flex;
-   flex-direction: column;
-   gap: 0.5rem;
-   flex: 1 1 auto;
-}
-
-.favorites-card .title {
-   font-size: 0.8rem;
-   font-weight: 700;
-   color: var(--text-main);
-   line-height: 1.2;
-   min-height: 3rem;
-   display: -webkit-box;
-   -webkit-line-clamp: 2;
-   -webkit-box-orient: vertical;
-   overflow: hidden;
-}
-
-.favorites-card .meta {
-   display: flex;
-   align-items: center;
-   justify-content: space-between;
-   color: var(--text-sub);
-   font-weight: 600;
-   font-size: 0.8rem;
-   min-height: 1.2rem;
-}
-
-.favorites-card .rating {
-   display: inline-flex;
-   align-items: center;
-   gap: 0.25rem;
-   font-size: 0.8rem;
-}
-
-.favorites-card .reviews {
-   font-size: 0.8rem;
-}
-
-.favorites-card .actions {
-   display: flex;
-   align-items: center;
-   justify-content: space-between;
-   margin-top: auto;
-}
-
-.favorites-card .price {
-   font-size: 1rem;
-   color: var(--text-main);
-   font-weight: 800;
-}
-
-.favorites-card .add-btn {
-   padding: 0.3rem 0.3rem;
-   font-size: 0.75rem;
-   border-radius: 0.5rem;
-   background: var(--primary-gradient);
-   color: #fff;
-   border: none;
-   min-width: 5rem;
-   text-align: center;
-   box-shadow: 0 4px 10px rgba(255, 109, 0, 0.25);
-}
-
-.favorites-grid .trending-items-sub-div {
-   flex: none;
-   width: auto;
-   min-height: auto;
-   padding: 0.625rem;
-   border-radius: 0.75rem;
-}
-
-.favorites-grid .trending-items-sub-div>img {
-   height: 5.625rem;
-   width: 100%;
-   object-fit: cover;
-   border-radius: 0.5rem;
-}
-
-.favorites-grid .trending-items-title {
-   font-size: 0.75rem;
-   font-weight: 700;
-   margin-top: 0.375rem;
-   text-align: center;
-}
-
-.favorites-grid .trending-card-details-wrapper {
-   padding-top: 6px;
-}
-
-.favorites-grid .trending-rating span {
-   font-size: 0.6875rem;
-}
-
-.favorites-grid .trending-items-btn b {
-   font-size: 0.75rem;
-}
-
-.favorites-grid .trending-items-button {
-   padding: 0.375rem 0.625rem;
-   font-size: 0.6875rem;
-   border-radius: 0.5rem;
-}
-
-.greeting-area {
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
-   flex: 0 0 10rem;
-   min-width: 0;
-}
-
-.greeting-area .secondary {
-   font-size: 0.6875rem;
-   color: var(--text-sub);
-   font-weight: 600;
-}
-
-.greeting-area .primary {
-   font-size: 0.875rem;
-   font-weight: 800;
-   color: var(--text-main);
-}
-
-.search-area {
-   display: flex;
-   align-items: center;
-   width: 100%;
-   flex: 1 1 auto;
-   min-width: 0;
-}
-
-.dashboard-search {
-   width: 100%;
-   background: #f3f4f6;
-   border: 1px solid var(--border-light);
-   border-radius: 1.5rem;
-   padding: 0.625rem 1rem;
-   display: flex;
-   align-items: center;
-   gap: 0.625rem;
-   box-shadow: var(--shadow-sm);
-}
-
-.dashboard-search input {
-   border: none;
-   outline: none;
-   background: transparent;
-   width: 100%;
-   color: var(--text-main);
-   font-weight: 600;
-}
-
-.dashboard-search i {
-   color: var(--text-sub);
-}
-
-.actions-area {
-   display: flex;
-   align-items: center;
-   justify-content: flex-end;
-   gap: 0.75rem;
-   flex: 0 0 17.5rem;
-   white-space: nowrap;
-   min-width: 0;
-}
-
-.actions-area .user-avatar {
-   width: 2.25rem;
-   height: 2.25rem;
-   border-radius: 50%;
-   object-fit: cover;
-   /* border-radius: 50%;
-   box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
-   border: 2px solid #ff6a00; */
-}
-
-.navlogo-text p {
-   color: var(--text-sub);
-   font-size: 0.75rem;
-   font-weight: 500;
-}
-
-.kitchen-logo {
-   filter: drop-shadow(0 2px 4px rgba(230, 81, 0, 0.3));
-}
-
-/* Dark Mode Icon Fixes */
-[data-theme='dark'] .sidebar-icon {
-   filter: brightness(0) invert(1);
-   opacity: 0.9;
+/* Dark Mode Overrides */
+[data-theme='dark'] .MuiAppBar-root {
+   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
 }
 
 [data-theme='dark'] .MuiListItemIcon-root {
    color: var(--text-main) !important;
 }
 
-[data-theme='dark'] .website-logo,
-[data-theme='dark'] .website-logo-mini {
-   filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
-}
-
-[data-theme='dark'] .user-avatar {
-   border-color: var(--primary);
-   box-shadow: 0 0 15px rgba(255, 109, 0, 0.3);
-}
-
-[data-theme='dark'] .MuiAppBar-root {
-   background-color: var(--nav-bg) !important;
-   border-bottom: 1px solid var(--border-light) !important;
-}
-
-/* Custom Search Bar Alignment in Sidebar */
-.search-main-div {
-   margin: 0 1.25rem;
-}
-
-@media (max-width: 62rem) {
-   .dashboard-header {
-      grid-template-columns: minmax(10.625rem, 11.25rem) 1fr minmax(13.75rem, 15rem);
-   }
-
-   .brand-area {
-      flex: 0 0 auto;
-   }
-
-   .actions-area {
-      flex: 0 0 auto;
-   }
-}
-
-.actions-area {
-   flex: 0 0 15rem;
-}
-
-.search-main-div {
-   width: 100% !important;
-   margin: 0.625rem 0;
-}
-
-.dashboard-header {
-   gap: 0.5rem;
-   height: 4rem;
-   grid-template-columns: minmax(10rem, 11.25rem) 1fr minmax(12.5rem, 13.75rem);
-}
-
-.actions-area {
-   gap: 0.5rem;
-}
-
-/* Cleanup corrupted blocks */
-
-.search-area-mobile {
-   display: none;
-}
-
-.dashboard-header-mobile {
-   grid-template-columns: minmax(160px, 1fr) minmax(160px, 1fr);
-}
-
-.brand-text .title {
-   font-weight: 800;
-   color: #ff6a00;
-   font-size: 1.125rem;
-}
-
-.profile-card {
-   border: none;
-   border-radius: 1.25rem;
-   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
-   background: var(--white);
-   overflow: hidden;
-}
-
-.profile-avatar {
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   width: 3.75rem;
-   height: 3.75rem;
-   border: 2px solid var(--primary);
-   color: var(--primary);
-   background: var(--white);
-   font-weight: 800;
-   border-radius: 50%;
-   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
-   position: relative;
-   overflow: hidden;
-}
-
-.avatar-remove-btn {
-   position: absolute;
-   top: -4px;
-   right: -4px;
-   width: 26px;
-   height: 26px;
-   background: rgba(0, 0, 0, 0.6);
-   border: none;
-   border-radius: 50%;
-   color: white;
-   cursor: pointer;
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   font-size: 16px;
-   line-height: 0;
-   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-}
-
-.avatar-remove-btn:hover {
-   background: rgba(0, 0, 0, 0.8);
-}
-
-.profile-avatar img {
-   width: 100%;
-   height: 100%;
-   object-fit: cover;
-}
-
-.profile-card-header {
-   border-bottom: 1px solid rgba(255, 106, 0, 0.25);
-   background: linear-gradient(135deg, rgba(255, 106, 0, 0.18), rgba(255, 255, 255, 0.87));
-}
-
-/* Profile Completion Progress Styling */
-.MuiLinearProgress-root {
-   background-color: rgba(255, 106, 0, 0.12);
-}
-
-.MuiLinearProgress-bar {
-   background: linear-gradient(90deg, #ff6a00, #ff8c3a) !important;
-   border-radius: 4px;
-}
-
-/* Saved Addresses Section */
-.saved-address-item {
-   display: flex;
-   align-items: center;
-   justify-content: space-between;
-   padding: 12px;
-   background: rgba(255, 106, 0, 0.08);
-   border: 1px solid rgba(255, 106, 0, 0.2);
-   border-radius: 10px;
-   transition: all 0.2s ease;
-}
-
-.saved-address-item:hover {
-   background: rgba(255, 106, 0, 0.12);
-   box-shadow: 0 4px 12px rgba(255, 106, 0, 0.1);
-}
-
-/* Dialog Sections Typography */
-.profile-section-title {
-   font-size: 0.95rem;
-   font-weight: 700;
-   color: var(--text-main);
-   margin-bottom: 1.5rem;
-   display: flex;
-   align-items: center;
-   gap: 0.5rem;
-}
-
-.profile-section-title::before {
-   content: "";
-   display: inline-block;
-   width: 3px;
-   height: 1.2rem;
-   background: var(--primary-gradient);
-   border-radius: 2px;
-}
-
-/* Enhanced TextField Styling */
-.MuiTextField-root .MuiOutlinedInput-root {
-   border-radius: 8px;
-}
-
-.MuiTextField-root .MuiOutlinedInput-root:hover {
-   box-shadow: 0 2px 8px rgba(255, 106, 0, 0.15);
-}
-
-.MuiTextField-root .MuiOutlinedInput-root.Mui-focused {
-   box-shadow: 0 4px 12px rgba(255, 106, 0, 0.2);
-}
-
-/* Add Address Button Styling */
-.add-address-btn {
-   background: linear-gradient(135deg, #ff6a00, #ff8c3a);
-   color: white;
-   border-radius: 8px;
-   transition: all 0.2s ease;
-}
-
-.add-address-btn:hover {
-   transform: translateY(-2px);
-   box-shadow: 0 6px 16px rgba(255, 106, 0, 0.3);
-}
-
-/* Divider Enhancement */
-.MuiDivider-root {
-   border-color: rgba(255, 106, 0, 0.15);
-}
-
-
-/* Fix corrupted navbar rules by enforcing final layout overrides */
-.dashboard-header-fixed {
-   display: flex !important;
-   flex-wrap: nowrap !important;
-   align-items: center !important;
-   gap: 0.75rem !important;
-   height: 4.5rem !important;
-   padding: 0 1rem !important;
-   overflow: hidden !important;
-}
-
+/* Responsive adjustments */
 @media (max-width: 62rem) {
    .greeting-area {
       display: none !important;
-   }
-
-   .search-main-div {
-      width: 100% !important;
-      margin: 0.625rem 0 !important;
    }
 }
 
 @media (max-width: 48rem) {
    .dashboard-header-fixed {
       height: 3.75rem !important;
-      gap: 0.375rem !important;
       padding: 0 0.5rem !important;
    }
 
    .brand-area {
       flex: 0 0 8.75rem !important;
-   }
-
-   .website-logo {
-      width: 1.5rem !important;
-      height: 1.5rem !important;
-   }
-
-   .brand-text .title {
-      font-size: 0.875rem !important;
-   }
-
-   .brand-text .subtitle {
-      font-size: 0.5625rem !important;
-   }
-
-   .actions-area {
-      gap: 0.25rem !important;
-      flex: 1 1 auto !important;
-   }
-
-   .actions-area .user-avatar {
-      width: 1.75rem !important;
-      height: 1.75rem !important;
-   }
-
-   .MuiIconButton-root {
-      padding: 0.25rem !important;
-   }
-}
-
-@media (max-width: 30rem) {
-   .brand-area {
-      flex: 0 0 7.5rem !important;
-   }
-
-   .brand-text .subtitle {
-      display: none !important;
-   }
-}
-
-@media (max-width: 36rem) {
-   .search-area-mobile {
-      display: none !important;
    }
 }

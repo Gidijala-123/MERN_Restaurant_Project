@@ -1,3 +1,30 @@
+/* Theme-aware Scrollbar Styling */
+::-webkit-scrollbar {
+   width: 8px;
+   height: 8px;
+}
+
+::-webkit-scrollbar-track {
+   background: var(--bg-light);
+   border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+   background: var(--primary-gradient);
+   border-radius: 10px;
+   border: 2px solid var(--bg-light);
+}
+
+::-webkit-scrollbar-thumb:hover {
+   background: var(--primary);
+}
+
+/* For Firefox */
+* {
+   scrollbar-width: thin;
+   scrollbar-color: var(--primary) var(--bg-light);
+}
+
 .home-container {
    background-color: var(--bg-light);
    padding: 0 0.9375rem 0.9375rem 0.9375rem;
@@ -219,12 +246,12 @@ img {
    display: flex !important;
    flex-direction: row !important;
    flex-wrap: nowrap !important;
+   align-items: stretch !important;
+   /* Ensure all cards have equal height in the row */
    overflow-x: auto !important;
-   gap: 1rem;
-   margin-top: 0.9375rem;
-   /* Reduced from 6rem */
-   padding: 0.9375rem 0.3125rem 1.5625rem 0.3125rem;
-   /* Added bottom padding for scrollbar room */
+   gap: 1.5rem !important;
+   margin-top: 1rem !important;
+   padding: 1rem 0.5rem 2rem 0.5rem !important;
    scroll-behavior: smooth;
    -webkit-overflow-scrolling: touch;
 }
@@ -1186,18 +1213,19 @@ img {
 
 /* Offers Redesign - Horizontal Scrolling */
 .offers-main-div {
-   display: flex;
-   gap: 1rem;
-   padding: 1.25rem 0;
-   width: max-content;
-   scroll-behavior: smooth;
+   display: flex !important;
+   flex-direction: row !important;
+   flex-wrap: nowrap !important;
+   align-items: stretch !important;
+   /* Ensure all cards have equal height */
+   gap: 1.5rem !important;
 }
 
 .offers-scroll {
-   overflow-x: auto;
-   overflow-y: hidden;
-   padding-bottom: 0.625rem;
-   scroll-snap-type: x mandatory;
+   width: 100%;
+   overflow-x: auto !important;
+   padding: 1rem 0.5rem 2rem 0.5rem !important;
+   scroll-behavior: smooth;
 }
 
 .offers-scroll::-webkit-scrollbar {
@@ -1603,27 +1631,40 @@ img {
    animation: pulse 2s infinite;
 }
 
-.trending-viewport {
-   width: 100%;
-   overflow-x: auto !important;
-   position: relative;
-   background: var(--bg-light);
-   padding: 1.25rem 0 2.1875rem 0;
-   max-width: 100%;
-   scroll-behavior: smooth;
+.marquee-track {
+   display: flex !important;
+   flex-direction: row !important;
+   flex-wrap: nowrap !important;
+   align-items: stretch !important;
+   gap: 1.5rem !important;
+   padding: 1rem 0;
+   width: max-content;
+   animation: scrollLeft 40s linear infinite;
+   will-change: transform;
 }
 
 .trending-track {
-   display: flex;
+   display: flex !important;
+   flex-direction: row !important;
+   flex-wrap: nowrap !important;
+   align-items: stretch !important;
+   gap: 1.5rem !important;
+   padding: 1rem 0;
    width: max-content;
    animation: scrollRight 40s linear infinite;
    will-change: transform;
-   gap: 1rem;
-   padding-bottom: 0.3125rem;
 }
 
+.marquee-viewport:hover .marquee-track,
 .trending-viewport:hover .trending-track {
    animation-play-state: paused;
+}
+
+.marquee-viewport,
+.trending-viewport {
+   width: 100%;
+   overflow: hidden;
+   padding-bottom: 2rem !important;
 }
 
 .discount-sale-container,
@@ -1720,32 +1761,7 @@ img {
    }
 }
 
-.marquee-viewport {
-   width: 100%;
-   overflow-x: auto !important;
-   /* Enable manual scroll if needed */
-   position: relative;
-   background: var(--bg-light);
-   padding: 20px 0 35px 0;
-   /* Increased bottom padding for scrollbar room */
-   max-width: 100%;
-   scroll-behavior: smooth;
-}
 
-.marquee-track {
-   display: flex;
-   width: max-content;
-   /* Keep animation but allow manual scroll via viewport overflow */
-   animation: scrollLeft 40s linear infinite;
-   will-change: transform;
-   gap: 1rem;
-   padding-bottom: 5px;
-   /* Extra room for shadows */
-}
-
-.marquee-viewport:hover .marquee-track {
-   animation-play-state: paused;
-}
 
 @keyframes scrollLeft {
    0% {

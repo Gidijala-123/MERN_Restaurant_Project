@@ -40,9 +40,28 @@ import {
   Fastfood as FastfoodIcon,
   Payment as PaymentIcon,
   AttachMoney as AttachMoneyIcon,
+  CurrencyRupee as RupeeIcon,
   AccountBalanceWallet as AccountBalanceWalletIcon,
   PhotoCamera as PhotoCameraIcon,
   LocalShipping as DeliveryIcon,
+  Map as MapIcon,
+  AddLocationAlt as AddLocationAltIcon,
+  MyLocation as MyLocationIcon,
+  Remove as RemoveIcon,
+  Layers as LayersIcon,
+  Fullscreen as FullscreenIcon,
+  Star as StarIcon,
+  History as HistoryIcon,
+  EmojiEvents as EmojiEventsIcon,
+  LocalOffer as LocalOfferIcon,
+  CalendarToday as CalendarTodayIcon,
+  TrendingUp as TrendingUpIcon,
+  Restaurant as RestaurantIcon,
+  Savings as SavingsIcon,
+  LocalFireDepartment as StreakIcon,
+  RateReview as ReviewIcon,
+  Timer as TimerIcon,
+  Public as EarthIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -68,11 +87,21 @@ export default function Settings() {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const initialProfileRef = useRef(null);
+  const fileInputRef = useRef(null);
   const [profileForm, setProfileForm] = useState(initialForm);
   const [formErrors, setFormErrors] = useState({});
   const [newAddress, setNewAddress] = useState("");
   const [saving, setSaving] = useState(false);
   const [discardDialogOpen, setDiscardDialogOpen] = useState(false);
+  const [mapPickerOpen, setMapPickerOpen] = useState(false);
+  const [mapLoading, setMapLoading] = useState(false);
+  const [pickedLocation, setPickedLocation] = useState(null);
+  const [locationTag, setLocationTag] = useState("Home");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(0.01);
+  const [mapType, setMapType] = useState("mapnik");
 
   useEffect(() => {
     const stored = {
@@ -84,36 +113,22 @@ export default function Settings() {
       paymentMethod: localStorage.getItem("userPaymentMethod") || "Cash",
       foodType: localStorage.getItem("userFoodType") || "veg",
       deliverySpeed: localStorage.getItem("userDeliverySpeed") || "Standard",
-      savedAddresses: JSON.parse(localStorage.getItem("userSavedAddresses") || "[]"),
-      dietaryRestrictions: JSON.parse(localStorage.getItem("userDietaryRestrictions") || "[]"),
-      referralCode: localStorage.getItem("userReferralCode") || "",
+      savedAddresses: JSON.parse(localStorage.getItem("userSavedAddresses")) || [],
+      dietaryRestrictions: JSON.parse(localStorage.getItem("userDietaryRestrictions")) || [],
+      referralCode: localStorage.getItem("userReferralCode") || "FLAVORA2024",
       avatar: localStorage.getItem("userAvatar") || "",
+      selectedAddressId: localStorage.getItem("userSelectedAddressId") ? parseInt(localStorage.getItem("userSelectedAddressId")) : null,
     };
-
-    // Find a saved address matching the current primary address
-    const selectedAddressId = stored.savedAddresses.find((a) => a.text === stored.address)?.id || null;
-
-    const initialState = { ...stored, selectedAddressId };
-    setProfileForm(initialState);
-    initialProfileRef.current = initialState;
+    setProfileForm(stored);
+    initialProfileRef.current = stored;
   }, []);
-
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePhone = (phone) => {
-    const digits = phone.replace(/\D/g, "");
-    return digits.length === 10;
-  };
 
   const validateForm = () => {
     const errors = {};
     if (!profileForm.name.trim()) errors.name = "Name is required";
-    if (profileForm.email && !validateEmail(profileForm.email)) errors.email = "Invalid email format";
-    if (profileForm.phone && !validatePhone(profileForm.phone)) errors.phone = "Phone must be 10 digits";
-    if (!profileForm.address.trim()) errors.address = "Primary address is required";
+    if (!profileForm.email.trim()) errors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(profileForm.email)) errors.email = "Invalid email format";
+    if (!profileForm.phone.trim()) errors.phone = "Phone number is required";
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -123,78 +138,23 @@ export default function Settings() {
       toast.error("Please fix the errors before saving.");
       return;
     }
-
     setSaving(true);
-
-    localStorage.setItem("userName", profileForm.name);
-    localStorage.setItem("userEmail", profileForm.email);
-    localStorage.setItem("userPhone", profileForm.phone);
-    localStorage.setItem("userAddress", profileForm.address);
-    localStorage.setItem("userDeliveryInstructions", profileForm.deliveryInstructions);
-    localStorage.setItem("userPaymentMethod", profileForm.paymentMethod);
-    localStorage.setItem("userFoodType", profileForm.foodType);
-    localStorage.setItem("userDeliverySpeed", profileForm.deliverySpeed);
-    localStorage.setItem("userSavedAddresses", JSON.stringify(profileForm.savedAddresses));
-    localStorage.setItem("userDietaryRestrictions", JSON.stringify(profileForm.dietaryRestrictions));
-    localStorage.setItem("userReferralCode", profileForm.referralCode);
-    localStorage.setItem("userAvatar", profileForm.avatar || "");
-
+    // Simulate API call
     setTimeout(() => {
+      Object.entries(profileForm).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          localStorage.setItem(`user${key.charAt(0).toUpperCase() + key.slice(1)}`, JSON.stringify(value));
+        } else {
+          localStorage.setItem(`user${key.charAt(0).toUpperCase() + key.slice(1)}`, value);
+        }
+      });
+      initialProfileRef.current = profileForm;
       setSaving(false);
-      toast.success("Settings saved.");
-      // Update baseline for dirty checking
-      initialProfileRef.current = { ...profileForm };
-    }, 400);
+      toast.success("Profile settings updated successfully!");
+    }, 1000);
   };
 
-  const resetProfileForm = () => {
-    const stored = {
-      name: localStorage.getItem("userName") || "",
-      email: localStorage.getItem("userEmail") || "",
-      phone: localStorage.getItem("userPhone") || "",
-      address: localStorage.getItem("userAddress") || "",
-      deliveryInstructions: localStorage.getItem("userDeliveryInstructions") || "",
-      paymentMethod: localStorage.getItem("userPaymentMethod") || "Cash",
-      foodType: localStorage.getItem("userFoodType") || "veg",
-      deliverySpeed: localStorage.getItem("userDeliverySpeed") || "Standard",
-      savedAddresses: JSON.parse(localStorage.getItem("userSavedAddresses") || "[]"),
-      dietaryRestrictions: JSON.parse(localStorage.getItem("userDietaryRestrictions") || "[]"),
-      referralCode: localStorage.getItem("userReferralCode") || "",
-      avatar: localStorage.getItem("userAvatar") || "",
-    };
-
-    const selectedAddressId = stored.savedAddresses.find((a) => a.text === stored.address)?.id || null;
-    setFormErrors({});
-    const full = { ...stored, selectedAddressId };
-    setProfileForm(full);
-    initialProfileRef.current = full;
-  };
-
-  const isDirty = useMemo(() => {
-    if (!initialProfileRef.current) return false;
-    return JSON.stringify(profileForm) !== JSON.stringify(initialProfileRef.current);
-  }, [profileForm]);
-
-  const attemptClose = () => {
-    if (isDirty) {
-      setDiscardDialogOpen(true);
-    } else {
-      navigate("/home");
-    }
-  };
-
-  const confirmDiscard = () => {
-    resetProfileForm();
-    setDiscardDialogOpen(false);
-    navigate("/home");
-  };
-
-  const cancelDiscard = () => {
-    setDiscardDialogOpen(false);
-  };
-
-  const setField = (field) => (event) => {
-    const value = event.target.value;
+  const handleInputChange = (field, value) => {
     setProfileForm((prev) => ({ ...prev, [field]: value }));
 
     if (field === "address") {
@@ -203,10 +163,15 @@ export default function Settings() {
     }
   };
 
-  const addAddress = () => {
+  const addAddress = (tag = null) => {
     const trimmed = newAddress.trim();
     if (!trimmed) return;
-    const newEntry = { id: Date.now(), text: trimmed };
+    const finalTag = tag || locationTag || "Other";
+    const newEntry = { 
+      id: Date.now(), 
+      text: trimmed,
+      tag: finalTag
+    };
     setProfileForm((prev) => ({
       ...prev,
       savedAddresses: [...prev.savedAddresses, newEntry],
@@ -214,457 +179,425 @@ export default function Settings() {
       selectedAddressId: newEntry.id,
     }));
     setNewAddress("");
-    toast.success("Address added.");
+    toast.success(`Address added as ${finalTag}.`);
   };
 
   const selectAddress = (id) => {
-    const found = profileForm.savedAddresses.find((a) => a.id === id);
-    if (!found) return;
-    setProfileForm((prev) => ({
-      ...prev,
-      address: found.text,
-      selectedAddressId: id,
-    }));
+    const addr = profileForm.savedAddresses.find((a) => a.id === id);
+    if (addr) {
+      setProfileForm((prev) => ({
+        ...prev,
+        address: addr.text,
+        selectedAddressId: id,
+      }));
+      toast.info(`Selected address: ${addr.tag || "Saved Address"}`);
+    }
   };
 
   const removeAddress = (id) => {
-    const updated = profileForm.savedAddresses.filter((a) => a.id !== id);
-    setProfileForm((prev) => ({
-      ...prev,
-      savedAddresses: updated,
-      selectedAddressId:
-        prev.selectedAddressId === id ? null : prev.selectedAddressId,
-    }));
-    toast.info("Address removed.");
+    setProfileForm((prev) => {
+      const updated = prev.savedAddresses.filter((a) => a.id !== id);
+      const isSelected = prev.selectedAddressId === id;
+      return {
+        ...prev,
+        savedAddresses: updated,
+        selectedAddressId: isSelected ? null : prev.selectedAddressId,
+        address: isSelected ? "" : prev.address,
+      };
+    });
+    toast.warn("Address removed.");
   };
 
-  const avatarSizeKB = useMemo(() => {
-    if (!profileForm.avatar) return 0;
-    const base64String = profileForm.avatar.split(",")[1] || "";
-    const sizeInBytes = (base64String.length * 3) / 4 -
-      (base64String.endsWith("==") ? 2 : base64String.endsWith("=") ? 1 : 0);
-    return Math.round(sizeInBytes / 1024);
-  }, [profileForm.avatar]);
+  const fetchAddressFromCoords = async (lat, lon) => {
+    setMapLoading(true);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`
+      );
+      const data = await response.json();
+      if (data && data.display_name) {
+        setNewAddress(data.display_name);
+        setPickedLocation({ lat: parseFloat(lat), lon: parseFloat(lon), address: data.display_name });
+      }
+    } catch (error) {
+      console.error("Geocoding error:", error);
+      toast.error("Failed to fetch address from location.");
+    } finally {
+      setMapLoading(false);
+    }
+  };
 
-  const handleAvatarUpload = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const searchLocations = async (query) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    setIsSearching(true);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5`
+      );
+      const data = await response.json();
+      setSearchResults(data);
+    } catch (error) {
+      console.error("Search error:", error);
+      toast.error("Search failed. Try again later.");
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
-    const reader = new FileReader();
-    const img = new Image();
+  const mapUrl = useMemo(() => {
+    const lat = pickedLocation ? pickedLocation.lat : 17.3850;
+    const lon = pickedLocation ? pickedLocation.lon : 78.4867;
+    const offset = zoomLevel;
+    const bbox = [
+      (lon - offset).toFixed(4),
+      (lat - offset).toFixed(4),
+      (lon + offset).toFixed(4),
+      (lat + offset).toFixed(4)
+    ].join("%2C");
+    return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=${mapType}&marker=${lat.toFixed(4)}%2C${lon.toFixed(4)}&zoomcontrol=false`;
+  }, [pickedLocation, zoomLevel, mapType]);
 
-    reader.onload = () => {
-      img.onload = () => {
-        const maxSize = 512;
-        const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.round(img.width * scale);
-        canvas.height = Math.round(img.height * scale);
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        const compressed = canvas.toDataURL("image/jpeg", 0.75);
-        setProfileForm((prev) => ({ ...prev, avatar: compressed }));
-      };
-      img.onerror = () => {
+  const handleZoomIn = () => setZoomLevel(prev => Math.max(0.0005, prev / 2));
+  const handleZoomOut = () => setZoomLevel(prev => Math.min(0.1, prev * 2));
+  const toggleMapType = () => setMapType(prev => prev === "mapnik" ? "cyclemap" : "mapnik");
+
+  const handleLocateMe = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setMapLoading(true);
+    setSearchQuery("");
+    setSearchResults([]);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        fetchAddressFromCoords(latitude, longitude);
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        toast.error("Failed to get your current location.");
+        setMapLoading(false);
+      }
+    );
+  };
+
+  const handleSearchSelect = (result) => {
+    const lat = parseFloat(result.lat);
+    const lon = parseFloat(result.lon);
+    setNewAddress(result.display_name);
+    setPickedLocation({ lat, lon, address: result.display_name });
+    setSearchQuery("");
+    setSearchResults([]);
+  };
+
+  const toggleDietary = (tag) => {
+    setProfileForm((prev) => {
+      const current = prev.dietaryRestrictions || [];
+      const updated = current.includes(tag) ? current.filter((t) => t !== tag) : [...current, tag];
+      return { ...prev, dietaryRestrictions: updated };
+    });
+  };
+
+  const handleAvatarChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.size > 1024 * 1024 * 2) {
+        toast.error("File size should be less than 2MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
         setProfileForm((prev) => ({ ...prev, avatar: reader.result }));
+        toast.info("Avatar updated preview!");
       };
-      img.src = reader.result;
-    };
-
-    reader.readAsDataURL(file);
+      reader.readAsDataURL(file);
+    }
   };
 
-  const removeAvatar = () => {
-    setProfileForm((prev) => ({ ...prev, avatar: "" }));
-    toast.info("Photo removed.");
+  const handleBackClick = () => {
+    if (hasChanges) {
+      setDiscardDialogOpen(true);
+    } else {
+      navigate(-1);
+    }
   };
 
-  const SectionHeader = ({ icon, title, subtitle }) => (
-    <Box sx={{ mb: 3 }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5 }}>
-        <Box sx={{
-          p: 1,
-          borderRadius: "10px",
-          background: "var(--primary-gradient)",
-          color: "white",
-          display: "flex",
-          boxShadow: "0 4px 10px rgba(230, 81, 0, 0.2)"
-        }}>
-          {React.cloneElement(icon, { fontSize: "small" })}
-        </Box>
-        <Typography variant="h6" fontWeight={800} color="var(--text-main)">
-          {title}
-        </Typography>
-      </Box>
-      <Typography variant="body2" color="var(--text-sub)" sx={{ ml: 6 }}>
-        {subtitle}
-      </Typography>
-    </Box>
-  );
+  const hasChanges = useMemo(() => {
+    if (!initialProfileRef.current) return false;
+    return JSON.stringify(profileForm) !== JSON.stringify(initialProfileRef.current);
+  }, [profileForm]);
+
+  const appTheme = theme;
+
+  const inputStyles = {
+    "& .MuiOutlinedInput-root": {
+      borderRadius: "14px",
+      background: "var(--bg-light)",
+      transition: "all 0.3s ease",
+      "& fieldset": { border: "1px solid var(--border-light)" },
+      "&:hover fieldset": { borderColor: "var(--primary)" },
+      "&.Mui-focused fieldset": { borderWidth: "2px", borderColor: "var(--primary)" },
+    },
+    "& .MuiInputLabel-root": {
+      fontWeight: 700,
+      color: "var(--text-sub)",
+      "&.Mui-focused": { color: "var(--primary)" }
+    },
+    "& .MuiInputAdornment-root .MuiSvgIcon-root": {
+      color: "var(--primary)",
+      opacity: 0.7
+    }
+  };
 
   return (
-    <Box sx={{
-      p: { xs: 2, md: 4 },
-      minHeight: "100vh",
-      background: "var(--bg-light)",
-      transition: "background 0.3s ease",
-    }}>
-      <Box sx={{ maxWidth: 900, mx: "auto" }}>
-        {/* Page Header */}
-        <Box sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          mb: 4,
-          p: 3,
-          borderRadius: "20px",
-          background: "var(--white)",
-          boxShadow: "var(--shadow-md)",
-          border: "1px solid var(--border-light)"
-        }}>
+    <Box sx={{ p: { xs: 2, md: 4 }, background: "var(--bg-light)", minHeight: "100vh" }}>
+      <Box sx={{ maxWidth: 1200, mx: "auto" }}>
+        {/* Header */}
+        <Box sx={{ mb: 4, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 2 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton 
-              onClick={attemptClose} 
-              sx={{ 
-                background: "var(--bg-light)",
-                "&:hover": { background: "var(--border-light)" }
-              }}
-            >
+            <IconButton onClick={handleBackClick} sx={{ background: "var(--white)", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
               <ArrowBackIcon />
             </IconButton>
             <Box>
-              <Typography variant="h4" fontWeight={900} color="var(--text-main)" sx={{ lineHeight: 1.2 }}>
+              <Typography variant="h4" fontWeight={900} sx={{ color: "var(--text-main)", letterSpacing: -1 }}>
                 Settings
               </Typography>
               <Typography variant="body2" color="var(--text-sub)">
-                Manage your profile and food preferences
+                Manage your account preferences and delivery details
               </Typography>
             </Box>
           </Box>
           <Button
             variant="contained"
             onClick={saveProfile}
-            disabled={saving}
+            disabled={saving || !hasChanges}
             startIcon={<SaveIcon />}
             sx={{
-              background: "var(--primary-gradient)",
+              background: !hasChanges ? "var(--bg-light)" : "var(--primary-gradient)",
+              color: !hasChanges ? "var(--text-sub) !important" : "#ffffff !important",
               borderRadius: "12px",
               px: 3,
               py: 1,
               fontWeight: 700,
-              boxShadow: "0 8px 16px rgba(230, 81, 0, 0.2)",
-              "&:hover": { boxShadow: "0 12px 20px rgba(230, 81, 0, 0.3)" }
+              boxShadow: !hasChanges ? "none" : "0 8px 16px rgba(230, 81, 0, 0.2)",
+              "&:hover": { 
+                boxShadow: !hasChanges ? "none" : "0 12px 20px rgba(230, 81, 0, 0.3)",
+                background: !hasChanges ? "var(--bg-light)" : "var(--primary-gradient)"
+              },
+              opacity: !hasChanges ? 0.7 : 1,
+              transition: "all 0.3s ease"
             }}
           >
             {saving ? "Saving..." : "Save Changes"}
           </Button>
         </Box>
 
-        <Grid container spacing={3}>
-          {/* Left Column: Profile & Photo */}
-          <Grid item xs={12} md={4}>
-            <Card sx={{
-              borderRadius: "20px",
-              height: "100%",
-              boxShadow: "var(--shadow-sm)",
-              border: "1px solid var(--border-light)",
-              background: "var(--white)",
-              overflow: "visible"
+        <Grid container spacing={4} sx={{ alignItems: "stretch" }}>
+          {/* Left Column - Navigation/Activity Summary */}
+          <Grid item xs={12} md={4} sx={{ display: "flex", flexDirection: "column" }}>
+            <Card sx={{ 
+              borderRadius: "24px", 
+              overflow: "hidden", 
+              background: "var(--white)", 
+              boxShadow: "0 10px 30px rgba(0,0,0,0.05)", 
+              mb: { xs: 4, md: 0 }, // Only bottom margin on mobile
+              height: "100%", // Stretch to match right column
+              display: "flex",
+              flexDirection: "column",
+              transition: "transform 0.3s ease, boxShadow 0.3s ease",
+              "&:hover": { transform: "translateY(-5px)", boxShadow: "0 15px 35px rgba(0,0,0,0.1)" }
             }}>
-              <CardContent sx={{ p: 4, textAlign: "center" }}>
-                <Box sx={{ position: "relative", display: "inline-block", mb: 3 }}>
-                  <Badge
-                    overlap="circular"
-                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                    badgeContent={
-                      <IconButton
-                        component="label"
-                        sx={{
-                          background: "var(--primary-gradient)",
-                          color: "white",
-                          boxShadow: "var(--shadow-md)",
-                          "&:hover": { background: "var(--primary-dark)" },
-                          width: 32,
-                          height: 32,
-                          p: 0.5
-                        }}
-                      >
-                        <PhotoCameraIcon sx={{ fontSize: 18 }} />
-                        <input hidden accept="image/*" type="file" onChange={handleAvatarUpload} />
-                      </IconButton>
-                    }
-                  >
-                    <Avatar
-                      src={profileForm.avatar || undefined}
-                      sx={{
-                        width: 120,
-                        height: 120,
-                        border: "4px solid var(--white)",
-                        boxShadow: "var(--shadow-md)",
-                        fontSize: 48,
-                        background: "var(--primary-gradient)",
-                        color: "white",
-                        fontWeight: 700
-                      }}
+              <Box sx={{ p: 4, background: "var(--primary-gradient)", textAlign: "center", position: "relative" }}>
+                <Badge
+                  overlap="circular"
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  badgeContent={
+                    <IconButton 
+                      size="small" 
+                      onClick={() => fileInputRef.current.click()}
+                      sx={{ background: "white", color: "var(--primary)", "&:hover": { background: "#f5f5f5" }, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}
                     >
-                      {profileForm.name ? profileForm.name.charAt(0).toUpperCase() : "U"}
-                    </Avatar>
-                  </Badge>
-                </Box>
-
-                <Typography variant="h6" fontWeight={800} color="var(--text-main)">
-                  {profileForm.name || "User Name"}
-                </Typography>
-                <Typography variant="body2" color="var(--text-sub)" sx={{ mb: 3 }}>
-                  {profileForm.email || "user@example.com"}
-                </Typography>
-
-                {profileForm.avatar && (
-                  <Button
-                    variant="text"
-                    color="error"
-                    size="small"
-                    onClick={removeAvatar}
-                    sx={{ fontWeight: 600 }}
+                      <PhotoCameraIcon fontSize="small" />
+                    </IconButton>
+                  }
+                >
+                  <input
+                    type="file"
+                    hidden
+                    ref={fileInputRef}
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                  />
+                  <Avatar 
+                    src={profileForm.avatar}
+                    sx={{ width: 100, height: 100, mx: "auto", border: "4px solid white", boxShadow: "0 8px 20px rgba(0,0,0,0.15)" }}
                   >
-                    Remove Photo
-                  </Button>
-                )}
+                    {profileForm.name?.charAt(0)}
+                  </Avatar>
+                </Badge>
+                <Typography variant="h6" fontWeight={800} sx={{ mt: 2, color: "white" }}>
+                  {profileForm.name || "Set your name"}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                  Foodie Level: <span style={{ fontWeight: 900 }}>Silver</span>
+                </Typography>
                 
-                <Divider sx={{ my: 3 }} />
-                
-                <Box sx={{ textAlign: "left" }}>
-                  <Typography variant="caption" fontWeight={700} color="var(--text-sub)" sx={{ textTransform: "uppercase", letterSpacing: 1 }}>
-                    Account Info
-                  </Typography>
-                  <Box sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 1.5 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                      <EmailIcon sx={{ color: "var(--primary)", fontSize: 20 }} />
-                      <Typography variant="body2" color="var(--text-main)" sx={{ fontWeight: 500 }}>
-                        {profileForm.email || "Not provided"}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                      <PhoneIcon sx={{ color: "var(--primary)", fontSize: 20 }} />
-                      <Typography variant="body2" color="var(--text-main)" sx={{ fontWeight: 500 }}>
-                        {profileForm.phone || "Not provided"}
-                      </Typography>
-                    </Box>
+                {/* Gamified Level Progress */}
+                <Box sx={{ mt: 2, px: 2 }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+                    <Typography variant="caption" sx={{ color: "white", fontWeight: 700 }}>Level 4</Typography>
+                    <Typography variant="caption" sx={{ color: "white", fontWeight: 700 }}>85% to Gold</Typography>
                   </Box>
+                  <Box sx={{ width: "100%", height: 6, background: "rgba(255,255,255,0.2)", borderRadius: 3, overflow: "hidden" }}>
+                    <Box sx={{ width: "85%", height: "100%", background: "white", borderRadius: 3 }} />
+                  </Box>
+                </Box>
+              </Box>
+              
+              <CardContent sx={{ p: 3, flexGrow: 1 }}>
+                <Typography variant="caption" fontWeight={800} color="var(--text-sub)" sx={{ textTransform: "uppercase", letterSpacing: 1, mb: 2, display: "block" }}>
+                  Your Activity
+                </Typography>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+                  {[
+                    { icon: <HistoryIcon />, label: "Total Orders", value: "42", color: "#3498db" },
+                    { icon: <EmojiEventsIcon />, label: "Loyalty Points", value: "1,250", color: "#f1c40f" },
+                    { icon: <StreakIcon />, label: "Order Streak", value: "8 Days", color: "#e74c3c" },
+                    { icon: <RestaurantIcon />, label: "Fav Cuisine", value: "Indian", color: "#27ae60" },
+                    { icon: <SavingsIcon />, label: "Total Saved", value: "₹ 2,450", color: "#e67e22" },
+                    { icon: <ReviewIcon />, label: "Reviews Given", value: "15", color: "#9b59b6" },
+                    { icon: <TimerIcon />, label: "Avg Delivery", value: "24 mins", color: "#1abc9c" },
+                    { icon: <EarthIcon />, label: "Eco Impact", value: "4kg CO2 saved", color: "#2ecc71" },
+                    { icon: <StarIcon />, label: "Member Since", value: "Feb 2024", color: "#7f8c8d" },
+                  ].map((stat, idx) => (
+                    <Box key={idx} sx={{ 
+                      display: "flex", 
+                      alignItems: "center", 
+                      gap: 2,
+                      p: 1,
+                      borderRadius: "12px",
+                      transition: "all 0.2s ease",
+                      "&:hover": { background: "var(--bg-light)", transform: "translateX(5px)" }
+                    }}>
+                      <Box sx={{ p: 1, borderRadius: "10px", background: `${stat.color}15`, color: stat.color, display: "flex" }}>
+                        {React.cloneElement(stat.icon, { fontSize: "small" })}
+                      </Box>
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="caption" fontWeight={700} color="var(--text-sub)" sx={{ display: "block", lineHeight: 1 }}>{stat.label}</Typography>
+                        <Typography variant="body2" fontWeight={800} color="var(--text-main)">{stat.value}</Typography>
+                      </Box>
+                    </Box>
+                  ))}
                 </Box>
               </CardContent>
             </Card>
           </Grid>
 
-          {/* Right Column: Detailed Forms */}
+          {/* Right Column - Main Settings */}
           <Grid item xs={12} md={8}>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              {/* Personal Details Section */}
-              <Card sx={{ borderRadius: "20px", boxShadow: "var(--shadow-sm)", border: "1px solid var(--border-light)", background: "var(--white)" }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {/* Personal Information */}
+              <Card sx={{ 
+                borderRadius: "24px", 
+                background: "var(--white)", 
+                boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+                transition: "all 0.3s ease",
+                "&:hover": { boxShadow: "0 15px 40px rgba(0,0,0,0.08)" }
+              }}>
                 <CardContent sx={{ p: 4 }}>
-                  <SectionHeader 
-                    icon={<PersonIcon />} 
-                    title="Personal Information" 
-                    subtitle="Update your name, contact email and phone number"
-                  />
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 4 }}>
+                    <Box sx={{ p: 1.5, borderRadius: "14px", background: "rgba(230, 81, 0, 0.1)", color: "var(--primary)" }}>
+                      <PersonIcon />
+                    </Box>
+                    <Box>
+                      <Typography variant="h6" fontWeight={800} color="var(--text-main)">Personal Information</Typography>
+                      <Typography variant="body2" color="var(--text-sub)">Basic details about you</Typography>
+                    </Box>
+                  </Box>
                   <Grid container spacing={3}>
-                    <Grid item xs={12}>
+                    <Grid item xs={12} md={6}>
                       <TextField
+                        fullWidth
                         label="Full Name"
                         value={profileForm.name}
-                        onChange={setField("name")}
-                        fullWidth
-                        variant="filled"
-                        error={Boolean(formErrors.name)}
+                        onChange={(e) => handleInputChange("name", e.target.value)}
+                        error={!!formErrors.name}
                         helperText={formErrors.name}
-                        sx={{ 
-                          "& .MuiFilledInput-root": { 
-                            background: "var(--bg-light)",
-                            borderRadius: "12px",
-                            "&:before, &:after": { display: "none" }
-                          }
-                        }}
+                        InputProps={{ startAdornment: <PersonIcon sx={{ mr: 1 }} /> }}
+                        sx={inputStyles}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid item xs={12} md={6}>
                       <TextField
+                        fullWidth
                         label="Email Address"
                         value={profileForm.email}
-                        onChange={setField("email")}
-                        fullWidth
-                        variant="filled"
-                        error={Boolean(formErrors.email)}
+                        onChange={(e) => handleInputChange("email", e.target.value)}
+                        error={!!formErrors.email}
                         helperText={formErrors.email}
-                        sx={{ 
-                          "& .MuiFilledInput-root": { 
-                            background: "var(--bg-light)",
-                            borderRadius: "12px",
-                            "&:before, &:after": { display: "none" }
-                          }
-                        }}
+                        InputProps={{ startAdornment: <EmailIcon sx={{ mr: 1 }} /> }}
+                        sx={inputStyles}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid item xs={12} md={6}>
                       <TextField
+                        fullWidth
                         label="Phone Number"
                         value={profileForm.phone}
-                        onChange={setField("phone")}
-                        fullWidth
-                        variant="filled"
-                        error={Boolean(formErrors.phone)}
+                        onChange={(e) => handleInputChange("phone", e.target.value)}
+                        error={!!formErrors.phone}
                         helperText={formErrors.phone}
-                        sx={{ 
-                          "& .MuiFilledInput-root": { 
-                            background: "var(--bg-light)",
-                            borderRadius: "12px",
-                            "&:before, &:after": { display: "none" }
-                          }
+                        InputProps={{ startAdornment: <PhoneIcon sx={{ mr: 1 }} /> }}
+                        sx={inputStyles}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        fullWidth
+                        label="Referral Code"
+                        value={profileForm.referralCode}
+                        InputProps={{ 
+                          startAdornment: <LocalOfferIcon sx={{ mr: 1 }} />,
+                          readOnly: true 
                         }}
+                        sx={inputStyles}
                       />
                     </Grid>
                   </Grid>
                 </CardContent>
               </Card>
 
-              {/* Delivery Preferences Section */}
-              <Card sx={{ borderRadius: "20px", boxShadow: "var(--shadow-sm)", border: "1px solid var(--border-light)", background: "var(--white)" }}>
+              {/* Delivery Settings */}
+              <Card sx={{ 
+                borderRadius: "24px", 
+                background: "var(--white)", 
+                boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+                transition: "all 0.3s ease",
+                "&:hover": { boxShadow: "0 15px 40px rgba(0,0,0,0.08)" }
+              }}>
                 <CardContent sx={{ p: 4 }}>
-                  <SectionHeader 
-                    icon={<DeliveryIcon />} 
-                    title="Delivery Preferences" 
-                    subtitle="Choose your default payment method and food type"
-                  />
-                  <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        label="Default Payment"
-                        value={profileForm.paymentMethod}
-                        onChange={setField("paymentMethod")}
-                        select
-                        fullWidth
-                        variant="filled"
-                        sx={{ 
-                          "& .MuiFilledInput-root": { 
-                            background: "var(--bg-light)",
-                            borderRadius: "12px",
-                            "&:before, &:after": { display: "none" }
-                          }
-                        }}
-                      >
-                        {[ 
-                          { value: "Cash", label: "Cash on Delivery", icon: <AttachMoneyIcon /> },
-                          { value: "Card", label: "Credit / Debit Card", icon: <CreditCardIcon /> },
-                          { value: "UPI", label: "UPI Payment", icon: <AccountBalanceWalletIcon /> },
-                        ].map((option) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                              {React.cloneElement(option.icon, { fontSize: "small", color: "action" })}
-                              {option.label}
-                            </Box>
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        label="Food Preference"
-                        value={profileForm.foodType}
-                        onChange={setField("foodType")}
-                        select
-                        fullWidth
-                        variant="filled"
-                        sx={{ 
-                          "& .MuiFilledInput-root": { 
-                            background: "var(--bg-light)",
-                            borderRadius: "12px",
-                            "&:before, &:after": { display: "none" }
-                          }
-                        }}
-                      >
-                        <MenuItem value="veg">
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                            <FastfoodIcon fontSize="small" color="success" />
-                            Veg Only
-                          </Box>
-                        </MenuItem>
-                        <MenuItem value="nonveg">
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                            <FastfoodIcon fontSize="small" color="error" />
-                            Non-Veg
-                          </Box>
-                        </MenuItem>
-                      </TextField>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <TextField
-                        label="Delivery Instructions"
-                        value={profileForm.deliveryInstructions}
-                        onChange={setField("deliveryInstructions")}
-                        fullWidth
-                        multiline
-                        rows={3}
-                        variant="filled"
-                        placeholder="e.g. Leave at the gate, don't ring the bell..."
-                        sx={{ 
-                          "& .MuiFilledInput-root": { 
-                            background: "var(--bg-light)",
-                            borderRadius: "12px",
-                            "&:before, &:after": { display: "none" }
-                          }
-                        }}
-                      />
-                    </Grid>
-                  </Grid>
-                </CardContent>
-              </Card>
-
-              {/* Saved Addresses Section */}
-              <Card sx={{ borderRadius: "20px", boxShadow: "var(--shadow-sm)", border: "1px solid var(--border-light)", background: "var(--white)" }}>
-                <CardContent sx={{ p: 4 }}>
-                  <SectionHeader 
-                    icon={<LocationIcon />} 
-                    title="Saved Addresses" 
-                    subtitle="Manage your delivery locations"
-                  />
-                  
-                  <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
-                    <TextField
-                      value={newAddress}
-                      onChange={(e) => setNewAddress(e.target.value)}
-                      placeholder="Add a new address..."
-                      fullWidth
-                      variant="filled"
-                      sx={{ 
-                        "& .MuiFilledInput-root": { 
-                          background: "var(--bg-light)",
-                          borderRadius: "12px",
-                          "&:before, &:after": { display: "none" }
-                        }
-                      }}
-                    />
-                    <Button
-                      variant="contained"
-                      onClick={addAddress}
-                      sx={{ 
-                        background: "var(--primary-gradient)",
-                        borderRadius: "12px",
-                        minWidth: 100,
-                        fontWeight: 700
-                      }}
-                    >
-                      Add
-                    </Button>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 4 }}>
+                    <Box sx={{ p: 1.5, borderRadius: "14px", background: "rgba(230, 81, 0, 0.1)", color: "var(--primary)" }}>
+                      <DeliveryIcon />
+                    </Box>
+                    <Box>
+                      <Typography variant="h6" fontWeight={800} color="var(--text-main)">Delivery Details</Typography>
+                      <Typography variant="body2" color="var(--text-sub)">Where should we bring your food?</Typography>
+                    </Box>
                   </Box>
 
-                  <Typography variant="caption" fontWeight={700} color="var(--text-sub)" sx={{ display: "block", mb: 2, textTransform: "uppercase" }}>
-                    Pick Primary Address
-                  </Typography>
-
-                  <RadioGroup
-                    value={profileForm.selectedAddressId ?? ""}
-                    onChange={(e) => selectAddress(Number(e.target.value))}
-                    sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
-                  >
+                  <Box sx={{ mb: 4 }}>
+                    <Typography variant="body2" fontWeight={800} sx={{ mb: 2, display: "block" }}>Saved Addresses</Typography>
+                    <RadioGroup 
+                      value={profileForm.selectedAddressId} 
+                      onChange={(e) => selectAddress(parseInt(e.target.value))}
+                      sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+                    >
                     {profileForm.savedAddresses.map((addr) => (
                       <Box 
                         key={addr.id}
@@ -682,9 +615,19 @@ export default function Settings() {
                           value={addr.id}
                           control={<Radio sx={{ color: "var(--primary)", "&.Mui-checked": { color: "var(--primary)" } }} />}
                           label={
-                            <Typography variant="body2" sx={{ fontWeight: profileForm.selectedAddressId === addr.id ? 700 : 500 }}>
-                              {addr.text}
-                            </Typography>
+                            <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                <Typography variant="body2" sx={{ fontWeight: 800, color: "var(--text-main)" }}>
+                                  {addr.tag || "Address"}
+                                </Typography>
+                                {addr.tag === "Home" && <Chip label="Home" size="small" sx={{ height: 16, fontSize: "0.6rem", background: "rgba(39, 174, 96, 0.1)", color: "#27ae60", fontWeight: 700 }} />}
+                                {addr.tag === "Work" && <Chip label="Work" size="small" sx={{ height: 16, fontSize: "0.6rem", background: "rgba(41, 128, 185, 0.1)", color: "#2980b9", fontWeight: 700 }} />}
+                                {addr.tag === "Other" && <Chip label="Other" size="small" sx={{ height: 16, fontSize: "0.6rem", background: "rgba(127, 140, 141, 0.1)", color: "#7f8c8d", fontWeight: 700 }} />}
+                              </Box>
+                              <Typography variant="body2" color="var(--text-sub)" sx={{ fontSize: "0.8rem" }}>
+                                {addr.text}
+                              </Typography>
+                            </Box>
                           }
                           sx={{ flex: 1, m: 0 }}
                         />
@@ -698,12 +641,221 @@ export default function Settings() {
                         </IconButton>
                       </Box>
                     ))}
-                    {profileForm.savedAddresses.length === 0 && (
-                      <Typography variant="body2" color="var(--text-sub)" sx={{ fontStyle: "italic", textAlign: "center", py: 2 }}>
-                        No saved addresses yet.
-                      </Typography>
-                    )}
-                  </RadioGroup>
+                    </RadioGroup>
+                  </Box>
+
+                  <Box sx={{ mb: 4 }}>
+                    <Typography variant="body2" fontWeight={800} sx={{ mb: 1.5 }}>Add New Address</Typography>
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        placeholder="Type address or use map picker..."
+                        value={newAddress}
+                        onChange={(e) => setNewAddress(e.target.value)}
+                        InputProps={{
+                          startAdornment: <LocationIcon sx={{ mr: 1 }} />,
+                        }}
+                        sx={inputStyles}
+                      />
+                      <IconButton 
+                        onClick={() => setMapPickerOpen(true)}
+                        sx={{ 
+                          background: "rgba(230, 81, 0, 0.1)", 
+                          color: "var(--primary)",
+                          borderRadius: "14px",
+                          width: 48,
+                          height: 48,
+                          "&:hover": { background: "rgba(230, 81, 0, 0.2)" }
+                        }}
+                      >
+                        <AddLocationAltIcon />
+                      </IconButton>
+                      <Button
+                        variant="contained"
+                        onClick={() => addAddress()}
+                        disabled={!newAddress.trim()}
+                        sx={{ 
+                          background: !newAddress.trim() ? "var(--bg-light)" : "var(--primary-gradient)",
+                          color: !newAddress.trim() ? "var(--text-sub) !important" : "#ffffff !important",
+                          borderRadius: "14px",
+                          minWidth: 80,
+                          height: 48,
+                          fontWeight: 700,
+                          transition: "all 0.3s ease"
+                        }}
+                      >
+                        Add
+                      </Button>
+                    </Box>
+                  </Box>
+
+                  <Box>
+                    <Typography variant="body2" fontWeight={800} sx={{ mb: 1.5 }}>Delivery Instructions</Typography>
+                    <TextField
+                      fullWidth
+                      multiline
+                      rows={2}
+                      placeholder="E.g., Leave at the door, Ring the bell twice..."
+                      value={profileForm.deliveryInstructions}
+                      onChange={(e) => handleInputChange("deliveryInstructions", e.target.value)}
+                      InputProps={{ startAdornment: <NotesIcon sx={{ mr: 1, alignSelf: "flex-start", mt: 1 }} /> }}
+                      sx={inputStyles}
+                    />
+                  </Box>
+                </CardContent>
+              </Card>
+
+              {/* Preferences & Dietary */}
+              <Card sx={{ 
+                borderRadius: "24px", 
+                background: "var(--white)", 
+                boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+                transition: "all 0.3s ease",
+                "&:hover": { boxShadow: "0 15px 40px rgba(0,0,0,0.08)" }
+              }}>
+                <CardContent sx={{ p: 4 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 4 }}>
+                    <Box sx={{ p: 1.5, borderRadius: "14px", background: "rgba(230, 81, 0, 0.1)", color: "var(--primary)" }}>
+                      <FastfoodIcon />
+                    </Box>
+                    <Box>
+                      <Typography variant="h6" fontWeight={800} color="var(--text-main)">Food Preferences</Typography>
+                      <Typography variant="body2" color="var(--text-sub)">Tailor your Flavora experience</Typography>
+                    </Box>
+                  </Box>
+
+                  <Grid container spacing={4}>
+                    <Grid item xs={12} md={6}>
+                      <FormControl component="fieldset">
+                        <FormLabel component="legend" sx={{ fontWeight: 800, color: "var(--text-main)", mb: 1 }}>Dietary Habit</FormLabel>
+                        <RadioGroup
+                          row
+                          value={profileForm.foodType}
+                          onChange={(e) => handleInputChange("foodType", e.target.value)}
+                        >
+                          <FormControlLabel value="veg" control={<Radio color="primary" />} label="Vegetarian" />
+                          <FormControlLabel value="non-veg" control={<Radio color="primary" />} label="Non-Veg" />
+                        </RadioGroup>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <FormControl component="fieldset">
+                        <FormLabel component="legend" sx={{ fontWeight: 800, color: "var(--text-main)", mb: 1 }}>Delivery Speed</FormLabel>
+                        <RadioGroup
+                          row
+                          value={profileForm.deliverySpeed}
+                          onChange={(e) => handleInputChange("deliverySpeed", e.target.value)}
+                        >
+                          <FormControlLabel value="Standard" control={<Radio color="primary" />} label="Standard" />
+                          <FormControlLabel value="Priority" control={<Radio color="primary" />} label="Priority" />
+                        </RadioGroup>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="body2" fontWeight={800} sx={{ mb: 2 }}>Dietary Restrictions</Typography>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+                        {["Gluten Free", "Dairy Free", "Nut Free", "Low Carb", "Vegan", "Halal", "Keto"].map((tag) => {
+                          const isSelected = (profileForm.dietaryRestrictions || []).includes(tag);
+                          return (
+                            <Chip
+                              key={tag}
+                              label={tag}
+                              onClick={() => toggleDietary(tag)}
+                              sx={{
+                                borderRadius: "10px",
+                                fontWeight: 700,
+                                transition: "all 0.2s ease",
+                                background: isSelected ? "var(--primary-gradient)" : "var(--bg-light)",
+                                color: isSelected ? "white" : "var(--text-sub)",
+                                border: isSelected ? "none" : "1px solid var(--border-light)",
+                                "&:hover": { transform: "translateY(-2px)" }
+                              }}
+                            />
+                          );
+                        })}
+                      </Box>
+                    </Grid>
+                  </Grid>
+                </CardContent>
+              </Card>
+
+              {/* Payment Settings */}
+              <Card sx={{ 
+                borderRadius: "24px", 
+                background: "var(--white)", 
+                boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+                transition: "all 0.3s ease",
+                "&:hover": { boxShadow: "0 15px 40px rgba(0,0,0,0.08)" }
+              }}>
+                <CardContent sx={{ p: 4 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 4 }}>
+                    <Box sx={{ p: 1.5, borderRadius: "14px", background: "rgba(230, 81, 0, 0.1)", color: "var(--primary)" }}>
+                      <PaymentIcon />
+                    </Box>
+                    <Box>
+                      <Typography variant="h6" fontWeight={800} color="var(--text-main)">Payment Settings</Typography>
+                      <Typography variant="body2" color="var(--text-sub)">Default payment and wallet</Typography>
+                    </Box>
+                  </Box>
+
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        fullWidth
+                        select
+                        label="Default Payment Method"
+                        value={profileForm.paymentMethod}
+                        onChange={(e) => handleInputChange("paymentMethod", e.target.value)}
+                        InputProps={{ startAdornment: <CreditCardIcon sx={{ mr: 1 }} /> }}
+                        sx={inputStyles}
+                      >
+                        <MenuItem value="Cash">Cash on Delivery</MenuItem>
+                        <MenuItem value="UPI">UPI / QR Scan</MenuItem>
+                        <MenuItem value="Card">Credit/Debit Card</MenuItem>
+                        <MenuItem value="Wallet">Flavora Wallet</MenuItem>
+                      </TextField>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <Box sx={{ 
+                        p: 1.5,
+                        px: 2,
+                        borderRadius: "14px", 
+                        background: "var(--bg-light)", 
+                        border: "1px solid var(--border-light)",
+                        height: 56, // Match standard TextField height
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        transition: "all 0.3s ease",
+                        "&:hover": { borderColor: "var(--primary)" }
+                      }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                          <AccountBalanceWalletIcon sx={{ color: "var(--primary)", opacity: 0.7 }} />
+                          <Box>
+                            <Typography variant="caption" fontWeight={800} color="var(--text-sub)" sx={{ display: "block", lineHeight: 1 }}>WALLET BALANCE</Typography>
+                            <Typography variant="body1" fontWeight={900} color="var(--primary)">₹ 450.00</Typography>
+                          </Box>
+                        </Box>
+                        <Button 
+                          size="small" 
+                          variant="contained" 
+                          sx={{ 
+                            borderRadius: "8px", 
+                            fontWeight: 800,
+                            px: 2,
+                            py: 0.5,
+                            fontSize: "0.7rem",
+                            background: "var(--primary-gradient)",
+                            color: "white !important",
+                            boxShadow: "0 4px 10px rgba(230, 81, 0, 0.2)"
+                          }}
+                        >
+                          Top Up
+                        </Button>
+                      </Box>
+                    </Grid>
+                  </Grid>
                 </CardContent>
               </Card>
             </Box>
@@ -711,32 +863,415 @@ export default function Settings() {
         </Grid>
       </Box>
 
-      {/* Discard Changes Dialog */}
+      {/* Map Picker Dialog */}
       <Dialog 
-        open={discardDialogOpen} 
-        onClose={cancelDiscard}
+        open={mapPickerOpen} 
+        onClose={() => setMapPickerOpen(false)}
+        maxWidth="md"
+        fullWidth
         PaperProps={{
-          sx: { borderRadius: "20px", p: 1 }
+          sx: { 
+            borderRadius: "28px", 
+            overflow: "hidden", 
+            background: "var(--white)",
+            boxShadow: "0 24px 48px rgba(0,0,0,0.2)",
+            // Reduced height to maintain "card" feel
+            minHeight: { md: 550 },
+            maxHeight: "90vh"
+          }
         }}
       >
-        <DialogTitle sx={{ fontWeight: 800 }}>Discard changes?</DialogTitle>
+        <DialogTitle sx={{ 
+          fontWeight: 900, 
+          display: "flex", 
+          alignItems: "center", 
+          justifyContent: "space-between",
+          background: "var(--primary-gradient)",
+          color: "white",
+          py: 2,
+          px: 4
+        }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <MapIcon sx={{ fontSize: 28 }} />
+            <Typography variant="h6" fontWeight={900} sx={{ letterSpacing: -0.5 }}>Pick Delivery Location</Typography>
+          </Box>
+          <IconButton onClick={() => setMapPickerOpen(false)} sx={{ color: "white", "&:hover": { background: "rgba(255,255,255,0.1)" } }}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ 
+            p: 0, 
+            overflow: { xs: "auto", md: "hidden" },
+            // Compact height to restore card-like appearance
+            height: { xs: "auto", md: 450 },
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": { display: "none" }
+          }}>
+            <Grid container sx={{ height: "100%" }}>
+            {/* Map Area */}
+            <Grid item xs={12} md={7} sx={{ 
+              position: "relative", 
+              minHeight: { xs: 300, md: "100%" },
+              overflow: "hidden" 
+            }}>
+              {/* Outer container to clip Leaflet default controls */}
+              <Box sx={{
+                position: "absolute",
+                top: -40, // Clip top default controls
+                left: -40, // Clip left default controls
+                right: 0,
+                bottom: 0,
+                width: "calc(100% + 40px)",
+                height: "calc(100% + 40px)",
+                pointerEvents: "auto"
+              }}>
+                <iframe 
+                  key={mapUrl}
+                  width="100%" 
+                  height="100%" 
+                  frameBorder="0" 
+                  scrolling="no" 
+                  marginHeight="0" 
+                  marginWidth="0" 
+                  src={mapUrl}
+                  style={{ border: "none", display: "block" }}
+                  title="Map"
+                ></iframe>
+              </Box>
+              
+              {/* Map Controls Overlay */}
+              <Box sx={{ 
+                position: "absolute", 
+                top: 20, 
+                right: 20, 
+                display: "flex", 
+                flexDirection: "column", 
+                gap: 1.5,
+                zIndex: 5
+              }}>
+                {/* Map Type Toggle */}
+                <IconButton
+                  onClick={toggleMapType}
+                  sx={{ 
+                    background: "white", 
+                    color: "var(--text-main)", 
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                    "&:hover": { background: "#f8f9fa" },
+                    borderRadius: "12px",
+                    width: 44,
+                    height: 44
+                  }}
+                  title="Change Map Layer"
+                >
+                  <LayersIcon />
+                </IconButton>
+
+                {/* Zoom Controls */}
+                <Box sx={{ 
+                  display: "flex", 
+                  flexDirection: "column", 
+                  background: "white", 
+                  borderRadius: "12px", 
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                  overflow: "hidden"
+                }}>
+                  <IconButton 
+                    onClick={handleZoomIn} 
+                    sx={{ color: "var(--text-main)", p: 1.2, "&:hover": { background: "#f8f9fa" } }}
+                  >
+                    <AddIcon fontSize="small" />
+                  </IconButton>
+                  <Divider sx={{ width: "60%", mx: "auto" }} />
+                  <IconButton 
+                    onClick={handleZoomOut} 
+                    sx={{ color: "var(--text-main)", p: 1.2, "&:hover": { background: "#f8f9fa" } }}
+                  >
+                    <RemoveIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+
+                {/* Locate Me (Integrated) */}
+                <IconButton
+                  onClick={handleLocateMe}
+                  disabled={mapLoading}
+                  sx={{ 
+                    background: "white", 
+                    color: "var(--primary)", 
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                    "&:hover": { background: "#f8f9fa" },
+                    borderRadius: "12px",
+                    width: 44,
+                    height: 44
+                  }}
+                  title="Current Location"
+                >
+                  <MyLocationIcon />
+                </IconButton>
+
+                {/* Fullscreen (Visual Only for now) */}
+                <IconButton
+                  sx={{ 
+                    background: "white", 
+                    color: "var(--text-main)", 
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                    "&:hover": { background: "#f8f9fa" },
+                    borderRadius: "12px",
+                    width: 44,
+                    height: 44
+                  }}
+                >
+                  <FullscreenIcon />
+                </IconButton>
+              </Box>
+
+              {mapLoading && (
+                <Box sx={{ 
+                  position: "absolute", 
+                  top: 0, 
+                  left: 0, 
+                  width: "100%", 
+                  height: "100%", 
+                  background: "rgba(255,255,255,0.8)",
+                  backdropFilter: "blur(4px)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 10
+                }}>
+                  <Box sx={{ textAlign: "center" }}>
+                    <Typography variant="h6" fontWeight={800} color="var(--primary)" sx={{ mb: 1.5 }}>
+                      Finding your spot...
+                    </Typography>
+                    <Box sx={{ width: 180, height: 6, background: "rgba(0,0,0,0.05)", borderRadius: 10, overflow: "hidden", mx: "auto" }}>
+                      <Box className="loading-bar-anim" sx={{ height: "100%", width: "60%", background: "var(--primary-gradient)", borderRadius: 10 }} />
+                    </Box>
+                  </Box>
+                </Box>
+              )}
+            </Grid>
+
+            {/* Sidebar Search Area */}
+            <Grid item xs={12} md={5} sx={{ 
+              display: "flex", 
+              flexDirection: "column", 
+              background: "var(--white)", 
+              borderLeft: { md: "1px solid var(--border-light)" },
+              borderTop: { xs: "1px solid var(--border-light)", md: "none" },
+              height: { xs: "auto", md: "100%" },
+              maxHeight: { xs: 400, md: "100%" }
+            }}>
+              <Box sx={{ 
+                 p: 2, // Slightly more compact
+                 display: "flex", 
+                 flexDirection: "column", 
+                 gap: 1.5, // Tighter spacing
+                 flexGrow: 1, 
+                 overflowY: "auto",
+                 scrollbarWidth: "none",
+                 "&::-webkit-scrollbar": { display: "none" }
+               }}>
+                {/* Search Bar */}
+                <Box>
+                  <Typography variant="caption" fontWeight={800} color="var(--text-sub)" sx={{ display: "block", mb: 0.5, textTransform: "uppercase", letterSpacing: 1.2, fontSize: "0.6rem" }}>
+                    Search Location
+                  </Typography>
+                  <Box sx={{ position: "relative" }}>
+                    <TextField
+                      fullWidth
+                      placeholder="Search area, landmark..."
+                      value={searchQuery}
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        searchLocations(e.target.value);
+                      }}
+                      InputProps={{
+                        startAdornment: <LocationIcon sx={{ color: "var(--primary)", mr: 1, fontSize: 16 }} />,
+                        endAdornment: isSearching && <Typography variant="caption" color="var(--text-sub)">Searching...</Typography>
+                      }}
+                      sx={{ 
+                        "& .MuiOutlinedInput-root": { 
+                          borderRadius: "14px", 
+                          background: "var(--bg-light)",
+                          border: "none",
+                          height: 44,
+                          fontSize: "0.85rem",
+                          transition: "all 0.3s ease",
+                          "& fieldset": { border: "1px solid var(--border-light)" },
+                          "&:hover fieldset": { borderColor: "var(--primary)" },
+                          "&.Mui-focused fieldset": { borderWidth: "2px", borderColor: "var(--primary)" }
+                        }
+                      }}
+                    />
+                    
+                    {/* Search Results Dropdown */}
+                    {searchResults.length > 0 && (
+                      <Box sx={{ 
+                        position: "absolute",
+                        top: "100%",
+                        left: 0,
+                        right: 0,
+                        mt: 0.5, 
+                        maxHeight: 150, 
+                        overflowY: "auto", 
+                        background: "var(--white)", 
+                        borderRadius: "12px",
+                        boxShadow: "0 12px 32px rgba(0,0,0,0.15)",
+                        border: "1px solid var(--border-light)",
+                        zIndex: 20,
+                        scrollbarWidth: "none",
+                        "&::-webkit-scrollbar": { display: "none" }
+                      }}>
+                        {searchResults.map((result, idx) => (
+                          <MenuItem 
+                            key={idx} 
+                            onClick={() => handleSearchSelect(result)}
+                            sx={{ py: 0.8, px: 1.5, borderBottom: idx !== searchResults.length - 1 ? "1px solid var(--bg-light)" : "none", "&:hover": { background: "var(--bg-light)" } }}
+                          >
+                            <LocationIcon sx={{ fontSize: 14, mr: 1, color: "var(--text-sub)" }} />
+                            <Typography variant="body2" noWrap sx={{ fontWeight: 600, fontSize: "0.7rem" }}>
+                              {result.display_name}
+                            </Typography>
+                          </MenuItem>
+                        ))}
+                      </Box>
+                    )}
+                  </Box>
+                </Box>
+
+                {/* Address Details */}
+                <Box>
+                  <Typography variant="caption" fontWeight={800} color="var(--text-sub)" sx={{ display: "block", mb: 0.5, textTransform: "uppercase", letterSpacing: 1.2, fontSize: "0.6rem" }}>
+                    Confirm Address
+                  </Typography>
+                  <Box sx={{ 
+                    p: 1.5, 
+                    background: "var(--bg-light)", 
+                    borderRadius: "12px", 
+                    minHeight: 60,
+                    maxHeight: 80,
+                    overflowY: "auto",
+                    fontWeight: 700,
+                    color: "var(--text-main)",
+                    fontSize: "0.75rem",
+                    lineHeight: 1.3,
+                    border: "1px solid transparent",
+                    transition: "all 0.3s ease",
+                    scrollbarWidth: "none",
+                    "&::-webkit-scrollbar": { display: "none" }
+                  }}>
+                    {newAddress || "Select a location on the map or use search"}
+                  </Box>
+                </Box>
+
+                {/* Tags */}
+                <Box>
+                  <Typography variant="caption" fontWeight={800} color="var(--text-sub)" sx={{ display: "block", mb: 0.5, textTransform: "uppercase", letterSpacing: 1.2, fontSize: "0.6rem" }}>
+                    Save As
+                  </Typography>
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    {["Home", "Work", "Other"].map((tag) => (
+                      <Chip
+                        key={tag}
+                        label={tag}
+                        onClick={() => setLocationTag(tag)}
+                        sx={{ 
+                          flex: 1,
+                          height: 32,
+                          fontWeight: 800,
+                          borderRadius: "8px",
+                          cursor: "pointer",
+                          fontSize: "0.75rem",
+                          background: locationTag === tag ? "var(--primary-gradient)" : "var(--bg-light)",
+                          color: locationTag === tag ? "#ffffff" : "var(--text-sub)",
+                          border: "none",
+                          transition: "all 0.3s ease",
+                          "& .MuiChip-label": { px: 0 },
+                          "&:hover": { 
+                            background: locationTag === tag ? "var(--primary-gradient)" : "var(--border-light)",
+                            transform: "translateY(-1px)"
+                          }
+                        }}
+                      />
+                    ))}
+                  </Box>
+                </Box>
+              </Box>
+
+              <Box sx={{ 
+                p: 2, 
+                borderTop: "1px solid var(--border-light)", 
+                background: "var(--white)",
+                zIndex: 10,
+                mt: "auto" // Ensures it stays at the very bottom
+              }}>
+                <Button 
+                   fullWidth
+                   variant="contained" 
+                   onClick={() => {
+                     if (newAddress) {
+                       addAddress(locationTag);
+                       setMapPickerOpen(false);
+                     } else {
+                       toast.warning("Please pick a location first.");
+                     }
+                   }}
+                   disabled={!newAddress || mapLoading}
+                   sx={{ 
+                     background: "var(--primary-gradient)",
+                     color: "#ffffff !important",
+                     borderRadius: "14px",
+                     py: 1.4, // More compact but still prominent
+                     fontWeight: 900,
+                     fontSize: "1rem",
+                     textTransform: "none",
+                     letterSpacing: 0.5,
+                     boxShadow: "0 10px 20px rgba(230, 81, 0, 0.3)",
+                     "&:hover": { 
+                       transform: "translateY(-2px)", 
+                       boxShadow: "0 12px 28px rgba(230, 81, 0, 0.4)",
+                       background: "var(--primary-gradient)"
+                     },
+                     "&:active": { transform: "translateY(0)" },
+                     transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
+                   }}
+                 >
+                   Confirm & Add Address
+                 </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        </DialogContent>
+      </Dialog>
+
+      {/* Discard Changes Confirmation */}
+      <Dialog
+        open={discardDialogOpen}
+        onClose={() => setDiscardDialogOpen(false)}
+        PaperProps={{ sx: { borderRadius: "20px", p: 1 } }}
+      >
+        <DialogTitle sx={{ fontWeight: 800 }}>Discard Changes?</DialogTitle>
         <DialogContent>
-          <Typography color="var(--text-sub)">
-            You have unsaved changes. Do you want to discard them and leave the settings page?
+          <Typography variant="body2" color="var(--text-sub)">
+            You have unsaved changes. Are you sure you want to leave? Your progress will be lost.
           </Typography>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
+        <DialogActions sx={{ p: 2, gap: 1 }}>
           <Button 
-            onClick={cancelDiscard} 
-            sx={{ color: "var(--text-main)", fontWeight: 700 }}
+            onClick={() => setDiscardDialogOpen(false)}
+            sx={{ borderRadius: "10px", fontWeight: 700, color: "var(--text-sub)" }}
           >
-            Keep editing
+            Stay Here
           </Button>
           <Button 
-            variant="contained"
-            color="error" 
-            onClick={confirmDiscard}
-            sx={{ borderRadius: "10px", fontWeight: 700, px: 3 }}
+            variant="contained" 
+            onClick={() => navigate(-1)}
+            sx={{ 
+              borderRadius: "10px", 
+              fontWeight: 700, 
+              background: "#e74c3c", 
+              color: "white !important",
+              "&:hover": { background: "#c0392b" }
+            }}
           >
             Discard
           </Button>

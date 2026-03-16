@@ -462,29 +462,31 @@ export default function Sidebar() {
           sx={{ 
             minHeight: { xs: 64, md: 72 }, 
             height: { xs: 64, md: 72 }, 
-            px: { xs: 1, md: 2 }, 
+            paddingLeft: { xs: 1, md: 0 }, 
+            paddingRight: { xs: 1, md: 2 }, 
             boxSizing: "border-box" 
           }}
         >
           <IconButton
-            color="inherit"
             aria-label="toggle drawer"
             onClick={handleDrawerToggle}
-            edge="start"
             sx={{
-              marginRight: { xs: 0, md: 5 }, // Reset margin for mobile
-              p: { xs: 1.5, md: 1.2 }, 
-              borderRadius: "12px",
-              background: appTheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
-              transition: "all 0.3s ease",
+              width: { xs: 32, md: 38 },
+              height: { xs: 32, md: 38 },
+              marginLeft: { xs: 0.5, md: "13.5px" }, // Center within 65px: (65-38)/2 = 13.5
+              marginRight: { xs: 1, md: "13.5px" }, 
+              borderRadius: "8px",
+              background: "linear-gradient(135deg, #FF6A00 0%, #FF8C3A 100%)",
+              color: "white",
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              boxShadow: "0 4px 12px rgba(255, 106, 0, 0.3)",
               "&:hover": {
-                background: "var(--primary-gradient)",
-                color: "white",
-                transform: "scale(1.1)",
-                boxShadow: "0 4px 12px rgba(230, 81, 0, 0.3)"
+                background: "linear-gradient(135deg, #FF8C3A 0%, #FF6A00 100%)",
+                transform: "scale(1.05) translateY(-2px)",
+                boxShadow: "0 6px 20px rgba(255, 106, 0, 0.4)"
               },
               zIndex: 1300
             }}
@@ -528,31 +530,45 @@ export default function Sidebar() {
                   style={{ width: "1.75rem", height: "1.75rem" }}
                 />
                 <div className="brand-text">
-                  <span className="title" style={{ fontSize: "0.9rem" }}>Tasty Kitchen</span>
+                  <span className="title" style={{ fontSize: "0.9rem" }}>Flavora</span>
                   <span className="subtitle" style={{ fontSize: "0.6rem", display: { xs: "none", sm: "block" } }}>Fresh & Healthy Food</span>
                 </div>
               </Box>
             )}
-            {!open && <span className="divider-v" style={{ display: { xs: "none", md: "block" } }} />}
             {/* Greeting - Hidden on mobile */}
             <Box
               className="greeting-area"
               sx={{
-                flex: "0 0 160px",
+                flex: "0 0 auto",
                 minWidth: 0,
-                display: { xs: "none", md: "flex" },
+                display: { xs: "none", lg: "flex" },
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 1.5,
+                padding: "0 1rem",
+                position: "relative"
               }}
             >
-              <span className="secondary">
-                {(() => {
-                  const hrs = new Date().getHours();
-                  const period =
-                    hrs < 12 ? "Morning" : hrs < 18 ? "Afternoon" : "Evening";
-                  const name = userName || "Hemmy";
-                  return `${period} ${name}`;
-                })()}
-              </span>
-              <span className="primary">Welcome Back!</span>
+              <Box
+                sx={{
+                  width: "2px",
+                  height: "24px",
+                  background: "linear-gradient(to bottom, transparent, var(--primary), transparent)",
+                  opacity: 0.5,
+                  borderRadius: "2px"
+                }}
+              />
+              <div className="greeting-content">
+                <span className="greeting-top">
+                  {(() => {
+                    const hrs = new Date().getHours();
+                    return hrs < 12 ? "Good Morning" : hrs < 18 ? "Good Afternoon" : "Good Evening";
+                  })()},
+                </span>
+                <span className="greeting-bottom">
+                  {userName || "Guest"}!
+                </span>
+              </div>
             </Box>
             {/* Search - Hidden on mobile in the toolbar, shown below instead */}
             <Box className="search-area" sx={{ flex: "1 1 auto", minWidth: 0, display: { xs: "none", md: "block" } }}>
@@ -756,7 +772,7 @@ export default function Sidebar() {
                 className="website-logo-mini"
               />
               <div className="drawer-brand-text">
-                <span className="drawer-brand-title">Tasty Kitchen</span>
+                <span className="drawer-brand-title">Flavora</span>
                 <span className="drawer-brand-subtitle">
                   Fresh & Healthy Food
                 </span>
@@ -965,7 +981,7 @@ export default function Sidebar() {
                 style={{ width: "1.5rem", height: "1.5rem" }}
               />
               <div className="drawer-brand-text">
-                <span className="drawer-brand-title" style={{ fontSize: "0.9rem", fontWeight: 800, color: "var(--primary)" }}>Tasty Kitchen</span>
+                <span className="drawer-brand-title" style={{ fontSize: "0.9rem", fontWeight: 800, color: "var(--primary)" }}>Flavora</span>
                 <span className="drawer-brand-subtitle" style={{ fontSize: "0.6rem", color: "var(--text-sub)" }}>
                   Fresh & Healthy Food
                 </span>

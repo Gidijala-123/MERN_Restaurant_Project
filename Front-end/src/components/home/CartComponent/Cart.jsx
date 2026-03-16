@@ -43,7 +43,7 @@ const Cart = () => {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(28);
     doc.setTextColor(237, 31, 36); // Zomato Red
-    doc.text("Tasty Kitchen", 20, 25);
+    doc.text("Flavora", 20, 25);
 
     doc.setFontSize(10);
     doc.setTextColor(100);
@@ -133,11 +133,11 @@ const Cart = () => {
 
     doc.setFont("helvetica", "bold");
     doc.setTextColor(237, 31, 36);
-    doc.text("Thank you for ordering with Tasty Kitchen!", 105, 282, {
+    doc.text("Thank you for ordering with Flavora!", 105, 282, {
       align: "center",
     });
 
-    doc.save(`TastyKitchen_Invoice_${orderNo}.pdf`);
+    doc.save(`Flavora_Invoice_${orderNo}.pdf`);
   };
 
   const handleCheckout = () => {

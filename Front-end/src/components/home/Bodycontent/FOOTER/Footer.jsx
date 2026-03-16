@@ -16,9 +16,9 @@ import SendIcon from "@mui/icons-material/Send";
 
 const Footer = () => {
   const branches = [
-    "Tasty Kitchen, Kakinada, Andhra Pradesh",
-    "Tasty Kitchen, Rajahmundry, Andhra Pradesh",
-    "Tasty Kitchen, Vizag, Andhra Pradesh",
+    "Flavora, Kakinada, Andhra Pradesh",
+    "Flavora, Rajahmundry, Andhra Pradesh",
+    "Flavora, Vizag, Andhra Pradesh",
   ];
   const [openMap, setOpenMap] = useState(false);
   const [branchIndex, setBranchIndex] = useState(0);
@@ -189,7 +189,7 @@ const Footer = () => {
           </div>
           <div className="footer-top-text">
             <h4>Mail us</h4>
-            <p>contact@tastykitchen.com</p>
+            <p>contact@flavora.com</p>
           </div>
         </div>
       </div>
@@ -199,8 +199,8 @@ const Footer = () => {
         {/* Column 1: About */}
         <div className="footer-col footer-about">
           <div className="footer-about-logo">
-            <img src="/footer-images/logo.png" alt="Tasty Kitchen Logo" />
-            <span>Tasty Kitchen</span>
+            <img src="/footer-images/logo.png" alt="Flavora Logo" />
+            <span>Flavora</span>
           </div>
           <p>
             Discover the best food & drinks in your city. We bring fresh,
@@ -296,7 +296,7 @@ const Footer = () => {
 
       {/* Bottom Section */}
       <div className="footer-bottom">
-        <p>&copy; 2026 Tasty Kitchen. All Rights Reserved.</p>
+        <p>&copy; 2026 Flavora. All Rights Reserved.</p>
         <div className="footer-bottom-links">
           <a href="#privacy">Privacy Policy</a>
           <a href="#terms">Terms of Service</a>
@@ -315,7 +315,7 @@ const Footer = () => {
         >
           <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <RoomIcon color="warning" />
-            Tasty Kitchen Branches
+            Flavora Branches
           </span>
           <IconButton onClick={handleCloseMap}>
             <CloseIcon />
@@ -337,7 +337,7 @@ const Footer = () => {
             <div className="map-iframe-wrapper">
               <iframe
                 key={branchIndex}
-                title="Tasty Kitchen Map"
+                title="Flavora Map"
                 className="map-iframe"
                 src={`https://www.google.com/maps?q=${encodeURIComponent(
                   branches[branchIndex],

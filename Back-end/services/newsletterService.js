@@ -54,7 +54,7 @@ function buildHtml(items = []) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tasty Kitchen Newsletter</title>
+    <title>Flavora Newsletter</title>
     <style>
       body { margin:0; padding:0; font-family:Arial,Helvetica,sans-serif; background:#f4f4f4; }
       .wrapper { max-width:600px; margin:20px auto; background:#fff; border-radius:8px; overflow:hidden; }
@@ -70,7 +70,7 @@ function buildHtml(items = []) {
   <body>
     <div class="wrapper">
       <div class="header">
-        <h1>Tasty Kitchen</h1>
+        <h1>Flavora</h1>
         <p>Your fresh & healthy food partner</p>
       </div>
       <div class="content">
@@ -80,12 +80,12 @@ function buildHtml(items = []) {
           ${rows}
         </table>
         <p style="margin-top:20px;">
-          <a href="https://tastykitchen.example.com" class="button">Shop Now</a>
+          <a href="https://flavora.example.com" class="button">Shop Now</a>
         </p>
       </div>
       <div class="footer">
-        You are receiving this email because you subscribed to the Tasty Kitchen newsletter.
-        <br/>&copy; 2026 Tasty Kitchen. All rights reserved.
+        You are receiving this email because you subscribed to the Flavora newsletter.
+        <br/>&copy; 2026 Flavora. All rights reserved.
       </div>
     </div>
   </body>
@@ -118,7 +118,7 @@ export async function subscribeEmail(email) {
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Welcome to Tasty Kitchen Newsletter</title>
+      <title>Welcome to Flavora Newsletter</title>
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -337,7 +337,7 @@ export async function subscribeEmail(email) {
         <!-- Header Banner -->
         <div class="header">
           <div class="header-content">
-            <h1>🍽️ Welcome to Tasty Kitchen</h1>
+            <h1>🍽️ Welcome to Flavora</h1>
             <p>Fresh • Healthy • Delicious Delivered</p>
             <div class="divider"></div>
           </div>
@@ -347,7 +347,7 @@ export async function subscribeEmail(email) {
         <div class="main-content">
           <!-- Welcome Section -->
           <div class="welcome-section">
-            <h2>Welcome to the Tasty Kitchen Family! 🎉</h2>
+            <h2>Welcome to the Flavora Family! 🎉</h2>
             <p>Thank you for subscribing to our newsletter! We're thrilled to have you on board.</p>
             <p>Get ready for exclusive offers, fresh recipes, and special promotions delivered straight to your inbox. Whether you're craving fresh food, bakery items, or refreshing beverages, we've got you covered!</p>
           </div>
@@ -372,7 +372,7 @@ export async function subscribeEmail(email) {
             <div class="feature-box">
               <div class="feature-icon">❤️</div>
               <h3>Customer Love</h3>
-              <p>Join thousands of satisfied Tasty Kitchen fans</p>
+              <p>Join thousands of satisfied Flavora fans</p>
             </div>
           </div>
 
@@ -415,10 +415,10 @@ export async function subscribeEmail(email) {
             <a href="https://twitter.com">𝕏</a>
             <a href="https://linkedin.com">in</a>
           </div>
-          <p style="margin-top: 15px;">© 2026 Tasty Kitchen. All rights reserved.</p>
+          <p style="margin-top: 15px;">© 2026 Flavora. All rights reserved.</p>
           <p>Fresh • Healthy • Delicious Food Delivered to Your Door</p>
           <div class="unsubscribe">
-            <p>You're receiving this email because you subscribed to Tasty Kitchen Newsletter.</p>
+            <p>You're receiving this email because you subscribed to Flavora Newsletter.</p>
             <p><a href="#">Manage Preferences</a> | <a href="#">Unsubscribe</a></p>
           </div>
         </div>
@@ -430,7 +430,7 @@ export async function subscribeEmail(email) {
       to: email,
       code: "",
       subject:
-        "🎉 Welcome to Tasty Kitchen Newsletter - Exclusive Offers Inside!",
+        "🎉 Welcome to Flavora Newsletter - Exclusive Offers Inside!",
       html: welcomeHtml,
     });
     console.log("[newsletterService] Welcome email result:", emailResult);
@@ -465,7 +465,7 @@ export async function sendToAll() {
       await sendEmailOtp({
         to: s.email,
         code: "",
-        subject: "Your Tasty Kitchen Offers",
+        subject: "Your Flavora Offers",
         html,
       });
       s.lastSentAt = new Date();
