@@ -109,15 +109,20 @@ export default function Settings() {
       email: localStorage.getItem("userEmail") || "",
       phone: localStorage.getItem("userPhone") || "",
       address: localStorage.getItem("userAddress") || "",
-      deliveryInstructions: localStorage.getItem("userDeliveryInstructions") || "",
+      deliveryInstructions:
+        localStorage.getItem("userDeliveryInstructions") || "",
       paymentMethod: localStorage.getItem("userPaymentMethod") || "Cash",
       foodType: localStorage.getItem("userFoodType") || "veg",
       deliverySpeed: localStorage.getItem("userDeliverySpeed") || "Standard",
-      savedAddresses: JSON.parse(localStorage.getItem("userSavedAddresses")) || [],
-      dietaryRestrictions: JSON.parse(localStorage.getItem("userDietaryRestrictions")) || [],
+      savedAddresses:
+        JSON.parse(localStorage.getItem("userSavedAddresses")) || [],
+      dietaryRestrictions:
+        JSON.parse(localStorage.getItem("userDietaryRestrictions")) || [],
       referralCode: localStorage.getItem("userReferralCode") || "FLAVORA2024",
       avatar: localStorage.getItem("userAvatar") || "",
-      selectedAddressId: localStorage.getItem("userSelectedAddressId") ? parseInt(localStorage.getItem("userSelectedAddressId")) : null,
+      selectedAddressId: localStorage.getItem("userSelectedAddressId")
+        ? parseInt(localStorage.getItem("userSelectedAddressId"))
+        : null,
     };
     setProfileForm(stored);
     initialProfileRef.current = stored;
@@ -127,7 +132,8 @@ export default function Settings() {
     const errors = {};
     if (!profileForm.name.trim()) errors.name = "Name is required";
     if (!profileForm.email.trim()) errors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(profileForm.email)) errors.email = "Invalid email format";
+    else if (!/\S+@\S+\.\S+/.test(profileForm.email))
+      errors.email = "Invalid email format";
     if (!profileForm.phone.trim()) errors.phone = "Phone number is required";
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -143,9 +149,15 @@ export default function Settings() {
     setTimeout(() => {
       Object.entries(profileForm).forEach(([key, value]) => {
         if (Array.isArray(value)) {
-          localStorage.setItem(`user${key.charAt(0).toUpperCase() + key.slice(1)}`, JSON.stringify(value));
+          localStorage.setItem(
+            `user${key.charAt(0).toUpperCase() + key.slice(1)}`,
+            JSON.stringify(value)
+          );
         } else {
-          localStorage.setItem(`user${key.charAt(0).toUpperCase() + key.slice(1)}`, value);
+          localStorage.setItem(
+            `user${key.charAt(0).toUpperCase() + key.slice(1)}`,
+            value
+          );
         }
       });
       initialProfileRef.current = profileForm;
@@ -167,10 +179,10 @@ export default function Settings() {
     const trimmed = newAddress.trim();
     if (!trimmed) return;
     const finalTag = tag || locationTag || "Other";
-    const newEntry = { 
-      id: Date.now(), 
+    const newEntry = {
+      id: Date.now(),
       text: trimmed,
-      tag: finalTag
+      tag: finalTag,
     };
     setProfileForm((prev) => ({
       ...prev,
@@ -217,7 +229,11 @@ export default function Settings() {
       const data = await response.json();
       if (data && data.display_name) {
         setNewAddress(data.display_name);
-        setPickedLocation({ lat: parseFloat(lat), lon: parseFloat(lon), address: data.display_name });
+        setPickedLocation({
+          lat: parseFloat(lat),
+          lon: parseFloat(lon),
+          address: data.display_name,
+        });
       }
     } catch (error) {
       console.error("Geocoding error:", error);
@@ -235,7 +251,9 @@ export default function Settings() {
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          query
+        )}&addressdetails=1&limit=5`
       );
       const data = await response.json();
       setSearchResults(data);
@@ -248,21 +266,24 @@ export default function Settings() {
   };
 
   const mapUrl = useMemo(() => {
-    const lat = pickedLocation ? pickedLocation.lat : 17.3850;
+    const lat = pickedLocation ? pickedLocation.lat : 17.385;
     const lon = pickedLocation ? pickedLocation.lon : 78.4867;
     const offset = zoomLevel;
     const bbox = [
       (lon - offset).toFixed(4),
       (lat - offset).toFixed(4),
       (lon + offset).toFixed(4),
-      (lat + offset).toFixed(4)
+      (lat + offset).toFixed(4),
     ].join("%2C");
-    return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=${mapType}&marker=${lat.toFixed(4)}%2C${lon.toFixed(4)}&zoomcontrol=false`;
+    return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=${mapType}&marker=${lat.toFixed(
+      4
+    )}%2C${lon.toFixed(4)}&zoomcontrol=false`;
   }, [pickedLocation, zoomLevel, mapType]);
 
-  const handleZoomIn = () => setZoomLevel(prev => Math.max(0.0005, prev / 2));
-  const handleZoomOut = () => setZoomLevel(prev => Math.min(0.1, prev * 2));
-  const toggleMapType = () => setMapType(prev => prev === "mapnik" ? "cyclemap" : "mapnik");
+  const handleZoomIn = () => setZoomLevel((prev) => Math.max(0.0005, prev / 2));
+  const handleZoomOut = () => setZoomLevel((prev) => Math.min(0.1, prev * 2));
+  const toggleMapType = () =>
+    setMapType((prev) => (prev === "mapnik" ? "cyclemap" : "mapnik"));
 
   const handleLocateMe = () => {
     if (!navigator.geolocation) {
@@ -298,7 +319,9 @@ export default function Settings() {
   const toggleDietary = (tag) => {
     setProfileForm((prev) => {
       const current = prev.dietaryRestrictions || [];
-      const updated = current.includes(tag) ? current.filter((t) => t !== tag) : [...current, tag];
+      const updated = current.includes(tag)
+        ? current.filter((t) => t !== tag)
+        : [...current, tag];
       return { ...prev, dietaryRestrictions: updated };
     });
   };
@@ -329,7 +352,9 @@ export default function Settings() {
 
   const hasChanges = useMemo(() => {
     if (!initialProfileRef.current) return false;
-    return JSON.stringify(profileForm) !== JSON.stringify(initialProfileRef.current);
+    return (
+      JSON.stringify(profileForm) !== JSON.stringify(initialProfileRef.current)
+    );
   }, [profileForm]);
 
   const appTheme = theme;
@@ -341,30 +366,58 @@ export default function Settings() {
       transition: "all 0.3s ease",
       "& fieldset": { border: "1px solid var(--border-light)" },
       "&:hover fieldset": { borderColor: "var(--primary)" },
-      "&.Mui-focused fieldset": { borderWidth: "2px", borderColor: "var(--primary)" },
+      "&.Mui-focused fieldset": {
+        borderWidth: "2px",
+        borderColor: "var(--primary)",
+      },
     },
     "& .MuiInputLabel-root": {
       fontWeight: 700,
       color: "var(--text-sub)",
-      "&.Mui-focused": { color: "var(--primary)" }
+      "&.Mui-focused": { color: "var(--primary)" },
     },
     "& .MuiInputAdornment-root .MuiSvgIcon-root": {
       color: "var(--primary)",
-      opacity: 0.7
-    }
+      opacity: 0.7,
+    },
   };
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, background: "var(--bg-light)", minHeight: "100vh" }}>
+    <Box
+      sx={{
+        p: { xs: 2, md: 4 },
+        background: "var(--bg-light)",
+        minHeight: "100vh",
+      }}
+    >
       <Box sx={{ maxWidth: 1200, mx: "auto" }}>
         {/* Header */}
-        <Box sx={{ mb: 4, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 2 }}>
+        <Box
+          sx={{
+            mb: 4,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 2,
+          }}
+        >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton onClick={handleBackClick} sx={{ background: "var(--white)", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+            <IconButton
+              onClick={handleBackClick}
+              sx={{
+                background: "var(--white)",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+              }}
+            >
               <ArrowBackIcon />
             </IconButton>
             <Box>
-              <Typography variant="h4" fontWeight={900} sx={{ color: "var(--text-main)", letterSpacing: -1 }}>
+              <Typography
+                variant="h4"
+                fontWeight={900}
+                sx={{ color: "var(--text-main)", letterSpacing: -1 }}
+              >
                 Settings
               </Typography>
               <Typography variant="body2" color="var(--text-sub)">
@@ -378,19 +431,29 @@ export default function Settings() {
             disabled={saving || !hasChanges}
             startIcon={<SaveIcon />}
             sx={{
-              background: !hasChanges ? "var(--bg-light)" : "var(--primary-gradient)",
-              color: !hasChanges ? "var(--text-sub) !important" : "#ffffff !important",
+              background: !hasChanges
+                ? "var(--bg-light)"
+                : "var(--primary-gradient)",
+              color: !hasChanges
+                ? "var(--text-sub) !important"
+                : "#ffffff !important",
               borderRadius: "12px",
               px: 3,
               py: 1,
               fontWeight: 700,
-              boxShadow: !hasChanges ? "none" : "0 8px 16px rgba(230, 81, 0, 0.2)",
-              "&:hover": { 
-                boxShadow: !hasChanges ? "none" : "0 12px 20px rgba(230, 81, 0, 0.3)",
-                background: !hasChanges ? "var(--bg-light)" : "var(--primary-gradient)"
+              boxShadow: !hasChanges
+                ? "none"
+                : "0 8px 16px rgba(230, 81, 0, 0.2)",
+              "&:hover": {
+                boxShadow: !hasChanges
+                  ? "none"
+                  : "0 12px 20px rgba(230, 81, 0, 0.3)",
+                background: !hasChanges
+                  ? "var(--bg-light)"
+                  : "var(--primary-gradient)",
               },
               opacity: !hasChanges ? 0.7 : 1,
-              transition: "all 0.3s ease"
+              transition: "all 0.3s ease",
             }}
           >
             {saving ? "Saving..." : "Save Changes"}
@@ -399,28 +462,50 @@ export default function Settings() {
 
         <Grid container spacing={4} sx={{ alignItems: "stretch" }}>
           {/* Left Column - Navigation/Activity Summary */}
-          <Grid item xs={12} md={4} sx={{ display: "flex", flexDirection: "column" }}>
-            <Card sx={{ 
-              borderRadius: "24px", 
-              overflow: "hidden", 
-              background: "var(--white)", 
-              boxShadow: "0 10px 30px rgba(0,0,0,0.05)", 
-              mb: { xs: 4, md: 0 }, // Only bottom margin on mobile
-              height: "100%", // Stretch to match right column
-              display: "flex",
-              flexDirection: "column",
-              transition: "transform 0.3s ease, boxShadow 0.3s ease",
-              "&:hover": { transform: "translateY(-5px)", boxShadow: "0 15px 35px rgba(0,0,0,0.1)" }
-            }}>
-              <Box sx={{ p: 4, background: "var(--primary-gradient)", textAlign: "center", position: "relative" }}>
+          <Grid
+            item
+            xs={12}
+            md={4}
+            sx={{ display: "flex", flexDirection: "column" }}
+          >
+            <Card
+              sx={{
+                borderRadius: "24px",
+                overflow: "hidden",
+                background: "var(--white)",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+                mb: { xs: 4, md: 0 }, // Only bottom margin on mobile
+                height: "100%", // Stretch to match right column
+                display: "flex",
+                flexDirection: "column",
+                transition: "transform 0.3s ease, boxShadow 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-5px)",
+                  boxShadow: "0 15px 35px rgba(0,0,0,0.1)",
+                },
+              }}
+            >
+              <Box
+                sx={{
+                  p: 4,
+                  background: "var(--primary-gradient)",
+                  textAlign: "center",
+                  position: "relative",
+                }}
+              >
                 <Badge
                   overlap="circular"
-                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                   badgeContent={
-                    <IconButton 
-                      size="small" 
+                    <IconButton
+                      size="small"
                       onClick={() => fileInputRef.current.click()}
-                      sx={{ background: "white", color: "var(--primary)", "&:hover": { background: "#f5f5f5" }, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}
+                      sx={{
+                        background: "white",
+                        color: "var(--primary)",
+                        "&:hover": { background: "#f5f5f5" },
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                      }}
                     >
                       <PhotoCameraIcon fontSize="small" />
                     </IconButton>
@@ -433,63 +518,293 @@ export default function Settings() {
                     accept="image/*"
                     onChange={handleAvatarChange}
                   />
-                  <Avatar 
+                  <Avatar
                     src={profileForm.avatar}
-                    sx={{ width: 100, height: 100, mx: "auto", border: "4px solid white", boxShadow: "0 8px 20px rgba(0,0,0,0.15)" }}
+                    sx={{
+                      width: 100,
+                      height: 100,
+                      mx: "auto",
+                      border: "4px solid white",
+                      boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
+                    }}
                   >
                     {profileForm.name?.charAt(0)}
                   </Avatar>
                 </Badge>
-                <Typography variant="h6" fontWeight={800} sx={{ mt: 2, color: "white" }}>
+                <Typography
+                  variant="h6"
+                  fontWeight={800}
+                  sx={{ mt: 2, color: "white" }}
+                >
                   {profileForm.name || "Set your name"}
                 </Typography>
-                <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "rgba(255,255,255,0.8)" }}
+                >
                   Foodie Level: <span style={{ fontWeight: 900 }}>Silver</span>
                 </Typography>
-                
+
                 {/* Gamified Level Progress */}
                 <Box sx={{ mt: 2, px: 2 }}>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-                    <Typography variant="caption" sx={{ color: "white", fontWeight: 700 }}>Level 4</Typography>
-                    <Typography variant="caption" sx={{ color: "white", fontWeight: 700 }}>85% to Gold</Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      mb: 0.5,
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "white", fontWeight: 700 }}
+                    >
+                      Level 4
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "white", fontWeight: 700 }}
+                    >
+                      85% to Gold
+                    </Typography>
                   </Box>
-                  <Box sx={{ width: "100%", height: 6, background: "rgba(255,255,255,0.2)", borderRadius: 3, overflow: "hidden" }}>
-                    <Box sx={{ width: "85%", height: "100%", background: "white", borderRadius: 3 }} />
+                  <Box
+                    sx={{
+                      width: "100%",
+                      height: 6,
+                      background: "rgba(255,255,255,0.2)",
+                      borderRadius: 3,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: "85%",
+                        height: "100%",
+                        background: "white",
+                        borderRadius: 3,
+                      }}
+                    />
                   </Box>
                 </Box>
               </Box>
-              
+
               <CardContent sx={{ p: 3, flexGrow: 1 }}>
-                <Typography variant="caption" fontWeight={800} color="var(--text-sub)" sx={{ textTransform: "uppercase", letterSpacing: 1, mb: 2, display: "block" }}>
-                  Your Activity
-                </Typography>
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <Typography
+                    variant="overline"
+                    fontWeight={800}
+                    color="var(--text-sub)"
+                  >
+                    Order Insights
+                  </Typography>
                   {[
-                    { icon: <HistoryIcon />, label: "Total Orders", value: "42", color: "#3498db" },
-                    { icon: <EmojiEventsIcon />, label: "Loyalty Points", value: "1,250", color: "#f1c40f" },
-                    { icon: <StreakIcon />, label: "Order Streak", value: "8 Days", color: "#e74c3c" },
-                    { icon: <RestaurantIcon />, label: "Fav Cuisine", value: "Indian", color: "#27ae60" },
-                    { icon: <SavingsIcon />, label: "Total Saved", value: "₹ 2,450", color: "#e67e22" },
-                    { icon: <ReviewIcon />, label: "Reviews Given", value: "15", color: "#9b59b6" },
-                    { icon: <TimerIcon />, label: "Avg Delivery", value: "24 mins", color: "#1abc9c" },
-                    { icon: <EarthIcon />, label: "Eco Impact", value: "4kg CO2 saved", color: "#2ecc71" },
-                    { icon: <StarIcon />, label: "Member Since", value: "Feb 2024", color: "#7f8c8d" },
+                    {
+                      icon: <HistoryIcon />,
+                      label: "Total Orders",
+                      value: "42",
+                      color: "#3498db",
+                    },
+                    {
+                      icon: <StreakIcon />,
+                      label: "Order Streak",
+                      value: "8 Days",
+                      color: "#e74c3c",
+                    },
+                    {
+                      icon: <TimerIcon />,
+                      label: "Avg Delivery",
+                      value: "24 mins",
+                      color: "#1abc9c",
+                    },
                   ].map((stat, idx) => (
-                    <Box key={idx} sx={{ 
-                      display: "flex", 
-                      alignItems: "center", 
-                      gap: 2,
-                      p: 1,
-                      borderRadius: "12px",
-                      transition: "all 0.2s ease",
-                      "&:hover": { background: "var(--bg-light)", transform: "translateX(5px)" }
-                    }}>
-                      <Box sx={{ p: 1, borderRadius: "10px", background: `${stat.color}15`, color: stat.color, display: "flex" }}>
+                    <Box
+                      key={idx}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        p: 1,
+                        borderRadius: "12px",
+                        transition: "all 0.2s ease",
+                        "&:hover": {
+                          background: "var(--bg-light)",
+                          transform: "translateX(5px)",
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          p: 1,
+                          borderRadius: "10px",
+                          background: `${stat.color}15`,
+                          color: stat.color,
+                          display: "flex",
+                        }}
+                      >
                         {React.cloneElement(stat.icon, { fontSize: "small" })}
                       </Box>
                       <Box sx={{ flex: 1 }}>
-                        <Typography variant="caption" fontWeight={700} color="var(--text-sub)" sx={{ display: "block", lineHeight: 1 }}>{stat.label}</Typography>
-                        <Typography variant="body2" fontWeight={800} color="var(--text-main)">{stat.value}</Typography>
+                        <Typography
+                          variant="caption"
+                          fontWeight={700}
+                          color="var(--text-sub)"
+                          sx={{ display: "block", lineHeight: 1 }}
+                        >
+                          {stat.label}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          fontWeight={800}
+                          color="var(--text-main)"
+                        >
+                          {stat.value}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                  <Divider sx={{ my: 1 }} />
+                  <Typography
+                    variant="overline"
+                    fontWeight={800}
+                    color="var(--text-sub)"
+                  >
+                    Engagement & Rewards
+                  </Typography>
+                  {[
+                    {
+                      icon: <EmojiEventsIcon />,
+                      label: "Loyalty Points",
+                      value: "1,250",
+                      color: "#f1c40f",
+                    },
+                    {
+                      icon: <SavingsIcon />,
+                      label: "Total Saved",
+                      value: "₹ 2,450",
+                      color: "#e67e22",
+                    },
+                    {
+                      icon: <ReviewIcon />,
+                      label: "Reviews Given",
+                      value: "15",
+                      color: "#9b59b6",
+                    },
+                  ].map((stat, idx) => (
+                    <Box
+                      key={idx}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        p: 1,
+                        borderRadius: "12px",
+                        transition: "all 0.2s ease",
+                        "&:hover": {
+                          background: "var(--bg-light)",
+                          transform: "translateX(5px)",
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          p: 1,
+                          borderRadius: "10px",
+                          background: `${stat.color}15`,
+                          color: stat.color,
+                          display: "flex",
+                        }}
+                      >
+                        {React.cloneElement(stat.icon, { fontSize: "small" })}
+                      </Box>
+                      <Box sx={{ flex: 1 }}>
+                        <Typography
+                          variant="caption"
+                          fontWeight={700}
+                          color="var(--text-sub)"
+                          sx={{ display: "block", lineHeight: 1 }}
+                        >
+                          {stat.label}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          fontWeight={800}
+                          color="var(--text-main)"
+                        >
+                          {stat.value}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                  <Divider sx={{ my: 1 }} />
+                  <Typography
+                    variant="overline"
+                    fontWeight={800}
+                    color="var(--text-sub)"
+                  >
+                    Personal Milestones
+                  </Typography>
+                  {[
+                    {
+                      icon: <RestaurantIcon />,
+                      label: "Fav Cuisine",
+                      value: "Indian",
+                      color: "#27ae60",
+                    },
+                    {
+                      icon: <EarthIcon />,
+                      label: "Eco Impact",
+                      value: "4kg CO2 saved",
+                      color: "#2ecc71",
+                    },
+                    {
+                      icon: <StarIcon />,
+                      label: "Member Since",
+                      value: "Feb 2024",
+                      color: "#7f8c8d",
+                    },
+                  ].map((stat, idx) => (
+                    <Box
+                      key={idx}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        p: 1,
+                        borderRadius: "12px",
+                        transition: "all 0.2s ease",
+                        "&:hover": {
+                          background: "var(--bg-light)",
+                          transform: "translateX(5px)",
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          p: 1,
+                          borderRadius: "10px",
+                          background: `${stat.color}15`,
+                          color: stat.color,
+                          display: "flex",
+                        }}
+                      >
+                        {React.cloneElement(stat.icon, { fontSize: "small" })}
+                      </Box>
+                      <Box sx={{ flex: 1 }}>
+                        <Typography
+                          variant="caption"
+                          fontWeight={700}
+                          color="var(--text-sub)"
+                          sx={{ display: "block", lineHeight: 1 }}
+                        >
+                          {stat.label}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          fontWeight={800}
+                          color="var(--text-main)"
+                        >
+                          {stat.value}
+                        </Typography>
                       </Box>
                     </Box>
                   ))}
@@ -502,21 +817,45 @@ export default function Settings() {
           <Grid item xs={12} md={8}>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
               {/* Personal Information */}
-              <Card sx={{ 
-                borderRadius: "24px", 
-                background: "var(--white)", 
-                boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
-                transition: "all 0.3s ease",
-                "&:hover": { boxShadow: "0 15px 40px rgba(0,0,0,0.08)" }
-              }}>
+              <Card
+                sx={{
+                  borderRadius: "24px",
+                  background: "var(--white)",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+                  transition: "all 0.3s ease",
+                  "&:hover": { boxShadow: "0 15px 40px rgba(0,0,0,0.08)" },
+                }}
+              >
                 <CardContent sx={{ p: 4 }}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 4 }}>
-                    <Box sx={{ p: 1.5, borderRadius: "14px", background: "rgba(230, 81, 0, 0.1)", color: "var(--primary)" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      mb: 4,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        p: 1.5,
+                        borderRadius: "14px",
+                        background: "rgba(230, 81, 0, 0.1)",
+                        color: "var(--primary)",
+                      }}
+                    >
                       <PersonIcon />
                     </Box>
                     <Box>
-                      <Typography variant="h6" fontWeight={800} color="var(--text-main)">Personal Information</Typography>
-                      <Typography variant="body2" color="var(--text-sub)">Basic details about you</Typography>
+                      <Typography
+                        variant="h6"
+                        fontWeight={800}
+                        color="var(--text-main)"
+                      >
+                        Personal Information
+                      </Typography>
+                      <Typography variant="body2" color="var(--text-sub)">
+                        Basic details about you
+                      </Typography>
                     </Box>
                   </Box>
                   <Grid container spacing={3}>
@@ -528,7 +867,9 @@ export default function Settings() {
                         onChange={(e) => handleInputChange("name", e.target.value)}
                         error={!!formErrors.name}
                         helperText={formErrors.name}
-                        InputProps={{ startAdornment: <PersonIcon sx={{ mr: 1 }} /> }}
+                        InputProps={{
+                          startAdornment: <PersonIcon sx={{ mr: 1 }} />,
+                        }}
                         sx={inputStyles}
                       />
                     </Grid>
@@ -537,10 +878,14 @@ export default function Settings() {
                         fullWidth
                         label="Email Address"
                         value={profileForm.email}
-                        onChange={(e) => handleInputChange("email", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("email", e.target.value)
+                        }
                         error={!!formErrors.email}
                         helperText={formErrors.email}
-                        InputProps={{ startAdornment: <EmailIcon sx={{ mr: 1 }} /> }}
+                        InputProps={{
+                          startAdornment: <EmailIcon sx={{ mr: 1 }} />,
+                        }}
                         sx={inputStyles}
                       />
                     </Grid>
@@ -549,10 +894,14 @@ export default function Settings() {
                         fullWidth
                         label="Phone Number"
                         value={profileForm.phone}
-                        onChange={(e) => handleInputChange("phone", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("phone", e.target.value)
+                        }
                         error={!!formErrors.phone}
                         helperText={formErrors.phone}
-                        InputProps={{ startAdornment: <PhoneIcon sx={{ mr: 1 }} /> }}
+                        InputProps={{
+                          startAdornment: <PhoneIcon sx={{ mr: 1 }} />,
+                        }}
                         sx={inputStyles}
                       />
                     </Grid>
@@ -561,9 +910,9 @@ export default function Settings() {
                         fullWidth
                         label="Referral Code"
                         value={profileForm.referralCode}
-                        InputProps={{ 
+                        InputProps={{
                           startAdornment: <LocalOfferIcon sx={{ mr: 1 }} />,
-                          readOnly: true 
+                          readOnly: true,
                         }}
                         sx={inputStyles}
                       />
@@ -573,100 +922,215 @@ export default function Settings() {
               </Card>
 
               {/* Delivery Settings */}
-              <Card sx={{ 
-                borderRadius: "24px", 
-                background: "var(--white)", 
-                boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
-                transition: "all 0.3s ease",
-                "&:hover": { boxShadow: "0 15px 40px rgba(0,0,0,0.08)" }
-              }}>
+              <Card
+                sx={{
+                  borderRadius: "24px",
+                  background: "var(--white)",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+                  transition: "all 0.3s ease",
+                  "&:hover": { boxShadow: "0 15px 40px rgba(0,0,0,0.08)" },
+                }}
+              >
                 <CardContent sx={{ p: 4 }}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 4 }}>
-                    <Box sx={{ p: 1.5, borderRadius: "14px", background: "rgba(230, 81, 0, 0.1)", color: "var(--primary)" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      mb: 4,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        p: 1.5,
+                        borderRadius: "14px",
+                        background: "rgba(230, 81, 0, 0.1)",
+                        color: "var(--primary)",
+                      }}
+                    >
                       <DeliveryIcon />
                     </Box>
                     <Box>
-                      <Typography variant="h6" fontWeight={800} color="var(--text-main)">Delivery Details</Typography>
-                      <Typography variant="body2" color="var(--text-sub)">Where should we bring your food?</Typography>
+                      <Typography
+                        variant="h6"
+                        fontWeight={800}
+                        color="var(--text-main)"
+                      >
+                        Delivery Details
+                      </Typography>
+                      <Typography variant="body2" color="var(--text-sub)">
+                        Where should we bring your food?
+                      </Typography>
                     </Box>
                   </Box>
 
                   <Box sx={{ mb: 4 }}>
-                    <Typography variant="body2" fontWeight={800} sx={{ mb: 2, display: "block" }}>Saved Addresses</Typography>
-                    <RadioGroup 
-                      value={profileForm.selectedAddressId} 
-                      onChange={(e) => selectAddress(parseInt(e.target.value))}
+                    <Typography
+                      variant="body2"
+                      fontWeight={800}
+                      sx={{ mb: 2, display: "block" }}
+                    >
+                      Saved Addresses
+                    </Typography>
+                    <RadioGroup
+                      value={profileForm.selectedAddressId}
+                      onChange={(e) =>
+                        selectAddress(parseInt(e.target.value))
+                      }
                       sx={{ display: "flex", flexDirection: "column", gap: 2 }}
                     >
-                    {profileForm.savedAddresses.map((addr) => (
-                      <Box 
-                        key={addr.id}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          p: 1.5,
-                          borderRadius: "12px",
-                          border: `1px solid ${profileForm.selectedAddressId === addr.id ? "var(--primary)" : "var(--border-light)"}`,
-                          background: profileForm.selectedAddressId === addr.id ? "rgba(230, 81, 0, 0.05)" : "transparent",
-                          transition: "all 0.2s ease"
-                        }}
-                      >
-                        <FormControlLabel
-                          value={addr.id}
-                          control={<Radio sx={{ color: "var(--primary)", "&.Mui-checked": { color: "var(--primary)" } }} />}
-                          label={
-                            <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-                              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <Typography variant="body2" sx={{ fontWeight: 800, color: "var(--text-main)" }}>
-                                  {addr.tag || "Address"}
-                                </Typography>
-                                {addr.tag === "Home" && <Chip label="Home" size="small" sx={{ height: 16, fontSize: "0.6rem", background: "rgba(39, 174, 96, 0.1)", color: "#27ae60", fontWeight: 700 }} />}
-                                {addr.tag === "Work" && <Chip label="Work" size="small" sx={{ height: 16, fontSize: "0.6rem", background: "rgba(41, 128, 185, 0.1)", color: "#2980b9", fontWeight: 700 }} />}
-                                {addr.tag === "Other" && <Chip label="Other" size="small" sx={{ height: 16, fontSize: "0.6rem", background: "rgba(127, 140, 141, 0.1)", color: "#7f8c8d", fontWeight: 700 }} />}
-                              </Box>
-                              <Typography variant="body2" color="var(--text-sub)" sx={{ fontSize: "0.8rem" }}>
-                                {addr.text}
-                              </Typography>
-                            </Box>
-                          }
-                          sx={{ flex: 1, m: 0 }}
-                        />
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => removeAddress(addr.id)}
-                          sx={{ ml: 1, "&:hover": { background: "rgba(244, 67, 54, 0.1)" } }}
+                      {profileForm.savedAddresses.map((addr) => (
+                        <Box
+                          key={addr.id}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            p: 1.5,
+                            borderRadius: "12px",
+                            border: `1px solid ${
+                              profileForm.selectedAddressId === addr.id
+                                ? "var(--primary)"
+                                : "var(--border-light)"
+                            }`,
+                            background:
+                              profileForm.selectedAddressId === addr.id
+                                ? "rgba(230, 81, 0, 0.05)"
+                                : "transparent",
+                            transition: "all 0.2s ease",
+                          }}
                         >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    ))}
+                          <FormControlLabel
+                            value={addr.id}
+                            control={
+                              <Radio
+                                sx={{
+                                  color: "var(--primary)",
+                                  "&.Mui-checked": { color: "var(--primary)" },
+                                }}
+                              />
+                            }
+                            label={
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: 0.5,
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
+                                  }}
+                                >
+                                  <Typography
+                                    variant="body2"
+                                    sx={{
+                                      fontWeight: 800,
+                                      color: "var(--text-main)",
+                                    }}
+                                  >
+                                    {addr.tag || "Address"}
+                                  </Typography>
+                                  {addr.tag === "Home" && (
+                                    <Chip
+                                      label="Home"
+                                      size="small"
+                                      sx={{
+                                        height: 16,
+                                        fontSize: "0.6rem",
+                                        background: "rgba(39, 174, 96, 0.1)",
+                                        color: "#27ae60",
+                                        fontWeight: 700,
+                                      }}
+                                    />
+                                  )}
+                                  {addr.tag === "Work" && (
+                                    <Chip
+                                      label="Work"
+                                      size="small"
+                                      sx={{
+                                        height: 16,
+                                        fontSize: "0.6rem",
+                                        background: "rgba(41, 128, 185, 0.1)",
+                                        color: "#2980b9",
+                                        fontWeight: 700,
+                                      }}
+                                    />
+                                  )}
+                                  {addr.tag === "Other" && (
+                                    <Chip
+                                      label="Other"
+                                      size="small"
+                                      sx={{
+                                        height: 16,
+                                        fontSize: "0.6rem",
+                                        background: "rgba(127, 140, 141, 0.1)",
+                                        color: "#7f8c8d",
+                                        fontWeight: 700,
+                                      }}
+                                    />
+                                  )}
+                                </Box>
+                                <Typography
+                                  variant="body2"
+                                  color="var(--text-sub)"
+                                  sx={{ fontSize: "0.8rem" }}
+                                >
+                                  {addr.text}
+                                </Typography>
+                              </Box>
+                            }
+                            sx={{ flex: 1, m: 0 }}
+                          />
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => removeAddress(addr.id)}
+                            sx={{
+                              ml: 1,
+                              "&:hover": {
+                                background: "rgba(244, 67, 54, 0.1)",
+                              },
+                            }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      ))}
                     </RadioGroup>
                   </Box>
 
                   <Box sx={{ mb: 4 }}>
-                    <Typography variant="body2" fontWeight={800} sx={{ mb: 1.5 }}>Add New Address</Typography>
-                    <Box sx={{ display: "flex", gap: 1 }}>
+                    <Typography
+                      variant="body2"
+                      fontWeight={800}
+                      sx={{ mb: 1.5 }}
+                    >
+                      Add New Address
+                    </Typography>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       <TextField
                         fullWidth
-                        size="small"
                         placeholder="Type address or use map picker..."
                         value={newAddress}
                         onChange={(e) => setNewAddress(e.target.value)}
                         InputProps={{
                           startAdornment: <LocationIcon sx={{ mr: 1 }} />,
+                           style: { height: "48px" }
                         }}
                         sx={inputStyles}
                       />
-                      <IconButton 
+                      <IconButton
                         onClick={() => setMapPickerOpen(true)}
-                        sx={{ 
-                          background: "rgba(230, 81, 0, 0.1)", 
+                        sx={{
+                          background: "rgba(230, 81, 0, 0.1)",
                           color: "var(--primary)",
                           borderRadius: "14px",
                           width: 48,
                           height: 48,
-                          "&:hover": { background: "rgba(230, 81, 0, 0.2)" }
+                          "&:hover": { background: "rgba(230, 81, 0, 0.2)" },
                         }}
                       >
                         <AddLocationAltIcon />
@@ -675,14 +1139,18 @@ export default function Settings() {
                         variant="contained"
                         onClick={() => addAddress()}
                         disabled={!newAddress.trim()}
-                        sx={{ 
-                          background: !newAddress.trim() ? "var(--bg-light)" : "var(--primary-gradient)",
-                          color: !newAddress.trim() ? "var(--text-sub) !important" : "#ffffff !important",
+                        sx={{
+                          background: !newAddress.trim()
+                            ? "var(--bg-light)"
+                            : "var(--primary-gradient)",
+                          color: !newAddress.trim()
+                            ? "var(--text-sub) !important"
+                            : "#ffffff !important",
                           borderRadius: "14px",
                           minWidth: 80,
                           height: 48,
                           fontWeight: 700,
-                          transition: "all 0.3s ease"
+                          transition: "all 0.3s ease",
                         }}
                       >
                         Add
@@ -691,72 +1159,192 @@ export default function Settings() {
                   </Box>
 
                   <Box>
-                    <Typography variant="body2" fontWeight={800} sx={{ mb: 1.5 }}>Delivery Instructions</Typography>
+                    <Typography
+                      variant="body2"
+                      fontWeight={800}
+                      sx={{ mb: 1.5 }}
+                    >
+                      Delivery Instructions
+                    </Typography>
                     <TextField
                       fullWidth
                       multiline
-                      rows={2}
+                      minRows={1}
+                      maxRows={3}
                       placeholder="E.g., Leave at the door, Ring the bell twice..."
                       value={profileForm.deliveryInstructions}
-                      onChange={(e) => handleInputChange("deliveryInstructions", e.target.value)}
-                      InputProps={{ startAdornment: <NotesIcon sx={{ mr: 1, alignSelf: "flex-start", mt: 1 }} /> }}
-                      sx={inputStyles}
+                      onChange={(e) =>
+                        handleInputChange("deliveryInstructions", e.target.value)
+                      }
+                      InputProps={{
+                        startAdornment: (
+                          <NotesIcon
+                            sx={{
+                              mr: 1.5,
+                              color: "var(--primary)",
+                              opacity: 0.7,
+                            }}
+                          />
+                        ),
+                      }}
+                      sx={{
+                        ...inputStyles,
+                        "& .MuiOutlinedInput-root": {
+                          ...inputStyles["& .MuiOutlinedInput-root"],
+                          minHeight: "60px",
+                          display: "flex",
+                          alignItems: "center",
+                          paddingLeft: "16px",
+                          background: "var(--white)", // Make it stand out like other cards
+                          "& fieldset": { 
+                            borderColor: "rgba(0, 0, 0, 0.08) !important" 
+                          },
+                          "&:hover fieldset": { 
+                            borderColor: "var(--primary) !important" 
+                          },
+                        },
+                        "& .MuiOutlinedInput-input": {
+                          padding: "0 !important",
+                          textAlign: "left",
+                          color: "var(--text-main)",
+                        },
+                      }}
                     />
                   </Box>
                 </CardContent>
               </Card>
 
               {/* Preferences & Dietary */}
-              <Card sx={{ 
-                borderRadius: "24px", 
-                background: "var(--white)", 
-                boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
-                transition: "all 0.3s ease",
-                "&:hover": { boxShadow: "0 15px 40px rgba(0,0,0,0.08)" }
-              }}>
+              <Card
+                sx={{
+                  borderRadius: "24px",
+                  background: "var(--white)",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+                  transition: "all 0.3s ease",
+                  "&:hover": { boxShadow: "0 15px 40px rgba(0,0,0,0.08)" },
+                }}
+              >
                 <CardContent sx={{ p: 4 }}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 4 }}>
-                    <Box sx={{ p: 1.5, borderRadius: "14px", background: "rgba(230, 81, 0, 0.1)", color: "var(--primary)" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      mb: 4,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        p: 1.5,
+                        borderRadius: "14px",
+                        background: "rgba(230, 81, 0, 0.1)",
+                        color: "var(--primary)",
+                      }}
+                    >
                       <FastfoodIcon />
                     </Box>
                     <Box>
-                      <Typography variant="h6" fontWeight={800} color="var(--text-main)">Food Preferences</Typography>
-                      <Typography variant="body2" color="var(--text-sub)">Tailor your Flavora experience</Typography>
+                      <Typography
+                        variant="h6"
+                        fontWeight={800}
+                        color="var(--text-main)"
+                      >
+                        Food Preferences
+                      </Typography>
+                      <Typography variant="body2" color="var(--text-sub)">
+                        Tailor your Flavora experience
+                      </Typography>
                     </Box>
                   </Box>
 
                   <Grid container spacing={4}>
                     <Grid item xs={12} md={6}>
                       <FormControl component="fieldset">
-                        <FormLabel component="legend" sx={{ fontWeight: 800, color: "var(--text-main)", mb: 1 }}>Dietary Habit</FormLabel>
+                        <FormLabel
+                          component="legend"
+                          sx={{
+                            fontWeight: 800,
+                            color: "var(--text-main)",
+                            mb: 1,
+                          }}
+                        >
+                          Dietary Habit
+                        </FormLabel>
                         <RadioGroup
                           row
                           value={profileForm.foodType}
-                          onChange={(e) => handleInputChange("foodType", e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("foodType", e.target.value)
+                          }
                         >
-                          <FormControlLabel value="veg" control={<Radio color="primary" />} label="Vegetarian" />
-                          <FormControlLabel value="non-veg" control={<Radio color="primary" />} label="Non-Veg" />
+                          <FormControlLabel
+                            value="veg"
+                            control={<Radio color="primary" />}
+                            label="Vegetarian"
+                          />
+                          <FormControlLabel
+                            value="non-veg"
+                            control={<Radio color="primary" />}
+                            label="Non-Veg"
+                          />
                         </RadioGroup>
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} md={6}>
                       <FormControl component="fieldset">
-                        <FormLabel component="legend" sx={{ fontWeight: 800, color: "var(--text-main)", mb: 1 }}>Delivery Speed</FormLabel>
+                        <FormLabel
+                          component="legend"
+                          sx={{
+                            fontWeight: 800,
+                            color: "var(--text-main)",
+                            mb: 1,
+                          }}
+                        >
+                          Delivery Speed
+                        </FormLabel>
                         <RadioGroup
                           row
                           value={profileForm.deliverySpeed}
-                          onChange={(e) => handleInputChange("deliverySpeed", e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("deliverySpeed", e.target.value)
+                          }
                         >
-                          <FormControlLabel value="Standard" control={<Radio color="primary" />} label="Standard" />
-                          <FormControlLabel value="Priority" control={<Radio color="primary" />} label="Priority" />
+                          <FormControlLabel
+                            value="Standard"
+                            control={<Radio color="primary" />}
+                            label="Standard"
+                          />
+                          <FormControlLabel
+                            value="Priority"
+                            control={<Radio color="primary" />}
+                            label="Priority"
+                          />
                         </RadioGroup>
                       </FormControl>
                     </Grid>
                     <Grid item xs={12}>
-                      <Typography variant="body2" fontWeight={800} sx={{ mb: 2 }}>Dietary Restrictions</Typography>
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
-                        {["Gluten Free", "Dairy Free", "Nut Free", "Low Carb", "Vegan", "Halal", "Keto"].map((tag) => {
-                          const isSelected = (profileForm.dietaryRestrictions || []).includes(tag);
+                      <Typography
+                        variant="body2"
+                        fontWeight={800}
+                        sx={{ mb: 2 }}
+                      >
+                        Dietary Restrictions
+                      </Typography>
+                      <Box
+                        sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}
+                      >
+                        {[
+                          "Gluten Free",
+                          "Dairy Free",
+                          "Nut Free",
+                          "Low Carb",
+                          "Vegan",
+                          "Halal",
+                          "Keto",
+                        ].map((tag) => {
+                          const isSelected = (
+                            profileForm.dietaryRestrictions || []
+                          ).includes(tag);
                           return (
                             <Chip
                               key={tag}
@@ -766,10 +1354,16 @@ export default function Settings() {
                                 borderRadius: "10px",
                                 fontWeight: 700,
                                 transition: "all 0.2s ease",
-                                background: isSelected ? "var(--primary-gradient)" : "var(--bg-light)",
-                                color: isSelected ? "white" : "var(--text-sub)",
-                                border: isSelected ? "none" : "1px solid var(--border-light)",
-                                "&:hover": { transform: "translateY(-2px)" }
+                                background: isSelected
+                                  ? "var(--primary-gradient)"
+                                  : "var(--bg-light)",
+                                color: isSelected
+                                  ? "white"
+                                  : "var(--text-sub)",
+                                border: isSelected
+                                  ? "none"
+                                  : "1px solid var(--border-light)",
+                                "&:hover": { transform: "translateY(-2px)" },
                               }}
                             />
                           );
@@ -781,21 +1375,45 @@ export default function Settings() {
               </Card>
 
               {/* Payment Settings */}
-              <Card sx={{ 
-                borderRadius: "24px", 
-                background: "var(--white)", 
-                boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
-                transition: "all 0.3s ease",
-                "&:hover": { boxShadow: "0 15px 40px rgba(0,0,0,0.08)" }
-              }}>
+              <Card
+                sx={{
+                  borderRadius: "24px",
+                  background: "var(--white)",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+                  transition: "all 0.3s ease",
+                  "&:hover": { boxShadow: "0 15px 40px rgba(0,0,0,0.08)" },
+                }}
+              >
                 <CardContent sx={{ p: 4 }}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 4 }}>
-                    <Box sx={{ p: 1.5, borderRadius: "14px", background: "rgba(230, 81, 0, 0.1)", color: "var(--primary)" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      mb: 4,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        p: 1.5,
+                        borderRadius: "14px",
+                        background: "rgba(230, 81, 0, 0.1)",
+                        color: "var(--primary)",
+                      }}
+                    >
                       <PaymentIcon />
                     </Box>
                     <Box>
-                      <Typography variant="h6" fontWeight={800} color="var(--text-main)">Payment Settings</Typography>
-                      <Typography variant="body2" color="var(--text-sub)">Default payment and wallet</Typography>
+                      <Typography
+                        variant="h6"
+                        fontWeight={800}
+                        color="var(--text-main)"
+                      >
+                        Payment Settings
+                      </Typography>
+                      <Typography variant="body2" color="var(--text-sub)">
+                        Default payment and wallet
+                      </Typography>
                     </Box>
                   </Box>
 
@@ -806,8 +1424,12 @@ export default function Settings() {
                         select
                         label="Default Payment Method"
                         value={profileForm.paymentMethod}
-                        onChange={(e) => handleInputChange("paymentMethod", e.target.value)}
-                        InputProps={{ startAdornment: <CreditCardIcon sx={{ mr: 1 }} /> }}
+                        onChange={(e) =>
+                          handleInputChange("paymentMethod", e.target.value)
+                        }
+                        InputProps={{
+                          startAdornment: <CreditCardIcon sx={{ mr: 1 }} />,
+                        }}
                         sx={inputStyles}
                       >
                         <MenuItem value="Cash">Cash on Delivery</MenuItem>
@@ -817,38 +1439,61 @@ export default function Settings() {
                       </TextField>
                     </Grid>
                     <Grid item xs={12} md={6}>
-                      <Box sx={{ 
-                        p: 1.5,
-                        px: 2,
-                        borderRadius: "14px", 
-                        background: "var(--bg-light)", 
-                        border: "1px solid var(--border-light)",
-                        height: 56, // Match standard TextField height
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        transition: "all 0.3s ease",
-                        "&:hover": { borderColor: "var(--primary)" }
-                      }}>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                          <AccountBalanceWalletIcon sx={{ color: "var(--primary)", opacity: 0.7 }} />
+                      <Box
+                        sx={{
+                          p: 1.5,
+                          px: 2,
+                          borderRadius: "14px",
+                          background: "var(--bg-light)",
+                          border: "1px solid var(--border-light)",
+                          height: 56, // Match standard TextField height
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          transition: "all 0.3s ease",
+                          "&:hover": { borderColor: "var(--primary)" },
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1.5,
+                          }}
+                        >
+                          <AccountBalanceWalletIcon
+                            sx={{ color: "var(--primary)", opacity: 0.7 }}
+                          />
                           <Box>
-                            <Typography variant="caption" fontWeight={800} color="var(--text-sub)" sx={{ display: "block", lineHeight: 1 }}>WALLET BALANCE</Typography>
-                            <Typography variant="body1" fontWeight={900} color="var(--primary)">₹ 450.00</Typography>
+                            <Typography
+                              variant="caption"
+                              fontWeight={800}
+                              color="var(--text-sub)"
+                              sx={{ display: "block", lineHeight: 1 }}
+                            >
+                              WALLET BALANCE
+                            </Typography>
+                            <Typography
+                              variant="body1"
+                              fontWeight={900}
+                              color="var(--primary)"
+                            >
+                              ₹ 450.00
+                            </Typography>
                           </Box>
                         </Box>
-                        <Button 
-                          size="small" 
-                          variant="contained" 
-                          sx={{ 
-                            borderRadius: "8px", 
+                        <Button
+                          size="small"
+                          variant="contained"
+                          sx={{
+                            borderRadius: "8px",
                             fontWeight: 800,
                             px: 2,
                             py: 0.5,
                             fontSize: "0.7rem",
                             background: "var(--primary-gradient)",
                             color: "white !important",
-                            boxShadow: "0 4px 10px rgba(230, 81, 0, 0.2)"
+                            boxShadow: "0 4px 10px rgba(230, 81, 0, 0.2)",
                           }}
                         >
                           Top Up
@@ -864,102 +1509,127 @@ export default function Settings() {
       </Box>
 
       {/* Map Picker Dialog */}
-      <Dialog 
-        open={mapPickerOpen} 
+      <Dialog
+        open={mapPickerOpen}
         onClose={() => setMapPickerOpen(false)}
         maxWidth="md"
         fullWidth
         PaperProps={{
-          sx: { 
-            borderRadius: "28px", 
-            overflow: "hidden", 
+          sx: {
+            borderRadius: "28px",
+            overflow: "hidden",
             background: "var(--white)",
             boxShadow: "0 24px 48px rgba(0,0,0,0.2)",
             // Reduced height to maintain "card" feel
             minHeight: { md: 550 },
-            maxHeight: "90vh"
-          }
+            maxHeight: "90vh",
+          },
         }}
       >
-        <DialogTitle sx={{ 
-          fontWeight: 900, 
-          display: "flex", 
-          alignItems: "center", 
-          justifyContent: "space-between",
-          background: "var(--primary-gradient)",
-          color: "white",
-          py: 2,
-          px: 4
-        }}>
+        <DialogTitle
+          sx={{
+            fontWeight: 900,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            background: "var(--primary-gradient)",
+            color: "white",
+            py: 2,
+            px: 4,
+          }}
+        >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
             <MapIcon sx={{ fontSize: 28 }} />
-            <Typography variant="h6" fontWeight={900} sx={{ letterSpacing: -0.5 }}>Pick Delivery Location</Typography>
+            <Typography
+              variant="h6"
+              fontWeight={900}
+              sx={{ letterSpacing: -0.5 }}
+            >
+              Pick Delivery Location
+            </Typography>
           </Box>
-          <IconButton onClick={() => setMapPickerOpen(false)} sx={{ color: "white", "&:hover": { background: "rgba(255,255,255,0.1)" } }}>
+          <IconButton
+            onClick={() => setMapPickerOpen(false)}
+            sx={{
+              color: "white",
+              "&:hover": { background: "rgba(255,255,255,0.1)" },
+            }}
+          >
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent sx={{ 
-            p: 0, 
+        <DialogContent
+          sx={{
+            p: 0,
             overflow: { xs: "auto", md: "hidden" },
             // Compact height to restore card-like appearance
             height: { xs: "auto", md: 450 },
             scrollbarWidth: "none",
-            "&::-webkit-scrollbar": { display: "none" }
-          }}>
-            <Grid container sx={{ height: "100%" }}>
+            "&::-webkit-scrollbar": { display: "none" },
+          }}
+        >
+          <Grid container sx={{ height: "100%" }}>
             {/* Map Area */}
-            <Grid item xs={12} md={7} sx={{ 
-              position: "relative", 
-              minHeight: { xs: 300, md: "100%" },
-              overflow: "hidden" 
-            }}>
+            <Grid
+              item
+              xs={12}
+              md={7}
+              sx={{
+                position: "relative",
+                minHeight: { xs: 300, md: "100%" },
+                overflow: "hidden",
+              }}
+            >
               {/* Outer container to clip Leaflet default controls */}
-              <Box sx={{
-                position: "absolute",
-                top: -40, // Clip top default controls
-                left: -40, // Clip left default controls
-                right: 0,
-                bottom: 0,
-                width: "calc(100% + 40px)",
-                height: "calc(100% + 40px)",
-                pointerEvents: "auto"
-              }}>
-                <iframe 
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: -40, // Clip top default controls
+                  left: -40, // Clip left default controls
+                  right: 0,
+                  bottom: 0,
+                  width: "calc(100% + 40px)",
+                  height: "calc(100% + 40px)",
+                  pointerEvents: "auto",
+                }}
+              >
+                <iframe
                   key={mapUrl}
-                  width="100%" 
-                  height="100%" 
-                  frameBorder="0" 
-                  scrolling="no" 
-                  marginHeight="0" 
-                  marginWidth="0" 
+                  width="100%"
+                  height="100%"
+                  frameBorder="0"
+                  scrolling="no"
+                  marginHeight="0"
+                  marginWidth="0"
                   src={mapUrl}
                   style={{ border: "none", display: "block" }}
                   title="Map"
                 ></iframe>
               </Box>
-              
+
               {/* Map Controls Overlay */}
-              <Box sx={{ 
-                position: "absolute", 
-                top: 20, 
-                right: 20, 
-                display: "flex", 
-                flexDirection: "column", 
-                gap: 1.5,
-                zIndex: 5
-              }}>
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 20,
+                  right: 20,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1.5,
+                  zIndex: 5,
+                }}
+              >
                 {/* Map Type Toggle */}
                 <IconButton
                   onClick={toggleMapType}
-                  sx={{ 
-                    background: "white", 
-                    color: "var(--text-main)", 
+                  sx={{
+                    background: "white",
+                    color: "var(--text-main)",
                     boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
                     "&:hover": { background: "#f8f9fa" },
                     borderRadius: "12px",
                     width: 44,
-                    height: 44
+                    height: 44,
                   }}
                   title="Change Map Layer"
                 >
@@ -967,24 +1637,34 @@ export default function Settings() {
                 </IconButton>
 
                 {/* Zoom Controls */}
-                <Box sx={{ 
-                  display: "flex", 
-                  flexDirection: "column", 
-                  background: "white", 
-                  borderRadius: "12px", 
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                  overflow: "hidden"
-                }}>
-                  <IconButton 
-                    onClick={handleZoomIn} 
-                    sx={{ color: "var(--text-main)", p: 1.2, "&:hover": { background: "#f8f9fa" } }}
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    background: "white",
+                    borderRadius: "12px",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                    overflow: "hidden",
+                  }}
+                >
+                  <IconButton
+                    onClick={handleZoomIn}
+                    sx={{
+                      color: "var(--text-main)",
+                      p: 1.2,
+                      "&:hover": { background: "#f8f9fa" },
+                    }}
                   >
                     <AddIcon fontSize="small" />
                   </IconButton>
                   <Divider sx={{ width: "60%", mx: "auto" }} />
-                  <IconButton 
-                    onClick={handleZoomOut} 
-                    sx={{ color: "var(--text-main)", p: 1.2, "&:hover": { background: "#f8f9fa" } }}
+                  <IconButton
+                    onClick={handleZoomOut}
+                    sx={{
+                      color: "var(--text-main)",
+                      p: 1.2,
+                      "&:hover": { background: "#f8f9fa" },
+                    }}
                   >
                     <RemoveIcon fontSize="small" />
                   </IconButton>
@@ -994,14 +1674,14 @@ export default function Settings() {
                 <IconButton
                   onClick={handleLocateMe}
                   disabled={mapLoading}
-                  sx={{ 
-                    background: "white", 
-                    color: "var(--primary)", 
+                  sx={{
+                    background: "white",
+                    color: "var(--primary)",
                     boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
                     "&:hover": { background: "#f8f9fa" },
                     borderRadius: "12px",
                     width: 44,
-                    height: 44
+                    height: 44,
                   }}
                   title="Current Location"
                 >
@@ -1010,14 +1690,14 @@ export default function Settings() {
 
                 {/* Fullscreen (Visual Only for now) */}
                 <IconButton
-                  sx={{ 
-                    background: "white", 
-                    color: "var(--text-main)", 
+                  sx={{
+                    background: "white",
+                    color: "var(--text-main)",
                     boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
                     "&:hover": { background: "#f8f9fa" },
                     borderRadius: "12px",
                     width: 44,
-                    height: 44
+                    height: 44,
                   }}
                 >
                   <FullscreenIcon />
@@ -1025,25 +1705,49 @@ export default function Settings() {
               </Box>
 
               {mapLoading && (
-                <Box sx={{ 
-                  position: "absolute", 
-                  top: 0, 
-                  left: 0, 
-                  width: "100%", 
-                  height: "100%", 
-                  background: "rgba(255,255,255,0.8)",
-                  backdropFilter: "blur(4px)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  zIndex: 10
-                }}>
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    background: "rgba(255,255,255,0.8)",
+                    backdropFilter: "blur(4px)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    zIndex: 10,
+                  }}
+                >
                   <Box sx={{ textAlign: "center" }}>
-                    <Typography variant="h6" fontWeight={800} color="var(--primary)" sx={{ mb: 1.5 }}>
+                    <Typography
+                      variant="h6"
+                      fontWeight={800}
+                      color="var(--primary)"
+                      sx={{ mb: 1.5 }}
+                    >
                       Finding your spot...
                     </Typography>
-                    <Box sx={{ width: 180, height: 6, background: "rgba(0,0,0,0.05)", borderRadius: 10, overflow: "hidden", mx: "auto" }}>
-                      <Box className="loading-bar-anim" sx={{ height: "100%", width: "60%", background: "var(--primary-gradient)", borderRadius: 10 }} />
+                    <Box
+                      sx={{
+                        width: 180,
+                        height: 6,
+                        background: "rgba(0,0,0,0.05)",
+                        borderRadius: 10,
+                        overflow: "hidden",
+                        mx: "auto",
+                      }}
+                    >
+                      <Box
+                        className="loading-bar-anim"
+                        sx={{
+                          height: "100%",
+                          width: "60%",
+                          background: "var(--primary-gradient)",
+                          borderRadius: 10,
+                        }}
+                      />
                     </Box>
                   </Box>
                 </Box>
@@ -1051,28 +1755,46 @@ export default function Settings() {
             </Grid>
 
             {/* Sidebar Search Area */}
-            <Grid item xs={12} md={5} sx={{ 
-              display: "flex", 
-              flexDirection: "column", 
-              background: "var(--white)", 
-              borderLeft: { md: "1px solid var(--border-light)" },
-              borderTop: { xs: "1px solid var(--border-light)", md: "none" },
-              height: { xs: "auto", md: "100%" },
-              maxHeight: { xs: 400, md: "100%" }
-            }}>
-              <Box sx={{ 
-                 p: 2, // Slightly more compact
-                 display: "flex", 
-                 flexDirection: "column", 
-                 gap: 1.5, // Tighter spacing
-                 flexGrow: 1, 
-                 overflowY: "auto",
-                 scrollbarWidth: "none",
-                 "&::-webkit-scrollbar": { display: "none" }
-               }}>
+            <Grid
+              item
+              xs={12}
+              md={5}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                background: "var(--white)",
+                borderLeft: { md: "1px solid var(--border-light)" },
+                borderTop: { xs: "1px solid var(--border-light)", md: "none" },
+                height: { xs: "auto", md: "100%" },
+                maxHeight: { xs: 400, md: "100%" },
+              }}
+            >
+              <Box
+                sx={{
+                  p: 2, // Slightly more compact
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1.5, // Tighter spacing
+                  flexGrow: 1,
+                  overflowY: "auto",
+                  scrollbarWidth: "none",
+                  "&::-webkit-scrollbar": { display: "none" },
+                }}
+              >
                 {/* Search Bar */}
                 <Box>
-                  <Typography variant="caption" fontWeight={800} color="var(--text-sub)" sx={{ display: "block", mb: 0.5, textTransform: "uppercase", letterSpacing: 1.2, fontSize: "0.6rem" }}>
+                  <Typography
+                    variant="caption"
+                    fontWeight={800}
+                    color="var(--text-sub)"
+                    sx={{
+                      display: "block",
+                      mb: 0.5,
+                      textTransform: "uppercase",
+                      letterSpacing: 1.2,
+                      fontSize: "0.6rem",
+                    }}
+                  >
                     Search Location
                   </Typography>
                   <Box sx={{ position: "relative" }}>
@@ -1085,50 +1807,89 @@ export default function Settings() {
                         searchLocations(e.target.value);
                       }}
                       InputProps={{
-                        startAdornment: <LocationIcon sx={{ color: "var(--primary)", mr: 1, fontSize: 16 }} />,
-                        endAdornment: isSearching && <Typography variant="caption" color="var(--text-sub)">Searching...</Typography>
+                        startAdornment: (
+                          <LocationIcon
+                            sx={{
+                              color: "var(--primary)",
+                              mr: 1,
+                              fontSize: 16,
+                            }}
+                          />
+                        ),
+                        endAdornment: isSearching && (
+                          <Typography variant="caption" color="var(--text-sub)">
+                            Searching...
+                          </Typography>
+                        ),
                       }}
-                      sx={{ 
-                        "& .MuiOutlinedInput-root": { 
-                          borderRadius: "14px", 
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "14px",
                           background: "var(--bg-light)",
                           border: "none",
                           height: 44,
                           fontSize: "0.85rem",
                           transition: "all 0.3s ease",
-                          "& fieldset": { border: "1px solid var(--border-light)" },
-                          "&:hover fieldset": { borderColor: "var(--primary)" },
-                          "&.Mui-focused fieldset": { borderWidth: "2px", borderColor: "var(--primary)" }
-                        }
+                          "& fieldset": {
+                            border: "1px solid var(--border-light)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "var(--primary)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderWidth: "2px",
+                            borderColor: "var(--primary)",
+                          },
+                        },
                       }}
                     />
-                    
+
                     {/* Search Results Dropdown */}
                     {searchResults.length > 0 && (
-                      <Box sx={{ 
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        right: 0,
-                        mt: 0.5, 
-                        maxHeight: 150, 
-                        overflowY: "auto", 
-                        background: "var(--white)", 
-                        borderRadius: "12px",
-                        boxShadow: "0 12px 32px rgba(0,0,0,0.15)",
-                        border: "1px solid var(--border-light)",
-                        zIndex: 20,
-                        scrollbarWidth: "none",
-                        "&::-webkit-scrollbar": { display: "none" }
-                      }}>
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: "100%",
+                          left: 0,
+                          right: 0,
+                          mt: 0.5,
+                          maxHeight: 150,
+                          overflowY: "auto",
+                          background: "var(--white)",
+                          borderRadius: "12px",
+                          boxShadow: "0 12px 32px rgba(0,0,0,0.15)",
+                          border: "1px solid var(--border-light)",
+                          zIndex: 20,
+                          scrollbarWidth: "none",
+                          "&::-webkit-scrollbar": { display: "none" },
+                        }}
+                      >
                         {searchResults.map((result, idx) => (
-                          <MenuItem 
-                            key={idx} 
+                          <MenuItem
+                            key={idx}
                             onClick={() => handleSearchSelect(result)}
-                            sx={{ py: 0.8, px: 1.5, borderBottom: idx !== searchResults.length - 1 ? "1px solid var(--bg-light)" : "none", "&:hover": { background: "var(--bg-light)" } }}
+                            sx={{
+                              py: 0.8,
+                              px: 1.5,
+                              borderBottom:
+                                idx !== searchResults.length - 1
+                                  ? "1px solid var(--bg-light)"
+                                  : "none",
+                              "&:hover": { background: "var(--bg-light)" },
+                            }}
                           >
-                            <LocationIcon sx={{ fontSize: 14, mr: 1, color: "var(--text-sub)" }} />
-                            <Typography variant="body2" noWrap sx={{ fontWeight: 600, fontSize: "0.7rem" }}>
+                            <LocationIcon
+                              sx={{
+                                fontSize: 14,
+                                mr: 1,
+                                color: "var(--text-sub)",
+                              }}
+                            />
+                            <Typography
+                              variant="body2"
+                              noWrap
+                              sx={{ fontWeight: 600, fontSize: "0.7rem" }}
+                            >
                               {result.display_name}
                             </Typography>
                           </MenuItem>
@@ -1140,32 +1901,57 @@ export default function Settings() {
 
                 {/* Address Details */}
                 <Box>
-                  <Typography variant="caption" fontWeight={800} color="var(--text-sub)" sx={{ display: "block", mb: 0.5, textTransform: "uppercase", letterSpacing: 1.2, fontSize: "0.6rem" }}>
+                  <Typography
+                    variant="caption"
+                    fontWeight={800}
+                    color="var(--text-sub)"
+                    sx={{
+                      display: "block",
+                      mb: 0.5,
+                      textTransform: "uppercase",
+                      letterSpacing: 1.2,
+                      fontSize: "0.6rem",
+                    }}
+                  >
                     Confirm Address
                   </Typography>
-                  <Box sx={{ 
-                    p: 1.5, 
-                    background: "var(--bg-light)", 
-                    borderRadius: "12px", 
-                    minHeight: 60,
-                    maxHeight: 80,
-                    overflowY: "auto",
-                    fontWeight: 700,
-                    color: "var(--text-main)",
-                    fontSize: "0.75rem",
-                    lineHeight: 1.3,
-                    border: "1px solid transparent",
-                    transition: "all 0.3s ease",
-                    scrollbarWidth: "none",
-                    "&::-webkit-scrollbar": { display: "none" }
-                  }}>
-                    {newAddress || "Select a location on the map or use search"}
+                  <Box
+                    sx={{
+                      p: 1.5,
+                      background: "var(--bg-light)",
+                      borderRadius: "12px",
+                      minHeight: 60,
+                      maxHeight: 80,
+                      overflowY: "auto",
+                      fontWeight: 700,
+                      color: "var(--text-main)",
+                      fontSize: "0.75rem",
+                      lineHeight: 1.3,
+                      border: "1px solid transparent",
+                      transition: "all 0.3s ease",
+                      scrollbarWidth: "none",
+                      "&::-webkit-scrollbar": { display: "none" },
+                    }}
+                  >
+                    {newAddress ||
+                      "Select a location on the map or use search"}
                   </Box>
                 </Box>
 
                 {/* Tags */}
                 <Box>
-                  <Typography variant="caption" fontWeight={800} color="var(--text-sub)" sx={{ display: "block", mb: 0.5, textTransform: "uppercase", letterSpacing: 1.2, fontSize: "0.6rem" }}>
+                  <Typography
+                    variant="caption"
+                    fontWeight={800}
+                    color="var(--text-sub)"
+                    sx={{
+                      display: "block",
+                      mb: 0.5,
+                      textTransform: "uppercase",
+                      letterSpacing: 1.2,
+                      fontSize: "0.6rem",
+                    }}
+                  >
                     Save As
                   </Typography>
                   <Box sx={{ display: "flex", gap: 1 }}>
@@ -1174,22 +1960,29 @@ export default function Settings() {
                         key={tag}
                         label={tag}
                         onClick={() => setLocationTag(tag)}
-                        sx={{ 
+                        sx={{
                           flex: 1,
                           height: 32,
                           fontWeight: 800,
                           borderRadius: "8px",
                           cursor: "pointer",
                           fontSize: "0.75rem",
-                          background: locationTag === tag ? "var(--primary-gradient)" : "var(--bg-light)",
-                          color: locationTag === tag ? "#ffffff" : "var(--text-sub)",
+                          background:
+                            locationTag === tag
+                              ? "var(--primary-gradient)"
+                              : "var(--bg-light)",
+                          color:
+                            locationTag === tag ? "#ffffff" : "var(--text-sub)",
                           border: "none",
                           transition: "all 0.3s ease",
                           "& .MuiChip-label": { px: 0 },
-                          "&:hover": { 
-                            background: locationTag === tag ? "var(--primary-gradient)" : "var(--border-light)",
-                            transform: "translateY(-1px)"
-                          }
+                          "&:hover": {
+                            background:
+                              locationTag === tag
+                                ? "var(--primary-gradient)"
+                                : "var(--border-light)",
+                            transform: "translateY(-1px)",
+                          },
                         }}
                       />
                     ))}
@@ -1197,46 +1990,49 @@ export default function Settings() {
                 </Box>
               </Box>
 
-              <Box sx={{ 
-                p: 2, 
-                borderTop: "1px solid var(--border-light)", 
-                background: "var(--white)",
-                zIndex: 10,
-                mt: "auto" // Ensures it stays at the very bottom
-              }}>
-                <Button 
-                   fullWidth
-                   variant="contained" 
-                   onClick={() => {
-                     if (newAddress) {
-                       addAddress(locationTag);
-                       setMapPickerOpen(false);
-                     } else {
-                       toast.warning("Please pick a location first.");
-                     }
-                   }}
-                   disabled={!newAddress || mapLoading}
-                   sx={{ 
-                     background: "var(--primary-gradient)",
-                     color: "#ffffff !important",
-                     borderRadius: "14px",
-                     py: 1.4, // More compact but still prominent
-                     fontWeight: 900,
-                     fontSize: "1rem",
-                     textTransform: "none",
-                     letterSpacing: 0.5,
-                     boxShadow: "0 10px 20px rgba(230, 81, 0, 0.3)",
-                     "&:hover": { 
-                       transform: "translateY(-2px)", 
-                       boxShadow: "0 12px 28px rgba(230, 81, 0, 0.4)",
-                       background: "var(--primary-gradient)"
-                     },
-                     "&:active": { transform: "translateY(0)" },
-                     transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
-                   }}
-                 >
-                   Confirm & Add Address
-                 </Button>
+              <Box
+                sx={{
+                  p: 2,
+                  borderTop: "1px solid var(--border-light)",
+                  background: "var(--white)",
+                  zIndex: 10,
+                  mt: "auto", // Ensures it stays at the very bottom
+                }}
+              >
+                <Button
+                  fullWidth
+                  variant="contained"
+                  onClick={() => {
+                    if (newAddress) {
+                      addAddress(locationTag);
+                      setMapPickerOpen(false);
+                    } else {
+                      toast.warning("Please pick a location first.");
+                    }
+                  }}
+                  disabled={!newAddress || mapLoading}
+                  sx={{
+                    background: "var(--primary-gradient)",
+                    color: "#ffffff !important",
+                    borderRadius: "14px",
+                    py: 1.4, // More compact but still prominent
+                    fontWeight: 900,
+                    fontSize: "1rem",
+                    textTransform: "none",
+                    letterSpacing: 0.5,
+                    boxShadow: "0 10px 20px rgba(230, 81, 0, 0.3)",
+                    "&:hover": {
+                      transform: "translateY(-2px)",
+                      boxShadow: "0 12px 28px rgba(230, 81, 0, 0.4)",
+                      background: "var(--primary-gradient)",
+                    },
+                    "&:active": { transform: "translateY(0)" },
+                    transition:
+                      "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                  }}
+                >
+                  Confirm & Add Address
+                </Button>
               </Box>
             </Grid>
           </Grid>
@@ -1252,25 +2048,30 @@ export default function Settings() {
         <DialogTitle sx={{ fontWeight: 800 }}>Discard Changes?</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="var(--text-sub)">
-            You have unsaved changes. Are you sure you want to leave? Your progress will be lost.
+            You have unsaved changes. Are you sure you want to leave? Your
+            progress will be lost.
           </Typography>
         </DialogContent>
         <DialogActions sx={{ p: 2, gap: 1 }}>
-          <Button 
+          <Button
             onClick={() => setDiscardDialogOpen(false)}
-            sx={{ borderRadius: "10px", fontWeight: 700, color: "var(--text-sub)" }}
+            sx={{
+              borderRadius: "10px",
+              fontWeight: 700,
+              color: "var(--text-sub)",
+            }}
           >
             Stay Here
           </Button>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={() => navigate(-1)}
-            sx={{ 
-              borderRadius: "10px", 
-              fontWeight: 700, 
-              background: "#e74c3c", 
+            sx={{
+              borderRadius: "10px",
+              fontWeight: 700,
+              background: "#e74c3c",
               color: "white !important",
-              "&:hover": { background: "#c0392b" }
+              "&:hover": { background: "#c0392b" },
             }}
           >
             Discard

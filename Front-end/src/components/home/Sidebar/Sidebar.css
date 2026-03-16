@@ -283,3 +283,30 @@
       flex: 0 0 8.75rem !important;
    }
 }
+
+/* Dropdown Menu Redesign */
+.MuiMenu-paper {
+   border-radius: 14px !important;
+   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15) !important;
+   margin-top: 8px !important;
+}
+
+.MuiMenuItem-root {
+   margin: 4px 8px !important;
+   border-radius: 8px !important;
+   font-weight: 700 !important;
+}
+
+.MuiMenuItem-root:hover {
+   background-color: var(--bg-light) !important;
+}
+
+.MuiMenuItem-root.Mui-selected {
+   background: var(--primary-gradient) !important;
+   color: white !important;
+   font-weight: 900 !important;
+}
+
+.MuiMenuItem-root.Mui-selected:hover {
+   background: var(--primary-gradient) !important;
+}
