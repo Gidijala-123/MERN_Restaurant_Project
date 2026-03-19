@@ -249,15 +249,32 @@ app.post("/api/order", verifyAccessToken, checkCsrf, async (req, res) => {
   });
 
   // Serve static files in production
+  const currentFileDir = path.dirname(fileURLToPath(import.meta.url));
+  const buildPath = path.resolve(currentFileDir, "..", "Front-end", "dist");
+
   if (process.env.NODE_ENV === "production") {
-    // Correctly resolve the path to the Front-end/dist folder
-    // This works whether the app is started from the project root or from the Back-end directory
-    const currentFileDir = path.dirname(fileURLToPath(import.meta.url));
-    const buildPath = path.resolve(currentFileDir, "..", "Front-end", "dist");
-    
-    app.use(express.static(buildPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(buildPath, "index.html"));
+    // Check if the build folder exists
+    import("fs").then((fs) => {
+      if (fs.existsSync(buildPath)) {
+        app.use(express.static(buildPath));
+        app.get("*", (req, res) => {
+          res.sendFile(path.join(buildPath, "index.html"), (err) => {
+            if (err) {
+              res.status(500).send("Error loading index.html: Build missing or path incorrect.");
+            }
+          });
+        });
+      } else {
+        console.warn(`Static build folder not found at: ${buildPath}`);
+        app.get("*", (req, res) => {
+          res.status(503).send("Frontend build not found. Please run build script.");
+        });
+      }
+    });
+  } else {
+    // In development, provide a simple health check or redirect if not handled by Vite
+    app.get("/", (req, res) => {
+      res.json({ message: "Backend API is running. Start Frontend separately for development." });
     });
   }
 
