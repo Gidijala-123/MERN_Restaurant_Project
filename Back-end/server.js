@@ -250,7 +250,11 @@ app.post("/api/order", verifyAccessToken, checkCsrf, async (req, res) => {
 
   // Serve static files in production
   if (process.env.NODE_ENV === "production") {
-    const buildPath = path.join(process.cwd(), "../Front-end/dist");
+    // Correctly resolve the path to the Front-end/dist folder
+    // This works whether the app is started from the project root or from the Back-end directory
+    const currentFileDir = path.dirname(fileURLToPath(import.meta.url));
+    const buildPath = path.resolve(currentFileDir, "..", "Front-end", "dist");
+    
     app.use(express.static(buildPath));
     app.get("*", (req, res) => {
       res.sendFile(path.join(buildPath, "index.html"));

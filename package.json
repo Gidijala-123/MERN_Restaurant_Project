@@ -1,4 +1,15 @@
 {
+  "name": "mern-restaurant-project",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install-backend": "npm install --prefix Back-end",
+    "install-frontend": "npm install --prefix Front-end",
+    "build-frontend": "npm run build --prefix Front-end",
+    "build": "npm run install-backend && npm run install-frontend && npm run build-frontend",
+    "start": "node Back-end/server.js",
+    "dev": "npm run dev --prefix Back-end"
+  },
   "dependencies": {
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
