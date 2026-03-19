@@ -83,7 +83,7 @@ import "./Sidebar.css";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useMediaQuery } from "@mui/material";
 import { toast } from "react-toastify";
-import { Sidebar_Content } from "../../../APIs/Sidebar";
+import { PopupAlert } from "../../common/PopupAlert";
 import Bodycontent from "../Bodycontent/Bodycontent";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useTheme as useAppTheme } from "../../../context/ThemeContext";
@@ -290,7 +290,7 @@ export default function Sidebar() {
       localStorage.removeItem("token");
       localStorage.removeItem("userName");
       window.location.href = "/";
-    }, 2000);
+    }, 3500);
   }, [userName]);
 
   const handleDrawerToggle = useCallback(() => {
@@ -1187,67 +1187,12 @@ export default function Sidebar() {
         )}
       </Box>
 
-      {/* Logout Modal */}
-      <Modal
-        aria-labelledby="logout-modal-title"
-        aria-describedby="logout-modal-description"
-        open={showLogoutModal}
-        closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500,
-          sx: { backgroundColor: "rgba(0, 0, 0, 0.8)" },
-        }}
-      >
-        <Fade in={showLogoutModal}>
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: 400,
-              bgcolor: "var(--white)",
-              borderRadius: "20px",
-              boxShadow: 24,
-              p: 4,
-              textAlign: "center",
-              border: "2px solid var(--primary)",
-            }}
-          >
-            <Typography
-              id="logout-modal-title"
-              variant="h5"
-              component="h2"
-              sx={{
-                fontWeight: 800,
-                color: "var(--primary)",
-                mb: 2,
-              }}
-            >
-              Logging Out...
-            </Typography>
-            <Typography
-              id="logout-modal-description"
-              sx={{
-                mt: 2,
-                fontSize: "1.2rem",
-                color: "var(--text-main)",
-                fontWeight: 600,
-              }}
-            >
-              {logoutMessage}
-            </Typography>
-            <Box sx={{ mt: 3, display: "flex", justifyContent: "center" }}>
-              <CircularProgress size={40} />
-            </Box>
-          </Box>
-        </Fade>
-      </Modal>
-
-
-
-
+      <PopupAlert
+        visible={showLogoutModal}
+        text={logoutMessage}
+        onClose={() => setShowLogoutModal(false)}
+        type="loading"
+      />
     </Box>
   );
 }

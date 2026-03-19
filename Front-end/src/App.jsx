@@ -32,7 +32,25 @@ function App() {
         {/* BrowserRouter provides client-side navigation using the HTML5 History API */}
         <BrowserRouter>
           {/* ToastContainer displays alert messages across the application */}
-          <ToastContainer />
+          <ToastContainer 
+            position="top-center"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"
+            toastStyle={{ 
+              borderRadius: '16px',
+              fontWeight: '700',
+              fontFamily: 'Okra, sans-serif',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+              padding: '12px 20px'
+            }}
+          />
           <Suspense fallback={<LoadingOverlay showText={false} />}>
             <Routes>
               {/* Default route points to combined Signup/Login page */}
