@@ -1,0 +1,107 @@
+# 📘 MERN Restaurant Project - Technical Documentation
+
+## 1. High-Level Architecture
+Overview:
+This project is a full-stack e-commerce application designed for a restaurant business. It utilizes the MERN stack (MongoDB, Express.js, React, Node.js) with a decoupled architecture where the Frontend and Backend communicate via RESTful APIs.
+
+Tech Stack:
+*   Frontend: React (Vite), Redux Toolkit & RTK Query, Material UI (MUI), React Router v6.
+*   Backend: Node.js, Express.js, Mongoose (ODM).
+*   Database: MongoDB (Cluster/Atlas).
+*   Infrastructure: Kafka (Message Queue), Clustering (Node.js native).
+
+Interaction Flow:
+1.  Client (React): Initiates requests (e.g., "Place Order") using RTK Query or Axios.
+2.  API Gateway (Express): The backend receives the request, passes it through security middleware (Helmet, CORS, Rate Limit).
+3.  Controller Layer: Validates input using Zod and executes business logic.
+4.  Service Layer: Handles complex operations like Kafka message production (for orders) or Nodemailer (for emails).
+5.  Database: Mongoose interacts with MongoDB to persist data.
+6.  Response: The server returns a JSON response, which the Frontend uses to update the Redux state.
+
+*
+
+## 2. Core Feature Implementation
+
+### A. User Authentication & Authorization
+*   Logic: Users can sign up/login via email or OAuth (Google/GitHub). Sessions are managed via JWTs stored in HttpOnly cookies.
+*   Implementation:
+    *   Backend: `authController.js` handles login/refresh logic. `passport.js` manages OAuth strategies.
+    *   Frontend: `PrivateRoute.jsx` protects routes by verifying the session via a `/me` endpoint before rendering components.
+    *   Tokens: Uses a dual-token system: Access Token (15 min life) and Refresh Token (7 days life).
+
+> 💡 Challenges & Decisions:
+> *   Decision: We chose HttpOnly Cookies over LocalStorage for storing JWTs.
+> *   Why? To prevent XSS (Cross-Site Scripting) attacks. If a script is injected into the frontend, it cannot read the HttpOnly cookie, whereas it could easily steal a token from LocalStorage.
+
+### B. Product & Menu Management
+*   Logic: The menu is fetched from the server and cached on the client. Users can filter items by category (Soups, Salads, etc.).
+*   Implementation:
+    *   State Management: Redux Toolkit (RTK) Query (`productsApi.jsx`) is used to fetch and cache menu data.
+    *   Optimization: `React.memo` is used on menu item components to prevent unnecessary re-renders when filtering.
+
+### C. Shopping Cart & Checkout
+*   Logic: Users add items to a cart, which persists across page reloads (via Redux/LocalStorage sync).
+*   Implementation:
+    *   Redux Slice: `cartSlice.jsx` manages the global cart state (add, remove, update quantity, calculate total).
+    *   Persistence: The cart state is synchronized with `localStorage` (or database for logged-in users) to prevent data loss on refresh.
+
+> 💡 Challenges & Decisions:
+> *   Decision: Using Redux Toolkit instead of React Context for the Cart.
+> *   Why? The cart involves complex logic (nested updates, frequent state changes). Redux DevTools makes debugging these state changes significantly easier than Context API.
+
+*
+
+## 3. Advanced Engineering Concepts
+
+### A. Asynchronous Processing (Kafka)
+*   Implementation: The project integrates Apache Kafka (`services/kafka.js`) to handle high-volume order processing.
+*   Workflow:
+    1.  When an order is placed, the API Produces a message to the `orders` topic.
+    2.  A separate Consumer service listens to this topic to process the order (e.g., update inventory, trigger email).
+*   Benefit: Decouples the order API from heavy processing tasks, ensuring the user gets an immediate "Order Received" response.
+
+### B. Authentication Strategy (JWT + OAuth)
+*   Dual-Token System: Implemented in `authController.js`.
+    *   Access Token: Short-lived for security.
+    *   Refresh Token: Long-lived to maintain user session without frequent logins.
+*   OAuth: Integrated Passport.js for Google and GitHub login, simplifying the onboarding process.
+
+### C. Optimization & Performance
+Backend:
+*   Clustering: `server.js` uses the Node.js `cluster` module to fork worker processes equal to the number of CPU cores. This allows the single-threaded Node.js to utilize multi-core systems.
+*   Compression: Uses `compression` middleware to gzip responses, reducing payload size.
+
+Frontend:
+*   Code Splitting: Uses `React.lazy` and `Suspense` in `App.jsx` to load routes (e.g., `AdminMetrics`, `Settings`) only when needed, reducing the initial bundle size.
+*   Memoization: `React.memo` and `useMemo` are used in heavy components (like `Favorites.jsx`) to avoid expensive recalculations.
+
+> 💡 Challenges & Decisions:
+> *   Decision: Implementing Clustering manually instead of using a process manager like PM2 (initially).
+> *   Why? To demonstrate a deep understanding of Node.js internals and how the Event Loop works across multiple threads during the interview.
+
+*
+
+## 4. Security & Reliability
+
+### A. Middleware Implementations
+*   Helmet: Sets secure HTTP headers (e.g., HSTS, X-Frame-Options) to protect against well-known web vulnerabilities.
+*   Rate Limiting: `express-rate-limit` restricts the number of requests from a single IP to prevent DDoS and brute-force attacks.
+*   CORS: Configured to allow requests only from specific trusted origins (e.g., the frontend domain).
+*   CSRF: Implements a double-submit cookie pattern (`middleware/csrf.js`) to prevent Cross-Site Request Forgery.
+
+### B. Data Validation & Error Handling
+*   Validation: Uses Zod schemas (`validations/schemas.js`) to strictly validate incoming request bodies (e.g., login credentials, order details) before they reach the controller.
+*   Global Error Handler: A centralized middleware (`middleware/errorHandling.js`) catches all errors, logs them via Winston, and sends a standardized JSON error response to the client.
+
+> 💡 Challenges & Decisions:
+> *   Decision: Using Zod over Joi or manual validation.
+> *   Why? Zod offers excellent TypeScript inference (future-proofing) and a more concise, chainable API for defining complex validation schemas.
+
+*
+
+## 5. Interview Cheat Sheet (Key Takeaways)
+
+*   Scalability: "I used Kafka for async processing and Clustering to maximize CPU usage, ensuring the app can handle high traffic."
+*   Security: "I prioritized security by using HttpOnly cookies for JWTs to prevent XSS and implemented CSRF tokens."
+*   Performance: "On the frontend, I used Lazy Loading to improve Core Web Vitals (LCP), and on the backend, I used Compression to reduce latency."
+*   Architecture: "The app follows a Service-Oriented Architecture (Controller -> Service -> Model) to keep code modular and testable."

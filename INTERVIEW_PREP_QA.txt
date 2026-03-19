@@ -1,0 +1,242 @@
+SENIOR FULL STACK DEVELOPER: INTERVIEW Q&A GUIDE
+Project: MERN Restaurant E-Commerce Platform
+
+1. ARCHITECTURE AND SYSTEM DESIGN
+
+Q1: Can you explain the high-level architecture of your MERN application?
+
+Theory: 
+A decoupled architecture separates the frontend (client) from the backend (server), communicating exclusively via APIs (REST or GraphQL). This contrasts with monolithic architectures where the server renders the HTML.
+
+Answer:
+My application utilizes a decoupled Service-Oriented Architecture (SOA). 
+- Frontend: A React Single Page Application (SPA) built with Vite, using Redux Toolkit for state management and Material UI for the design system.
+- Backend: A Node.js/Express.js RESTful API.
+- Database: MongoDB (NoSQL) managed via Mongoose ODM.
+- Infrastructure: I integrated Apache Kafka for asynchronous event-driven processing (like order handling) and utilized Node's native Cluster module for multi-core load balancing.
+
+Senior Developer Insight (Challenges & Decisions):
+I chose a decoupled architecture over a monolith because it allows independent scaling. If the frontend needs to be served via a CDN for faster global load times, it doesn't affect the backend. It also paves the way for easily adding a React Native mobile app later that consumes the exact same API.
+
+
+2. AUTHENTICATION AND SECURITY
+
+Q2: How did you implement user authentication, and why did you choose this approach?
+
+Theory: 
+JWT (JSON Web Token) is a stateless authentication mechanism. Instead of storing session IDs in a database, the server cryptographically signs a token containing user data and sends it to the client.
+
+Answer:
+I implemented a Dual-Token JWT Strategy (Access Token + Refresh Token) alongside OAuth (Google/GitHub) using Passport.js.
+1. Access Token: Short-lived (e.g., 15 minutes). Used for accessing protected routes.
+2. Refresh Token: Long-lived (e.g., 7 days). Used to silently request a new Access Token when the old one expires, ensuring a seamless user experience.
+
+Sample Code (Token Generation & Cookie Setting):
+
+const signAccess = (user) => jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+export const login = async (req, res) => {
+  const user = await authenticateUser(req.body.email, req.body.password);
+  const accessToken = signAccess(user);
+  
+  res.cookie('accessToken', accessToken, {
+    httpOnly: true, // Prevents JavaScript access (XSS protection)
+    secure: process.env.NODE_ENV === 'production', // HTTPS only
+    sameSite: 'lax', // CSRF protection
+    maxAge: 15 * 60 * 1000 
+  }).json({ message: "Login successful" });
+};
+
+
+Q3: How do you protect your application against XSS and CSRF attacks?
+
+Theory:
+- XSS (Cross-Site Scripting): Attackers inject malicious scripts into the frontend to steal data (like tokens in LocalStorage).
+- CSRF (Cross-Site Request Forgery): Attackers trick an authenticated user's browser into making unwanted requests to your API.
+
+Answer:
+- XSS Prevention: I strictly store JWTs in HttpOnly cookies. Because JavaScript (document.cookie) cannot read HttpOnly cookies, injected scripts cannot steal the tokens. React also automatically escapes variables in JSX, preventing basic DOM-based XSS.
+- CSRF Prevention: I implemented the Double-Submit Cookie Pattern. The server generates a CSRF token, sends it as a standard cookie, and the frontend must read it and attach it as a custom HTTP Header (X-CSRF-Token) on every state-changing request (POST/PUT/DELETE).
+
+Sample Code (CSRF Middleware):
+
+export function checkCsrf(req, res, next) {
+  const cookieToken = req.cookies?.csrfToken;
+  const headerToken = req.headers["x-csrf-token"];
+  
+  if (!cookieToken || !headerToken || cookieToken !== headerToken) {
+    return res.status(403).json({ message: "CSRF validation failed" });
+  }
+  next();
+}
+
+
+3. BACKEND PERFORMANCE AND ASYNCHRONOUS PROCESSING
+
+Q4: Node.js is single-threaded. How did you optimize it to handle high traffic?
+
+Theory:
+While the Node.js Event Loop is single-threaded, the underlying system has multiple CPU cores. Clustering allows you to spawn multiple Node.js processes (workers) that share the same server port.
+
+Answer:
+I implemented the native Node.js cluster module. The primary process checks the number of available CPU cores and forks a worker process for each core. If a worker dies due to an unhandled exception, the primary process listens for the exit event and automatically spins up a replacement, ensuring high availability.
+
+Sample Code (Clustering):
+
+import cluster from 'cluster';
+import os from 'os';
+
+if (cluster.isPrimary && process.env.NODE_ENV === "production") {
+  const numCPUs = os.cpus().length;
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork(); // Spawn worker
+  }
+  cluster.on("exit", (worker) => {
+    console.log(`Worker ${worker.process.pid} died. Restarting...`);
+    cluster.fork(); // Self-healing
+  });
+} else {
+  // Express app logic goes here
+  app.listen(1234, () => console.log('Server running'));
+}
+
+
+Q5: How do you handle heavy, long-running tasks like order processing?
+
+Theory:
+Event-Driven Architecture uses message brokers to decouple services. Instead of the API waiting for a heavy task to finish (blocking the response), it publishes an event to a queue and immediately responds to the user.
+
+Answer:
+I integrated Apache Kafka. When a user places an order, the Express controller acts as a Producer, publishing an OrderPlaced event to the orders topic. A separate background Consumer service listens to this topic, processes the payment, updates inventory, and sends the confirmation email. 
+
+Senior Developer Insight:
+I chose Kafka over Redis/BullMQ because Kafka provides persistent, replayable event logs. If the email service goes down, Kafka retains the message, and the consumer can process it once it comes back online, guaranteeing zero data loss.
+
+Sample Code (Kafka Producer):
+
+import { Kafka } from "kafkajs";
+const kafka = new Kafka({ clientId: "restaurant", brokers: ["localhost:9092"] });
+const producer = kafka.producer();
+
+export async function sendOrderEvent(orderData) {
+  await producer.send({
+    topic: "orders",
+    messages: [{ key: orderData.id, value: JSON.stringify(orderData) }],
+  });
+}
+
+
+4. FRONTEND STATE MANAGEMENT AND OPTIMIZATION
+
+Q6: How do you manage state in your React application? Why not just use Context API?
+
+Theory:
+- Client State: UI state (modals, theme, shopping cart).
+- Server State: Data fetched from the DB (product lists, user profile).
+
+Answer:
+I use Redux Toolkit (RTK) for complex client state (like the Shopping Cart) and RTK Query for server state. 
+While the Context API is great for simple things like Theme toggling, it causes unnecessary re-renders of all consuming components whenever the context value changes. Redux allows components to subscribe to specific slices of state, optimizing rendering. RTK Query handles caching, deduplication, and loading states out-of-the-box, eliminating the need for messy useEffect fetch logic.
+
+Sample Code (RTK Query):
+
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+
+export const productsApi = createApi({
+  reducerPath: "productsApi",
+  baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
+  endpoints: (builder) => ({
+    getAllProducts: builder.query({
+      query: () => "products", // Automatically caches the response
+    }),
+  }),
+});
+export const { useGetAllProductsQuery } = productsApi;
+
+
+Q7: What techniques did you use to optimize the React frontend performance?
+
+Theory:
+- Code Splitting: Breaking the JS bundle into smaller chunks loaded on demand.
+- Memoization: Caching the results of expensive function calls or preventing components from re-rendering if their props haven't changed.
+
+Answer:
+1. Route-level Code Splitting: I used React.lazy() and Suspense in my router. Heavy components like the AdminDashboard or Settings are only downloaded by the browser if the user actually navigates to those routes, drastically reducing the Initial Load Time (Time to Interactive).
+2. Memoization: I used React.memo on individual menu item cards to prevent them from re-rendering when the parent list updates. I also used useMemo to cache filtered product lists (e.g., filtering "Soups" from the main data array) so the filtering logic doesn't run on every render.
+
+Sample Code (Code Splitting):
+
+import { Suspense, lazy } from "react";
+import { Routes, Route } from "react-router-dom";
+
+// Component is not imported until the route is hit
+const AdminMetrics = lazy(() => import("./components/admin/AdminMetrics"));
+
+function App() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <Routes>
+        <Route path="/admin" element={<AdminMetrics />} />
+      </Routes>
+    </Suspense>
+  );
+}
+
+
+5. API RELIABILITY AND DATA VALIDATION
+
+Q8: How do you ensure the data coming into your API is safe and valid?
+
+Theory:
+Never trust client input. Validation should happen at the boundary (middleware) before it reaches the business logic (controller).
+
+Answer:
+I use Zod for schema validation. I created a middleware that intercepts the request, validates req.body against a predefined Zod schema, and throws a 400 Bad Request error if it fails. 
+
+Senior Developer Insight:
+I prefer Zod over Joi or Yup because Zod is TypeScript-first. Even though this project is in JavaScript, using Zod makes it incredibly easy to migrate to TypeScript in the future by inferring types directly from the schemas.
+
+Sample Code (Zod Validation Middleware):
+
+import { z } from "zod";
+
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+export const validateRequest = (schema) => (req, res, next) => {
+  try {
+    schema.parse(req.body); // Throws error if invalid
+    next();
+  } catch (error) {
+    res.status(400).json({ errors: error.errors });
+  }
+};
+
+
+Q9: How do you handle errors globally in your Express app?
+
+Theory:
+A centralized error handler prevents the server from crashing due to unhandled promise rejections and ensures the client receives a standardized error format.
+
+Answer:
+I use express-async-handler to wrap all my asynchronous controllers, which automatically passes any thrown errors to Express's next() function. I then have a global error-handling middleware at the very end of my Express pipeline. This middleware logs the error using Winston (for server logs) and returns a clean JSON response to the client, hiding stack traces in production to prevent information leakage.
+
+Sample Code (Global Error Handler):
+
+// Global Error Middleware
+const errorHandler = (err, req, res, next) => {
+  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  
+  // Log error internally
+  console.error(`[ERROR]: ${err.message}`);
+
+  res.status(statusCode).json({
+    message: err.message,
+    // Hide stack trace in production for security
+    stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+  });
+};
+
+export default errorHandler;

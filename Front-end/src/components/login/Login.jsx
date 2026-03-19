@@ -10,9 +10,12 @@ import LockIcon from "@mui/icons-material/Lock";
 import GoogleIcon from "@mui/icons-material/Google";
 import GitHubIcon from "@mui/icons-material/GitHub";
 
+import { toast } from "react-toastify";
+
 function SignInForm({ toggleMobile }) {
   const [validationErrors, setValidationErrors] = useState({});
   const [apiError, setApiError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const [uemail, setUemail] = useState("");
   const [upassword, setUpassword] = useState("");
@@ -23,6 +26,72 @@ function SignInForm({ toggleMobile }) {
     import.meta.env.VITE_API_URL || "http://localhost:1111"
   ).replace(/\/$/, "");
 
+  const loginOnSubmit = async (e) => {
+    e.preventDefault();
+    setValidationErrors({});
+    setApiError("");
+
+    // Yup Validation
+    try {
+      await loginSchema.validate({ uemail, upassword }, { abortEarly: false });
+    } catch (err) {
+      const errors = {};
+      err.inner.forEach((e) => {
+        errors[e.path] = e.message;
+      });
+      setValidationErrors(errors);
+      return;
+    }
+
+    setIsLoading(true);
+    const toastId = toast.loading("Logging in... Please wait for server wake-up.");
+
+    try {
+      const csrfRes = await fetch(`${API_BASE_URL}/api/csrf`, {
+        credentials: "include",
+      });
+      const { csrfToken } = (await csrfRes.json()) || {};
+      const res = await axios.post(
+        `${API_BASE_URL}/api/auth/login`,
+        { uemail, upassword },
+        { withCredentials: true, headers: { "x-csrf-token": csrfToken } },
+      );
+      if (res.status === 200) {
+        toast.update(toastId, { 
+          render: "Login successful!", 
+          type: "success", 
+          isLoading: false,
+          autoClose: 2000 
+        });
+        try {
+          const meRes = await fetch(`${API_BASE_URL}/api/auth/me`, {
+            credentials: "include",
+          });
+          if (meRes.ok) {
+            const me = await meRes.json();
+            if (me?.uname) localStorage.setItem("userName", me.uname);
+          }
+        } catch {}
+        navigate("/home");
+      }
+    } catch (err) {
+      const msg =
+        err.response?.data?.message ||
+        err.response?.data?.Message ||
+        "Invalid email or password.";
+      toast.update(toastId, { 
+        render: msg, 
+        type: "error", 
+        isLoading: false,
+        autoClose: 3000 
+      });
+      setApiError(msg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /* OLD LOGIC WRAPPED IN COMMENTS AS REQUESTED
   const loginOnSubmit = async (e) => {
     e.preventDefault();
     setValidationErrors({});
@@ -70,6 +139,7 @@ function SignInForm({ toggleMobile }) {
       setApiError(msg);
     }
   };
+  */
 
   return (
     <form className="form-div" onSubmit={loginOnSubmit}>
@@ -124,9 +194,25 @@ function SignInForm({ toggleMobile }) {
 
       <span className="span-tag error-text">{apiError}</span>
 
-      <button className="codepen-button" type="submit">
-        Login
+      <button 
+        className="codepen-button" 
+        type="submit"
+        disabled={isLoading}
+      >
+        {isLoading ? "Processing..." : "Login"}
       </button>
+
+      {/* Server spin-up notice */}
+      <div style={{ 
+        fontSize: "0.75rem", 
+        color: "#666", 
+        marginTop: "10px", 
+        textAlign: "center",
+        fontStyle: "italic" 
+      }}>
+        Note: Initial request may take 30-60 seconds due to server wake-up time on free hosting.
+      </div>
+
       <div className="auth-social-row" style={{ marginTop: "0.75rem" }}>
         <button
           type="button"

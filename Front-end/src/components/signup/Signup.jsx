@@ -14,10 +14,13 @@ import EditIcon from "@mui/icons-material/Edit";
 import GoogleIcon from "@mui/icons-material/Google";
 import GitHubIcon from "@mui/icons-material/GitHub";
 
+import { toast } from "react-toastify";
+
 function Signup() {
   const [type, setType] = useState("signUp");
   const [validationErrors, setValidationErrors] = useState({});
   const [apiStatus, setApiStatus] = useState({ error: "", success: "" });
+  const [isLoading, setIsLoading] = useState(false);
 
   const [uname, setUname] = useState("");
   const [uemail, setUemail] = useState("");
@@ -58,6 +61,89 @@ function Signup() {
     }
   }, [channel, uemail]);
 
+  const signupOnSubmit = async (e) => {
+    e.preventDefault();
+    setValidationErrors({});
+    setApiStatus({ error: "", success: "" });
+
+    // Client-side Confirm Password Check
+    if (upassword !== uconfirmPassword) {
+      setValidationErrors({ uconfirmPassword: "Passwords do not match." });
+      return;
+    }
+
+    // Yup Validation
+    try {
+      await signupSchema.validate({ uname, uemail, upassword }, { abortEarly: false });
+    } catch (err) {
+      const errors = {};
+      err.inner.forEach((e) => {
+        errors[e.path] = e.message;
+      });
+      setValidationErrors(errors);
+      return;
+    }
+
+    setIsLoading(true);
+    const toastId = toast.loading("Registering your account... Please wait.");
+
+    try {
+      const res = await axios.post(
+        `${API_URL}/api/signupLoginRouter/registerUser`,
+        { uname, uemail, upassword, avatar },
+      );
+
+      if (res.status === 200) {
+        toast.update(toastId, { 
+          render: "Registration successful! You can now log in.", 
+          type: "success", 
+          isLoading: false,
+          autoClose: 3000 
+        });
+        setApiStatus({
+          error: "",
+          success: "Registration successful! You can now log in.",
+        });
+        // clear form fields
+        setUname("");
+        setUemail("");
+        setUpassword("");
+        setUconfirmPassword("");
+        setContact("");
+        setAvatar("");
+        setOtpCode("");
+        setOtpMsg("");
+        setIsOtpSent(false);
+        setChannel("email");
+        setValidationErrors({});
+        // switch to login after delay
+        setTimeout(() => toggleSignupLogin("signIn"), 2000);
+      }
+    } catch (err) {
+      const errorMsg = err.response?.data?.Message || err.response?.data?.Error || "Registration failed.";
+      toast.update(toastId, { 
+        render: errorMsg, 
+        type: "error", 
+        isLoading: false,
+        autoClose: 3000 
+      });
+      if (err.response?.status === 403 || err.response?.status === 400) {
+        setApiStatus({
+          error: errorMsg,
+          success: "",
+        });
+      } else {
+        setApiStatus({
+          error: "An unexpected error occurred during registration.",
+          success: "",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /* OLD LOGIC WRAPPED IN COMMENTS AS REQUESTED
   const signupOnSubmit = async (e) => {
     e.preventDefault();
     setValidationErrors({});
@@ -125,6 +211,7 @@ function Signup() {
       }
     }
   };
+  */
   const sendOtp = async () => {
     setOtpMsg("");
     try {
@@ -371,9 +458,25 @@ function Signup() {
                   </div>
                 )}
                 <span className="span-tag success-text">{otpMsg}</span>
-                <button className="codepen-button" type="submit">
-                  Sign Up
+                <button 
+                  className="codepen-button" 
+                  type="submit" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Processing..." : "Sign Up"}
                 </button>
+                
+                {/* Server spin-up notice */}
+                <div style={{ 
+                  fontSize: "0.75rem", 
+                  color: "#666", 
+                  marginTop: "10px", 
+                  textAlign: "center",
+                  fontStyle: "italic" 
+                }}>
+                  Note: Initial request may take 30-60 seconds due to server wake-up time on free hosting.
+                </div>
+
                 <div
                   className="auth-social-row"
                   style={{ marginTop: "0.75rem" }}
