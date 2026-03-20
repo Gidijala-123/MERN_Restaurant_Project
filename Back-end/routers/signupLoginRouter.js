@@ -1,7 +1,6 @@
 import express from "express";
 import validateToken from "../middleware/validateToken.js";
-import { validateRequest } from "../middleware/validateRequest.js";
-import { signupSchema, loginSchema } from "../validations/schemas.js";
+import { signupValidation, loginValidation } from "../middleware/expressValidator.js";
 import {
   registerUser,
   loginUser,
@@ -17,8 +16,8 @@ import {
 const router = express.Router();
 
 router
-  .post("/registerUser", validateRequest(signupSchema), registerUser)
-  .post("/loginUser", validateRequest(loginSchema), loginUser)
+  .post("/registerUser", signupValidation, registerUser)
+  .post("/loginUser", loginValidation, loginUser)
   .get("/getCurrentUser", validateToken, getCurrentUser)
   .post("/bookmark/:productId", validateToken, addBookmark)
   .delete("/bookmark/:productId", validateToken, removeBookmark)

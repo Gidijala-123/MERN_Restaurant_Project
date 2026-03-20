@@ -15,6 +15,7 @@ import signupLoginRouter from "./routers/signupLoginRouter.js";
 import menuRouter from "./routers/menuRouter.js";
 import products from "./controllers/products.js";
 import errorHandler from "./middleware/errorHandling.js";
+import { signupValidation, loginValidation, orderValidation, otpSendValidation, otpVerifyValidation } from "./middleware/expressValidator.js";
 import {
   login,
   refresh,
@@ -128,7 +129,7 @@ const loginLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.post("/api/auth/login", loginLimiter, login);
+app.post("/api/auth/login", loginLimiter, loginValidation, login);
 app.get("/api/auth/refresh", refresh);
 app.post("/api/auth/logout", checkCsrf, logout);
 app.get("/api/auth/me", me);
@@ -198,7 +199,7 @@ app.post("/api/admin/broadcast-newsletter", requireRole("admin"), async (req, re
 });
 
 // Orders (example producer entrypoint)
-app.post("/api/order", verifyAccessToken, checkCsrf, async (req, res) => {
+app.post("/api/order", verifyAccessToken, checkCsrf, orderValidation, async (req, res) => {
   const { items = [] } = req.body || {};
   // persist order for newsletter personalization
   try {
@@ -213,7 +214,7 @@ app.post("/api/order", verifyAccessToken, checkCsrf, async (req, res) => {
 });
 
 // OTP Routes
-  app.post("/api/otp/send", async (req, res) => {
+  app.post("/api/otp/send", otpSendValidation, async (req, res) => {
     const { channel, contact } = req.body;
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     setOtp(contact, code);
@@ -228,7 +229,7 @@ app.post("/api/order", verifyAccessToken, checkCsrf, async (req, res) => {
     }
   });
 
-  app.post("/api/otp/verify", (req, res) => {
+  app.post("/api/otp/verify", otpVerifyValidation, (req, res) => {
     const { contact, code } = req.body;
     const isValid = verifyOtp(contact, code);
     res.json({ ok: isValid });
