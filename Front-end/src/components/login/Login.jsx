@@ -63,15 +63,14 @@ function SignInForm({ toggleMobile }) {
           isLoading: false,
           autoClose: 2000 
         });
-        try {
-          const meRes = await fetch(`${API_BASE_URL}/api/auth/me`, {
-            credentials: "include",
-          });
-          if (meRes.ok) {
-            const me = await meRes.json();
-            if (me?.uname) localStorage.setItem("userName", me.uname);
-          }
-        } catch {}
+
+        // Use user info from login response instead of making another call
+        const user = res.data?.user;
+        if (user) {
+          if (user.uname) localStorage.setItem("userName", user.uname);
+          if (user.avatar) localStorage.setItem("userAvatar", user.avatar);
+        }
+        
         navigate("/home");
       }
     } catch (err) {

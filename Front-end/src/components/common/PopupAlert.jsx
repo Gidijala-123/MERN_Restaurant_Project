@@ -1,5 +1,5 @@
 import React from "react";
-import { IoCheckmarkCircle, IoClose, IoInformationCircle, IoWarning, IoSync } from "react-icons/io5";
+import { IoCheckmarkCircle, IoClose, IoInformationCircle, IoWarning, IoSync, IoRestaurant } from "react-icons/io5";
 import "./PopupAlert.css";
 
 export function PopupAlert({ visible, text, onClose, type = "success" }) {
@@ -19,7 +19,12 @@ export function PopupAlert({ visible, text, onClose, type = "success" }) {
       case "error":
         return <IoWarning className="popup-icon-svg error" />;
       case "loading":
-        return <IoSync className="popup-icon-svg loading-spin" />;
+        return (
+          <div className="popup-loading-container">
+            <IoRestaurant className="popup-icon-svg loading-themed" />
+            <div className="loading-ring"></div>
+          </div>
+        );
       case "info":
       default:
         return <IoInformationCircle className="popup-icon-svg info" />;

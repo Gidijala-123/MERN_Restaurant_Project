@@ -54,6 +54,18 @@ function Signup() {
     }
   };
 
+  // Pre-warm the server on component mount to reduce spin-up delay
+  React.useEffect(() => {
+    const pingServer = async () => {
+      try {
+        await fetch(`${API_URL}/health`);
+      } catch (err) {
+        // Silently fail, just intended to wake up the server
+      }
+    };
+    pingServer();
+  }, [API_URL]);
+
   // keep contact synced when using email channel
   React.useEffect(() => {
     if (channel === "email") {

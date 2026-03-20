@@ -42,31 +42,17 @@ import Order from "./models/OrderModel.js";
 
 dotenv.config();
 
-// Use Cluster module for multi-core load balancing/scaling
-if (cluster.isPrimary && process.env.NODE_ENV === "production") {
-  const numCPUs = os.cpus().length;
-  console.log(`Primary ${process.pid} is running. Forking ${numCPUs} workers...`);
+// Initialize MongoDB database connection
+dbConnection();
 
-  for (let i = 0; i < numCPUs; i++) {
-    cluster.fork();
-  }
+const app = express();
+const port = process.env.PORT || 1234;
 
-  cluster.on("exit", (worker, code, signal) => {
-    console.log(`Worker ${worker.process.pid} died. Forking a new one...`);
-    cluster.fork();
-  });
-} else {
-  const app = express();
-  const port = process.env.PORT || 1234;
-
-  // Initialize MongoDB database connection
-  dbConnection();
-
-  /**
-   * Middleware setup
-   */
-  app.set("trust proxy", 1);
-  app.disable("x-powered-by");
+/**
+ * Middleware setup
+ */
+app.set("trust proxy", 1);
+app.disable("x-powered-by");
   const envOrigins = String(process.env.ALLOWED_ORIGINS || "")
     .split(",")
     .map((s) => s.trim())
@@ -285,4 +271,3 @@ app.post("/api/order", verifyAccessToken, checkCsrf, async (req, res) => {
   app.listen(port, () => {
     console.log(`Worker ${process.pid} listening on port ${port}`);
   });
-}

@@ -8,12 +8,15 @@
   height: 100%;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding-top: 2rem;
+  align-items: center;
+  /* Centered vertically */
   z-index: 9999;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.4s ease;
+  background: rgba(0, 0, 0, 0.2);
+  /* Added subtle backdrop for center popups */
+  backdrop-filter: blur(2px);
 }
 
 .popup-alert-wrapper.show {
@@ -75,17 +78,81 @@
   font-size: 2rem;
 }
 
-.popup-icon-svg.success { color: #4caf50; }
-.popup-icon-svg.error { color: #f44336; }
-.popup-icon-svg.info { color: #2196f3; }
-.popup-icon-svg.loading-spin { 
+.popup-icon-svg.success {
+  color: #4caf50;
+}
+
+.popup-icon-svg.error {
+  color: #f44336;
+}
+
+.popup-icon-svg.info {
+  color: #2196f3;
+}
+
+/* Redesigned Loading Animation */
+.popup-loading-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+}
+
+.popup-icon-svg.loading-themed {
   color: var(--primary);
-  animation: spin 1.5s linear infinite;
+  font-size: 1.8rem;
+  z-index: 2;
+  animation: bounce-gentle 1s ease-in-out infinite;
+}
+
+.loading-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 3px solid var(--primary);
+  border-radius: 50%;
+  animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+  opacity: 0;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes bounce-gentle {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .popup-alert-content {
@@ -101,7 +168,7 @@
 }
 
 .popup-alert-close {
-  background: rgba(0,0,0,0.05);
+  background: rgba(0, 0, 0, 0.05);
   border: none;
   color: var(--text-sub);
   font-size: 1.2rem;
@@ -116,7 +183,7 @@
 }
 
 .popup-alert-close:hover {
-  background: rgba(0,0,0,0.1);
+  background: rgba(0, 0, 0, 0.1);
   color: var(--text-main);
   transform: rotate(90deg);
 }
@@ -128,7 +195,7 @@
   left: 0;
   height: 4px;
   width: 100%;
-  background: rgba(0,0,0,0.05);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .popup-alert-wrapper.show .popup-progress-bar::after {
@@ -142,14 +209,30 @@
   animation: progress 4s linear forwards;
 }
 
-.popup-alert-box.success .popup-progress-bar::after { color: #4caf50; }
-.popup-alert-box.error .popup-progress-bar::after { color: #f44336; }
-.popup-alert-box.info .popup-progress-bar::after { color: #2196f3; }
-.popup-alert-box.loading .popup-progress-bar::after { display: none; }
+.popup-alert-box.success .popup-progress-bar::after {
+  color: #4caf50;
+}
+
+.popup-alert-box.error .popup-progress-bar::after {
+  color: #f44336;
+}
+
+.popup-alert-box.info .popup-progress-bar::after {
+  color: #2196f3;
+}
+
+.popup-alert-box.loading .popup-progress-bar::after {
+  display: none;
+}
 
 @keyframes progress {
-  from { width: 100%; }
-  to { width: 0%; }
+  from {
+    width: 100%;
+  }
+
+  to {
+    width: 0%;
+  }
 }
 
 /* Dark Mode Overrides (if needed beyond App.css) */
@@ -159,7 +242,7 @@
 }
 
 [data-theme='dark'] .popup-alert-close {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: #bbb;
 }
 

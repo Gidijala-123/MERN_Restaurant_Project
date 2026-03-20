@@ -290,7 +290,7 @@ export default function Sidebar() {
       localStorage.removeItem("token");
       localStorage.removeItem("userName");
       window.location.href = "/";
-    }, 3500);
+    }, 1500);
   }, [userName]);
 
   const handleDrawerToggle = useCallback(() => {

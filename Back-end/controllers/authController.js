@@ -47,7 +47,16 @@ export const login = asyncHandler(async (req, res) => {
       sameSite: isProd ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     })
-    .json({ message: "ok" });
+    .json({
+      message: "ok",
+      user: {
+        uname: user.uname,
+        uemail: user.uemail,
+        uid: user._id,
+        role: user.role || "user",
+        avatar: user.avatar || "",
+      },
+    });
 });
 
 export const refresh = asyncHandler(async (req, res) => {
