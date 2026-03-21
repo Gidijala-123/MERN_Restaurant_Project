@@ -1,16 +1,23 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Box, Typography, Grid, Card, CardContent, CardActions, Button, Chip, IconButton } from "@mui/material";
+import { Box, Typography, Grid, Card, CardContent, CardActions, Button, Chip, IconButton, Container } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import HeartBrokenIcon from "@mui/icons-material/HeartBroken";
 import { useGetAllProductsQuery } from "../features/productsApi";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../features/cartSlice";
+import "./Favorites.css";
 
 export default function Favorites() {
   const { data = [], isLoading } = useGetAllProductsQuery();
   const [discountBookmarked, setDiscountBookmarked] = useState({});
   const [trendingBookmarked, setTrendingBookmarked] = useState({});
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const savedDiscount = JSON.parse(localStorage.getItem("discountBookmarked") || "{}");
@@ -107,76 +114,130 @@ export default function Favorites() {
     }
   };
 
+  const handleAddToCart = (item) => {
+    dispatch(
+      addToCart({
+        id: item.id,
+        title: item.title || item.name,
+        price: item.newPrice || item.price,
+        img: item.img || item.image,
+        cartQuantity: 1,
+      })
+    );
+  };
+
   return (
-    <Box sx={{ p: 3, minHeight: "calc(100vh - 72px)" }}>
-      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-        <IconButton onClick={() => navigate("/home")} sx={{ mr: 2 }}>
+    <div className="favorites-container">
+      <div className="favorites-header">
+        <IconButton onClick={() => navigate("/home")} className="back-btn">
           <ArrowBackIcon />
         </IconButton>
-        <Typography variant="h5" fontWeight={700} gutterBottom>
-          Favorites
+        <Typography variant="h4" className="favorites-title">
+          My Favorites
         </Typography>
-      </Box>
-      <Typography variant="body2" color="text.secondary" gutterBottom>
-        Items you bookmarked while browsing the restaurant menu.
+      </div>
+
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 4, fontWeight: 500 }}>
+        Discover the items you love the most, all in one place.
       </Typography>
 
       {isLoading ? (
-        <Typography sx={{ mt: 4 }}>Loading favorites...</Typography>
-      ) : favorites.length === 0 ? (
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="h6" sx={{ mb: 1 }}>
-            Nothing here yet.
-          </Typography>
-          <Typography color="text.secondary">
-            Visit the menu and tap the heart icon to save your favorites.
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 700 }}>
+            Curating your favorites...
           </Typography>
         </Box>
+      ) : favorites.length === 0 ? (
+        <div className="empty-favorites">
+          <HeartBrokenIcon className="empty-fav-icon" />
+          <Typography variant="h5" sx={{ fontWeight: 800, mb: 1, color: 'var(--text-main)' }}>
+            Your favorites list is empty
+          </Typography>
+          <Typography color="text.secondary" sx={{ mb: 4, maxWidth: 400, mx: 'auto' }}>
+            Looks like you haven't bookmarked anything yet. Explore our menu and save your favorite dishes!
+          </Typography>
+          <Button 
+            variant="contained" 
+            onClick={() => navigate("/home")}
+            sx={{ 
+              borderRadius: "15px", 
+              px: 4, 
+              py: 1.5, 
+              fontWeight: 800,
+              background: 'var(--primary-gradient)',
+              boxShadow: '0 8px 20px rgba(230, 81, 0, 0.2)'
+            }}
+          >
+            Explore Menu
+          </Button>
+        </div>
       ) : (
-        <Grid container spacing={2} sx={{ mt: 1 }}>
+        <Grid container spacing={2} className="favorites-grid">
           {favorites.map((item) => (
-            <Grid item xs={12} md={6} lg={4} key={`${item.section}-${item.id}`}>
-              <Card variant="outlined" sx={{ height: "100%" }}>
-                <CardContent>
-                  <Box
-                    component="img"
-                    src={item.img}
-                    alt={item.title}
-                    sx={{ width: "100%", borderRadius: 2, mb: 2, maxHeight: 180, objectFit: "cover" }}
+            <Grid item xs={12} sm={4} md={4} lg={4} key={`${item.section}-${item.id}`}>
+              <div className="favorite-card">
+                <div className="favorite-image-wrapper">
+                  <img
+                    src={item.img || item.image}
+                    alt={item.title || item.name}
+                    loading="lazy"
                   />
-                  <Typography variant="subtitle1" fontWeight={700} gutterBottom>
-                    {item.title}
+                  <div className="favorite-badges">
+                    <span className="section-badge">{item.section}</span>
+                    {item.discount && <span className="fav-badge">{item.discount}</span>}
+                  </div>
+                </div>
+
+                <div className="favorite-content">
+                  <Typography className="favorite-item-title">
+                    {item.title || item.name}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    {item.desc}
+                  <Typography className="favorite-item-desc">
+                    {item.desc || item.description || "Indulge in this delicious selection, crafted with fresh ingredients and authentic flavors for a perfect dining experience."}
                   </Typography>
-                  <Chip label={item.section} size="small" sx={{ mr: 1, mb: 1 }} />
-                  {item.discount && (
-                    <Chip label={item.discount} color="primary" size="small" sx={{ mb: 1 }} />
-                  )}
-                </CardContent>
-                <CardActions>
+                  
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto' }}>
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: 'var(--primary)' }}>
+                      ₹{item.newPrice || item.price}
+                    </Typography>
+                    {item.oldPrice && (
+                      <Typography variant="body2" sx={{ textDecoration: 'line-through', color: 'var(--text-sub)', opacity: 0.6 }}>
+                        ₹{item.oldPrice}
+                      </Typography>
+                    )}
+                  </Box>
+                </div>
+
+                <div className="favorite-actions">
                   <Button
-                    size="small"
-                    startIcon={
-                      trendingBookmarked[item.id] || discountBookmarked[item.id] ? (
-                        <FavoriteIcon />
-                      ) : (
-                        <FavoriteBorderIcon />
-                      )
-                    }
+                    className="remove-fav-btn"
+                    startIcon={<DeleteOutlineIcon />}
                     onClick={() => toggleFavorite(item)}
+                    fullWidth
+                    sx={{ mr: 1 }}
                   >
-                    {trendingBookmarked[item.id] || discountBookmarked[item.id]
-                      ? "Remove"
-                      : "Save"}
+                    Remove
                   </Button>
-                </CardActions>
-              </Card>
+                  <IconButton 
+                    onClick={() => handleAddToCart(item)}
+                    sx={{ 
+                      background: 'var(--primary-gradient)', 
+                      color: 'white',
+                      borderRadius: '12px',
+                      '&:hover': {
+                        transform: 'scale(1.1)',
+                        background: 'var(--primary-dark)',
+                      }
+                    }}
+                  >
+                    <ShoppingBagIcon />
+                  </IconButton>
+                </div>
+              </div>
             </Grid>
           ))}
         </Grid>
       )}
-    </Box>
+    </div>
   );
 }

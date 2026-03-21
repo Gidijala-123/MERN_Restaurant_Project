@@ -1,17 +1,8 @@
-/* Smooth Typography and Global Reset */
+/* Smooth Typography */
 * {
    -webkit-font-smoothing: antialiased;
    -moz-osx-font-smoothing: grayscale;
    text-rendering: optimizeLegibility;
-   scrollbar-width: none !important;
-   /* Firefox */
-   -ms-overflow-style: none !important;
-   /* IE and Edge */
-}
-
-*::-webkit-scrollbar {
-   display: none !important;
-   /* Hide scrollbars globally as requested */
 }
 
 .MuiTypography-root {

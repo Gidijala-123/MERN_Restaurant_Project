@@ -6,13 +6,6 @@ export default function PrivateRoute({ children }) {
   const [status, setStatus] = useState("loading");
 
   useEffect(() => {
-    // quick client-side marker: if there's no stored user name (set on login),
-    // don't even bother hitting the server – treat as unauthenticated.
-    if (!localStorage.getItem("userName")) {
-      setStatus("fail");
-      return;
-    }
-
     const check = async () => {
       try {
         const base = (
@@ -25,8 +18,17 @@ export default function PrivateRoute({ children }) {
         const data = await res.json().catch(() => null);
 
         // Server now returns authenticated=false instead of 401 when the token is missing/expired.
-        if (res.ok && data?.authenticated !== false) {
+        if (res.ok && data?.authenticated !== false && data?.uname) {
+          // If we have a username from the server, ensure it's in localStorage
+          localStorage.setItem("userName", data.uname);
+          if (data.avatar) localStorage.setItem("userAvatar", data.avatar);
           setStatus("ok");
+          return;
+        }
+
+        // Quick client-side marker check as a fallback
+        if (!localStorage.getItem("userName")) {
+          setStatus("fail");
           return;
         }
 
@@ -43,7 +45,13 @@ export default function PrivateRoute({ children }) {
           credentials: "include",
         });
         const data2 = await res2.json().catch(() => null);
-        setStatus(res2.ok && data2?.authenticated !== false ? "ok" : "fail");
+        if (res2.ok && data2?.authenticated !== false && data2?.uname) {
+          localStorage.setItem("userName", data2.uname);
+          if (data2.avatar) localStorage.setItem("userAvatar", data2.avatar);
+          setStatus("ok");
+        } else {
+          setStatus("fail");
+        }
       } catch {
         setStatus("fail");
       }

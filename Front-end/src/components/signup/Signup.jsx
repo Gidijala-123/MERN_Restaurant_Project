@@ -259,7 +259,7 @@ function Signup() {
         .catch(() => ({}));
       const res = await axios.post(
         `${API_URL}/api/otp/verify`,
-        { to: contact, code: otpCode },
+        { contact: contact, code: otpCode },
         { withCredentials: true, headers: { "x-csrf-token": csrf?.csrfToken } },
       );
       if (res.data?.ok) {

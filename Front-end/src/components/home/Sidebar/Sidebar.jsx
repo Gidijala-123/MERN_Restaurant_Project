@@ -140,21 +140,11 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   boxSizing: "border-box",
 }));
 
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
+const AppBar = styled(MuiAppBar)(({ theme }) => ({
   zIndex: theme.zIndex.drawer + 1,
   transition: theme.transitions.create(["width", "margin"], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
   }),
 }));
 
@@ -455,16 +445,18 @@ export default function Sidebar() {
   }, [computeFavorites]);
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
       <CssBaseline />
-      <AppBar position="fixed" open={open}>
+      <AppBar position="static" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar
           sx={{ 
             minHeight: { xs: 64, md: 72 }, 
             height: { xs: 64, md: 72 }, 
             paddingLeft: { xs: 1, md: 0 }, 
             paddingRight: { xs: 1, md: 2 }, 
-            boxSizing: "border-box" 
+            boxSizing: "border-box",
+            background: "var(--nav-bg)",
+            borderBottom: `1px solid ${appTheme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}`
           }}
         >
           <IconButton
@@ -765,7 +757,8 @@ export default function Sidebar() {
           </Box>
         </Box>
       </AppBar>
-      {isDesktop ? (
+      <Box sx={{ display: "flex", flexGrow: 1, overflow: "hidden" }}>
+        {isDesktop ? (
         <Drawer variant="permanent" open={open}>
           <DrawerHeader
             sx={{
@@ -1168,9 +1161,10 @@ export default function Sidebar() {
           minWidth: 0,
           maxWidth: "1440px",
           margin: "0 auto",
+          overflowY: "auto",
+          height: "100%",
         }}
       >
-        <DrawerHeader />
         {location.pathname === "/home/favorites" ? (
           <Favorites />
         ) : location.pathname === "/home/orders" ? (
@@ -1185,6 +1179,7 @@ export default function Sidebar() {
             onSectionChange={handleSectionChange}
           />
         )}
+      </Box>
       </Box>
 
       <PopupAlert

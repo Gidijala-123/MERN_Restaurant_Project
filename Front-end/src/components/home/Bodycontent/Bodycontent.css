@@ -241,19 +241,55 @@ img {
    }
 }
 
-/* Trending Items - Horizontal Scroll Refactor */
-.trending-items-container {
+/* Unified Horizontal Scrollbar Style for Card Containers */
+.trending-items-container,
+.offers-scroll,
+.trending-viewport,
+.marquee-viewport {
    display: flex !important;
    flex-direction: row !important;
    flex-wrap: nowrap !important;
    align-items: stretch !important;
-   /* Ensure all cards have equal height in the row */
    overflow-x: auto !important;
+   overflow-y: hidden;
    gap: 1.5rem !important;
    margin-top: 1rem !important;
-   padding: 1rem 0.5rem 2rem 0.5rem !important;
+   padding: 1rem 0.5rem 2.5rem 0.5rem !important;
+   /* Extra bottom padding for scrollbar visibility */
    scroll-behavior: smooth;
    -webkit-overflow-scrolling: touch;
+}
+
+/* Theme-aware Scrollbar for these containers */
+.trending-items-container::-webkit-scrollbar,
+.offers-scroll::-webkit-scrollbar,
+.trending-viewport::-webkit-scrollbar,
+.marquee-viewport::-webkit-scrollbar {
+   height: 8px !important;
+}
+
+.trending-items-container::-webkit-scrollbar-track,
+.offers-scroll::-webkit-scrollbar-track,
+.trending-viewport::-webkit-scrollbar-track,
+.marquee-viewport::-webkit-scrollbar-track {
+   background: var(--bg-light) !important;
+   border-radius: 10px !important;
+   border: 1px solid var(--border-light) !important;
+}
+
+.trending-items-container::-webkit-scrollbar-thumb,
+.offers-scroll::-webkit-scrollbar-thumb,
+.trending-viewport::-webkit-scrollbar-thumb,
+.marquee-viewport::-webkit-scrollbar-thumb {
+   background: var(--primary-gradient) !important;
+   border-radius: 10px !important;
+}
+
+.trending-items-container::-webkit-scrollbar-thumb:hover,
+.offers-scroll::-webkit-scrollbar-thumb:hover,
+.trending-viewport::-webkit-scrollbar-thumb:hover,
+.marquee-viewport::-webkit-scrollbar-thumb:hover {
+   background: var(--primary) !important;
 }
 
 /* Enhanced Card Design - Perfectly Matching Uploaded Image */
@@ -537,13 +573,6 @@ img {
    color: white !important;
 }
 
-/* Horizontal Scrollbar Matching Image */
-.offers-scroll,
-.trending-viewport,
-.discount-sale-container .marquee-viewport {
-   padding: 1rem 0 2rem 0 !important;
-}
-
 @media (max-width: 48rem) {
 
    .marquee-track .section-card,
@@ -558,23 +587,6 @@ img {
       font-size: 0.65rem !important;
       padding: 0.2rem 0.5rem !important;
    }
-}
-
-.offers-scroll::-webkit-scrollbar,
-.trending-viewport::-webkit-scrollbar {
-   height: 6px !important;
-}
-
-.offers-scroll::-webkit-scrollbar-thumb,
-.trending-viewport::-webkit-scrollbar-thumb {
-   background: #CCC !important;
-   border-radius: 10px !important;
-}
-
-.offers-scroll::-webkit-scrollbar-track,
-.trending-viewport::-webkit-scrollbar-track {
-   background: #F0F0F0 !important;
-   border-radius: 10px !important;
 }
 
 .trending-card-details-wrapper {
@@ -1663,8 +1675,11 @@ img {
 .marquee-viewport,
 .trending-viewport {
    width: 100%;
-   overflow: hidden;
+   overflow-x: auto !important;
+   /* Allow horizontal scrolling */
+   overflow-y: hidden;
    padding-bottom: 2rem !important;
+   -webkit-overflow-scrolling: touch;
 }
 
 .discount-sale-container,
