@@ -220,9 +220,9 @@ app.post("/api/order", verifyAccessToken, checkCsrf, orderValidation, async (req
     setOtp(contact, code);
 
     try {
-      if (channel === "sms") await sendSmsOtp(contact, code);
-      else if (channel === "whatsapp") await sendWhatsAppOtp(contact, code);
-      else await sendEmailOtp(contact, code);
+      if (channel === "sms") await sendSmsOtp({ to: contact, code });
+      else if (channel === "whatsapp") await sendWhatsAppOtp({ to: contact, code });
+      else await sendEmailOtp({ to: contact, code });
       res.json({ ok: true });
     } catch (err) {
       res.status(500).json({ error: err.message });

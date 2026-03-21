@@ -232,7 +232,7 @@ function Signup() {
       })
         .then((r) => r.json())
         .catch(() => ({}));
-      const payload = { to: contact, channel };
+      const payload = { contact, channel };
       const res = await axios.post(`${API_URL}/api/otp/send`, payload, {
         withCredentials: true,
         headers: { "x-csrf-token": csrf?.csrfToken },
