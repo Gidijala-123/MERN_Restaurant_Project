@@ -86,9 +86,9 @@ const initialForm = {
 export default function Settings() {
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const initialProfileRef = useRef(null);
   const fileInputRef = useRef(null);
   const [profileForm, setProfileForm] = useState(initialForm);
+  const [savedProfile, setSavedProfile] = useState(null);
   const [formErrors, setFormErrors] = useState({});
   const [newAddress, setNewAddress] = useState("");
   const [saving, setSaving] = useState(false);
@@ -125,7 +125,7 @@ export default function Settings() {
         : null,
     };
     setProfileForm(stored);
-    initialProfileRef.current = stored;
+    setSavedProfile(stored);
   }, []);
 
   const validateForm = () => {
@@ -160,7 +160,7 @@ export default function Settings() {
           );
         }
       });
-      initialProfileRef.current = profileForm;
+      setSavedProfile({ ...profileForm });
       setSaving(false);
       toast.success("Profile settings updated successfully!");
     }, 1000);
@@ -351,11 +351,11 @@ export default function Settings() {
   };
 
   const hasChanges = useMemo(() => {
-    if (!initialProfileRef.current) return false;
+    if (!savedProfile) return false;
     return (
-      JSON.stringify(profileForm) !== JSON.stringify(initialProfileRef.current)
+      JSON.stringify(profileForm) !== JSON.stringify(savedProfile)
     );
-  }, [profileForm]);
+  }, [profileForm, savedProfile]);
 
   const appTheme = theme;
 
