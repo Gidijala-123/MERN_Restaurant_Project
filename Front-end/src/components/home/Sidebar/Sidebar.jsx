@@ -217,7 +217,7 @@ export default function Sidebar() {
   const { theme: appTheme, toggleTheme } = useAppTheme();
   const { handleCategoryChange } = useMenu();
   const [favoritesCount, setFavoritesCount] = useState(0);
-  const { data } = useGetAllProductsQuery();
+  const { data, isLoading } = useGetAllProductsQuery();
 
   useEffect(() => {
     const storedUserName = localStorage.getItem("userName");
@@ -352,88 +352,22 @@ export default function Sidebar() {
   }, [cartItems]);
 
   const computeFavorites = useCallback(() => {
-    const trendingBookmarked = JSON.parse(
-      localStorage.getItem("trendingBookmarked") || "{}",
-    );
-    const discountBookmarked = JSON.parse(
-      localStorage.getItem("discountBookmarked") || "{}",
-    );
-    const favorites = [];
-    // Trending from API data
-    data?.forEach((product) => {
-      if (trendingBookmarked[product.id]) {
-        favorites.push({ ...product, section: "trending" });
-      }
+    const keys = ["trendingBookmarked", "discountBookmarked", "offerBookmarked", "popularBookmarked", "recentBookmarked"];
+    const allIds = new Set();
+    keys.forEach(key => {
+      const saved = JSON.parse(localStorage.getItem(key) || "{}");
+      Object.entries(saved).forEach(([id, isBookmarked]) => {
+        if (isBookmarked) {
+          allIds.add(id);
+        }
+      });
     });
-    // Discount static items
-    const discountItems = [
-      {
-        id: 101,
-        title: "Cheesy Pepperoni Pizza",
-        oldPrice: 499,
-        newPrice: 299,
-        discount: "40% OFF",
-        img: "/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg",
-        desc: "Extra cheese & crispy crust",
-        rating: 4.8,
-        reviews: 120,
-      },
-      {
-        id: 102,
-        title: "Crispy Chicken Burger",
-        oldPrice: 250,
-        newPrice: 149,
-        discount: "40% OFF",
-        img: "/footer-images/burger.png",
-        desc: "Spicy mayo & fresh lettuce",
-        rating: 4.5,
-        reviews: 85,
-      },
-      {
-        id: 103,
-        title: "Garden Fresh Salad",
-        oldPrice: 180,
-        newPrice: 99,
-        discount: "45% OFF",
-        img: "/footer-images/salads.jpg",
-        desc: "Organic veggies & olive oil",
-        rating: 4.7,
-        reviews: 60,
-      },
-      {
-        id: 104,
-        title: "Choco Lava Cake",
-        oldPrice: 150,
-        newPrice: 75,
-        discount: "50% OFF",
-        img: "/footer-images/desserts.jpg",
-        desc: "Melting hot chocolate center",
-        rating: 4.9,
-        reviews: 210,
-      },
-      {
-        id: 105,
-        title: "Fresh Fruit Mojito",
-        oldPrice: 120,
-        newPrice: 59,
-        discount: "50% OFF",
-        img: "/footer-images/cooldrinks.png",
-        desc: "Refreshing mint & lime",
-        rating: 4.6,
-        reviews: 45,
-      },
-    ];
-    discountItems.forEach((item) => {
-      if (discountBookmarked[item.id]) {
-        favorites.push({ ...item, price: item.newPrice, section: "discount" });
-      }
-    });
-    return favorites;
-  }, [data]);
+    return allIds.size;
+  }, []);
 
   useEffect(() => {
     const updateFavoritesCount = () => {
-      setFavoritesCount(computeFavorites().length);
+      setFavoritesCount(computeFavorites());
     };
     updateFavoritesCount();
     window.addEventListener("storage", updateFavoritesCount);
@@ -625,7 +559,7 @@ export default function Sidebar() {
                     }
                   }}
                 >
-                  <FavoritesIcon sx={{ fontSize: { xs: 18, md: 22 } }} />
+                  <FavoritesIcon sx={{ fontSize: { xs: 18, md: 22 }, color: favoritesCount > 0 ? "var(--primary)" : "inherit" }} />
                 </Badge>
               </IconButton>
               <IconButton

@@ -325,6 +325,7 @@ function Signup() {
                   <input
                     className="form-control"
                     type="text"
+                    id="signup-uname"
                     value={uname}
                     onChange={(e) => setUname(e.target.value)}
                     placeholder="Full Name"
@@ -343,6 +344,7 @@ function Signup() {
                   <input
                     className="form-control"
                     type="email"
+                    id="signup-email"
                     value={uemail}
                     onChange={(e) => setUemail(e.target.value)}
                     placeholder="Email Address"
@@ -361,6 +363,7 @@ function Signup() {
                   <input
                     className="form-control"
                     type={showPassword ? "text" : "password"}
+                    id="signup-password"
                     value={upassword}
                     onChange={(e) => setUpassword(e.target.value)}
                     placeholder="Password"
@@ -387,6 +390,7 @@ function Signup() {
                   <input
                     className="form-control"
                     type={showConfirmPassword ? "text" : "password"}
+                    id="signup-confirm-password"
                     value={uconfirmPassword}
                     onChange={(e) => setUconfirmPassword(e.target.value)}
                     placeholder="Confirm Password"

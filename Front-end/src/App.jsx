@@ -30,7 +30,7 @@ function App() {
     <ThemeProvider>
       <MenuProvider>
         {/* BrowserRouter provides client-side navigation using the HTML5 History API */}
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           {/* ToastContainer displays alert messages across the application */}
           <ToastContainer 
             position="top-center"

@@ -668,10 +668,15 @@ const Bodycontent = (props) => {
   return (
     <div className="home-container">
       {isLoading ? (
-        <div className="loading-div">
-          <video width="640" height="360" autoPlay loop muted>
+        <div className="loading-div" style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '400px',
+          width: '100%'
+        }}>
+          <video width="320" height="180" autoPlay loop muted style={{ borderRadius: '20px' }}>
             <source src="/footer-images/loading.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
           </video>
         </div>
       ) : err ? (

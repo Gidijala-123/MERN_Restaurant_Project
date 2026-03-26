@@ -10,108 +10,161 @@ import { useGetAllProductsQuery } from "../features/productsApi";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../features/cartSlice";
+import { MENU_DATA } from "../../data/menuData";
 import "./Favorites.css";
 
 export default function Favorites() {
   const { data = [], isLoading } = useGetAllProductsQuery();
+
+  const resolveImageSrc = (item) => {
+    // Prefer explicit image fields.
+    const candidate = item?.image || item?.img || item?.imageUrl || item?.img;
+
+    // If candidate is from /menu-images, map it to a real public image (menu-images isn't included in build).
+    if (candidate?.startsWith("/menu-images/")) {
+      const filename = candidate.split("/").pop()?.toLowerCase();
+      const mapped = {
+        "samosa.jpg": "/footer-images/vegitem.jpg",
+        "paneer-tikka.jpg": "/footer-images/vegitem.jpg",
+        "spring-rolls.jpg": "/footer-images/veggies.jpg",
+        "aloo-tikki.jpg": "/footer-images/vegitem.jpg",
+        "corn-fritters.jpg": "/footer-images/vegitem.jpg",
+        "chicken-tikka.jpg": "/footer-images/chicken.png",
+        "tandoori-prawns.jpg": "/footer-images/chicken.png",
+        "fish-amritsari.jpg": "/footer-images/seafood.jpg",
+        "chicken-pakora.jpg": "/footer-images/chicken.png",
+        "mutton-seekh.jpg": "/footer-images/meat.png",
+        "tandoori-chicken-half.jpg": "/footer-images/meat.png",
+        "tandoori-fish.jpg": "/footer-images/seafood.jpg",
+        "tandoori-mushroom.jpg": "/footer-images/vegitem.jpg",
+        "tandoori-paneer.jpg": "/footer-images/vegitem.jpg",
+        "tomato-soup.jpg": "/footer-images/soups.jpg",
+        "chicken-soup.jpg": "/footer-images/soups.jpg",
+        "mulligatawny.jpg": "/footer-images/soups.jpg",
+        "veg-soup.jpg": "/footer-images/soups.jpg",
+        "greek-salad.jpg": "/footer-images/salads.jpg",
+        "chicken-salad.jpg": "/footer-images/salads.jpg",
+        "caesar-salad.jpg": "/footer-images/salads.jpg",
+        "veg-manchurian.jpg": "/footer-images/veggies.jpg",
+        "chicken-manchurian.jpg": "/footer-images/chicken.png",
+        "veg-fried-rice.jpg": "/footer-images/food.png",
+        "chicken-fried-rice.jpg": "/footer-images/food.png",
+        "paneer-butter-masala.jpg": "/footer-images/food.png",
+        "butter-chicken.jpg": "/footer-images/chicken.png",
+        "mutton-biryani.jpg": "/footer-images/chicken.png",
+        "hyd-biryani.jpg": "/footer-images/chicken.png",
+        "gulab-jamun.jpg": "/footer-images/desserts.jpg",
+        "rasmalai.jpg": "/footer-images/desserts.jpg",
+        "kheer.jpg": "/footer-images/desserts.jpg",
+        "ice-cream.jpg": "/footer-images/ice_cream.jpg",
+      }[filename];
+
+      if (mapped) return mapped;
+      return `https://source.unsplash.com/600x400/?${encodeURIComponent(item?.name || item?.title || "food")}`;
+    }
+    return candidate || "/footer-images/food.png";
+  };
+
   const [discountBookmarked, setDiscountBookmarked] = useState({});
   const [trendingBookmarked, setTrendingBookmarked] = useState({});
+  const [offerBookmarked, setOfferBookmarked] = useState({});
+  const [popularBookmarked, setPopularBookmarked] = useState({});
+  const [recentBookmarked, setRecentBookmarked] = useState({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
     const savedDiscount = JSON.parse(localStorage.getItem("discountBookmarked") || "{}");
     const savedTrending = JSON.parse(localStorage.getItem("trendingBookmarked") || "{}");
+    const savedOffer = JSON.parse(localStorage.getItem("offerBookmarked") || "{}");
+    const savedPopular = JSON.parse(localStorage.getItem("popularBookmarked") || "{}");
+    const savedRecent = JSON.parse(localStorage.getItem("recentBookmarked") || "{}");
     setDiscountBookmarked(savedDiscount);
     setTrendingBookmarked(savedTrending);
+    setOfferBookmarked(savedOffer);
+    setPopularBookmarked(savedPopular);
+    setRecentBookmarked(savedRecent);
   }, []);
 
   const favorites = useMemo(() => {
     const list = [];
-    data?.forEach((product) => {
-      if (trendingBookmarked[product.id]) {
-        list.push({ ...product, section: "Trending" });
+
+    // 1. First, check MENU_DATA (Local items like Samosa, Paneer Tikka)
+    // We do this first because these are the items shown on the Homepage
+    MENU_DATA.forEach((item) => {
+      const bookmarkInfo = [
+        { key: trendingBookmarked, section: "Trending" },
+        { key: offerBookmarked, section: "Offer" },
+        { key: popularBookmarked, section: "Popular" },
+        { key: recentBookmarked, section: "Recent" },
+        { key: discountBookmarked, section: "Discount" }
+      ];
+
+      for (const { key, section } of bookmarkInfo) {
+        if (key[item.id]) {
+          list.push({ 
+            ...item, 
+            section,
+            // Map MENU_DATA fields to component expected fields
+            title: item.name,
+            img: item.imageUrl,
+            desc: item.description
+          });
+          break; // Found it, move to next MENU_DATA item
+        }
       }
     });
 
-    const discountItems = [
-      {
-        id: 101,
-        title: "Cheesy Pepperoni Pizza",
-        oldPrice: 499,
-        newPrice: 299,
-        discount: "40% OFF",
-        img: "/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg",
-        desc: "Extra cheese & crispy crust",
-        rating: 4.8,
-        reviews: 120,
-      },
-      {
-        id: 102,
-        title: "Crispy Chicken Burger",
-        oldPrice: 250,
-        newPrice: 149,
-        discount: "40% OFF",
-        img: "/footer-images/burger.png",
-        desc: "Spicy mayo & fresh lettuce",
-        rating: 4.5,
-        reviews: 85,
-      },
-      {
-        id: 103,
-        title: "Garden Fresh Salad",
-        oldPrice: 180,
-        newPrice: 99,
-        discount: "45% OFF",
-        img: "/footer-images/salads.jpg",
-        desc: "Organic veggies & olive oil",
-        rating: 4.7,
-        reviews: 60,
-      },
-      {
-        id: 104,
-        title: "Choco Lava Cake",
-        oldPrice: 150,
-        newPrice: 75,
-        discount: "50% OFF",
-        img: "/footer-images/desserts.jpg",
-        desc: "Melting hot chocolate center",
-        rating: 4.9,
-        reviews: 210,
-      },
-      {
-        id: 105,
-        title: "Fresh Fruit Mojito",
-        oldPrice: 120,
-        newPrice: 59,
-        discount: "50% OFF",
-        img: "/footer-images/cooldrinks.png",
-        desc: "Refreshing mint & lime",
-        rating: 4.6,
-        reviews: 45,
-      },
-    ];
+    // 2. Then, check API data for any remaining items
+    data?.forEach((product) => {
+      // Avoid duplicates if ID already added from MENU_DATA
+      if (list.some(existing => String(existing.id) === String(product.id))) return;
 
-    discountItems.forEach((item) => {
-      if (discountBookmarked[item.id]) {
-        list.push({ ...item, section: "Discount" });
+      if (trendingBookmarked[product.id]) {
+        list.push({ ...product, section: "Trending" });
+      } else if (offerBookmarked[product.id]) {
+        list.push({ ...product, section: "Offer" });
+      } else if (popularBookmarked[product.id]) {
+        list.push({ ...product, section: "Popular" });
+      } else if (recentBookmarked[product.id]) {
+        list.push({ ...product, section: "Recent" });
+      } else if (discountBookmarked[product.id]) {
+        list.push({ ...product, section: "Discount" });
       }
     });
 
     return list;
-  }, [data, discountBookmarked, trendingBookmarked]);
+  }, [data, trendingBookmarked, discountBookmarked, offerBookmarked, popularBookmarked, recentBookmarked]);
 
   const toggleFavorite = (item) => {
-    const isTrending = item.section === "Trending";
-    if (isTrending) {
-      const next = { ...trendingBookmarked, [item.id]: !trendingBookmarked[item.id] };
-      setTrendingBookmarked(next);
-      localStorage.setItem("trendingBookmarked", JSON.stringify(next));
-    } else {
-      const next = { ...discountBookmarked, [item.id]: !discountBookmarked[item.id] };
-      setDiscountBookmarked(next);
-      localStorage.setItem("discountBookmarked", JSON.stringify(next));
+    const { section, id } = item;
+    const storageKey = `${section.toLowerCase()}Bookmarked`;
+    const bookmarkedItems = JSON.parse(localStorage.getItem(storageKey) || "{}");
+    const next = { ...bookmarkedItems, [id]: !bookmarkedItems[id] };
+    localStorage.setItem(storageKey, JSON.stringify(next));
+
+    // Update state to trigger re-render
+    switch (section) {
+      case "Trending":
+        setTrendingBookmarked(next);
+        break;
+      case "Discount":
+        setDiscountBookmarked(next);
+        break;
+      case "Offer":
+        setOfferBookmarked(next);
+        break;
+      case "Popular":
+        setPopularBookmarked(next);
+        break;
+      case "Recent":
+        setRecentBookmarked(next);
+        break;
+      default:
+        break;
     }
+
+    window.dispatchEvent(new Event("favoritesUpdated"));
   };
 
   const handleAddToCart = (item) => {
@@ -143,9 +196,9 @@ export default function Favorites() {
 
       {isLoading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
-          <Typography variant="h6" color="primary" sx={{ fontWeight: 700 }}>
-            Curating your favorites...
-          </Typography>
+          <video width="320" height="180" autoPlay loop muted style={{ borderRadius: '20px' }}>
+            <source src="/footer-images/loading.mp4" type="video/mp4" />
+          </video>
         </Box>
       ) : favorites.length === 0 ? (
         <div className="empty-favorites">
@@ -172,13 +225,26 @@ export default function Favorites() {
           </Button>
         </div>
       ) : (
-        <Grid container spacing={2} className="favorites-grid">
+        <Box 
+          sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(3, 1fr)',
+              lg: 'repeat(3, 1fr)'
+            },
+            gap: 3,
+            mt: 2
+          }}
+          className="favorites-grid"
+        >
           {favorites.map((item) => (
-            <Grid item xs={12} sm={4} md={4} lg={4} key={`${item.section}-${item.id}`}>
+            <div key={`${item.section}-${item.id}`}>
               <div className="favorite-card">
                 <div className="favorite-image-wrapper">
                   <img
-                    src={item.img || item.image}
+                    src={resolveImageSrc(item)}
                     alt={item.title || item.name}
                     loading="lazy"
                   />
@@ -234,9 +300,9 @@ export default function Favorites() {
                   </IconButton>
                 </div>
               </div>
-            </Grid>
+            </div>
           ))}
-        </Grid>
+        </Box>
       )}
     </div>
   );

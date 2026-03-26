@@ -4,7 +4,20 @@ export default function LoadingOverlay({ message = "Loading…", showText = fals
   const [ready, setReady] = useState(false);
 
   return (
-    <div className="app-loading">
+    <div className="app-loading" style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      background: 'rgba(252, 245, 232, 0.9)',
+      zIndex: 9999,
+      backdropFilter: 'blur(5px)'
+    }}>
       <video
         className="app-loading__media"
         autoPlay
@@ -13,11 +26,17 @@ export default function LoadingOverlay({ message = "Loading…", showText = fals
         playsInline
         preload="auto"
         onCanPlay={() => setReady(true)}
+        style={{ width: '160px', height: '160px' }}
       >
         <source src="/footer-images/loading.mp4" type="video/mp4" />
       </video>
       {showText && ready && (
-        <div className="app-loading__text">{message}</div>
+        <div className="app-loading__text" style={{ 
+          marginTop: '20px', 
+          fontWeight: 700, 
+          color: 'var(--primary)',
+          fontSize: '1.2rem'
+        }}>{message}</div>
       )}
     </div>
   );

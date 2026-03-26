@@ -158,6 +158,7 @@ function SignInForm({ toggleMobile }) {
         <input
           className="form-control"
           type="email"
+          id="login-email"
           value={uemail}
           onChange={(e) => setUemail(e.target.value)}
           placeholder="Email Address"
@@ -174,6 +175,7 @@ function SignInForm({ toggleMobile }) {
         <input
           className="form-control"
           type={showPassword ? "text" : "password"}
+          id="login-password"
           value={upassword}
           onChange={(e) => setUpassword(e.target.value)}
           placeholder="Password"

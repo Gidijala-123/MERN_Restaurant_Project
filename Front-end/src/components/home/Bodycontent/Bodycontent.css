@@ -256,6 +256,7 @@ img {
    margin-top: 1rem !important;
    padding: 1rem 0.5rem 2.5rem 0.5rem !important;
    /* Extra bottom padding for scrollbar visibility */
+   background-color: var(--bg-light);
    scroll-behavior: smooth;
    -webkit-overflow-scrolling: touch;
 }
@@ -788,11 +789,8 @@ img {
    transition: all 0.2s ease;
 }
 
-.bookmark-icon.active {
-   color: var(--primary);
-   background: rgba(255, 255, 255, 1);
-   border-color: rgba(255, 126, 95, 0.3);
-   transform: scale(1.05);
+.bookmark-icon.active svg {
+   fill: var(--primary);
 }
 
 .bookmark-icon:hover {
