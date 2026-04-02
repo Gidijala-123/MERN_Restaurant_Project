@@ -99,6 +99,7 @@ import { useGetAllProductsQuery } from "../../features/productsApi";
 import Favorites from "../Favorites";
 import Orders from "../Orders";
 import Settings from "../Settings";
+import Chatbot from "../../common/Chatbot/Chatbot";
 
 const drawerWidth = 230;
 
@@ -1142,6 +1143,7 @@ export default function Sidebar() {
         onClose={() => setShowLogoutModal(false)}
         type="loading"
       />
+      <Chatbot />
     </Box>
   );
 }

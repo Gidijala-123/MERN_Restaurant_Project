@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+
 :root {
   /* Very Dark Orange Theme - Light Mode */
   --primary: #e65100;
@@ -58,7 +60,7 @@
 }
 
 body {
-  font-family: 'Okra', 'Helvetica', sans-serif;
+  font-family: 'Poppins', sans-serif;
   background-color: var(--bg-light);
   color: var(--text-main);
   overflow-x: hidden;
