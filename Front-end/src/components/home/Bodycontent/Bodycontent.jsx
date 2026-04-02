@@ -192,40 +192,21 @@ const Bodycontent = (props) => {
   }, []);
 
   const handleBookmarkToggle = useCallback((itemId, section) => {
-    let updated;
-    if (section === "discount") {
-      setDiscountBookmarked((prev) => {
-        updated = { ...prev, [itemId]: !prev[itemId] };
-        localStorage.setItem("discountBookmarked", JSON.stringify(updated));
-        return updated;
-      });
-    } else if (section === "trending") {
-      setTrendingBookmarked((prev) => {
-        updated = { ...prev, [itemId]: !prev[itemId] };
-        localStorage.setItem("trendingBookmarked", JSON.stringify(updated));
-        return updated;
-      });
-    } else if (section === "offer") {
-      setOfferBookmarked((prev) => {
-        updated = { ...prev, [itemId]: !prev[itemId] };
-        localStorage.setItem("offerBookmarked", JSON.stringify(updated));
-        return updated;
-      });
-    } else if (section === "popular") {
-      setPopularBookmarked((prev) => {
-        updated = { ...prev, [itemId]: !prev[itemId] };
-        localStorage.setItem("popularBookmarked", JSON.stringify(updated));
-        return updated;
-      });
-    } else if (section === "recent") {
-      setRecentBookmarked((prev) => {
-        updated = { ...prev, [itemId]: !prev[itemId] };
-        localStorage.setItem("recentBookmarked", JSON.stringify(updated));
-        return updated;
-      });
-    }
+    const storageKey = `${section}Bookmarked`;
+    const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
+    const updated = { ...saved, [itemId]: !saved[itemId] };
+    
+    // 1. Update localStorage synchronously first
+    localStorage.setItem(storageKey, JSON.stringify(updated));
+    
+    // 2. Update React states
+    if (section === "discount") setDiscountBookmarked(updated);
+    else if (section === "trending") setTrendingBookmarked(updated);
+    else if (section === "offer") setOfferBookmarked(updated);
+    else if (section === "popular") setPopularBookmarked(updated);
+    else if (section === "recent") setRecentBookmarked(updated);
 
-    // Dispatch event to update navbar favorites count
+    // 3. Dispatch event to update navbar favorites count
     window.dispatchEvent(new Event("favoritesUpdated"));
   }, []);
 

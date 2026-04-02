@@ -18,7 +18,7 @@ export default function Favorites() {
 
   const resolveImageSrc = (item) => {
     // Prefer explicit image fields.
-    const candidate = item?.image || item?.img || item?.imageUrl || item?.img;
+    const candidate = item?.image || item?.img || item?.imageUrl;
 
     // If candidate is from /menu-images, map it to a real public image (menu-images isn't included in build).
     if (candidate?.startsWith("/menu-images/")) {
@@ -70,75 +70,99 @@ export default function Favorites() {
   const [offerBookmarked, setOfferBookmarked] = useState({});
   const [popularBookmarked, setPopularBookmarked] = useState({});
   const [recentBookmarked, setRecentBookmarked] = useState({});
+  const [menuFavorites, setMenuFavorites] = useState({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const savedDiscount = JSON.parse(localStorage.getItem("discountBookmarked") || "{}");
-    const savedTrending = JSON.parse(localStorage.getItem("trendingBookmarked") || "{}");
-    const savedOffer = JSON.parse(localStorage.getItem("offerBookmarked") || "{}");
-    const savedPopular = JSON.parse(localStorage.getItem("popularBookmarked") || "{}");
-    const savedRecent = JSON.parse(localStorage.getItem("recentBookmarked") || "{}");
-    setDiscountBookmarked(savedDiscount);
-    setTrendingBookmarked(savedTrending);
-    setOfferBookmarked(savedOffer);
-    setPopularBookmarked(savedPopular);
-    setRecentBookmarked(savedRecent);
+    const loadBookmarks = () => {
+      const savedDiscount = JSON.parse(localStorage.getItem("discountBookmarked") || "{}");
+      const savedTrending = JSON.parse(localStorage.getItem("trendingBookmarked") || "{}");
+      const savedOffer = JSON.parse(localStorage.getItem("offerBookmarked") || "{}");
+      const savedPopular = JSON.parse(localStorage.getItem("popularBookmarked") || "{}");
+      const savedRecent = JSON.parse(localStorage.getItem("recentBookmarked") || "{}");
+      const savedMenu = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
+      setDiscountBookmarked(savedDiscount);
+      setTrendingBookmarked(savedTrending);
+      setOfferBookmarked(savedOffer);
+      setPopularBookmarked(savedPopular);
+      setRecentBookmarked(savedRecent);
+      setMenuFavorites(savedMenu);
+    };
+
+    loadBookmarks();
+    window.addEventListener("favoritesUpdated", loadBookmarks);
+    window.addEventListener("storage", loadBookmarks);
+
+    return () => {
+      window.removeEventListener("favoritesUpdated", loadBookmarks);
+      window.removeEventListener("storage", loadBookmarks);
+    };
   }, []);
 
   const favorites = useMemo(() => {
     const list = [];
+    const trendingBookmarked = JSON.parse(localStorage.getItem("trendingBookmarked") || "{}");
+    const discountBookmarked = JSON.parse(localStorage.getItem("discountBookmarked") || "{}");
+    const offerBookmarked = JSON.parse(localStorage.getItem("offerBookmarked") || "{}");
+    const popularBookmarked = JSON.parse(localStorage.getItem("popularBookmarked") || "{}");
+    const recentBookmarked = JSON.parse(localStorage.getItem("recentBookmarked") || "{}");
+    const menuFavorites = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
 
-    // 1. First, check MENU_DATA (Local items like Samosa, Paneer Tikka)
-    // We do this first because these are the items shown on the Homepage
+    // Helper to check if an ID exists in any of the bookmark objects
+    const isItemBookmarked = (id) => {
+      const idStr = String(id).trim();
+      return trendingBookmarked[idStr] || 
+             discountBookmarked[idStr] || 
+             offerBookmarked[idStr] || 
+             popularBookmarked[idStr] || 
+             recentBookmarked[idStr] || 
+             menuFavorites[idStr];
+    };
+
+    // Helper to get the correct section for a bookmarked item
+    const getBookmarkSection = (id) => {
+      const idStr = String(id).trim();
+      if (trendingBookmarked[idStr]) return "Trending";
+      if (offerBookmarked[idStr]) return "Offer";
+      if (popularBookmarked[idStr]) return "Popular";
+      if (recentBookmarked[idStr]) return "Recent";
+      if (discountBookmarked[idStr]) return "Discount";
+      if (menuFavorites[idStr]) return "Menu";
+      return "";
+    };
+
+    // 1. Check MENU_DATA (Local items)
     MENU_DATA.forEach((item) => {
-      const bookmarkInfo = [
-        { key: trendingBookmarked, section: "Trending" },
-        { key: offerBookmarked, section: "Offer" },
-        { key: popularBookmarked, section: "Popular" },
-        { key: recentBookmarked, section: "Recent" },
-        { key: discountBookmarked, section: "Discount" }
-      ];
-
-      for (const { key, section } of bookmarkInfo) {
-        if (key[item.id]) {
-          list.push({ 
-            ...item, 
-            section,
-            // Map MENU_DATA fields to component expected fields
-            title: item.name,
-            img: item.imageUrl,
-            desc: item.description
-          });
-          break; // Found it, move to next MENU_DATA item
-        }
+      if (isItemBookmarked(item.id)) {
+        list.push({ 
+          ...item, 
+          section: getBookmarkSection(item.id),
+          title: item.name,
+          img: item.imageUrl,
+          desc: item.description
+        });
       }
     });
 
-    // 2. Then, check API data for any remaining items
+    // 2. Check API data
     data?.forEach((product) => {
-      // Avoid duplicates if ID already added from MENU_DATA
-      if (list.some(existing => String(existing.id) === String(product.id))) return;
+      if (list.some(existing => String(existing.id).trim() === String(product.id).trim())) return;
 
-      if (trendingBookmarked[product.id]) {
-        list.push({ ...product, section: "Trending" });
-      } else if (offerBookmarked[product.id]) {
-        list.push({ ...product, section: "Offer" });
-      } else if (popularBookmarked[product.id]) {
-        list.push({ ...product, section: "Popular" });
-      } else if (recentBookmarked[product.id]) {
-        list.push({ ...product, section: "Recent" });
-      } else if (discountBookmarked[product.id]) {
-        list.push({ ...product, section: "Discount" });
+      if (isItemBookmarked(product.id)) {
+        list.push({ 
+          ...product, 
+          section: getBookmarkSection(product.id) 
+        });
       }
     });
 
     return list;
-  }, [data, trendingBookmarked, discountBookmarked, offerBookmarked, popularBookmarked, recentBookmarked]);
+  }, [data, trendingBookmarked, discountBookmarked, offerBookmarked, popularBookmarked, recentBookmarked, menuFavorites]);
 
   const toggleFavorite = (item) => {
     const { section, id } = item;
-    const storageKey = `${section.toLowerCase()}Bookmarked`;
+    const storageKey = section === "Menu" ? "menuFavorites" : `${section.toLowerCase()}Bookmarked`;
     const bookmarkedItems = JSON.parse(localStorage.getItem(storageKey) || "{}");
     const next = { ...bookmarkedItems, [id]: !bookmarkedItems[id] };
     localStorage.setItem(storageKey, JSON.stringify(next));
@@ -159,6 +183,9 @@ export default function Favorites() {
         break;
       case "Recent":
         setRecentBookmarked(next);
+        break;
+      case "Menu":
+        setMenuFavorites(next);
         break;
       default:
         break;

@@ -352,13 +352,21 @@ export default function Sidebar() {
   }, [cartItems]);
 
   const computeFavorites = useCallback(() => {
-    const keys = ["trendingBookmarked", "discountBookmarked", "offerBookmarked", "popularBookmarked", "recentBookmarked"];
+    const keys = [
+      "trendingBookmarked", 
+      "discountBookmarked", 
+      "offerBookmarked", 
+      "popularBookmarked", 
+      "recentBookmarked",
+      "menuFavorites"
+    ];
     const allIds = new Set();
     keys.forEach(key => {
       const saved = JSON.parse(localStorage.getItem(key) || "{}");
       Object.entries(saved).forEach(([id, isBookmarked]) => {
         if (isBookmarked) {
-          allIds.add(id);
+          // Normalize ID to string and trim any whitespace
+          allIds.add(String(id).trim());
         }
       });
     });
@@ -548,7 +556,7 @@ export default function Sidebar() {
                 }}
               >
                 <Badge 
-                  badgeContent={favoritesCount} 
+                  badgeContent={favoritesCount > 0 ? favoritesCount : null} 
                   sx={{
                     "& .MuiBadge-badge": {
                       backgroundColor: "var(--primary)",
@@ -556,10 +564,22 @@ export default function Sidebar() {
                       fontSize: "0.6rem",
                       height: 16,
                       minWidth: 16,
+                      display: favoritesCount > 0 ? "flex" : "none"
                     }
                   }}
                 >
-                  <FavoritesIcon sx={{ fontSize: { xs: 18, md: 22 }, color: favoritesCount > 0 ? "var(--primary)" : "inherit" }} />
+                  {favoritesCount > 0 ? (
+                    <FavoritesIcon sx={{ 
+                      fontSize: { xs: 18, md: 22 }, 
+                      color: "#FF6A00",
+                      fill: "#FF6A00"
+                    }} />
+                  ) : (
+                    <FavoriteBorderIcon sx={{ 
+                      fontSize: { xs: 18, md: 22 }, 
+                      color: "var(--text-main)",
+                    }} />
+                  )}
                 </Badge>
               </IconButton>
               <IconButton

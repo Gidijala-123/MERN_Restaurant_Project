@@ -30,7 +30,9 @@ const MenuDisplay = () => {
   } = useMenu();
 
   const dispatch = useDispatch();
-  const [favoriteItems, setFavoriteItems] = useState({});
+  const [favoriteItems, setFavoriteItems] = useState(() => {
+    return JSON.parse(localStorage.getItem("menuFavorites") || "{}");
+  });
 
   const subCategories = useMemo(() => getSubCategories(), [getSubCategories]);
 
@@ -65,10 +67,17 @@ const MenuDisplay = () => {
   }, [dispatch]);
 
   const handleFavoriteToggle = useCallback((itemId) => {
-    setFavoriteItems((prev) => ({
-      ...prev,
-      [itemId]: !prev[itemId],
-    }));
+    const saved = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
+    const updated = { ...saved, [itemId]: !saved[itemId] };
+    
+    // 1. Update localStorage synchronously first
+    localStorage.setItem("menuFavorites", JSON.stringify(updated));
+    
+    // 2. Update React state
+    setFavoriteItems(updated);
+    
+    // 3. Dispatch event to update navbar favorites count
+    window.dispatchEvent(new Event("favoritesUpdated"));
   }, []);
 
   const FALLBACK_IMAGES = useMemo(() => ({
