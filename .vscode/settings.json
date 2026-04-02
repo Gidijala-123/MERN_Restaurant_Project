@@ -5,5 +5,6 @@
   },
   "[javascript]": {
     "editor.defaultFormatter": null
-  }
+  },
+  "javascript.autoClosingTags": false
 }

@@ -9,5 +9,8 @@
     "build": "npm run install-backend && npm run install-frontend && npm run build-frontend",
     "start": "node Back-end/server.js",
     "dev": "npm run dev --prefix Back-end"
+  },
+  "dependencies": {
+    "react-calendar": "^6.0.0"
   }
 }
