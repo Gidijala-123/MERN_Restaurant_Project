@@ -185,29 +185,51 @@ const Chatbot = () => {
               <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-white/10" />
               <div className="absolute -bottom-4 right-8 h-12 w-12 rounded-full bg-white/8" />
 
-              <div className="relative flex items-center gap-3">
-                {/* Avatar */}
+              <div className="relative flex h-11 items-center gap-3">
+                {/* Avatar — mini animated bot icon */}
                 <div className="relative shrink-0">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/25 text-sm font-black text-white shadow-lg">
-                    Fl
+                  <div
+                    className="flex h-9 w-9 items-center justify-center bg-white shadow-lg shadow-orange-700/30"
+                    style={{ borderRadius: "12px" }}
+                  >
+                    <svg width="30" height="32" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      {/* Hat puffs */}
+                      <ellipse cx="28" cy="12" rx="7" ry="7" fill="#fb923c" />
+                      <ellipse cx="36" cy="9" rx="8" ry="8" fill="#fb923c" />
+                      <ellipse cx="44" cy="12" rx="7" ry="7" fill="#fb923c" />
+                      {/* Hat band */}
+                      <rect x="21" y="16" width="30" height="8" rx="3" fill="#ea580c" />
+                      <rect x="21" y="21" width="30" height="3" rx="1.5" fill="#c2410c" />
+                      {/* Face */}
+                      <rect x="19" y="24" width="34" height="28" rx="8" fill="#fff7ed" stroke="#ea580c" strokeWidth="1.8" />
+                      {/* Eyes — blinking */}
+                      <circle cx="29" cy="34" r="3.5" fill="#ea580c" className="flavie-eye-l" />
+                      <circle cx="43" cy="34" r="3.5" fill="#ea580c" className="flavie-eye-r" />
+                      <circle cx="30" cy="33" r="1.2" fill="white" className="flavie-eye-l" />
+                      <circle cx="44" cy="33" r="1.2" fill="white" className="flavie-eye-r" />
+                      {/* Smile */}
+                      <path d="M28 43 Q36 49 44 43" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" fill="none" />
+                    </svg>
                   </div>
+                  {/* Online dot */}
                   <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
                     <span className="flavie-pulse absolute inline-flex h-full w-full rounded-full bg-green-300/60" />
                     <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-orange-500 bg-green-400" />
                   </span>
                 </div>
 
-                {/* Name */}
-                <div className="min-w-0 flex-1">
-                  <p className="text-base font-bold leading-tight text-white font-['Poppins']">{meta.label}</p>
-                  <p className="text-[0.65rem] leading-tight text-orange-100">{meta.sub}</p>
+                {/* Name — self-centered, natural height */}
+                <div className="min-w-0 flex-1 self-center overflow-hidden">
+                  <p className="mb-0 truncate text-sm font-bold leading-tight text-white font-['Poppins']">{meta.label}</p>
+                  <p className="mb-0 truncate text-[0.62rem] leading-tight text-orange-100/90">{meta.sub}</p>
                 </div>
 
-                {/* Close */}
+                {/* Close — same size and radius as avatar */}
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/20 text-white transition hover:bg-white/30"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center bg-white text-orange-500 shadow-sm transition hover:bg-orange-50"
+                  style={{ borderRadius: "12px" }}
                   aria-label="Close"
                 >
                   <MdClose className="text-base" />
@@ -295,7 +317,7 @@ const Chatbot = () => {
             style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
             aria-label="Open Flavie food assistant"
           >
-            {/* Bot-shaped ripple — same outline as the bot, pulsing behind */}
+            {/* Bot-shaped ripple */}
             <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <svg
                 className="flavie-bot-ripple absolute"
@@ -380,6 +402,16 @@ const Chatbot = () => {
               <rect x="25" y="51" width="8" height="10" rx="4" fill="#ea580c" />
               <rect x="39" y="51" width="8" height="10" rx="4" fill="#ea580c" />
             </svg>
+
+            {/* Bot name label */}
+            <div className="mt-0.5 text-center">
+              <span
+                className="block text-[0.65rem] font-bold tracking-wide"
+                style={{ color: "#ea580c", textShadow: "0 1px 4px rgba(234,88,12,0.25)", fontFamily: "Poppins, sans-serif" }}
+              >
+                Flavie
+              </span>
+            </div>
           </motion.button>
         )}
       </AnimatePresence>
