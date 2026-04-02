@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../signup/Signup.css";
 import axios from "axios";
@@ -151,47 +151,55 @@ function SignInForm({ toggleMobile }) {
         />
         <h1 className="heading-h1">Welcome Back</h1>
       </div>
-      <div className="input-group mb-3">
-        <span className="input-group-text bg-light border-secondary">
-          <EmailIcon fontSize="small" />
-        </span>
-        <input
-          className="form-control"
-          type="email"
-          id="login-email"
-          value={uemail}
-          onChange={(e) => setUemail(e.target.value)}
-          placeholder="Email Address"
-          autoComplete="email"
-          required
-        />
+      <div className="mb-3">
+        <div className="input-group">
+          <span className="input-group-text icon-badge">
+            <EmailIcon fontSize="small" />
+          </span>
+          <input
+            className="form-control"
+            type="email"
+            id="login-email"
+            value={uemail}
+            onChange={(e) => setUemail(e.target.value)}
+            placeholder="Email Address"
+            autoComplete="email"
+            required
+          />
+        </div>
+        {validationErrors.uemail && (
+          <span className="span-tag error-text">{validationErrors.uemail}</span>
+        )}
       </div>
-      <span className="span-tag error-text">{validationErrors.uemail}</span>
 
-      <div className="input-group mb-3">
-        <span className="input-group-text bg-light border-secondary">
-          <LockIcon fontSize="small" />
-        </span>
-        <input
-          className="form-control"
-          type={showPassword ? "text" : "password"}
-          id="login-password"
-          value={upassword}
-          onChange={(e) => setUpassword(e.target.value)}
-          placeholder="Password"
-          autoComplete="current-password"
-          required
-        />
-        <button
-          type="button"
-          className="btn btn-outline-secondary"
-          onClick={() => setShowPassword(!showPassword)}
-          aria-label="Toggle password visibility"
-        >
-          {showPassword ? <VisibilityOff /> : <Visibility />}
-        </button>
+      <div className="mb-3">
+        <div className="input-group">
+          <span className="input-group-text icon-badge">
+            <LockIcon fontSize="small" />
+          </span>
+          <input
+            className="form-control"
+            type={showPassword ? "text" : "password"}
+            id="login-password"
+            value={upassword}
+            onChange={(e) => setUpassword(e.target.value)}
+            placeholder="Password"
+            autoComplete="current-password"
+            required
+          />
+          <button
+            type="button"
+            className="btn btn-outline-secondary"
+            onClick={() => setShowPassword(!showPassword)}
+            aria-label="Toggle password visibility"
+          >
+            {showPassword ? <VisibilityOff /> : <Visibility />}
+          </button>
+        </div>
+        {validationErrors.upassword && (
+          <span className="span-tag error-text">{validationErrors.upassword}</span>
+        )}
       </div>
-      <span className="span-tag error-text">{validationErrors.upassword}</span>
 
       <span className="span-tag error-text">{apiError}</span>
 

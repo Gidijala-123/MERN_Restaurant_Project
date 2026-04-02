@@ -100,6 +100,13 @@ html {
   }
 }
 
+/* Ensure Toast notifications are above loading overlays and popups */
+.Toastify__toast-container {
+  z-index: 10001 !important;
+}
+
+/* Custom Toastify Styles */
+
 @media (max-width: 48rem) {
   html {
     font-size: 13px;

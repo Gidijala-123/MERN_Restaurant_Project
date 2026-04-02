@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../signup/Signup.css";
 import Login from "../login/Login";
@@ -33,6 +33,8 @@ function Signup() {
   const [otpCode, setOtpCode] = useState("");
   const [otpMsg, setOtpMsg] = useState("");
   const [isOtpSent, setIsOtpSent] = useState(false);
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [timer, setTimer] = useState(0);
   const [avatar, setAvatar] = useState("");
   const [popup, setPopup] = useState({ visible: false, text: "" });
   const navigate = useNavigate();
@@ -41,6 +43,18 @@ function Signup() {
     setPopup({ visible: true, text: msg });
     setTimeout(() => setPopup({ visible: false, text: "" }), 3000);
   };
+
+  useEffect(() => {
+    let interval;
+    if (timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [timer]);
 
   const API_URL = (
     import.meta.env.VITE_API_URL || "http://localhost:1111"
@@ -51,6 +65,9 @@ function Signup() {
       setType(text);
       setValidationErrors({});
       setApiStatus({ error: "", success: "" });
+      setIsOtpVerified(false);
+      setIsOtpSent(false);
+      setOtpMsg("");
     }
   };
 
@@ -77,6 +94,13 @@ function Signup() {
     e.preventDefault();
     setValidationErrors({});
     setApiStatus({ error: "", success: "" });
+
+    // Enforce OTP Verification
+    if (!isOtpVerified) {
+      setApiStatus({ error: "Please verify your OTP before signing up.", success: "" });
+      toast.error("Please verify your OTP before signing up.");
+      return;
+    }
 
     // Client-side Confirm Password Check
     if (upassword !== uconfirmPassword) {
@@ -225,7 +249,23 @@ function Signup() {
   };
   */
   const sendOtp = async () => {
+    setValidationErrors({});
     setOtpMsg("");
+    
+    // Validate initial fields before sending OTP
+    const errors = {};
+    if (!uname) errors.uname = "Name is required.";
+    if (!uemail) errors.uemail = "Email is required.";
+    if (!upassword) errors.upassword = "Password is required.";
+    if (upassword !== uconfirmPassword) errors.uconfirmPassword = "Passwords do not match.";
+    if (!contact) errors.contact = `Please enter your ${channel} for OTP.`;
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      toast.error("Please fill all required fields correctly before sending OTP.");
+      return;
+    }
+
     try {
       const csrf = await fetch(`${API_URL}/api/csrf`, {
         credentials: "include",
@@ -240,6 +280,7 @@ function Signup() {
       if (res.status === 200) {
         setOtpMsg(`OTP sent via ${channel} to ${contact}`);
         setIsOtpSent(true);
+        setTimer(60); // Start 60s countdown
         // display styled popup message
         showPopup(
           `OTP has been sent to your ${channel === "email" ? "email" : channel.toUpperCase()}`,
@@ -259,17 +300,18 @@ function Signup() {
         .catch(() => ({}));
       const res = await axios.post(
         `${API_URL}/api/otp/verify`,
-        { contact: contact, code: otpCode },
+        { contact: contact, code: otpCode.replace(/\s/g, "") },
         { withCredentials: true, headers: { "x-csrf-token": csrf?.csrfToken } },
       );
       if (res.data?.ok) {
         setOtpMsg("OTP verified");
         setIsOtpSent(false);
+        setIsOtpVerified(true);
         setOtpCode("");
         showPopup("OTP verified successfully!");
       } else {
-        setOtpMsg("Invalid OTP");
-        showPopup("The OTP you entered is incorrect.");
+        setOtpMsg("Invalid or Expired OTP");
+        showPopup("The OTP you entered is incorrect or has expired.");
       }
     } catch {
       setOtpMsg("Failed to verify OTP");
@@ -318,96 +360,112 @@ function Signup() {
                 <h1 className="heading-h1">Create Account</h1>
               </div>
               <div className="form-fields">
-                <div className="input-group mb-3">
-                  <span className="input-group-text icon-badge">
-                    <PersonIcon fontSize="small" />
-                  </span>
-                  <input
-                    className="form-control"
-                    type="text"
-                    id="signup-uname"
-                    value={uname}
-                    onChange={(e) => setUname(e.target.value)}
-                    placeholder="Full Name"
-                    autoComplete="name"
-                    required
-                  />
-                  <span className="span-tag error-text">
-                    {validationErrors.uname}
-                  </span>
+                <div className="mb-3">
+                  <div className="input-group">
+                    <span className="input-group-text icon-badge">
+                      <PersonIcon fontSize="small" />
+                    </span>
+                    <input
+                      className="form-control"
+                      type="text"
+                      id="signup-uname"
+                      value={uname}
+                      onChange={(e) => setUname(e.target.value)}
+                      placeholder="Full Name"
+                      autoComplete="name"
+                      required
+                    />
+                  </div>
+                  {validationErrors.uname && (
+                    <span className="span-tag error-text">
+                      {validationErrors.uname}
+                    </span>
+                  )}
                 </div>
 
-                <div className="input-group mb-3">
-                  <span className="input-group-text icon-badge">
-                    <EmailIcon fontSize="small" />
-                  </span>
-                  <input
-                    className="form-control"
-                    type="email"
-                    id="signup-email"
-                    value={uemail}
-                    onChange={(e) => setUemail(e.target.value)}
-                    placeholder="Email Address"
-                    autoComplete="email"
-                    required
-                  />
-                  <span className="span-tag error-text">
-                    {validationErrors.uemail}
-                  </span>
+                <div className="mb-3">
+                  <div className="input-group">
+                    <span className="input-group-text icon-badge">
+                      <EmailIcon fontSize="small" />
+                    </span>
+                    <input
+                      className="form-control"
+                      type="email"
+                      id="signup-email"
+                      value={uemail}
+                      onChange={(e) => setUemail(e.target.value)}
+                      placeholder="Email Address"
+                      autoComplete="email"
+                      required
+                    />
+                  </div>
+                  {validationErrors.uemail && (
+                    <span className="span-tag error-text">
+                      {validationErrors.uemail}
+                    </span>
+                  )}
                 </div>
 
-                <div className="input-group mb-3">
-                  <span className="input-group-text icon-badge">
-                    <LockIcon fontSize="small" />
-                  </span>
-                  <input
-                    className="form-control"
-                    type={showPassword ? "text" : "password"}
-                    id="signup-password"
-                    value={upassword}
-                    onChange={(e) => setUpassword(e.target.value)}
-                    placeholder="Password"
-                    autoComplete="new-password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    className="btn password-toggle-btn"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label="Toggle password visibility"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </button>
-                  <span className="span-tag error-text">
-                    {validationErrors.upassword}
-                  </span>
+                <div className="mb-3">
+                  <div className="input-group">
+                    <span className="input-group-text icon-badge">
+                      <LockIcon fontSize="small" />
+                    </span>
+                    <input
+                      className="form-control"
+                      type={showPassword ? "text" : "password"}
+                      id="signup-password"
+                      value={upassword}
+                      onChange={(e) => setUpassword(e.target.value)}
+                      placeholder="Password"
+                      autoComplete="new-password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="btn password-toggle-btn"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label="Toggle password visibility"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </button>
+                  </div>
+                  {validationErrors.upassword && (
+                    <span className="span-tag error-text">
+                      {validationErrors.upassword}
+                    </span>
+                  )}
                 </div>
 
-                <div className="input-group mb-3">
-                  <span className="input-group-text icon-badge">
-                    <LockIcon fontSize="small" />
-                  </span>
-                  <input
-                    className="form-control"
-                    type={showConfirmPassword ? "text" : "password"}
-                    id="signup-confirm-password"
-                    value={uconfirmPassword}
-                    onChange={(e) => setUconfirmPassword(e.target.value)}
-                    placeholder="Confirm Password"
-                    autoComplete="new-password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    className="btn password-toggle-btn"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    aria-label="Toggle confirm password visibility"
-                  >
-                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                  </button>
-                  <span className="span-tag error-text">
-                    {validationErrors.uconfirmPassword}
-                  </span>
+                <div className="mb-3">
+                  <div className="input-group">
+                    <span className="input-group-text icon-badge">
+                      <LockIcon fontSize="small" />
+                    </span>
+                    <input
+                      className="form-control"
+                      type={showConfirmPassword ? "text" : "password"}
+                      id="signup-confirm-password"
+                      value={uconfirmPassword}
+                      onChange={(e) => setUconfirmPassword(e.target.value)}
+                      placeholder="Confirm Password"
+                      autoComplete="new-password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="btn password-toggle-btn"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      aria-label="Toggle confirm password visibility"
+                    >
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </button>
+                  </div>
+                  {validationErrors.uconfirmPassword && (
+                    <span className="span-tag error-text">
+                      {validationErrors.uconfirmPassword}
+                    </span>
+                  )}
                 </div>
 
                 <span className="span-tag error-text">{apiStatus.error}</span>
@@ -454,11 +512,32 @@ function Signup() {
                   <button
                     type="button"
                     className="btn btn-outline-secondary"
-                    onClick={isOtpSent ? verifyOtp : sendOtp}
+                    onClick={sendOtp}
+                    disabled={timer > 0 || isOtpVerified}
                   >
-                    {isOtpSent ? "Verify OTP" : "Send OTP"}
+                    {timer > 0 ? `Resend in ${timer}s` : "Send OTP"}
                   </button>
                 </div>
+                {isOtpSent && timer > 0 && (
+                  <div style={{ fontSize: "0.75rem", color: "var(--primary)", marginTop: "-10px", marginBottom: "10px", textAlign: "right" }}>
+                    Resend available in {timer}s
+                  </div>
+                )}
+                {isOtpSent && timer === 0 && (
+                  <div style={{ textAlign: "right", marginTop: "-10px", marginBottom: "10px" }}>
+                    <span 
+                      onClick={sendOtp} 
+                      style={{ fontSize: "0.75rem", color: "var(--primary)", cursor: "pointer", textDecoration: "underline", fontWeight: "bold" }}
+                    >
+                      Resend OTP
+                    </span>
+                  </div>
+                )}
+                {validationErrors.contact && (
+                  <span className="span-tag error-text">
+                    {validationErrors.contact}
+                  </span>
+                )}
                 {isOtpSent && (
                   <div className="input-group mb-3">
                     <span className="input-group-text bg-light border-secondary">
@@ -468,16 +547,26 @@ function Signup() {
                       className="form-control"
                       type="text"
                       value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value)}
+                      onChange={(e) => setOtpCode(e.target.value.replace(/\s/g, ""))}
                       placeholder="Enter OTP"
                     />
+                    <button
+                      type="button"
+                      className="btn btn-success"
+                      onClick={verifyOtp}
+                    >
+                      Verify OTP
+                    </button>
                   </div>
                 )}
-                <span className="span-tag success-text">{otpMsg}</span>
+                <span className="span-tag success-text">
+                  {isOtpVerified ? "✅ OTP Verified Successfully" : otpMsg}
+                </span>
                 <button 
                   className="codepen-button" 
                   type="submit" 
-                  disabled={isLoading}
+                  disabled={isLoading || !isOtpVerified}
+                  style={{ opacity: (!isOtpVerified && !isLoading) ? 0.6 : 1, cursor: (!isOtpVerified && !isLoading) ? "not-allowed" : "pointer" }}
                 >
                   {isLoading ? "Processing..." : "Sign Up"}
                 </button>

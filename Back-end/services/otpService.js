@@ -89,197 +89,92 @@ export async function sendEmailOtp({
   } else {
     // Generate default OTP template
     console.log("[sendEmailOtp] Generating OTP template");
-    subject = "OTP From GBR Grocery";
+    subject = "Verification Code - Tasty Kitchen";
+    
+    // Create OTP digits with table-based layout for better email support
     const otpDigits = String(code)
       .split("")
-      .map((digit) => `<div class="otp-digit">${digit}</div>`)
+      .map((digit) => `
+        <td style="padding: 0 5px;">
+          <div style="width: 45px; height: 55px; line-height: 55px; background: #ffffff; border-radius: 8px; text-align: center; font-size: 24px; font-weight: 700; color: #ff6600; border: 1px solid #eeeeee;">
+            ${digit}
+          </div>
+        </td>
+      `)
       .join("");
 
     html = `
       <!DOCTYPE html>
-      <html lang="en">
+      <html>
         <head>
           <meta charset="UTF-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <title>GBR Grocery Verification</title>
-          <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body {
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-              background-color: #f8f9fa;
-              line-height: 1.6;
-              color: #333;
-            }
-            .wrapper {
-              max-width: 500px;
-              margin: 20px auto;
-              background: #ffffff;
-              border-radius: 12px;
-              overflow: hidden;
-              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            }
-            .header {
-              background: linear-gradient(135deg, #ff6600 0%, #ff8533 100%);
-              padding: 2rem;
-              text-align: center;
-              color: #ffffff;
-            }
-            .logo-container {
-              margin-bottom: 1rem;
-            }
-            .logo {
-              display: block;
-              width: 80px;
-              height: 80px;
-              margin: 0 auto 1rem;
-              border-radius: 12px;
-              background: rgba(255, 255, 255, 0.2);
-              object-fit: contain;
-              padding: 8px;
-            }
-            .header h1 {
-              font-size: 1.75rem;
-              font-weight: 700;
-              letter-spacing: -0.5px;
-            }
-            .content {
-              padding: 2rem;
-            }
-            .greeting {
-              font-size: 1rem;
-              margin-bottom: 1.5rem;
-              color: #333;
-            }
-            .greeting strong {
-              font-weight: 600;
-            }
-            .instruction {
-              font-size: 0.95rem;
-              color: #666;
-              margin-bottom: 2rem;
-              text-align: center;
-            }
-            .otp-container {
-              background: linear-gradient(135deg, #ff6600 0%, #ff8533 100%);
-              padding: 2rem;
-              border-radius: 12px;
-              display: flex;
-              justify-content: center;
-              gap: 0.5rem;
-              margin: 2rem 0;
-            }
-            .otp-digit {
-              width: 50px;
-              height: 50px;
-              background: #ffffff;
-              border-radius: 8px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 1.75rem;
-              font-weight: 700;
-              color: #ff6600;
-              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-              letter-spacing: 2px;
-            }
-            .cta-section {
-              text-align: center;
-              margin: 2rem 0;
-            }
-            .verify-btn {
-              display: inline-block;
-              background: linear-gradient(135deg, #ff6600 0%, #ff8533 100%);
-              color: #ffffff;
-              padding: 0.875rem 2rem;
-              border-radius: 12px;
-              text-decoration: none;
-              font-weight: 600;
-              font-size: 1rem;
-              border: none;
-              cursor: pointer;
-              box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
-              transition: all 0.3s ease;
-              letter-spacing: 0.5px;
-            }
-            .verify-btn:hover {
-              box-shadow: 0 6px 20px rgba(255, 102, 0, 0.4);
-            }
-            .footer-note {
-              background: #f8f9fa;
-              padding: 1.5rem;
-              border-radius: 12px;
-              font-size: 0.85rem;
-              color: #666;
-              text-align: center;
-              margin-top: 1.5rem;
-            }
-            .divider {
-              height: 1px;
-              background: #e9ecef;
-              margin: 1.5rem 0;
-            }
-            .footer {
-              background: #f8f9fa;
-              padding: 1.5rem;
-              text-align: center;
-              font-size: 0.8rem;
-              color: #999;
-              border-top: 1px solid #e9ecef;
-            }
-          </style>
+          <title>Tasty Kitchen Verification</title>
         </head>
-        <body>
-          <div class="wrapper">
-            <!-- Header -->
-            <div class="header">
-              <div class="logo-container">
-                <img 
-                  src="https://via.placeholder.com/80x80.png?text=GBR" 
-                  alt="GBR Grocery" 
-                  class="logo"
-                />
-              </div>
-              <h1>GBR Grocery</h1>
-            </div>
+        <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f4; color: #333333;">
+          <table border="0" cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+              <td style="padding: 20px 0 30px 0;">
+                <table align="center" border="0" cellpadding="0" cellspacing="0" width="500" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                  <!-- Header -->
+                  <tr>
+                    <td align="center" style="background: linear-gradient(135deg, #ff6600 0%, #ff8533 100%); padding: 40px 0;">
+                      <div style="background: rgba(255, 255, 255, 0.2); width: 70px; height: 70px; border-radius: 15px; line-height: 70px; margin-bottom: 15px;">
+                        <span style="color: #ffffff; font-size: 32px; font-weight: 800;">TK</span>
+                      </div>
+                      <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Tasty Kitchen</h1>
+                    </td>
+                  </tr>
 
-            <!-- Content -->
-            <div class="content">
-              <p class="greeting">Hi there! 👋</p>
-              <p class="instruction">
-                Your verification code is ready. Use it to complete your sign-up.
-              </p>
+                  <!-- Content -->
+                  <tr>
+                    <td style="padding: 40px 30px;">
+                      <p style="margin: 0 0 20px 0; font-size: 18px; font-weight: 600;">Verification Code</p>
+                      <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 24px; color: #666666;">
+                        Please use the following one-time password (OTP) to complete your verification process.
+                      </p>
 
-              <!-- OTP Digit Boxes -->
-              <div class="otp-container">
-                ${otpDigits}
-              </div>
+                      <!-- OTP Section -->
+                      <table align="center" border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 30px;">
+                        <tr>
+                          <td align="center" style="background-color: #fff5eb; padding: 30px; border-radius: 12px;">
+                            <table border="0" cellpadding="0" cellspacing="0">
+                              <tr>
+                                ${otpDigits}
+                              </tr>
+                            </table>
+                            <p style="margin: 20px 0 0 0; font-size: 14px; color: #ff6600; font-weight: 600; letter-spacing: 1px;">VALID FOR 5 MINUTES</p>
+                          </td>
+                        </tr>
+                      </table>
 
-              <!-- CTA Button -->
-              <div class="cta-section">
-                <button class="verify-btn">✓ Verify Now</button>
-              </div>
+                      <p style="margin: 0 0 20px 0; font-size: 14px; line-height: 22px; color: #888888; text-align: center;">
+                        If you did not request this code, you can safely ignore this email. Someone else might have typed your email address by mistake.
+                      </p>
 
-              <!-- Important Note -->
-              <div class="footer-note">
-                <strong>This code expires in 5 minutes.</strong><br />
-                If you didn't request this, please ignore this email.
-              </div>
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-top: 1px solid #eeeeee; margin-top: 30px; padding-top: 30px;">
+                        <tr>
+                          <td>
+                            <p style="margin: 0; font-size: 14px; font-weight: 700; color: #333333;">Why did I get this?</p>
+                            <p style="margin: 5px 0 0 0; font-size: 13px; color: #999999;">We are verifying your email to keep your Tasty Kitchen account secure.</p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
 
-              <div class="divider"></div>
-
-              <!-- Additional Info -->
-              <p style="font-size: 0.95rem; color: #666; margin: 1rem 0;">
-                <strong>Why did you get this email?</strong><br />
-                We're verifying your email address to keep your account secure.
-              </p>
-            </div>
-
-            <!-- Footer -->
-            <div class="footer">
-              <p>&copy; ${new Date().getFullYear()} GBR Grocery Store. All rights reserved.</p>
-              <p style="margin-top: 0.5rem;">Need help? Contact us at support@gbrgrocery.com</p>
-            </div>
-          </div>
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background-color: #fafafa; padding: 30px; text-align: center; border-top: 1px solid #eeeeee;">
+                      <p style="margin: 0; font-size: 12px; color: #999999;">&copy; ${new Date().getFullYear()} Tasty Kitchen Platform. All rights reserved.</p>
+                      <p style="margin: 10px 0 0 0; font-size: 12px; color: #999999;">
+                        Need help? <a href="mailto:support@tastykitchen.com" style="color: #ff6600; text-decoration: none; font-weight: 600;">Contact Support</a>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
         </body>
       </html>
     `;

@@ -136,7 +136,7 @@ const Bodycontent = (props) => {
     setItemRatings((prev) => ({ ...prev, [itemId]: newValue }));
     if (newValue) {
       toast.success(`Thank you for your feedback! You rated it ${newValue} stars.`, {
-        position: "bottom-right",
+        position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
         closeOnClick: true,

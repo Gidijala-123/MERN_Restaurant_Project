@@ -15,7 +15,7 @@ export default function LoadingOverlay({ message = "Loading…", showText = fals
       justifyContent: 'center',
       alignItems: 'center',
       background: 'rgba(252, 245, 232, 0.9)',
-      zIndex: 9999,
+      zIndex: 9990,
       backdropFilter: 'blur(5px)'
     }}>
       <video
