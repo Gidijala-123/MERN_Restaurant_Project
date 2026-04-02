@@ -48,7 +48,20 @@
 }
 .flavie-fab { animation: flavie-fab-glow 3s ease-in-out infinite; }
 
-/* Tab active indicator */
+/* Waving hand animation */
+@keyframes flavie-wave {
+  0%   { transform: rotate(0deg);   }
+  15%  { transform: rotate(20deg);  }
+  30%  { transform: rotate(-10deg); }
+  45%  { transform: rotate(18deg);  }
+  60%  { transform: rotate(-6deg);  }
+  75%  { transform: rotate(12deg);  }
+  100% { transform: rotate(0deg);   }
+}
+.flavie-wave {
+  transform-origin: bottom left;
+  animation: flavie-wave 2.2s ease-in-out infinite;
+}
 .flavie-tab-active::after {
   content: "";
   position: absolute;
@@ -76,4 +89,26 @@
 .flavie-action-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 24px rgba(234,88,12,0.15);
+}
+
+/* Bot-shaped ripple animation */
+@keyframes flavie-bot-ripple {
+  0%   { transform: scale(0.98); opacity: 0.12; }
+  70%  { transform: scale(1.12); opacity: 0.04; }
+  100% { transform: scale(1.16); opacity: 0; }
+}
+.flavie-bot-ripple {
+  animation: flavie-bot-ripple 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  transform-origin: center;
+}
+
+/* Eye blink — both eyes blink together */
+@keyframes flavie-blink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95%            { transform: scaleY(0.08); }
+}
+.flavie-eye-l,
+.flavie-eye-r {
+  transform-origin: center;
+  animation: flavie-blink 4.5s ease-in-out infinite;
 }

@@ -295,47 +295,90 @@ const Chatbot = () => {
             style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
             aria-label="Open Flavie food assistant"
           >
-            {/* Pulsing ring behind icon */}
-            <span className="absolute inset-0 flex items-center justify-center">
-              <span className="h-14 w-14 animate-ping rounded-full bg-orange-400 opacity-20" />
+            {/* Bot-shaped ripple — same outline as the bot, pulsing behind */}
+            <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <svg
+                className="flavie-bot-ripple absolute"
+                width="88"
+                height="88"
+                viewBox="0 0 72 72"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <ellipse cx="28" cy="12" rx="7" ry="7" fill="#fb923c" />
+                <ellipse cx="36" cy="9" rx="8" ry="8" fill="#fb923c" />
+                <ellipse cx="44" cy="12" rx="7" ry="7" fill="#fb923c" />
+                <rect x="21" y="16" width="30" height="8" rx="3" fill="#ea580c" />
+                <rect x="19" y="24" width="34" height="28" rx="8" fill="#ea580c" />
+                <rect x="25" y="51" width="8" height="10" rx="4" fill="#ea580c" />
+                <rect x="39" y="51" width="8" height="10" rx="4" fill="#ea580c" />
+                <rect x="51" y="34" width="5" height="14" rx="2.5" fill="#ea580c" />
+                <rect x="10" y="33" width="9" height="4.5" rx="2.2" fill="#ea580c" />
+                <rect x="7" y="25" width="4.5" height="10" rx="2.2" fill="#ea580c" />
+              </svg>
             </span>
 
             {/* Chef bot SVG icon — no background shape */}
             <svg
-              width="60"
-              height="60"
-              viewBox="0 0 60 60"
+              width="72"
+              height="72"
+              viewBox="0 0 72 72"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              style={{ filter: "drop-shadow(0 4px 12px rgba(234,88,12,0.55))" }}
+              style={{ filter: "drop-shadow(0 4px 14px rgba(234,88,12,0.55))" }}
             >
-              {/* Chef hat */}
-              <ellipse cx="30" cy="18" rx="14" ry="5" fill="#ea580c" />
-              <rect x="18" y="14" width="24" height="10" rx="3" fill="#ea580c" />
-              <ellipse cx="30" cy="10" rx="8" ry="8" fill="#fb923c" />
-              <ellipse cx="24" cy="8" rx="5" ry="5" fill="#fb923c" />
-              <ellipse cx="36" cy="8" rx="5" ry="5" fill="#fb923c" />
-              {/* Hat band */}
-              <rect x="18" y="21" width="24" height="3" rx="1.5" fill="#c2410c" />
+              {/* Chef hat puffs */}
+              <ellipse cx="28" cy="12" rx="7" ry="7" fill="#fb923c" />
+              <ellipse cx="36" cy="9" rx="8" ry="8" fill="#fb923c" />
+              <ellipse cx="44" cy="12" rx="7" ry="7" fill="#fb923c" />
 
-              {/* Bot face */}
-              <rect x="16" y="24" width="28" height="22" rx="6" fill="#fff7ed" stroke="#ea580c" strokeWidth="1.5" />
+              {/* Hat band */}
+              <rect x="21" y="16" width="30" height="8" rx="3" fill="#ea580c" />
+              <rect x="21" y="21" width="30" height="3" rx="1.5" fill="#c2410c" />
+
+              {/* Bot face/body */}
+              <rect x="19" y="24" width="34" height="28" rx="8" fill="#fff7ed" stroke="#ea580c" strokeWidth="1.8" />
 
               {/* Eyes */}
-              <circle cx="24" cy="32" r="3" fill="#ea580c" />
-              <circle cx="36" cy="32" r="3" fill="#ea580c" />
-              <circle cx="25" cy="31" r="1" fill="white" />
-              <circle cx="37" cy="31" r="1" fill="white" />
+              <circle cx="29" cy="34" r="3.5" fill="#ea580c" className="flavie-eye-l" />
+              <circle cx="43" cy="34" r="3.5" fill="#ea580c" className="flavie-eye-r" />
+              <circle cx="30" cy="33" r="1.2" fill="white" className="flavie-eye-l" />
+              <circle cx="44" cy="33" r="1.2" fill="white" className="flavie-eye-r" />
 
               {/* Smile */}
-              <path d="M24 38 Q30 43 36 38" stroke="#ea580c" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+              <path d="M28 43 Q36 49 44 43" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" fill="none" />
 
-              {/* Antenna */}
-              <line x1="30" y1="24" x2="30" y2="18" stroke="#ea580c" strokeWidth="1.5" />
-              <circle cx="30" cy="17" r="2" fill="#fb923c" />
+              {/* ── Right arm — natural resting with elbow ── */}
+              {/* Upper arm: short, down from shoulder */}
+              <rect x="51" y="34" width="5" height="7" rx="2.5" fill="#ea580c" />
+              {/* Elbow joint */}
+              <circle cx="53.5" cy="41" r="2.8" fill="#ea580c" />
+              {/* Forearm: continues down */}
+              <rect x="51" y="41" width="5" height="7" rx="2.5" fill="#ea580c" />
+              {/* Small closed fist */}
+              <ellipse cx="53.5" cy="50" rx="3.5" ry="3" fill="#fb923c" />
 
-              {/* Notification dot */}
-              <circle cx="50" cy="12" r="6" fill="#22c55e" stroke="white" strokeWidth="2" />
+              {/* ── Left arm — waving with elbow, scaled smaller ── */}
+              <g className="flavie-wave" style={{ transformOrigin: "19px 36px" }}>
+                {/* Upper arm: goes left from shoulder */}
+                <rect x="10" y="33" width="9" height="4.5" rx="2.2" fill="#ea580c" />
+                {/* Elbow joint */}
+                <circle cx="11" cy="35" r="2.5" fill="#ea580c" />
+                {/* Forearm: bends upward */}
+                <rect x="7" y="25" width="4.5" height="10" rx="2.2" fill="#ea580c" />
+                {/* Wrist */}
+                <circle cx="9.2" cy="25" r="2.5" fill="#ea580c" />
+                {/* Palm — smaller */}
+                <ellipse cx="9.2" cy="21" rx="4.5" ry="3.5" fill="#fb923c" />
+                {/* 3 fingers */}
+                <ellipse cx="6" cy="18" rx="1.5" ry="2.5" fill="#fb923c" />
+                <ellipse cx="9" cy="17" rx="1.5" ry="2.8" fill="#fb923c" />
+                <ellipse cx="12" cy="18" rx="1.5" ry="2.5" fill="#fb923c" />
+              </g>
+
+              {/* Legs */}
+              <rect x="25" y="51" width="8" height="10" rx="4" fill="#ea580c" />
+              <rect x="39" y="51" width="8" height="10" rx="4" fill="#ea580c" />
             </svg>
           </motion.button>
         )}
