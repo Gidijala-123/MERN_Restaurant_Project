@@ -33,6 +33,7 @@ import {
   Favorite as FavoritesIcon,
   FavoriteBorder as FavoriteBorderIcon,
   Settings as SettingsIcon,
+  ManageAccounts as ProfileIcon,
   LocalFireDepartment as HotOffersIcon,
   Grass as VegIcon,
   SetMeal as NonVegIcon,
@@ -104,7 +105,7 @@ import Chatbot from "../../common/Chatbot/Chatbot";
 const drawerWidth = 230;
 
 const Sidebar_Items = [
-  { text: "Settings", icon: <SettingsIcon /> },
+  { text: "Profile", icon: <ProfileIcon /> },
   { text: "Logout", icon: <LogoutIcon />, action: "logout" },
 ];
 
@@ -690,9 +691,9 @@ export default function Sidebar() {
               >
                 <MenuItem onClick={handleGoToSettings}>
                   <ListItemIcon sx={{ minWidth: "auto", color: "var(--primary)" }}>
-                    <SettingsIcon fontSize="small" />
+                    <ProfileIcon fontSize="small" />
                   </ListItemIcon>
-                  Settings
+                  Profile
                 </MenuItem>
                 <Divider sx={{ my: 0.5, opacity: 0.6 }} />
                 <MenuItem onClick={handleLogout}>
@@ -770,7 +771,7 @@ export default function Sidebar() {
             >
               <List>
                 {Sidebar_Items.filter(
-                  (i) => i.text !== "Settings" && i.text !== "Logout",
+                  (i) => i.text !== "Profile" && i.text !== "Logout",
                 ).map((item) => (
                   <ListItem
                     key={item.text}
@@ -895,7 +896,7 @@ export default function Sidebar() {
               <Box sx={{ flexGrow: 1 }} />
               <List>
                 {Sidebar_Items.filter(
-                  (i) => i.text === "Settings" || i.text === "Logout",
+                  (i) => i.text === "Profile" || i.text === "Logout",
                 ).map((item) => (
                   <ListItem
                     key={item.text}

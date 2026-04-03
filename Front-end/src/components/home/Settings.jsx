@@ -102,6 +102,13 @@ export default function Settings() {
   const [isSearching, setIsSearching] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(0.01);
   const [mapType, setMapType] = useState("mapnik");
+  const [userOrders, setUserOrders] = useState([]);
+  const [showOrderHistory, setShowOrderHistory] = useState(false);
+
+  useEffect(() => {
+    const orders = JSON.parse(localStorage.getItem("userOrders") || "[]");
+    setUserOrders(Array.isArray(orders) ? orders : []);
+  }, []);
 
   useEffect(() => {
     const stored = {
@@ -601,7 +608,7 @@ export default function Settings() {
                     {
                       icon: <HistoryIcon />,
                       label: "Total Orders",
-                      value: "42",
+                      value: userOrders.length.toString(),
                       color: "#3498db",
                     },
                     {
@@ -662,6 +669,93 @@ export default function Settings() {
                       </Box>
                     </Box>
                   ))}
+                  <Divider sx={{ my: 1 }} />
+
+                  {/* ── Order History ── */}
+                  <Box
+                    sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}
+                    onClick={() => setShowOrderHistory(v => !v)}
+                  >
+                    <Typography variant="overline" fontWeight={800} color="var(--text-sub)">
+                      Order History
+                    </Typography>
+                    <Typography variant="caption" color="var(--primary)" fontWeight={700}>
+                      {showOrderHistory ? "Hide ▲" : `Show ${userOrders.length} ▼`}
+                    </Typography>
+                  </Box>
+
+                  {showOrderHistory && (
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, maxHeight: 340, overflowY: "auto", pr: 0.5 }}>
+                      {userOrders.length === 0 ? (
+                        <Typography variant="body2" color="var(--text-sub)" sx={{ py: 1, textAlign: "center" }}>
+                          No orders yet. Place your first order!
+                        </Typography>
+                      ) : (
+                        userOrders.map((order, idx) => (
+                          <Box
+                            key={order.id || idx}
+                            sx={{
+                              borderRadius: "12px",
+                              border: "1px solid var(--border-light)",
+                              background: "var(--bg-light)",
+                              p: 1.5,
+                              transition: "box-shadow 0.2s",
+                              "&:hover": { boxShadow: "0 2px 12px rgba(234,88,12,0.12)" },
+                            }}
+                          >
+                            {/* Order header */}
+                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+                              <Box>
+                                <Typography variant="caption" fontWeight={800} color="var(--primary)" sx={{ display: "block" }}>
+                                  #{order.id ? order.id.slice(-8).toUpperCase() : `ORD-${idx + 1}`}
+                                </Typography>
+                                <Typography variant="caption" color="var(--text-sub)">
+                                  {order.date ? new Date(order.date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
+                                </Typography>
+                              </Box>
+                              <Box sx={{ textAlign: "right" }}>
+                                <Typography variant="caption" fontWeight={800} color="var(--text-main)" sx={{ display: "block" }}>
+                                  ₹{order.grandTotal}
+                                </Typography>
+                                <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.4, background: "#ecfdf5", borderRadius: "20px", px: 1, py: 0.2 }}>
+                                  <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: "#10b981" }} />
+                                  <Typography variant="caption" fontWeight={700} color="#059669" sx={{ fontSize: "0.6rem" }}>Paid</Typography>
+                                </Box>
+                              </Box>
+                            </Box>
+
+                            {/* Items list */}
+                            <Box sx={{ display: "flex", flexDirection: "column", gap: 0.4 }}>
+                              {(order.items || []).map((item, i) => (
+                                <Box key={i} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                  <Typography variant="caption" color="var(--text-sub)" sx={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    {item.title}
+                                  </Typography>
+                                  <Typography variant="caption" color="var(--text-sub)" sx={{ ml: 1, whiteSpace: "nowrap" }}>
+                                    ×{item.cartQuantity}
+                                  </Typography>
+                                  <Typography variant="caption" fontWeight={700} color="var(--primary)" sx={{ ml: 1.5, whiteSpace: "nowrap" }}>
+                                    ₹{item.price * item.cartQuantity}
+                                  </Typography>
+                                </Box>
+                              ))}
+                            </Box>
+
+                            {/* Bill summary */}
+                            <Box sx={{ mt: 1, pt: 1, borderTop: "1px dashed var(--border-light)", display: "flex", justifyContent: "space-between" }}>
+                              <Typography variant="caption" color="var(--text-sub)">
+                                {(order.items || []).reduce((s, i) => s + i.cartQuantity, 0)} items · GST ₹{order.gst}
+                              </Typography>
+                              <Typography variant="caption" fontWeight={800} color="var(--text-main)">
+                                Total ₹{order.grandTotal}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        ))
+                      )}
+                    </Box>
+                  )}
+
                   <Divider sx={{ my: 1 }} />
                   <Typography
                     variant="overline"
@@ -987,11 +1081,10 @@ export default function Settings() {
                             alignItems: "center",
                             p: 1.5,
                             borderRadius: "12px",
-                            border: `1px solid ${
-                              profileForm.selectedAddressId === addr.id
-                                ? "var(--primary)"
-                                : "var(--border-light)"
-                            }`,
+                            border: `1px solid ${profileForm.selectedAddressId === addr.id
+                              ? "var(--primary)"
+                              : "var(--border-light)"
+                              }`,
                             background:
                               profileForm.selectedAddressId === addr.id
                                 ? "rgba(230, 81, 0, 0.05)"
@@ -1118,7 +1211,7 @@ export default function Settings() {
                         onChange={(e) => setNewAddress(e.target.value)}
                         InputProps={{
                           startAdornment: <LocationIcon sx={{ mr: 1 }} />,
-                           style: { height: "48px" }
+                          style: { height: "48px" }
                         }}
                         sx={inputStyles}
                       />
@@ -1196,11 +1289,11 @@ export default function Settings() {
                           alignItems: "center",
                           paddingLeft: "16px",
                           background: "var(--white)", // Make it stand out like other cards
-                          "& fieldset": { 
-                            borderColor: "rgba(0, 0, 0, 0.08) !important" 
+                          "& fieldset": {
+                            borderColor: "rgba(0, 0, 0, 0.08) !important"
                           },
-                          "&:hover fieldset": { 
-                            borderColor: "var(--primary) !important" 
+                          "&:hover fieldset": {
+                            borderColor: "var(--primary) !important"
                           },
                         },
                         "& .MuiOutlinedInput-input": {

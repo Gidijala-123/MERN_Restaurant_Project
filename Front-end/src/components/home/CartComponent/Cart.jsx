@@ -125,34 +125,34 @@ const Cart = () => {
       doc.setFont("helvetica", "bold");
       doc.text(`${dateStr}  ${timeStr}`, 34, infoY + 14);
 
-      // Right box — Status
-      doc.setFillColor(236, 253, 245);
+      // Right box — Status (ESTIMATE — payment not yet made)
+      doc.setFillColor(255, 247, 237);
       doc.roundedRect(111, infoY - 6, 85, 28, 3, 3, "F");
-      doc.setDrawColor(167, 243, 208);
+      doc.setDrawColor(254, 215, 170);
       doc.roundedRect(111, infoY - 6, 85, 28, 3, 3, "S");
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(7);
-      doc.setTextColor(5, 150, 105);
+      doc.setTextColor(180, 80, 10);
       doc.text("PAYMENT STATUS", 116, infoY);
 
-      // Green checkmark circle
-      doc.setFillColor(16, 185, 129);
+      // Orange clock circle
+      doc.setFillColor(234, 88, 12);
       doc.circle(122, infoY + 10, 5, "F");
       doc.setFont("helvetica", "bold");
       doc.setFontSize(8);
       doc.setTextColor(255, 255, 255);
-      doc.text("✓", 120, infoY + 12.5);
+      doc.text("!", 121, infoY + 12.5);
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
-      doc.setTextColor(5, 150, 105);
-      doc.text("PAID", 130, infoY + 12);
+      doc.setTextColor(234, 88, 12);
+      doc.text("ESTIMATE", 130, infoY + 12);
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(7.5);
       doc.setTextColor(100, 100, 100);
-      doc.text("Secured via Razorpay", 116, infoY + 19);
+      doc.text("Payment pending at checkout", 116, infoY + 19);
 
       // ── Section label ──
       const tableStartY = infoY + 36;
@@ -267,7 +267,7 @@ const Cart = () => {
       doc.setTextColor(150, 150, 150);
       doc.text("This is a computer-generated invoice. No signature required.", pageW / 2, footerY + 17, { align: "center" });
 
-      doc.save(`Flavora_Invoice_${orderNo}.pdf`);
+      doc.save(`Flavora_Estimate_${orderNo}.pdf`);
     } catch (err) {
       console.error("PDF generation failed:", err);
     } finally {
@@ -298,7 +298,10 @@ const Cart = () => {
       currency: "INR",
       name: "Flavora",
       description: cart.cartItems.map(i => i.title).join(", "),
-      image: `${window.location.origin}/footer-images/logo.png`,
+      // image only works with a publicly accessible URL (not localhost)
+      ...(window.location.hostname !== "localhost" && {
+        image: `${window.location.origin}/footer-images/logo.png`,
+      }),
       handler: function (response) {
         // Snapshot cart data before clearing so success page can generate PDF
         const snapshot = {
@@ -307,6 +310,19 @@ const Cart = () => {
           gst,
           grandTotal,
         };
+
+        // Persist order to localStorage for order history
+        const existingOrders = JSON.parse(localStorage.getItem("userOrders") || "[]");
+        const newOrder = {
+          id: response.razorpay_payment_id,
+          date: new Date().toISOString(),
+          items: [...cart.cartItems],
+          subtotal: cart.cartTotalAmount,
+          gst,
+          grandTotal,
+        };
+        localStorage.setItem("userOrders", JSON.stringify([newOrder, ...existingOrders]));
+
         dispatch(clearCart());
         navigate("/checkout-success", {
           state: { paymentId: response.razorpay_payment_id, snapshot },
@@ -484,7 +500,7 @@ const Cart = () => {
                   <span>🚀</span> Proceed to Checkout
                 </button>
                 <button className="btn-bill" onClick={generatePDF} disabled={pdfLoading}>
-                  <span>📄</span> {pdfLoading ? "Generating PDF…" : "Download Bill (PDF)"}
+                  <span>📄</span> {pdfLoading ? "Generating PDF…" : "Download Estimate (PDF)"}
                 </button>
               </div>
             </div>

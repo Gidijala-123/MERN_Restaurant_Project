@@ -196,7 +196,7 @@ const CheckoutSuccess = () => {
       doc.setTextColor(150, 150, 150);
       doc.text("This is a computer-generated invoice. No signature required.", pageW / 2, footerY + 17, { align: "center" });
 
-      doc.save(`Flavora_Invoice_${orderNo}.pdf`);
+      doc.save(`Flavora_Invoice_${paymentId || orderNo}.pdf`);
     } catch (err) {
       console.error("PDF generation failed:", err);
     } finally {
