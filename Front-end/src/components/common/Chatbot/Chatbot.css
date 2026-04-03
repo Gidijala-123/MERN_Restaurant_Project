@@ -10,6 +10,9 @@
   background: #ffffff;
   border: 1px solid #ffe0b2;
   box-shadow: 0 8px 32px rgba(230,81,0,0.14), 0 2px 8px rgba(0,0,0,0.06);
+  perspective: 800px;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
 }
 
 /* Online pulse */
@@ -111,4 +114,10 @@
 .flavie-eye-r {
   transform-origin: center;
   animation: flavie-blink 4.5s ease-in-out infinite;
+}
+
+/* Typewriter cursor blink */
+@keyframes flavie-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }

@@ -89,17 +89,17 @@ const normalizeMenuItems = (products) => {
     name: item.name || item.title || "Chef Special",
     price: Number(item.price) || 299,
     rating: item.rating || (4.6 + ((i % 4) * 0.1)).toFixed(1),
-    imageUrl: item.imageUrl || "/footer-images/food.png",
-    category: item.category || "Signature",
-    description: item.description || `A house favorite from our ${String(item.category || "signature").toLowerCase()} selection.`,
+    imageUrl: item.imageUrl || item.img || "/footer-images/food.png",
+    category: item.category || item.decrp || "Signature",
+    description: item.description || item.decrp || `A house favorite.`,
     veg: item.veg,
   }));
 };
 
 const panelVariants = {
-  initial: { opacity: 0, y: 24, scale: 0.94 },
-  animate: { opacity: 1, y: 0, scale: 1 },
-  exit: { opacity: 0, y: 16, scale: 0.97 },
+  initial: { opacity: 0, y: 60, scale: 0.82, rotateX: 8, transformOrigin: "bottom right" },
+  animate: { opacity: 1, y: 0, scale: 1, rotateX: 0, transformOrigin: "bottom right" },
+  exit: { opacity: 0, y: 40, scale: 0.88, rotateX: 4, transformOrigin: "bottom right" },
 };
 
 const screenVariants = {
@@ -120,8 +120,13 @@ const Chatbot = () => {
   const nav = (screen) => stateDispatch({ type: "NAVIGATE", payload: screen });
 
   const handleAddToCart = (item) => {
-    dispatch(addToCart({ ...item, title: item.name, img: item.imageUrl, price: Number(item.price) || 0 }));
-    toast.success(`${item.name} added to cart!`, { position: "bottom-left" });
+    dispatch(addToCart({
+      id: item.id,
+      title: item.name,
+      img: item.imageUrl,
+      price: Number(item.price) || 0,
+      cartQuantity: 1,
+    }));
   };
 
   const handleSend = () => {
@@ -170,133 +175,172 @@ const Chatbot = () => {
       {/* ── Chat Panel ── */}
       <AnimatePresence>
         {isOpen && (
-          <motion.aside
-            key="flavie-panel"
-            variants={panelVariants}
-            initial="initial" animate="animate" exit="exit"
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="flavie-panel fixed bottom-5 right-4 z-[1400] flex h-[min(44rem,calc(100vh-5rem))] w-[22rem] flex-col overflow-hidden rounded-2xl sm:right-6"
-            role="dialog"
-            aria-label="Flavie food assistant"
-          >
-            {/* ── Header — bold orange like the site's profile card ── */}
-            <div className="relative shrink-0 overflow-hidden bg-orange-500 px-4 py-3">
-              {/* Decorative circle — matches site's orange card style */}
-              <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-white/10" />
-              <div className="absolute -bottom-4 right-8 h-12 w-12 rounded-full bg-white/8" />
+          <div style={{ perspective: "1000px", position: "fixed", bottom: "1.25rem", right: "1rem", zIndex: 1400 }} className="sm:right-6">
+            <motion.aside
+              key="flavie-panel"
+              variants={panelVariants}
+              initial="initial" animate="animate" exit="exit"
+              transition={{
+                default: { type: "spring", stiffness: 340, damping: 28, mass: 0.9 },
+                opacity: { duration: 0.18, ease: "easeOut" },
+                rotateX: { type: "spring", stiffness: 300, damping: 30 },
+              }}
+              className="flavie-panel flex h-[min(44rem,calc(100vh-5rem))] w-[22rem] flex-col overflow-hidden rounded-2xl"
+              role="dialog"
+              aria-label="Flavie food assistant"
+            >
+              {/* ── Header — bold orange like the site's profile card ── */}
+              <div className="relative shrink-0 overflow-hidden bg-orange-500 px-4 py-3">
+                {/* Decorative circle — matches site's orange card style */}
+                <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-white/10" />
+                <div className="absolute -bottom-4 right-8 h-12 w-12 rounded-full bg-white/8" />
 
-              <div className="relative flex h-11 items-center gap-3">
-                {/* Avatar — mini animated bot icon */}
-                <div className="relative shrink-0">
-                  <div
-                    className="flex h-9 w-9 items-center justify-center bg-white shadow-lg shadow-orange-700/30"
-                    style={{ borderRadius: "12px" }}
-                  >
-                    <svg width="30" height="32" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      {/* Hat puffs */}
-                      <ellipse cx="28" cy="12" rx="7" ry="7" fill="#fb923c" />
-                      <ellipse cx="36" cy="9" rx="8" ry="8" fill="#fb923c" />
-                      <ellipse cx="44" cy="12" rx="7" ry="7" fill="#fb923c" />
-                      {/* Hat band */}
-                      <rect x="21" y="16" width="30" height="8" rx="3" fill="#ea580c" />
-                      <rect x="21" y="21" width="30" height="3" rx="1.5" fill="#c2410c" />
-                      {/* Face */}
-                      <rect x="19" y="24" width="34" height="28" rx="8" fill="#fff7ed" stroke="#ea580c" strokeWidth="1.8" />
-                      {/* Eyes — blinking */}
-                      <circle cx="29" cy="34" r="3.5" fill="#ea580c" className="flavie-eye-l" />
-                      <circle cx="43" cy="34" r="3.5" fill="#ea580c" className="flavie-eye-r" />
-                      <circle cx="30" cy="33" r="1.2" fill="white" className="flavie-eye-l" />
-                      <circle cx="44" cy="33" r="1.2" fill="white" className="flavie-eye-r" />
-                      {/* Smile */}
-                      <path d="M28 43 Q36 49 44 43" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" fill="none" />
-                    </svg>
+                <div className="relative flex h-11 items-center gap-3">
+                  {/* Avatar — mini animated bot icon */}
+                  <div className="relative shrink-0">
+                    <div
+                      className="flex h-9 w-9 items-center justify-center bg-white shadow-lg shadow-orange-700/30"
+                      style={{ borderRadius: "12px" }}
+                    >
+                      <svg width="30" height="32" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        {/* Hat puffs */}
+                        <ellipse cx="28" cy="12" rx="7" ry="7" fill="#fb923c" />
+                        <ellipse cx="36" cy="9" rx="8" ry="8" fill="#fb923c" />
+                        <ellipse cx="44" cy="12" rx="7" ry="7" fill="#fb923c" />
+                        {/* Hat band */}
+                        <rect x="21" y="16" width="30" height="8" rx="3" fill="#ea580c" />
+                        <rect x="21" y="21" width="30" height="3" rx="1.5" fill="#c2410c" />
+                        {/* Face */}
+                        <rect x="19" y="24" width="34" height="28" rx="8" fill="#fff7ed" stroke="#ea580c" strokeWidth="1.8" />
+                        {/* Eyes — blinking */}
+                        <circle cx="29" cy="34" r="3.5" fill="#ea580c" className="flavie-eye-l" />
+                        <circle cx="43" cy="34" r="3.5" fill="#ea580c" className="flavie-eye-r" />
+                        <circle cx="30" cy="33" r="1.2" fill="white" className="flavie-eye-l" />
+                        <circle cx="44" cy="33" r="1.2" fill="white" className="flavie-eye-r" />
+                        {/* Smile */}
+                        <path d="M28 43 Q36 49 44 43" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" fill="none" />
+                      </svg>
+                    </div>
+                    {/* Online dot */}
+                    <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
+                      <span className="flavie-pulse absolute inline-flex h-full w-full rounded-full bg-green-300/60" />
+                      <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-orange-500 bg-green-400" />
+                    </span>
                   </div>
-                  {/* Online dot */}
-                  <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
-                    <span className="flavie-pulse absolute inline-flex h-full w-full rounded-full bg-green-300/60" />
-                    <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-orange-500 bg-green-400" />
-                  </span>
-                </div>
 
-                {/* Name — self-centered, natural height */}
-                <div className="min-w-0 flex-1 self-center overflow-hidden">
-                  <p className="mb-0 truncate text-sm font-bold leading-tight text-white font-['Poppins']">{meta.label}</p>
-                  <p className="mb-0 truncate text-[0.62rem] leading-tight text-orange-100/90">{meta.sub}</p>
-                </div>
+                  {/* Name — self-centered, natural height */}
+                  <div className="min-w-0 flex-1 self-center overflow-hidden">
+                    <p className="mb-0 truncate text-sm font-bold leading-tight text-white font-['Poppins']">{meta.label}</p>
+                    <p className="mb-0 truncate text-[0.62rem] leading-tight text-orange-100/90">{meta.sub}</p>
+                  </div>
 
-                {/* Close — same size and radius as avatar */}
-                <button
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center bg-white text-orange-500 shadow-sm transition hover:bg-orange-50"
-                  style={{ borderRadius: "12px" }}
-                  aria-label="Close"
-                >
-                  <MdClose className="text-base" />
-                </button>
-              </div>
-            </div>
-
-            {/* ── Tab navigation ── */}
-            <div className="relative shrink-0 flex border-b border-gray-100 bg-white">
-              {NAV_TABS.map(({ key, icon: Icon, label }) => {
-                const active = state.screen === key;
-                return (
-                  <button
-                    key={key}
+                  {/* Close — same size and radius as avatar */}
+                  <motion.button
                     type="button"
-                    onClick={() => nav(key)}
-                    className={`flavie-tab-active relative flex flex-1 flex-col items-center gap-0.5 pb-2 pt-2 text-[0.6rem] font-semibold uppercase tracking-wide transition-colors ${active ? "text-orange-600" : "text-gray-400 hover:text-gray-600"
-                      }`}
+                    onClick={() => setIsOpen(false)}
+                    whileHover={{ scale: 1.1, rotate: 90 }}
+                    whileTap={{ scale: 0.88, rotate: 180 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center bg-white text-orange-500 shadow-sm"
+                    style={{ borderRadius: "12px" }}
+                    aria-label="Close"
                   >
-                    <Icon className={`text-base ${active ? "text-orange-500" : "text-gray-400"}`} />
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* ── Screen body ── */}
-            <div className="relative min-h-0 flex-1 overflow-hidden bg-[#fafafa] px-4 py-3">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={state.screen}
-                  variants={screenVariants}
-                  initial="initial" animate="animate" exit="exit"
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="h-full"
-                >
-                  {renderScreen()}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {/* ── Input bar — orange like header ── */}
-            <div className="relative shrink-0 bg-orange-500 px-4 py-3">
-              <div className="flavie-input flex items-center gap-2 overflow-hidden rounded-xl border border-white/30 bg-white/20 pl-3 pr-1.5 py-1.5 transition">
-                <input
-                  ref={inputRef}
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSend(); } }}
-                  placeholder="Ask for menu, booking, or tracking…"
-                  className="min-w-0 flex-1 bg-transparent text-xs text-white outline-none placeholder:text-orange-100/70"
-                  aria-label="Message Flavie"
-                />
-                <motion.button
-                  type="button"
-                  onClick={handleSend}
-                  whileHover={{ scale: 1.06 }}
-                  whileTap={{ scale: 0.94 }}
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-orange-500 shadow-sm"
-                  aria-label="Send"
-                >
-                  <MdSend className="text-sm" />
-                </motion.button>
+                    <MdClose className="text-base" />
+                  </motion.button>
+                </div>
               </div>
-              <p className="mt-1.5 text-center text-[0.55rem] text-orange-100/50">Flavie · GBR Kitchen</p>
-            </div>
-          </motion.aside>
+
+              {/* ── Tab navigation ── */}
+              <div className="relative shrink-0 border-b border-gray-100 bg-white" style={{ padding: "6px 8px 0" }}>
+                <div className="flex gap-1">
+                  {NAV_TABS.map(({ key, icon: Icon, label }) => {
+                    const active = state.screen === key;
+                    return (
+                      <motion.button
+                        key={key}
+                        type="button"
+                        onClick={() => nav(key)}
+                        whileTap={{ scale: 0.93 }}
+                        className="relative flex flex-1 flex-col items-center gap-1 transition-colors"
+                        style={{ padding: "7px 4px 9px", borderRadius: "10px 10px 0 0", background: active ? "#fff7ed" : "transparent", border: active ? "1px solid #fed7aa" : "1px solid transparent", borderBottom: active ? "1px solid #fff7ed" : "1px solid transparent", marginBottom: active ? "-1px" : "0" }}
+                      >
+                        {/* Icon wrapper */}
+                        <span
+                          className="flex items-center justify-center transition-all"
+                          style={{
+                            width: "28px",
+                            height: "28px",
+                            borderRadius: "8px",
+                            background: active ? "#ea580c" : "#f3f4f6",
+                            boxShadow: active ? "0 2px 8px rgba(234,88,12,0.35)" : "none",
+                            transition: "all 0.2s ease",
+                          }}
+                        >
+                          <Icon style={{ fontSize: "0.95rem", color: active ? "#fff" : "#9ca3af", transition: "color 0.2s ease" }} />
+                        </span>
+                        <span
+                          style={{
+                            fontSize: "0.58rem",
+                            fontWeight: 700,
+                            letterSpacing: "0.04em",
+                            color: active ? "#ea580c" : "#9ca3af",
+                            transition: "color 0.2s ease",
+                          }}
+                        >
+                          {label}
+                        </span>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* ── Screen body ── */}
+              <div className="relative min-h-0 flex-1 overflow-hidden bg-[#fafafa] px-4 py-3">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={state.screen}
+                    variants={screenVariants}
+                    initial="initial" animate="animate" exit="exit"
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="h-full"
+                  >
+                    {renderScreen()}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
+              {/* ── Input bar ── */}
+              <div className="relative shrink-0 bg-orange-500" style={{ padding: "12px 16px" }}>
+                <div
+                  className="flavie-input flex items-center gap-2 bg-white/20 transition"
+                  style={{ borderRadius: "12px", border: "1.5px solid rgba(255,255,255,0.4)", padding: "0 8px 0 14px", height: "42px" }}
+                >
+                  <input
+                    ref={inputRef}
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSend(); } }}
+                    placeholder="Ask for menu, booking, or tracking…"
+                    style={{ fontSize: "0.75rem", lineHeight: "1" }}
+                    className="mb-0 min-w-0 flex-1 bg-transparent text-white outline-none placeholder:text-orange-100/65"
+                    aria-label="Message Flavie"
+                  />
+                  <motion.button
+                    type="button"
+                    onClick={handleSend}
+                    whileHover={{ scale: 1.06 }}
+                    whileTap={{ scale: 0.94 }}
+                    className="flex shrink-0 items-center justify-center bg-white text-orange-500 shadow-sm"
+                    style={{ width: "30px", height: "30px", borderRadius: "8px" }}
+                    aria-label="Send"
+                  >
+                    <MdSend className="text-sm" />
+                  </motion.button>
+                </div>
+              </div>
+            </motion.aside>
+          </div>
         )}
       </AnimatePresence>
 
@@ -307,12 +351,12 @@ const Chatbot = () => {
             key="flavie-fab"
             type="button"
             onClick={() => setIsOpen(true)}
-            initial={{ opacity: 0, scale: 0.6 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.6 }}
+            initial={{ opacity: 0, scale: 0.4, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.5, y: 16 }}
             whileHover={{ scale: 1.12, y: -3 }}
             whileTap={{ scale: 0.9 }}
-            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ type: "spring", stiffness: 380, damping: 22, mass: 0.8 }}
             className="fixed bottom-6 right-5 z-[1400] sm:bottom-7 sm:right-6"
             style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
             aria-label="Open Flavie food assistant"
