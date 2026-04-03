@@ -203,6 +203,7 @@ export default function Sidebar() {
   const [open, setOpen] = useState(false); // Set to false to collapse the sidebar by default
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const [currentSection, setCurrentSection] = useState("Home");
+  const [searchQuery, setSearchQuery] = useState("");
   const [activeSidebarItem, setActiveSidebarItem] = useState("Hot Offers");
   const [activeCategory, setActiveCategory] = useState("Hot Offers");
   const [userName, setUserName] = useState("");
@@ -313,13 +314,22 @@ export default function Sidebar() {
     color: appTheme === "dark" ? "white" : "inherit",
   }), [appTheme]);
 
-  const handleSectionChange = useCallback((section, sidebarItem = null) => {
+  const handleSectionChange = useCallback((section, sidebarItemOrTerm = null) => {
     setCurrentSection(section);
-    if (sidebarItem) {
-      setActiveSidebarItem(sidebarItem);
-      setActiveCategory(sidebarItem);
-      // Update MenuContext with the selected category
-      handleCategoryChange(sidebarItem);
+    // If called from search, sidebarItemOrTerm is the search string
+    if (section === "Shop") {
+      setSearchQuery(typeof sidebarItemOrTerm === "string" ? sidebarItemOrTerm : "");
+    } else if (sidebarItemOrTerm && typeof sidebarItemOrTerm === "string" && section !== "Shop") {
+      // Called from sidebar nav with a category name
+      setSearchQuery("");
+      setActiveSidebarItem(sidebarItemOrTerm);
+      setActiveCategory(sidebarItemOrTerm);
+      handleCategoryChange(sidebarItemOrTerm);
+    } else if (sidebarItemOrTerm) {
+      setSearchQuery("");
+      setActiveSidebarItem(sidebarItemOrTerm);
+      setActiveCategory(sidebarItemOrTerm);
+      handleCategoryChange(sidebarItemOrTerm);
     }
   }, [handleCategoryChange]);
 
@@ -1133,6 +1143,7 @@ export default function Sidebar() {
               currentSection={currentSection}
               activeCategory={activeCategory}
               onSectionChange={handleSectionChange}
+              searchQuery={searchQuery}
             />
           )}
         </Box>

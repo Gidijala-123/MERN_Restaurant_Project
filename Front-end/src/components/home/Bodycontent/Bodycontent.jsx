@@ -195,10 +195,10 @@ const Bodycontent = (props) => {
     const storageKey = `${section}Bookmarked`;
     const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
     const updated = { ...saved, [itemId]: !saved[itemId] };
-    
+
     // 1. Update localStorage synchronously first
     localStorage.setItem(storageKey, JSON.stringify(updated));
-    
+
     // 2. Update React states
     if (section === "discount") setDiscountBookmarked(updated);
     else if (section === "trending") setTrendingBookmarked(updated);
@@ -610,24 +610,24 @@ const Bodycontent = (props) => {
     return selectedCategory === "Hot Offers"
       ? [...MENU_DATA].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 6)
       : MENU_DATA.filter((item) => item.category === selectedCategory)
-          .sort((a, b) => (b.rating || 0) - (a.rating || 0))
-          .slice(0, 6);
+        .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+        .slice(0, 6);
   }, [selectedCategory]);
 
   const recentItems = useMemo(() => {
     return selectedCategory === "Hot Offers"
       ? [...MENU_DATA].slice(-6).reverse()
       : MENU_DATA.filter((item) => item.category === selectedCategory)
-          .slice(-6)
-          .reverse();
+        .slice(-6)
+        .reverse();
   }, [selectedCategory]);
 
   const trendingItems = useMemo(() => {
     return selectedCategory === "Hot Offers"
       ? [...MENU_DATA].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 6)
       : MENU_DATA.filter((item) => item.category === selectedCategory)
-          .sort((a, b) => (b.rating || 0) - (a.rating || 0))
-          .slice(0, 6);
+        .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+        .slice(0, 6);
   }, [selectedCategory]);
 
   const dispatch = useDispatch();
@@ -669,23 +669,23 @@ const Bodycontent = (props) => {
         <>
           {/* Check if it's an Indian menu category */}
           {selectedCategory !== "Hot Offers" &&
-          [
-            "Veg Starters",
-            "Non-Veg Starters",
-            "Tandooris",
-            "Soups",
-            "Salads",
-            "Sandwiches",
-            "Signature Dishes",
-            "Biryanis",
-            "Main Course",
-            "Rice & Breads",
-            "South Indian",
-            "Chinese",
-            "Beverages",
-            "Cocktails/Mocktails",
-            "Desserts",
-          ].includes(selectedCategory) ? (
+            [
+              "Veg Starters",
+              "Non-Veg Starters",
+              "Tandooris",
+              "Soups",
+              "Salads",
+              "Sandwiches",
+              "Signature Dishes",
+              "Biryanis",
+              "Main Course",
+              "Rice & Breads",
+              "South Indian",
+              "Chinese",
+              "Beverages",
+              "Cocktails/Mocktails",
+              "Desserts",
+            ].includes(selectedCategory) ? (
             <Suspense fallback={<SkeletonLoader />}>
               <MenuDisplay />
             </Suspense>
@@ -734,9 +734,8 @@ const Bodycontent = (props) => {
                         rows.map((row, idx) => (
                           <div className="category-viewport" key={`row-${idx}`}>
                             <div
-                              className={`category-track ${
-                                idx % 2 === 0 ? "scroll-left" : "scroll-right"
-                              }`}
+                              className={`category-track ${idx % 2 === 0 ? "scroll-left" : "scroll-right"
+                                }`}
                             >
                               {[...row, ...row].map((item, j) => (
                                 <div
@@ -831,8 +830,8 @@ const Bodycontent = (props) => {
                         }}
                       >
                         <div style={containerStyles}>
-                          <BannerCarousel 
-                            sideopen={props.open} 
+                          <BannerCarousel
+                            sideopen={props.open}
                             onSectionChange={props.onSectionChange}
                           />
                         </div>
@@ -851,7 +850,7 @@ const Bodycontent = (props) => {
                       </Suspense>
                     ) : key === "Shop" ? (
                       <Suspense fallback={<SkeletonLoader />}>
-                        <Shop key={key} />
+                        <Shop key={key} searchQuery={props.searchQuery || ""} />
                       </Suspense>
                     ) : key === "Pages" ? (
                       <Suspense fallback={<SkeletonLoader />}>
@@ -886,10 +885,10 @@ const Bodycontent = (props) => {
                         selectedCategory === "Hot Offers"
                           ? MENU_DATA.slice(0, 6)
                           : isIndianMenu
-                          ? MENU_DATA.filter(
+                            ? MENU_DATA.filter(
                               (item) => item.category === selectedCategory,
                             ).slice(0, 6)
-                          : (() => {
+                            : (() => {
                               const allowed = [
                                 "Fruits",
                                 "Vegetables",
@@ -905,8 +904,8 @@ const Bodycontent = (props) => {
                               );
                               return isCategory
                                 ? PRODUCTS.filter(
-                                    (p) => p.category === props.activeCategory,
-                                  )
+                                  (p) => p.category === props.activeCategory,
+                                )
                                 : PRODUCTS;
                             })();
 
@@ -934,9 +933,8 @@ const Bodycontent = (props) => {
                             </div>
                             <button
                               type="button"
-                              className={`bookmark-icon ${
-                                isBookmarked ? "active" : ""
-                              }`}
+                              className={`bookmark-icon ${isBookmarked ? "active" : ""
+                                }`}
                               onClick={() => handleBookmarkToggle(each.id, "offer")}
                             >
                               {isBookmarked ? (
@@ -963,8 +961,7 @@ const Bodycontent = (props) => {
 
                             <p className="card-description">
                               {each.description ||
-                                `Delicious ${
-                                  each.name || each.title
+                                `Delicious ${each.name || each.title
                                 } prepared with fresh ingredients and traditional spices.`}
                             </p>
 
@@ -1048,9 +1045,8 @@ const Bodycontent = (props) => {
                         <div className="card-badge">{discount}% OFF</div>
                         <button
                           type="button"
-                          className={`bookmark-icon ${
-                            popularBookmarked[item.id] ? "active" : ""
-                          }`}
+                          className={`bookmark-icon ${popularBookmarked[item.id] ? "active" : ""
+                            }`}
                           onClick={() => handleBookmarkToggle(item.id, "popular")}
                         >
                           {popularBookmarked[item.id] ? (
@@ -1156,9 +1152,8 @@ const Bodycontent = (props) => {
                         <div className="card-badge">{discount}% OFF</div>
                         <button
                           type="button"
-                          className={`bookmark-icon ${
-                            recentBookmarked[item.id] ? "active" : ""
-                          }`}
+                          className={`bookmark-icon ${recentBookmarked[item.id] ? "active" : ""
+                            }`}
                           onClick={() => handleBookmarkToggle(item.id, "recent")}
                         >
                           {recentBookmarked[item.id] ? (
@@ -1240,9 +1235,8 @@ const Bodycontent = (props) => {
                             <div className="section-card" key={`${i}-${index}`}>
                               <button
                                 type="button"
-                                className={`bookmark-icon ${
-                                  isBookmarked ? "active" : ""
-                                }`}
+                                className={`bookmark-icon ${isBookmarked ? "active" : ""
+                                  }`}
                                 onClick={() =>
                                   handleBookmarkToggle(item.id, "discount")
                                 }
@@ -1286,7 +1280,7 @@ const Bodycontent = (props) => {
                                 <span className="original-price">₹{item.oldPrice}</span>
                                 <span className="discounted-price">₹{item.newPrice}</span>
                               </div>
-                              <button 
+                              <button
                                 className="btn shopnow-btn"
                                 onClick={() => handleAddToCart({
                                   id: item.id,
@@ -1324,9 +1318,8 @@ const Bodycontent = (props) => {
                             <div className="card-badge">TRENDING</div>
                             <button
                               type="button"
-                              className={`bookmark-icon ${
-                                trendingBookmarked[item.id] ? "active" : ""
-                              }`}
+                              className={`bookmark-icon ${trendingBookmarked[item.id] ? "active" : ""
+                                }`}
                               onClick={() =>
                                 handleBookmarkToggle(item.id, "trending")
                               }

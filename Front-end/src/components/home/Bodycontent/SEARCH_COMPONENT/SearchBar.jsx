@@ -10,56 +10,77 @@ import useDebounce from "../../../../hooks/useDebounce";
 
 const SearchBar = React.memo(function SearchBar({ onSearchChange }) {
   const { items: products } = useSelector((state) => state.products);
-  const [searchValue, setSearchValue] = React.useState(null);
   const [inputValue, setInputValue] = React.useState("");
-  const debounced = useDebounce(inputValue, 400);
+  const debounced = useDebounce(inputValue, 300);
 
-  // Memoize products list to prevent unnecessary recalculations
   const memoizedProducts = React.useMemo(() => products || [], [products]);
 
-  // Memoize getOptionLabel function
-  const getOptionLabelMemo = React.useCallback((option) => {
+  // Filter options to only those matching the current input
+  const filteredOptions = React.useMemo(() => {
+    if (!inputValue || inputValue.length < 1) return [];
+    const q = inputValue.toLowerCase();
+    return memoizedProducts.filter(
+      (p) =>
+        (p.title || "").toLowerCase().includes(q) ||
+        (p.category || "").toLowerCase().includes(q) ||
+        (p.decrp || "").toLowerCase().includes(q)
+    ).slice(0, 8); // cap at 8 suggestions
+  }, [inputValue, memoizedProducts]);
+
+  const getOptionLabel = React.useCallback((option) => {
     if (typeof option === "string") return option;
     return option.title || "";
   }, []);
 
-  // Memoize handleSearchChange callback
-  const handleSearchChange = React.useCallback(
+  // When user picks a suggestion from dropdown
+  const handleChange = React.useCallback(
     (event, newValue) => {
-      setSearchValue(newValue);
       if (newValue && onSearchChange) {
-        onSearchChange("Shop");
+        const term = typeof newValue === "string" ? newValue : newValue.title || "";
+        setInputValue(term);
+        onSearchChange("Shop", term);
       }
     },
     [onSearchChange],
   );
 
-  // Memoize onInputChange callback
-  const handleInputChange = React.useCallback((e, value) => {
+  const handleInputChange = React.useCallback((e, value, reason) => {
     setInputValue(value);
-  }, []);
+    // Clear search when user clears the field
+    if (!value && onSearchChange) {
+      onSearchChange("Home", "");
+    }
+  }, [onSearchChange]);
 
+  // Trigger search as user types (debounced)
   React.useEffect(() => {
     if (debounced && debounced.length >= 2 && onSearchChange) {
-      onSearchChange("Shop");
+      onSearchChange("Shop", debounced);
     }
   }, [debounced, onSearchChange]);
 
   return (
-    <Stack
-      spacing={2}
-      sx={{ width: "100%", maxWidth: { xs: "100%", md: 500 } }}
-      className="search-main-div"
-    >
+    <Stack spacing={2} sx={{ width: "100%", maxWidth: { xs: "100%", md: 500 } }} className="search-main-div">
       <Autocomplete
         freeSolo
         id="product-search-bar"
         disableClearable
-        options={memoizedProducts}
-        getOptionLabel={getOptionLabelMemo}
-        value={searchValue}
-        onChange={handleSearchChange}
+        options={filteredOptions}
+        getOptionLabel={getOptionLabel}
+        inputValue={inputValue}
+        onChange={handleChange}
         onInputChange={handleInputChange}
+        filterOptions={(x) => x} // we handle filtering ourselves
+        renderOption={(props, option) => (
+          <li {...props} key={option.id || option.title}>
+            <span style={{ fontSize: "0.85rem" }}>{option.title}</span>
+            {option.category && (
+              <span style={{ fontSize: "0.72rem", color: "#9ca3af", marginLeft: "auto" }}>
+                {option.category}
+              </span>
+            )}
+          </li>
+        )}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -71,11 +92,7 @@ const SearchBar = React.memo(function SearchBar({ onSearchChange }) {
               type: "search",
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ 
-                    color: "var(--primary)",
-                    opacity: 0.7,
-                    transition: "all 0.3s ease",
-                  }} />
+                  <SearchIcon sx={{ color: "var(--primary)", opacity: 0.7, transition: "all 0.3s ease" }} />
                 </InputAdornment>
               ),
               sx: {
@@ -85,24 +102,11 @@ const SearchBar = React.memo(function SearchBar({ onSearchChange }) {
                 transition: "all 0.3s ease",
                 "& .MuiInputBase-input": {
                   color: "var(--text-main)",
-                  "&::placeholder": {
-                    color: "var(--text-sub)",
-                    opacity: 1,
-                  },
+                  "&::placeholder": { color: "var(--text-sub)", opacity: 1 },
                 },
-                "& fieldset": {
-                  borderColor: "var(--border-light)",
-                },
-                "&:hover fieldset": {
-                  borderColor: "var(--primary)",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "var(--primary)",
-                },
-                "&:hover .MuiSvgIcon-root": {
-                  opacity: 1,
-                  transform: "scale(1.1)",
-                }
+                "& fieldset": { borderColor: "var(--border-light)" },
+                "&:hover fieldset": { borderColor: "var(--primary)" },
+                "&.Mui-focused fieldset": { borderColor: "var(--primary)" },
               },
             }}
           />
