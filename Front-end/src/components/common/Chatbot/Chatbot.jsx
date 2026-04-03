@@ -251,7 +251,7 @@ const Chatbot = () => {
               </div>
 
               {/* ── Tab navigation ── */}
-              <div className="relative shrink-0 border-b border-gray-100 bg-white" style={{ padding: "6px 8px 0" }}>
+              <div className="relative shrink-0 flavie-tab-nav" style={{ padding: "6px 8px 0", borderBottom: "1px solid var(--cb-tab-border)", background: "var(--cb-tab-bg)" }}>
                 <div className="flex gap-1">
                   {NAV_TABS.map(({ key, icon: Icon, label }) => {
                     const active = state.screen === key;
@@ -262,7 +262,7 @@ const Chatbot = () => {
                         onClick={() => nav(key)}
                         whileTap={{ scale: 0.93 }}
                         className="relative flex flex-1 flex-col items-center gap-1 transition-colors"
-                        style={{ padding: "7px 4px 9px", borderRadius: "10px 10px 0 0", background: active ? "#fff7ed" : "transparent", border: active ? "1px solid #fed7aa" : "1px solid transparent", borderBottom: active ? "1px solid #fff7ed" : "1px solid transparent", marginBottom: active ? "-1px" : "0" }}
+                        style={{ padding: "7px 4px 9px", borderRadius: "10px 10px 0 0", background: active ? "var(--cb-bg-warm)" : "transparent", border: active ? "1px solid var(--cb-border-soft)" : "1px solid transparent", borderBottom: active ? `1px solid var(--cb-bg-warm)` : "1px solid transparent", marginBottom: active ? "-1px" : "0" }}
                       >
                         {/* Icon wrapper */}
                         <span
@@ -271,19 +271,19 @@ const Chatbot = () => {
                             width: "28px",
                             height: "28px",
                             borderRadius: "8px",
-                            background: active ? "#ea580c" : "#f3f4f6",
+                            background: active ? "#ea580c" : "var(--cb-inactive-icon)",
                             boxShadow: active ? "0 2px 8px rgba(234,88,12,0.35)" : "none",
                             transition: "all 0.2s ease",
                           }}
                         >
-                          <Icon style={{ fontSize: "0.95rem", color: active ? "#fff" : "#9ca3af", transition: "color 0.2s ease" }} />
+                          <Icon style={{ fontSize: "0.95rem", color: active ? "#fff" : "var(--cb-text-faint)", transition: "color 0.2s ease" }} />
                         </span>
                         <span
                           style={{
                             fontSize: "0.58rem",
                             fontWeight: 700,
                             letterSpacing: "0.04em",
-                            color: active ? "#ea580c" : "#9ca3af",
+                            color: active ? "#ea580c" : "var(--cb-text-faint)",
                             transition: "color 0.2s ease",
                           }}
                         >
@@ -296,7 +296,7 @@ const Chatbot = () => {
               </div>
 
               {/* ── Screen body ── */}
-              <div className="relative min-h-0 flex-1 overflow-hidden bg-[#fafafa] px-4 py-3">
+              <div className="relative min-h-0 flex-1 overflow-hidden px-4 py-3" style={{ background: "var(--cb-bg-soft)" }}>
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={state.screen}

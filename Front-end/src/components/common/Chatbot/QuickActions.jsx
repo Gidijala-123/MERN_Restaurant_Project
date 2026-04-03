@@ -16,20 +16,19 @@ const CAPABILITIES = [
   { text: "check live delivery status", icon: "📍" },
 ];
 
-const TYPING_SPEED = 45;   // ms per char
-const ERASE_SPEED = 22;   // ms per char
-const PAUSE_AFTER = 1600; // ms before erasing
+const TYPING_SPEED = 45;
+const ERASE_SPEED = 22;
+const PAUSE_AFTER = 1600;
 
 function useTypewriter(items) {
   const [display, setDisplay] = useState("");
   const [index, setIndex] = useState(0);
-  const [phase, setPhase] = useState("typing"); // typing | pausing | erasing
+  const [phase, setPhase] = useState("typing");
   const [icon, setIcon] = useState(items[0].icon);
   const timeout = useRef(null);
 
   useEffect(() => {
     const full = items[index].text;
-
     if (phase === "typing") {
       if (display.length < full.length) {
         timeout.current = setTimeout(() => setDisplay(full.slice(0, display.length + 1)), TYPING_SPEED);
@@ -48,7 +47,6 @@ function useTypewriter(items) {
         setPhase("typing");
       }
     }
-
     return () => clearTimeout(timeout.current);
   }, [display, phase, index, items]);
 
@@ -62,27 +60,25 @@ const QuickActions = ({ onNavigate, greeting, microCopy }) => {
     <div className="flavie-scroll flex h-full flex-col gap-2.5 overflow-y-auto pb-1">
 
       {/* ── Animated greeting card ── */}
-      <div className="shrink-0 bg-white shadow-sm" style={{ borderRadius: "16px", border: "1px solid #fed7aa", padding: "14px" }}>
-        {/* Top row */}
+      <div className="shrink-0 shadow-sm" style={{ borderRadius: "16px", border: "1px solid var(--cb-border-soft)", background: "var(--cb-bg-card)", padding: "14px" }}>
         <div className="flex items-center gap-2 mb-3">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center bg-orange-100" style={{ borderRadius: "10px" }}>
             <MdWhatshot className="text-orange-500 text-base" />
           </div>
           <div>
-            <p className="mb-0 font-bold text-gray-800" style={{ fontSize: "0.75rem", lineHeight: 1.3 }}>
+            <p className="mb-0 font-bold" style={{ fontSize: "0.75rem", lineHeight: 1.3, color: "var(--cb-text-main)" }}>
               Hi, I&apos;m <span style={{ color: "#ea580c" }}>Flavie</span> — your food assistant.
             </p>
-            <p className="mb-0 text-gray-400" style={{ fontSize: "0.6rem", lineHeight: 1.3 }}>{microCopy}</p>
+            <p className="mb-0" style={{ fontSize: "0.6rem", lineHeight: 1.3, color: "var(--cb-text-faint)" }}>{microCopy}</p>
           </div>
         </div>
 
         {/* Typewriter row */}
-        <div style={{ borderRadius: "10px", background: "#fff7ed", border: "1px solid #fed7aa", padding: "10px 12px" }}>
+        <div style={{ borderRadius: "10px", background: "var(--cb-bg-warm)", border: "1px solid var(--cb-border-soft)", padding: "10px 12px" }}>
           <p className="mb-1 font-bold uppercase text-orange-400" style={{ fontSize: "0.55rem", letterSpacing: "0.1em" }}>
             I can help you…
           </p>
           <div className="flex items-center gap-2" style={{ minHeight: "22px" }}>
-            {/* Animated icon */}
             <AnimatePresence mode="wait">
               <motion.span
                 key={icon}
@@ -95,9 +91,7 @@ const QuickActions = ({ onNavigate, greeting, microCopy }) => {
                 {icon}
               </motion.span>
             </AnimatePresence>
-
-            {/* Typed text + cursor */}
-            <p className="mb-0 font-semibold text-gray-700" style={{ fontSize: "0.72rem", lineHeight: 1.4 }}>
+            <p className="mb-0 font-semibold" style={{ fontSize: "0.72rem", lineHeight: 1.4, color: "var(--cb-text-sub)" }}>
               {display}
               <span
                 style={{
@@ -130,8 +124,8 @@ const QuickActions = ({ onNavigate, greeting, microCopy }) => {
               transition={{ delay: i * 0.07, duration: 0.22 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => onNavigate(a.key)}
-              className={`flavie-action-card flex flex-col items-center gap-1.5 border border-gray-100 bg-white shadow-sm`}
-              style={{ borderRadius: "14px", padding: "10px 8px" }}
+              className={`flavie-action-card flex flex-col items-center gap-1.5 shadow-sm`}
+              style={{ borderRadius: "14px", padding: "10px 8px", background: "var(--cb-bg-card)", border: "1px solid var(--cb-border-muted)" }}
             >
               <span
                 className={`inline-flex items-center justify-center text-base text-white shadow-sm ${a.bg}`}
@@ -139,14 +133,14 @@ const QuickActions = ({ onNavigate, greeting, microCopy }) => {
               >
                 <Icon />
               </span>
-              <span className="text-[0.65rem] font-semibold text-gray-700">{a.label}</span>
+              <span style={{ fontSize: "0.65rem", fontWeight: 600, color: "var(--cb-text-sub)" }}>{a.label}</span>
             </motion.button>
           );
         })}
       </div>
 
       {/* ── Today's specials ── */}
-      <div className="shrink-0 bg-white shadow-sm" style={{ borderRadius: "16px", border: "1px solid #fed7aa", padding: "14px" }}>
+      <div className="shrink-0 shadow-sm" style={{ borderRadius: "16px", border: "1px solid var(--cb-border-soft)", background: "var(--cb-bg-card)", padding: "14px" }}>
         <div className="mb-2.5 flex items-center justify-between">
           <p className="mb-0 font-bold uppercase text-orange-500" style={{ fontSize: "0.62rem", letterSpacing: "0.1em" }}>
             🔥 Today&apos;s specials
@@ -163,7 +157,7 @@ const QuickActions = ({ onNavigate, greeting, microCopy }) => {
         </div>
         <div className="flex flex-col" style={{ gap: "8px" }}>
           {[
-            { emoji: "🍛", name: "Signature Dum Biryani", tag: "Chef's pick", price: "₹349", badge: "#fff7ed", badgeText: "#ea580c" },
+            { emoji: "🍛", name: "Signature Dum Biryani", tag: "Chef's pick", price: "₹349", badge: "var(--cb-bg-warm)", badgeText: "#ea580c" },
             { emoji: "🍗", name: "Smoked Tandoori Platter", tag: "Bestseller", price: "₹429", badge: "#fef9c3", badgeText: "#ca8a04" },
             { emoji: "🥗", name: "Citrus Garden Salad", tag: "Light & fresh", price: "₹229", badge: "#ecfdf5", badgeText: "#059669" },
           ].map(({ emoji, name, tag, price, badge, badgeText }, i) => (
@@ -176,11 +170,11 @@ const QuickActions = ({ onNavigate, greeting, microCopy }) => {
               whileTap={{ scale: 0.97 }}
               onClick={() => onNavigate("menu")}
               className="flex items-center gap-2.5 w-full text-left transition hover:shadow-md"
-              style={{ borderRadius: "12px", background: "#fafafa", border: "1px solid #f3f4f6", padding: "9px 10px", cursor: "pointer" }}
+              style={{ borderRadius: "12px", background: "var(--cb-bg-item)", border: "1px solid var(--cb-border-muted)", padding: "9px 10px", cursor: "pointer" }}
             >
               <span style={{ fontSize: "1.4rem", lineHeight: 1, flexShrink: 0 }}>{emoji}</span>
               <div className="flex-1 min-w-0">
-                <p className="mb-0 font-semibold text-gray-800 truncate" style={{ fontSize: "0.7rem", lineHeight: 1.2 }}>{name}</p>
+                <p className="mb-0 font-semibold truncate" style={{ fontSize: "0.7rem", lineHeight: 1.2, color: "var(--cb-text-main)" }}>{name}</p>
                 <span style={{ display: "inline-block", marginTop: "3px", borderRadius: "20px", background: badge, color: badgeText, fontSize: "0.55rem", fontWeight: 700, padding: "1px 7px" }}>
                   {tag}
                 </span>

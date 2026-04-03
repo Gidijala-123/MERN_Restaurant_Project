@@ -21,8 +21,8 @@ const MenuCarousel = ({ items, onAddToCart, formatPrice, isLoading }) => (
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.04, duration: 0.2 }}
-              className="flex items-center gap-3 rounded-2xl border border-orange-100 bg-white shadow-sm"
-              style={{ padding: "10px 10px 10px 10px" }}
+              className="flex items-center gap-3 rounded-2xl shadow-sm"
+              style={{ padding: "10px 10px 10px 10px", background: "var(--cb-bg-card)", border: "1px solid var(--cb-border-soft)" }}
             >
               {/* Thumbnail */}
               <div
@@ -53,7 +53,7 @@ const MenuCarousel = ({ items, onAddToCart, formatPrice, isLoading }) => (
               <div className="flex min-w-0 flex-1 flex-col" style={{ gap: "3px" }}>
                 {/* Name + rating */}
                 <div className="flex items-start gap-1">
-                  <p className="mb-0 min-w-0 flex-1 truncate text-xs font-bold text-gray-800">{item.name}</p>
+                  <p className="mb-0 min-w-0 flex-1 truncate text-xs font-bold" style={{ color: "var(--cb-text-main)" }}>{item.name}</p>
                   <div
                     className="ml-1 inline-flex shrink-0 items-center gap-0.5 bg-amber-50 text-amber-600"
                     style={{ borderRadius: "20px", padding: "2px 6px", fontSize: "0.58rem", fontWeight: 700 }}
@@ -63,7 +63,7 @@ const MenuCarousel = ({ items, onAddToCart, formatPrice, isLoading }) => (
                 </div>
 
                 {/* Category */}
-                <p className="mb-0 text-gray-400" style={{ fontSize: "0.6rem" }}>{item.category}</p>
+                <p className="mb-0" style={{ fontSize: "0.6rem", color: "var(--cb-text-faint)" }}>{item.category}</p>
 
                 {/* Price + Add */}
                 <div className="flex items-center justify-between" style={{ marginTop: "2px" }}>

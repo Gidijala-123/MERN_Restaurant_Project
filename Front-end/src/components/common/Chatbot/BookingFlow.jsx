@@ -39,17 +39,17 @@ const BookingFlow = ({ selectedDate, selectedTime, bookingConfirmed, onDateChang
     <div className="flavie-scroll flex h-full flex-col gap-3 overflow-y-auto pb-1">
 
       {/* ── Calendar card ── */}
-      <div className="shrink-0 bg-white shadow-sm" style={{ borderRadius: "16px", border: "1px solid #fed7aa", padding: "14px" }}>
+      <div className="shrink-0 shadow-sm" style={{ borderRadius: "16px", border: "1px solid var(--cb-border-soft)", background: "var(--cb-bg-card)", padding: "14px" }}>
 
         {/* Month nav */}
         <div className="mb-2 flex items-center justify-between">
-          <p className="mb-0 text-sm font-bold text-gray-800">{monthLabel}</p>
+          <p className="mb-0 text-sm font-bold" style={{ color: "var(--cb-text-main)" }}>{monthLabel}</p>
           <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => setDisplayMonth(new Date(displayMonth.getFullYear(), displayMonth.getMonth() - 1, 1))}
-              className="flex h-7 w-7 items-center justify-center bg-orange-50 text-orange-500 transition hover:bg-orange-100"
-              style={{ borderRadius: "8px", border: "1px solid #fed7aa" }}
+              className="flex h-7 w-7 items-center justify-center text-orange-500 transition hover:bg-orange-100"
+              style={{ borderRadius: "8px", border: "1px solid var(--cb-border-soft)", background: "var(--cb-bg-warm)" }}
               aria-label="Previous month"
             >
               <MdChevronLeft />
@@ -57,8 +57,8 @@ const BookingFlow = ({ selectedDate, selectedTime, bookingConfirmed, onDateChang
             <button
               type="button"
               onClick={() => setDisplayMonth(new Date(displayMonth.getFullYear(), displayMonth.getMonth() + 1, 1))}
-              className="flex h-7 w-7 items-center justify-center bg-orange-50 text-orange-500 transition hover:bg-orange-100"
-              style={{ borderRadius: "8px", border: "1px solid #fed7aa" }}
+              className="flex h-7 w-7 items-center justify-center text-orange-500 transition hover:bg-orange-100"
+              style={{ borderRadius: "8px", border: "1px solid var(--cb-border-soft)", background: "var(--cb-bg-warm)" }}
               aria-label="Next month"
             >
               <MdChevronRight />
@@ -76,7 +76,7 @@ const BookingFlow = ({ selectedDate, selectedTime, bookingConfirmed, onDateChang
         {/* Day headers */}
         <div className="mb-1 grid grid-cols-7 text-center" style={{ gap: "2px" }}>
           {DAYS.map((d) => (
-            <span key={d} className="mb-0 font-bold text-gray-400" style={{ fontSize: "0.55rem", letterSpacing: "0.05em" }}>{d}</span>
+            <span key={d} className="mb-0 font-bold" style={{ fontSize: "0.55rem", letterSpacing: "0.05em", color: "var(--cb-text-faint)" }}>{d}</span>
           ))}
         </div>
 
@@ -99,9 +99,9 @@ const BookingFlow = ({ selectedDate, selectedTime, bookingConfirmed, onDateChang
                   padding: "6px 0",
                   fontSize: "0.65rem",
                   fontWeight: selected ? 700 : 500,
-                  background: selected ? "#ea580c" : isToday && !selected ? "#fff7ed" : inMonth ? "#ffffff" : "transparent",
-                  color: selected ? "#ffffff" : isToday && !selected ? "#ea580c" : inMonth ? "#374151" : "#d1d5db",
-                  border: selected ? "none" : isToday && !selected ? "1.5px solid #ea580c" : inMonth ? "1px solid #f3f4f6" : "none",
+                  background: selected ? "#ea580c" : isToday && !selected ? "var(--cb-bg-warm)" : inMonth ? "var(--cb-bg-card)" : "transparent",
+                  color: selected ? "#ffffff" : isToday && !selected ? "#ea580c" : inMonth ? "var(--cb-text-sub)" : "var(--cb-text-faint)",
+                  border: selected ? "none" : isToday && !selected ? "1.5px solid #ea580c" : inMonth ? "1px solid var(--cb-border-muted)" : "none",
                   cursor: disabled ? "not-allowed" : "pointer",
                   opacity: disabled ? 0.3 : 1,
                 }}
@@ -114,10 +114,10 @@ const BookingFlow = ({ selectedDate, selectedTime, bookingConfirmed, onDateChang
       </div>
 
       {/* ── Guest count ── */}
-      <div className="shrink-0 bg-white shadow-sm" style={{ borderRadius: "16px", border: "1px solid #fed7aa", padding: "14px" }}>
+      <div className="shrink-0 shadow-sm" style={{ borderRadius: "16px", border: "1px solid var(--cb-border-soft)", background: "var(--cb-bg-card)", padding: "14px" }}>
         <div className="mb-2 flex items-center gap-2">
           <MdPeople className="text-orange-500" style={{ fontSize: "1rem" }} />
-          <p className="mb-0 text-xs font-bold text-gray-800">Number of guests</p>
+          <p className="mb-0 text-xs font-bold" style={{ color: "var(--cb-text-main)" }}>Number of guests</p>
         </div>
         <div className="grid grid-cols-6" style={{ gap: "6px" }}>
           {GUEST_OPTIONS.map((n) => (
@@ -131,9 +131,9 @@ const BookingFlow = ({ selectedDate, selectedTime, bookingConfirmed, onDateChang
                 padding: "7px 0",
                 fontSize: "0.7rem",
                 fontWeight: 600,
-                background: guests === n ? "#ea580c" : "#fff7ed",
+                background: guests === n ? "#ea580c" : "var(--cb-bg-warm)",
                 color: guests === n ? "#ffffff" : "#ea580c",
-                border: guests === n ? "none" : "1px solid #fed7aa",
+                border: guests === n ? "none" : "1px solid var(--cb-border-soft)",
               }}
             >
               {n}
@@ -143,10 +143,10 @@ const BookingFlow = ({ selectedDate, selectedTime, bookingConfirmed, onDateChang
       </div>
 
       {/* ── Time slots ── */}
-      <div className="shrink-0 bg-white shadow-sm" style={{ borderRadius: "16px", border: "1px solid #fed7aa", padding: "14px" }}>
+      <div className="shrink-0 shadow-sm" style={{ borderRadius: "16px", border: "1px solid var(--cb-border-soft)", background: "var(--cb-bg-card)", padding: "14px" }}>
         <div className="mb-2 flex items-center gap-2">
           <MdAccessTime className="text-orange-500" style={{ fontSize: "1rem" }} />
-          <p className="mb-0 text-xs font-bold text-gray-800">Pick a time</p>
+          <p className="mb-0 text-xs font-bold" style={{ color: "var(--cb-text-main)" }}>Pick a time</p>
         </div>
         <div className="grid grid-cols-3" style={{ gap: "8px" }}>
           {TIME_SLOTS.map((slot) => (
@@ -160,9 +160,9 @@ const BookingFlow = ({ selectedDate, selectedTime, bookingConfirmed, onDateChang
                 padding: "9px 0",
                 fontSize: "0.68rem",
                 fontWeight: 600,
-                background: slot === selectedTime ? "#ea580c" : "#ffffff",
-                color: slot === selectedTime ? "#ffffff" : "#374151",
-                border: slot === selectedTime ? "none" : "1px solid #e5e7eb",
+                background: slot === selectedTime ? "#ea580c" : "var(--cb-bg-card)",
+                color: slot === selectedTime ? "#ffffff" : "var(--cb-text-sub)",
+                border: slot === selectedTime ? "none" : "1px solid var(--cb-border-dash)",
                 boxShadow: slot === selectedTime ? "0 2px 8px rgba(234,88,12,0.3)" : "none",
               }}
             >
@@ -172,15 +172,15 @@ const BookingFlow = ({ selectedDate, selectedTime, bookingConfirmed, onDateChang
         </div>
 
         {/* Booking summary */}
-        <div className="mt-3" style={{ borderRadius: "10px", background: "#fff7ed", border: "1px solid #fed7aa", padding: "10px 12px" }}>
+        <div className="mt-3" style={{ borderRadius: "10px", background: "var(--cb-bg-warm)", border: "1px solid var(--cb-border-soft)", padding: "10px 12px" }}>
           <div className="flex items-center gap-2">
             <MdEventSeat className="text-orange-400" style={{ fontSize: "0.9rem" }} />
-            <p className="mb-0 text-gray-700" style={{ fontSize: "0.68rem", fontWeight: 600 }}>
+            <p className="mb-0" style={{ fontSize: "0.68rem", fontWeight: 600, color: "var(--cb-text-sub)" }}>
               {selectedDate.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
               {" at "}{selectedTime} · {guests} guest{guests > 1 ? "s" : ""}
             </p>
           </div>
-          <p className="mb-0 text-gray-400" style={{ fontSize: "0.6rem", marginTop: "3px" }}>Window seating prioritized when available.</p>
+          <p className="mb-0" style={{ fontSize: "0.6rem", marginTop: "3px", color: "var(--cb-text-faint)" }}>Window seating prioritized when available.</p>
         </div>
 
         {/* Special request toggle */}
@@ -201,8 +201,8 @@ const BookingFlow = ({ selectedDate, selectedTime, bookingConfirmed, onDateChang
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="E.g. window seat, birthday celebration, allergies…"
                 rows={2}
-                className="mt-2 w-full resize-none text-gray-700 outline-none placeholder:text-gray-400"
-                style={{ borderRadius: "10px", border: "1px solid #fed7aa", padding: "8px 10px", fontSize: "0.68rem", background: "#fffbf7" }}
+                className="mt-2 w-full resize-none outline-none"
+                style={{ borderRadius: "10px", border: "1px solid var(--cb-border-soft)", padding: "8px 10px", fontSize: "0.68rem", background: "var(--cb-bg-warm)", color: "var(--cb-text-sub)" }}
               />
             </motion.div>
           )}

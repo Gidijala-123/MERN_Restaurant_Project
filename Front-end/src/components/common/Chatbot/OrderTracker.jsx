@@ -30,18 +30,18 @@ const OrderTracker = ({ currentStep, steps, onAdvance }) => {
     <div className="flavie-scroll flex h-full flex-col gap-2.5 overflow-y-auto pb-1">
 
       {/* ── Order summary card ── */}
-      <div className="shrink-0 bg-white shadow-sm" style={{ borderRadius: "16px", border: `1px solid ${delivered ? "#a7f3d0" : "#fed7aa"}`, padding: "14px", transition: "border-color 0.4s ease" }}>
+      <div className="shrink-0 shadow-sm" style={{ borderRadius: "16px", border: `1px solid ${delivered ? "#a7f3d0" : "var(--cb-border-soft)"}`, background: "var(--cb-bg-card)", padding: "14px", transition: "border-color 0.4s ease" }}>
         <p className="mb-1 font-bold uppercase" style={{ fontSize: "0.58rem", letterSpacing: "0.12em", color: delivered ? "#059669" : "#ea580c" }}>
           Order #FLV-2048
         </p>
         <div className="flex items-center justify-between gap-2">
-          <p className="mb-0 text-sm font-bold text-gray-800">
+          <p className="mb-0 text-sm font-bold" style={{ color: "var(--cb-text-main)" }}>
             {currentStep === 0 ? "Being prepared" : currentStep === 1 ? "Rider is nearby" : "Delivered!"}
           </p>
           <span style={{
             borderRadius: "20px",
-            border: `1px solid ${delivered ? "#a7f3d0" : "#a7f3d0"}`,
-            background: delivered ? "#ecfdf5" : "#ecfdf5",
+            border: "1px solid #a7f3d0",
+            background: "#ecfdf5",
             padding: "3px 10px", fontSize: "0.62rem", fontWeight: 600,
             color: "#059669",
           }}>
@@ -50,7 +50,7 @@ const OrderTracker = ({ currentStep, steps, onAdvance }) => {
         </div>
 
         {/* Progress bar */}
-        <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full" style={{ background: delivered ? "#d1fae5" : "#ffedd5" }}>
+        <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full" style={{ background: delivered ? "#d1fae5" : "var(--cb-bg-warm)" }}>
           <motion.div
             className="h-full rounded-full"
             style={{ background: delivered ? "#10b981" : "#ea580c" }}
@@ -59,7 +59,7 @@ const OrderTracker = ({ currentStep, steps, onAdvance }) => {
             transition={{ duration: 0.5, ease: "easeOut" }}
           />
         </div>
-        <div className="mt-1 flex justify-between text-gray-400" style={{ fontSize: "0.55rem" }}>
+        <div className="mt-1 flex justify-between" style={{ fontSize: "0.55rem", color: "var(--cb-text-faint)" }}>
           <span>Placed</span><span>Delivered</span>
         </div>
       </div>
@@ -88,8 +88,6 @@ const OrderTracker = ({ currentStep, steps, onAdvance }) => {
                 <p className="mb-0 text-emerald-600" style={{ fontSize: "0.62rem" }}>Hope you enjoy every bite.</p>
               </div>
             </div>
-
-            {/* Star rating */}
             <p className="mb-1.5 font-semibold text-emerald-700" style={{ fontSize: "0.62rem" }}>
               {givenRating ? `You rated ${givenRating} star${givenRating > 1 ? "s" : ""} — thank you!` : "Rate your experience"}
             </p>
@@ -113,12 +111,12 @@ const OrderTracker = ({ currentStep, steps, onAdvance }) => {
       </AnimatePresence>
 
       {/* ── Live map placeholder ── */}
-      <div className="shrink-0 overflow-hidden bg-white shadow-sm" style={{ borderRadius: "16px", border: "1px solid #fed7aa" }}>
-        <div className="relative flex items-center justify-center" style={{ height: "90px", background: "linear-gradient(135deg,#fff7ed 0%,#ffedd5 100%)" }}>
+      <div className="shrink-0 overflow-hidden shadow-sm" style={{ borderRadius: "16px", border: "1px solid var(--cb-border-soft)", background: "var(--cb-bg-card)" }}>
+        <div className="relative flex items-center justify-center" style={{ height: "90px", background: "var(--cb-bg-warm)" }}>
           {[20, 40, 60, 80].map((p) => (
             <React.Fragment key={p}>
-              <div style={{ position: "absolute", left: `${p}%`, top: 0, bottom: 0, width: "1px", background: "#fed7aa55" }} />
-              <div style={{ position: "absolute", top: `${p}%`, left: 0, right: 0, height: "1px", background: "#fed7aa55" }} />
+              <div style={{ position: "absolute", left: `${p}%`, top: 0, bottom: 0, width: "1px", background: "var(--cb-border-soft)", opacity: 0.4 }} />
+              <div style={{ position: "absolute", top: `${p}%`, left: 0, right: 0, height: "1px", background: "var(--cb-border-soft)", opacity: 0.4 }} />
             </React.Fragment>
           ))}
           <svg className="absolute inset-0 w-full h-full" viewBox="0 0 200 90" preserveAspectRatio="none">
@@ -143,36 +141,36 @@ const OrderTracker = ({ currentStep, steps, onAdvance }) => {
       </div>
 
       {/* ── Rider info ── */}
-      <div className="shrink-0 bg-white shadow-sm" style={{ borderRadius: "16px", border: "1px solid #fed7aa", padding: "14px" }}>
+      <div className="shrink-0 shadow-sm" style={{ borderRadius: "16px", border: "1px solid var(--cb-border-soft)", background: "var(--cb-bg-card)", padding: "14px" }}>
         <div className="mb-2 flex items-center gap-1.5">
           <MdPerson className="text-orange-500" style={{ fontSize: "0.9rem" }} />
-          <p className="mb-0 font-bold text-gray-700" style={{ fontSize: "0.68rem" }}>Your rider</p>
+          <p className="mb-0 font-bold" style={{ fontSize: "0.68rem", color: "var(--cb-text-muted)" }}>Your rider</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-orange-100" style={{ borderRadius: "12px" }}>
             <MdPerson className="text-orange-500" style={{ fontSize: "1.3rem" }} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="mb-0 font-bold text-gray-800" style={{ fontSize: "0.75rem" }}>{RIDER.name}</p>
-            <p className="mb-0 text-gray-400 truncate" style={{ fontSize: "0.6rem" }}>{RIDER.vehicle}</p>
+            <p className="mb-0 font-bold" style={{ fontSize: "0.75rem", color: "var(--cb-text-main)" }}>{RIDER.name}</p>
+            <p className="mb-0 truncate" style={{ fontSize: "0.6rem", color: "var(--cb-text-faint)" }}>{RIDER.vehicle}</p>
           </div>
           <div className="flex flex-col items-end gap-0.5 shrink-0">
             <span className="flex items-center gap-0.5 font-bold text-amber-500" style={{ fontSize: "0.68rem" }}>
               <MdStar style={{ fontSize: "0.75rem" }} />{RIDER.rating}
             </span>
-            <span className="text-gray-400" style={{ fontSize: "0.58rem" }}>{RIDER.trips} trips</span>
+            <span style={{ fontSize: "0.58rem", color: "var(--cb-text-faint)" }}>{RIDER.trips} trips</span>
           </div>
         </div>
       </div>
 
       {/* ── Step timeline ── */}
-      <div className="shrink-0 bg-white shadow-sm" style={{ borderRadius: "16px", border: "1px solid #fed7aa", padding: "14px" }}>
+      <div className="shrink-0 shadow-sm" style={{ borderRadius: "16px", border: "1px solid var(--cb-border-soft)", background: "var(--cb-bg-card)", padding: "14px" }}>
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <MdAccessTime className="text-orange-500" style={{ fontSize: "0.9rem" }} />
-            <p className="mb-0 font-bold text-gray-700" style={{ fontSize: "0.68rem" }}>Status updates</p>
+            <p className="mb-0 font-bold" style={{ fontSize: "0.68rem", color: "var(--cb-text-muted)" }}>Status updates</p>
           </div>
-          <span className="flex items-center gap-1" style={{ borderRadius: "20px", background: delivered ? "#ecfdf5" : "#fff7ed", border: `1px solid ${delivered ? "#a7f3d0" : "#fed7aa"}`, padding: "2px 8px", fontSize: "0.58rem", fontWeight: 600, color: delivered ? "#059669" : "#ea580c" }}>
+          <span className="flex items-center gap-1" style={{ borderRadius: "20px", background: delivered ? "#ecfdf5" : "var(--cb-bg-warm)", border: `1px solid ${delivered ? "#a7f3d0" : "var(--cb-border-soft)"}`, padding: "2px 8px", fontSize: "0.58rem", fontWeight: 600, color: delivered ? "#059669" : "#ea580c" }}>
             {delivered ? "✓ Complete" : (
               <><span className="inline-block h-1.5 w-1.5 rounded-full bg-orange-500" style={{ animation: "pulse 1.5s infinite" }} /> Live</>
             )}
@@ -188,13 +186,13 @@ const OrderTracker = ({ currentStep, steps, onAdvance }) => {
             return (
               <div key={step.title} className="relative flex gap-3">
                 {i < steps.length - 1 && (
-                  <div style={{ position: "absolute", left: "15px", top: "32px", width: "2px", height: "calc(100% - 8px)", background: done ? "linear-gradient(to bottom,#ea580c,#fb923c)" : "#f3f4f6", borderRadius: "2px", transition: "background 0.4s ease" }} />
+                  <div style={{ position: "absolute", left: "15px", top: "32px", width: "2px", height: "calc(100% - 8px)", background: done ? "linear-gradient(to bottom,#ea580c,#fb923c)" : "var(--cb-border-muted)", borderRadius: "2px", transition: "background 0.4s ease" }} />
                 )}
                 <div className="relative z-10 shrink-0 flex flex-col items-center" style={{ paddingBottom: i < steps.length - 1 ? "16px" : "0" }}>
                   <motion.div
                     animate={current && !delivered ? { scale: [1, 1.12, 1] } : { scale: 1 }}
                     transition={current && !delivered ? { repeat: Infinity, duration: 1.8, ease: "easeInOut" } : {}}
-                    style={{ width: "30px", height: "30px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.9rem", flexShrink: 0, background: done || (current && delivered) ? "linear-gradient(135deg,#ea580c,#f97316)" : current ? "linear-gradient(135deg,#ea580c,#fb923c)" : "#f9fafb", border: pending ? "2px solid #e5e7eb" : "none", boxShadow: current && !delivered ? "0 0 0 4px rgba(234,88,12,0.15), 0 2px 8px rgba(234,88,12,0.3)" : done ? "0 2px 6px rgba(234,88,12,0.25)" : "none", color: pending ? "#d1d5db" : "#fff", transition: "all 0.3s ease" }}
+                    style={{ width: "30px", height: "30px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.9rem", flexShrink: 0, background: done || (current && delivered) ? "linear-gradient(135deg,#ea580c,#f97316)" : current ? "linear-gradient(135deg,#ea580c,#fb923c)" : "var(--cb-bg-item)", border: pending ? "2px solid var(--cb-border-dash)" : "none", boxShadow: current && !delivered ? "0 0 0 4px rgba(234,88,12,0.15), 0 2px 8px rgba(234,88,12,0.3)" : done ? "0 2px 6px rgba(234,88,12,0.25)" : "none", color: pending ? "var(--cb-text-faint)" : "#fff", transition: "all 0.3s ease" }}
                   >
                     {(done || (current && delivered)) ? <MdCheckCircle style={{ fontSize: "1rem" }} /> : <Icon />}
                   </motion.div>
@@ -205,11 +203,11 @@ const OrderTracker = ({ currentStep, steps, onAdvance }) => {
                     initial={{ opacity: 0, x: 6 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.08, duration: 0.22 }}
-                    style={{ borderRadius: "12px", padding: "10px 12px", background: current ? "#fff7ed" : done ? "#fafafa" : "#f9fafb", border: current ? "1.5px solid #fed7aa" : done ? "1px solid #f3f4f6" : "1px dashed #e5e7eb", opacity: pending ? 0.5 : 1, transition: "all 0.3s ease" }}
+                    style={{ borderRadius: "12px", padding: "10px 12px", background: current ? "var(--cb-bg-warm)" : done ? "var(--cb-bg-soft)" : "var(--cb-bg-item)", border: current ? "1.5px solid var(--cb-border-soft)" : done ? "1px solid var(--cb-border-muted)" : "1px dashed var(--cb-border-dash)", opacity: pending ? 0.5 : 1, transition: "all 0.3s ease" }}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <p className="mb-0 font-bold" style={{ fontSize: "0.72rem", color: pending ? "#9ca3af" : current ? "#1f2937" : "#374151", lineHeight: 1.2 }}>
+                        <p className="mb-0 font-bold" style={{ fontSize: "0.72rem", color: pending ? "var(--cb-text-faint)" : "var(--cb-text-main)", lineHeight: 1.2 }}>
                           {step.title}
                         </p>
                         {current && !delivered && (
@@ -224,11 +222,11 @@ const OrderTracker = ({ currentStep, steps, onAdvance }) => {
                           </span>
                         )}
                       </div>
-                      <span style={{ fontSize: "0.6rem", fontWeight: 700, color: pending ? "#d1d5db" : current ? "#ea580c" : "#6b7280", whiteSpace: "nowrap", flexShrink: 0 }}>
+                      <span style={{ fontSize: "0.6rem", fontWeight: 700, color: pending ? "var(--cb-text-faint)" : current ? "#ea580c" : "var(--cb-text-muted)", whiteSpace: "nowrap", flexShrink: 0 }}>
                         {step.eta}
                       </span>
                     </div>
-                    <p className="mb-0 leading-relaxed" style={{ fontSize: "0.62rem", color: pending ? "#d1d5db" : "#9ca3af", marginTop: "5px" }}>
+                    <p className="mb-0 leading-relaxed" style={{ fontSize: "0.62rem", color: pending ? "var(--cb-text-faint)" : "var(--cb-text-faint)", marginTop: "5px" }}>
                       {step.detail}
                     </p>
                   </motion.div>
@@ -240,27 +238,27 @@ const OrderTracker = ({ currentStep, steps, onAdvance }) => {
       </div>
 
       {/* ── Order items ── */}
-      <div className="shrink-0 bg-white shadow-sm" style={{ borderRadius: "16px", border: "1px solid #fed7aa", padding: "14px" }}>
+      <div className="shrink-0 shadow-sm" style={{ borderRadius: "16px", border: "1px solid var(--cb-border-soft)", background: "var(--cb-bg-card)", padding: "14px" }}>
         <div className="mb-2 flex items-center gap-1.5">
           <MdReceipt className="text-orange-500" style={{ fontSize: "0.9rem" }} />
-          <p className="mb-0 font-bold text-gray-700" style={{ fontSize: "0.68rem" }}>Your items</p>
+          <p className="mb-0 font-bold" style={{ fontSize: "0.68rem", color: "var(--cb-text-muted)" }}>Your items</p>
         </div>
         <div className="flex flex-col" style={{ gap: "6px" }}>
           {ORDER_ITEMS.map((item) => (
-            <div key={item.name} className="flex items-center justify-between" style={{ borderRadius: "10px", background: "#fff7ed", border: "1px solid #fed7aa", padding: "8px 10px" }}>
+            <div key={item.name} className="flex items-center justify-between" style={{ borderRadius: "10px", background: "var(--cb-bg-warm)", border: "1px solid var(--cb-border-soft)", padding: "8px 10px" }}>
               <div className="flex items-center gap-2 min-w-0">
                 <MdLocalFireDepartment className="shrink-0 text-orange-400" style={{ fontSize: "0.8rem" }} />
-                <p className="mb-0 truncate text-gray-700" style={{ fontSize: "0.65rem", fontWeight: 600 }}>{item.name}</p>
+                <p className="mb-0 truncate" style={{ fontSize: "0.65rem", fontWeight: 600, color: "var(--cb-text-sub)" }}>{item.name}</p>
               </div>
               <div className="flex items-center gap-2 shrink-0 ml-2">
-                <span className="text-gray-400" style={{ fontSize: "0.6rem" }}>×{item.qty}</span>
+                <span style={{ fontSize: "0.6rem", color: "var(--cb-text-faint)" }}>×{item.qty}</span>
                 <span className="font-bold text-orange-500" style={{ fontSize: "0.65rem" }}>{item.price}</span>
               </div>
             </div>
           ))}
-          <div className="flex justify-between pt-1" style={{ borderTop: "1px dashed #fed7aa", marginTop: "2px" }}>
-            <span className="text-gray-500" style={{ fontSize: "0.62rem", fontWeight: 600 }}>Total</span>
-            <span className="font-bold text-gray-800" style={{ fontSize: "0.68rem" }}>₹1,207</span>
+          <div className="flex justify-between pt-1" style={{ borderTop: "1px dashed var(--cb-border-soft)", marginTop: "2px" }}>
+            <span style={{ fontSize: "0.62rem", fontWeight: 600, color: "var(--cb-text-muted)" }}>Total</span>
+            <span className="font-bold" style={{ fontSize: "0.68rem", color: "var(--cb-text-main)" }}>₹1,207</span>
           </div>
         </div>
       </div>
@@ -270,8 +268,8 @@ const OrderTracker = ({ currentStep, steps, onAdvance }) => {
         <button
           type="button"
           onClick={() => toast.info("Call rider feature can be linked to your delivery provider.", { position: "bottom-left" })}
-          className="inline-flex items-center justify-center gap-1.5 bg-white font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50"
-          style={{ borderRadius: "12px", border: "1px solid #e5e7eb", padding: "10px 0", fontSize: "0.72rem" }}
+          className="inline-flex items-center justify-center gap-1.5 font-semibold shadow-sm transition"
+          style={{ borderRadius: "12px", border: "1px solid var(--cb-border-dash)", background: "var(--cb-bg-card)", padding: "10px 0", fontSize: "0.72rem", color: "var(--cb-text-muted)" }}
         >
           <MdCall className="text-orange-500" style={{ fontSize: "0.9rem" }} /> Call rider
         </button>
