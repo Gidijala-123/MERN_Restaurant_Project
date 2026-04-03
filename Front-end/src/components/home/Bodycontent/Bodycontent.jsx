@@ -1485,85 +1485,46 @@ const Bodycontent = (props) => {
                 </div>
               </div>
 
-              {/* Delivery Payments */}
+              {/* Why Choose Flavora */}
               <div className="delivery-payment-section">
                 <div className="section-title-wrapper border-0">
                   <div className="section-title-left">
-                    <span className="section-badge" style={{ background: 'rgba(255,255,255,0.2)', boxShadow: 'none' }}>SECURE</span>
-                    <h2 className="heading-title" style={{ color: 'white' }}>Delivery and Payments</h2>
+                    <span className="section-badge" style={{ background: 'rgba(255,255,255,0.2)', boxShadow: 'none' }}>WHY US</span>
+                    <h2 className="heading-title" style={{ color: 'white' }}>Why Choose Flavora</h2>
                   </div>
                 </div>
                 <div className="delivery-content">
-                  <h2 className="special-heading">Delivery and Payments</h2>
+                  <h2 className="special-heading">More than just food delivery</h2>
                   <p className="special-para">
-                    Enjoy hassle-free payment with the plenitude of payment options
-                    available for you. Get live tracking and locate your food on a
-                    live map. It's quite a sight to see your food arrive to your
-                    door. Plus, you get a 5% discount on every order every time you
-                    pay online.
+                    From farm-fresh ingredients to your doorstep in under 30 minutes.
+                    Every order is crafted with care, packed with love, and delivered
+                    with speed. Join thousands of happy customers who trust Flavora
+                    for their daily meals.
                   </p>
-                  <div className="payment-methods">
-                    <div className="payment-providers">
-                      <p
-                        style={{
-                          fontSize: "0.85rem",
-                          opacity: 0.9,
-                          marginBottom: "12px",
-                          fontWeight: "600",
-                          textTransform: "uppercase",
-                          letterSpacing: "1px",
-                        }}
-                      >
-                        Card Payments
-                      </p>
-                      <div
-                        style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}
-                      >
-                        <img src="/footer-images/paypal.png" alt="paypal" />
-                        <img src="/footer-images/visa.png" alt="visa" />
-                        <img src="/footer-images/mastercard.png" alt="mastercard" />
+                  <div className="payment-methods" style={{ flexWrap: "wrap", gap: "18px" }}>
+                    {[
+                      { icon: "⚡", label: "30-min delivery", sub: "Guaranteed fast" },
+                      { icon: "🌿", label: "Farm fresh", sub: "100% natural" },
+                      { icon: "🏆", label: "Top rated", sub: "4.8★ avg rating" },
+                      { icon: "🔒", label: "Safe & hygienic", sub: "FSSAI certified" },
+                    ].map(({ icon, label, sub }) => (
+                      <div key={label} style={{ display: "flex", alignItems: "center", gap: "10px", background: "rgba(255,255,255,0.12)", borderRadius: "14px", padding: "10px 16px", minWidth: "140px" }}>
+                        <span style={{ fontSize: "1.6rem" }}>{icon}</span>
+                        <div>
+                          <p style={{ margin: 0, fontWeight: 700, fontSize: "0.85rem", color: "#fff" }}>{label}</p>
+                          <p style={{ margin: 0, fontSize: "0.7rem", color: "rgba(255,255,255,0.75)" }}>{sub}</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="alternative-methods">
-                      <p
-                        style={{
-                          fontSize: "0.85rem",
-                          opacity: 0.9,
-                          marginBottom: "12px",
-                          fontWeight: "600",
-                          textTransform: "uppercase",
-                          letterSpacing: "1px",
-                        }}
-                      >
-                        Alternative Methods
-                      </p>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "12px",
-                        }}
-                      >
-                        <AttachMoneyIcon
-                          style={{ fontSize: "1.8rem", color: "#fff" }}
-                        />
-                        <span style={{ fontWeight: "700", fontSize: "1.1rem" }}>
-                          Cash on Delivery
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      className="main-action-btn"
-                      style={{ marginLeft: "auto" }}
-                    >
-                      Order Now
+                    ))}
+                    <button className="main-action-btn" style={{ marginLeft: "auto" }}>
+                      Explore Menu
                     </button>
                   </div>
                 </div>
                 <div className="payment-img-container">
                   <img
                     src="/footer-images/deliverypayment.jpg"
-                    alt="delivery"
+                    alt="flavora delivery"
                     className="delivery-img"
                   />
                 </div>

@@ -8,7 +8,19 @@ import {
   removeFromCart,
 } from "../../features/cartSlice";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import "./Cart.css";
+
+// Dynamically load Razorpay checkout script
+const loadRazorpay = () =>
+  new Promise((resolve) => {
+    if (window.Razorpay) return resolve(true);
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
 
 const Cart = () => {
   const cart = useSelector((state) => state.cart);
@@ -102,14 +114,62 @@ const Cart = () => {
     doc.save(`Flavora_Invoice_${orderNo}.pdf`);
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     const btn = document.querySelector(".btn-checkout");
-    btn.innerText = "Processing…";
+    btn.innerText = "Loading…";
     btn.disabled = true;
-    setTimeout(() => {
-      dispatch(clearCart());
-      navigate("/checkout-success");
-    }, 2000);
+
+    const loaded = await loadRazorpay();
+    if (!loaded) {
+      toast.error("Failed to load payment gateway. Check your connection.");
+      btn.innerText = "🚀 Proceed to Checkout";
+      btn.disabled = false;
+      return;
+    }
+
+    // Amount in paise (Razorpay requires smallest currency unit)
+    const amountInPaise = grandTotal * 100;
+
+    const options = {
+      // Replace with your actual Razorpay Key ID from https://dashboard.razorpay.com
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_YourKeyHere",
+      amount: amountInPaise,
+      currency: "INR",
+      name: "Flavora",
+      description: `Order of ${totalItems} item${totalItems !== 1 ? "s" : ""}`,
+      image: "/footer-images/logo.png",
+      handler: function (response) {
+        // Payment successful — response.razorpay_payment_id is the real transaction ID
+        dispatch(clearCart());
+        navigate("/checkout-success", {
+          state: { paymentId: response.razorpay_payment_id },
+        });
+      },
+      prefill: {
+        name: "",
+        email: "",
+        contact: "",
+      },
+      theme: {
+        color: "#ea580c",
+      },
+      modal: {
+        ondismiss: () => {
+          btn.innerText = "🚀 Proceed to Checkout";
+          btn.disabled = false;
+        },
+      },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.on("payment.failed", (response) => {
+      toast.error(`Payment failed: ${response.error.description}`);
+      btn.innerText = "🚀 Proceed to Checkout";
+      btn.disabled = false;
+    });
+    rzp.open();
+    btn.innerText = "🚀 Proceed to Checkout";
+    btn.disabled = false;
   };
 
   return (

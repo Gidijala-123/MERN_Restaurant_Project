@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function LoadingOverlay({ message = "Loading…", showText = false }) {
   const [ready, setReady] = useState(false);
+  const { theme } = useTheme();
+  const videoSrc = theme === "dark" ? "/footer-images/loading_dark.mp4" : "/footer-images/loading.mp4";
 
   return (
     <div className="app-loading" style={{
@@ -28,12 +31,12 @@ export default function LoadingOverlay({ message = "Loading…", showText = fals
         onCanPlay={() => setReady(true)}
         style={{ width: '160px', height: '160px' }}
       >
-        <source src="/footer-images/loading.mp4" type="video/mp4" />
+        <source src={videoSrc} type="video/mp4" />
       </video>
       {showText && ready && (
-        <div className="app-loading__text" style={{ 
-          marginTop: '20px', 
-          fontWeight: 700, 
+        <div className="app-loading__text" style={{
+          marginTop: '20px',
+          fontWeight: 700,
           color: 'var(--primary)',
           fontSize: '1.2rem'
         }}>{message}</div>
