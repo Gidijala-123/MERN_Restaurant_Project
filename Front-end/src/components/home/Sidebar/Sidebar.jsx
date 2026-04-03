@@ -308,7 +308,11 @@ export default function Sidebar() {
 
   const handleGoToSettings = useCallback(() => {
     handleAccountMenuClose();
-    navigate("/home/settings");
+    setTimeout(() => {
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+      navigate("/home/settings");
+    }, 300);
   }, [handleAccountMenuClose, navigate]);
 
   const menuStyle = useMemo(() => ({

@@ -110,6 +110,16 @@ export default function Settings() {
     setUserOrders(Array.isArray(orders) ? orders : []);
   }, []);
 
+  // Force-clear any scroll lock left by MUI Menu/Dialog on navigation
+  useEffect(() => {
+    document.body.style.overflow = "";
+    document.body.style.paddingRight = "";
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    };
+  }, []);
+
   useEffect(() => {
     const stored = {
       name: localStorage.getItem("userName") || "",
