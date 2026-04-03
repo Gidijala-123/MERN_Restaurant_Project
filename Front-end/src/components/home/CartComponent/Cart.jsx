@@ -43,80 +43,236 @@ const Cart = () => {
   const totalItems = cart.cartItems.reduce((s, i) => s + i.cartQuantity, 0);
 
   // Accepts optional snapshot so it can be called after cart is cleared
-  const generatePDF = async (itemsSnapshot = cart.cartItems, totalSnapshot = cart.cartTotalAmount, gstSnapshot = gst, grandSnapshot = grandTotal) => {
+  const generatePDF = async (itemsSnapshot, totalSnapshot, gstSnapshot, grandSnapshot) => {
+    const items = Array.isArray(itemsSnapshot) ? itemsSnapshot : cart.cartItems;
+    const total = typeof totalSnapshot === "number" ? totalSnapshot : cart.cartTotalAmount;
+    const gstVal = typeof gstSnapshot === "number" ? gstSnapshot : gst;
+    const grand = typeof grandSnapshot === "number" ? grandSnapshot : grandTotal;
+
     setPdfLoading(true);
-    const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
-      import("jspdf"),
-      import("jspdf-autotable"),
-    ]);
-    const doc = new jsPDF();
-    const orderNo = Math.random().toString(36).substr(2, 7).toUpperCase();
+    try {
+      const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+        import("jspdf"),
+        import("jspdf-autotable"),
+      ]);
+      const doc = new jsPDF();
+      const pageW = doc.internal.pageSize.getWidth();
+      const orderNo = Math.random().toString(36).substr(2, 7).toUpperCase();
+      const dateStr = new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+      const timeStr = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
 
-    doc.setFillColor(248, 248, 248);
-    doc.rect(0, 0, 210, 40, "F");
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(28);
-    doc.setTextColor(237, 31, 36);
-    doc.text("Flavora", 20, 25);
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.setFont("helvetica", "normal");
-    doc.text("Fresh & Healthy Food Delivery", 20, 32);
-    doc.setFillColor(255, 255, 255);
-    doc.setDrawColor(232, 232, 232);
-    doc.roundedRect(20, 45, 170, 25, 3, 3, "FD");
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(28, 28, 28);
-    doc.text("INVOICE DETAILS", 25, 52);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(105, 105, 105);
-    doc.text(`Order ID: #${orderNo}`, 25, 60);
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 25, 65);
-    doc.text(`Status: Paid`, 160, 60, { align: "right" });
+      // ── Header band ──
+      doc.setFillColor(234, 88, 12);
+      doc.rect(0, 0, pageW, 48, "F");
 
-    const tableData = itemsSnapshot.map((item) => [
-      item.title,
-      `Rs. ${item.price}`,
-      item.cartQuantity,
-      `Rs. ${item.price * item.cartQuantity}`,
-    ]);
-    autoTable(doc, {
-      startY: 75,
-      head: [["Item Name", "Cost", "Qty", "Total"]],
-      body: tableData,
-      theme: "grid",
-      headStyles: { fillColor: [237, 31, 36], textColor: [255, 255, 255], fontSize: 10, fontStyle: "bold", halign: "center" },
-      columnStyles: { 0: { cellWidth: 80 }, 1: { halign: "center" }, 2: { halign: "center" }, 3: { halign: "right", fontStyle: "bold" } },
-      styles: { font: "helvetica", fontSize: 9, cellPadding: 5 },
-      alternateRowStyles: { fillColor: [252, 252, 252] },
-    });
+      // Decorative circles in header
+      doc.setFillColor(255, 255, 255, 0.08);
+      doc.setDrawColor(255, 255, 255);
+      doc.setLineWidth(0.3);
+      doc.circle(185, 8, 22, "S");
+      doc.circle(185, 8, 14, "S");
+      doc.circle(10, 48, 18, "S");
 
-    const finalY = doc.lastAutoTable.finalY + 15;
-    doc.setDrawColor(232, 232, 232);
-    doc.line(120, finalY - 5, 190, finalY - 5);
-    doc.setFontSize(10);
-    doc.setTextColor(105, 105, 105);
-    doc.text("Sub-Total:", 140, finalY);
-    doc.text(`Rs. ${totalSnapshot}`, 190, finalY, { align: "right" });
-    doc.text("GST (18%):", 140, finalY + 8);
-    doc.text(`Rs. ${gstSnapshot}`, 190, finalY + 8, { align: "right" });
-    doc.setFillColor(237, 31, 36);
-    doc.rect(130, finalY + 13, 60, 10, "F");
-    doc.setFontSize(11);
-    doc.setTextColor(255, 255, 255);
-    doc.setFont("helvetica", "bold");
-    doc.text("Grand Total:", 135, finalY + 20);
-    doc.text(`Rs. ${grandSnapshot}`, 185, finalY + 20, { align: "right" });
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "italic");
-    doc.setTextColor(150);
-    doc.text("This is a computer generated invoice.", 105, 275, { align: "center" });
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(237, 31, 36);
-    doc.text("Thank you for ordering with Flavora!", 105, 282, { align: "center" });
-    doc.save(`Flavora_Invoice_${orderNo}.pdf`);
-    setPdfLoading(false);
+      // Brand name
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(26);
+      doc.setTextColor(255, 255, 255);
+      doc.text("FLAVORA", 18, 22);
+
+      // Tagline
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(255, 220, 180);
+      doc.text("Fresh & Healthy Food Delivery", 18, 30);
+
+      // "INVOICE" label on right
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(18);
+      doc.setTextColor(255, 255, 255);
+      doc.text("INVOICE", pageW - 18, 22, { align: "right" });
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(255, 220, 180);
+      doc.text(`# ${orderNo}`, pageW - 18, 30, { align: "right" });
+
+      // ── Orange accent line below header ──
+      doc.setFillColor(251, 146, 60);
+      doc.rect(0, 48, pageW, 3, "F");
+
+      // ── Info row ──
+      const infoY = 62;
+      // Left box — Order info
+      doc.setFillColor(255, 247, 237);
+      doc.roundedRect(14, infoY - 6, 85, 28, 3, 3, "F");
+      doc.setDrawColor(254, 215, 170);
+      doc.setLineWidth(0.4);
+      doc.roundedRect(14, infoY - 6, 85, 28, 3, 3, "S");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7);
+      doc.setTextColor(180, 80, 10);
+      doc.text("ORDER DETAILS", 19, infoY);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(60, 60, 60);
+      doc.text(`Order ID:`, 19, infoY + 7);
+      doc.setFont("helvetica", "bold");
+      doc.text(`#${orderNo}`, 42, infoY + 7);
+
+      doc.setFont("helvetica", "normal");
+      doc.text(`Date:`, 19, infoY + 14);
+      doc.setFont("helvetica", "bold");
+      doc.text(`${dateStr}  ${timeStr}`, 34, infoY + 14);
+
+      // Right box — Status
+      doc.setFillColor(236, 253, 245);
+      doc.roundedRect(111, infoY - 6, 85, 28, 3, 3, "F");
+      doc.setDrawColor(167, 243, 208);
+      doc.roundedRect(111, infoY - 6, 85, 28, 3, 3, "S");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7);
+      doc.setTextColor(5, 150, 105);
+      doc.text("PAYMENT STATUS", 116, infoY);
+
+      // Green checkmark circle
+      doc.setFillColor(16, 185, 129);
+      doc.circle(122, infoY + 10, 5, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(255, 255, 255);
+      doc.text("✓", 120, infoY + 12.5);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(5, 150, 105);
+      doc.text("PAID", 130, infoY + 12);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(100, 100, 100);
+      doc.text("Secured via Razorpay", 116, infoY + 19);
+
+      // ── Section label ──
+      const tableStartY = infoY + 36;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(180, 80, 10);
+      doc.text("ORDER ITEMS", 14, tableStartY - 3);
+
+      // ── Items table ──
+      const tableData = items.map((item, i) => [
+        `${i + 1}`,
+        item.title,
+        `Rs. ${item.price}`,
+        `${item.cartQuantity}`,
+        `Rs. ${item.price * item.cartQuantity}`,
+      ]);
+
+      autoTable(doc, {
+        startY: tableStartY,
+        head: [["#", "Item Name", "Unit Price", "Qty", "Total"]],
+        body: tableData,
+        theme: "plain",
+        headStyles: {
+          fillColor: [234, 88, 12],
+          textColor: [255, 255, 255],
+          fontSize: 9,
+          fontStyle: "bold",
+          halign: "center",
+          cellPadding: { top: 5, bottom: 5, left: 4, right: 4 },
+        },
+        columnStyles: {
+          0: { cellWidth: 10, halign: "center", valign: "middle", fontStyle: "bold", textColor: [150, 150, 150] },
+          1: { cellWidth: 80, fontStyle: "bold", textColor: [30, 30, 30] },
+          2: { halign: "center", textColor: [80, 80, 80] },
+          3: { halign: "center", textColor: [80, 80, 80] },
+          4: { halign: "right", fontStyle: "bold", textColor: [234, 88, 12] },
+        },
+        styles: { font: "helvetica", fontSize: 9, cellPadding: { top: 8, bottom: 8, left: 5, right: 5 }, lineColor: [240, 240, 240], lineWidth: 0.3, valign: "middle" },
+        alternateRowStyles: { fillColor: [255, 251, 247] },
+        rowPageBreak: "avoid",
+        didParseCell: (data) => {
+          if (data.column.index === 0 && data.section === "body") {
+            data.cell.styles.fontStyle = "bold";
+            data.cell.styles.halign = "center";
+            data.cell.styles.valign = "middle";
+            data.cell.styles.textColor = [180, 80, 10];
+          }
+          if (data.section === "body") {
+            data.cell.styles.valign = "middle";
+          }
+        },
+      });
+
+      // ── Totals section ──
+      const tY = doc.lastAutoTable.finalY + 8;
+
+      // Thin separator
+      doc.setDrawColor(234, 88, 12);
+      doc.setLineWidth(0.5);
+      doc.line(110, tY, pageW - 14, tY);
+
+      // Sub-total row
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(100, 100, 100);
+      doc.text("Sub-Total", 130, tY + 9);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(40, 40, 40);
+      doc.text(`Rs. ${total}`, pageW - 14, tY + 9, { align: "right" });
+
+      // GST row
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(100, 100, 100);
+      doc.text("GST (18%)", 130, tY + 18);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(40, 40, 40);
+      doc.text(`+ Rs. ${gstVal}`, pageW - 14, tY + 18, { align: "right" });
+
+      // Grand total band
+      doc.setFillColor(234, 88, 12);
+      doc.roundedRect(110, tY + 23, pageW - 124, 14, 3, 3, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10.5);
+      doc.setTextColor(255, 255, 255);
+      doc.text("GRAND TOTAL", 116, tY + 32);
+      doc.text(`Rs. ${grand}`, pageW - 20, tY + 32, { align: "right" });
+
+      // ── Items count badge ──
+      doc.setFillColor(255, 247, 237);
+      doc.roundedRect(14, tY + 8, 60, 18, 3, 3, "F");
+      doc.setDrawColor(254, 215, 170);
+      doc.roundedRect(14, tY + 8, 60, 18, 3, 3, "S");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(180, 80, 10);
+      doc.text(`${items.length} item${items.length !== 1 ? "s" : ""}  ·  ${items.reduce((s, i) => s + i.cartQuantity, 0)} qty`, 19, tY + 19);
+
+      // ── Footer ──
+      const footerY = 272;
+      doc.setFillColor(245, 245, 245);
+      doc.rect(0, footerY, pageW, 25, "F");
+      doc.setFillColor(234, 88, 12);
+      doc.rect(0, footerY, pageW, 1.5, "F");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(234, 88, 12);
+      doc.text("Thank you for ordering with Flavora!", pageW / 2, footerY + 9, { align: "center" });
+
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(7.5);
+      doc.setTextColor(150, 150, 150);
+      doc.text("This is a computer-generated invoice. No signature required.", pageW / 2, footerY + 17, { align: "center" });
+
+      doc.save(`Flavora_Invoice_${orderNo}.pdf`);
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+    } finally {
+      setPdfLoading(false);
+    }
   };
 
   const handleCheckout = async () => {
