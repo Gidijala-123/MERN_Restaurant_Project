@@ -444,3 +444,29 @@ span {
    font-size: 1.8rem;
    font-weight: 500;
 }
+
+/* ── Mobile: hide inline search bar — Sidebar renders its own ── */
+@media (max-width: 768px) {
+   .searchbar-div {
+      display: none !important;
+   }
+
+   .navbar {
+      padding: 0 0.75rem;
+      gap: 0.5rem;
+   }
+
+   .nav-icons-div {
+      width: auto;
+      gap: 0.4rem;
+   }
+
+   .nav-icons-div .nav-icon {
+      width: 34px !important;
+      height: 34px !important;
+   }
+
+   .kitchen-logo {
+      height: 3rem;
+   }
+}

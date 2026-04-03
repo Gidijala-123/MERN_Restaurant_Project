@@ -255,7 +255,7 @@ export default function Sidebar() {
             setUserAvatar(me.avatar);
           }
         }
-      } catch {}
+      } catch { }
     };
     load();
   }, []);
@@ -276,7 +276,7 @@ export default function Sidebar() {
         credentials: "include",
         headers: { "x-csrf-token": csrf?.csrfToken || "" },
       });
-    } catch {}
+    } catch { }
     setTimeout(() => {
       localStorage.removeItem("token");
       localStorage.removeItem("userName");
@@ -354,10 +354,10 @@ export default function Sidebar() {
 
   const computeFavorites = useCallback(() => {
     const keys = [
-      "trendingBookmarked", 
-      "discountBookmarked", 
-      "offerBookmarked", 
-      "popularBookmarked", 
+      "trendingBookmarked",
+      "discountBookmarked",
+      "offerBookmarked",
+      "popularBookmarked",
       "recentBookmarked",
       "menuFavorites"
     ];
@@ -392,11 +392,11 @@ export default function Sidebar() {
       <CssBaseline />
       <AppBar position="static" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar
-          sx={{ 
-            minHeight: { xs: 64, md: 72 }, 
-            height: { xs: 64, md: 72 }, 
-            paddingLeft: { xs: 1, md: 0 }, 
-            paddingRight: { xs: 1, md: 2 }, 
+          sx={{
+            minHeight: { xs: 64, md: 72 },
+            height: { xs: 64, md: 72 },
+            paddingLeft: { xs: 1, md: 0 },
+            paddingRight: { xs: 1, md: 2 },
             boxSizing: "border-box",
             background: "var(--nav-bg)",
             borderBottom: `1px solid ${appTheme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}`
@@ -409,7 +409,7 @@ export default function Sidebar() {
               width: { xs: 32, md: 38 },
               height: { xs: 32, md: 38 },
               marginLeft: { xs: 0.5, md: "13.5px" }, // Center within 65px: (65-38)/2 = 13.5
-              marginRight: { xs: 1, md: "13.5px" }, 
+              marginRight: { xs: 1, md: "13.5px" },
               borderRadius: "8px",
               background: "linear-gradient(135deg, #FF6A00 0%, #FF8C3A 100%)",
               color: "white",
@@ -524,15 +524,15 @@ export default function Sidebar() {
                 whiteSpace: "nowrap",
               }}
             >
-              <IconButton 
-                color="inherit" 
+              <IconButton
+                color="inherit"
                 onClick={toggleTheme}
-                sx={{ 
-                  p: { xs: 0.8, md: 1.2 }, 
+                sx={{
+                  p: { xs: 0.8, md: 1.2 },
                   borderRadius: "10px",
                   background: appTheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
                   transition: "all 0.3s ease",
-                  "&:hover": { 
+                  "&:hover": {
                     transform: "rotate(15deg) scale(1.1)",
                     color: "var(--primary) !important",
                     background: "rgba(230, 81, 0, 0.1) !important"
@@ -544,20 +544,20 @@ export default function Sidebar() {
               <IconButton
                 color="inherit"
                 onClick={() => navigate("/home/favorites")}
-                sx={{ 
-                  p: { xs: 0.8, md: 1.2 }, 
+                sx={{
+                  p: { xs: 0.8, md: 1.2 },
                   borderRadius: "10px",
                   background: appTheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
                   transition: "all 0.3s ease",
-                  "&:hover": { 
+                  "&:hover": {
                     transform: "translateY(-3px)",
                     color: "var(--primary) !important",
                     background: "rgba(230, 81, 0, 0.1) !important"
                   }
                 }}
               >
-                <Badge 
-                  badgeContent={favoritesCount > 0 ? favoritesCount : null} 
+                <Badge
+                  badgeContent={favoritesCount > 0 ? favoritesCount : null}
                   sx={{
                     "& .MuiBadge-badge": {
                       backgroundColor: "var(--primary)",
@@ -570,14 +570,14 @@ export default function Sidebar() {
                   }}
                 >
                   {favoritesCount > 0 ? (
-                    <FavoritesIcon sx={{ 
-                      fontSize: { xs: 18, md: 22 }, 
+                    <FavoritesIcon sx={{
+                      fontSize: { xs: 18, md: 22 },
                       color: "#FF6A00",
                       fill: "#FF6A00"
                     }} />
                   ) : (
-                    <FavoriteBorderIcon sx={{ 
-                      fontSize: { xs: 18, md: 22 }, 
+                    <FavoriteBorderIcon sx={{
+                      fontSize: { xs: 18, md: 22 },
                       color: "var(--text-main)",
                     }} />
                   )}
@@ -587,20 +587,20 @@ export default function Sidebar() {
                 color="inherit"
                 component={Link}
                 to="/cart"
-                sx={{ 
-                  p: { xs: 0.8, md: 1.2 }, 
+                sx={{
+                  p: { xs: 0.8, md: 1.2 },
                   borderRadius: "10px",
                   background: appTheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
                   transition: "all 0.3s ease",
-                  "&:hover": { 
+                  "&:hover": {
                     transform: "translateY(-3px)",
                     color: "var(--primary) !important",
                     background: "rgba(230, 81, 0, 0.1) !important"
                   }
                 }}
               >
-                <Badge 
-                  badgeContent={quantity} 
+                <Badge
+                  badgeContent={quantity}
                   sx={{
                     "& .MuiBadge-badge": {
                       backgroundColor: "var(--primary)",
@@ -616,12 +616,12 @@ export default function Sidebar() {
               </IconButton>
               <IconButton
                 onClick={handleAccountMenuOpen}
-                sx={{ 
-                  p: 0.5, 
+                sx={{
+                  p: 0.5,
                   borderRadius: "12px",
                   border: `2px solid ${isAccountMenuOpen ? "var(--primary)" : "transparent"}`,
                   transition: "all 0.3s ease",
-                  "&:hover": { 
+                  "&:hover": {
                     transform: "scale(1.05)",
                     background: "rgba(230, 81, 0, 0.05) !important"
                   }
@@ -629,9 +629,9 @@ export default function Sidebar() {
               >
                 <Avatar
                   src={userAvatar || undefined}
-                  sx={{ 
-                    width: { xs: 32, md: 38 }, 
-                    height: { xs: 32, md: 38 }, 
+                  sx={{
+                    width: { xs: 32, md: 38 },
+                    height: { xs: 32, md: 38 },
                     borderRadius: "8px",
                     background: "var(--primary-gradient)",
                     fontSize: "0.9rem",
@@ -696,445 +696,446 @@ export default function Sidebar() {
           </Box>
         </Toolbar>
         {/* Mobile Search Bar - Centered and refined */}
-        <Box 
-          sx={{ 
-            display: { xs: "flex", md: "none" }, 
-            px: 2, 
-            pb: 1.5,
+        <Box
+          sx={{
+            display: { xs: "flex", md: "none" },
+            px: 1.5,
+            py: 0.75,
             width: "100%",
             justifyContent: "center",
             background: appTheme === "dark" ? "var(--nav-bg)" : "white",
-            borderBottom: `1px solid ${appTheme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}`
+            borderBottom: `1px solid ${appTheme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.06)"}`,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
           }}
         >
-          <Box sx={{ width: "100%", maxWidth: "400px" }}>
+          <Box sx={{ width: "100%" }}>
             <SearchBar onSearchChange={handleSectionChange} />
           </Box>
         </Box>
       </AppBar>
       <Box sx={{ display: "flex", flexGrow: 1, overflow: "hidden" }}>
         {isDesktop ? (
-        <Drawer variant="permanent" open={open}>
-          <DrawerHeader
-            sx={{
-              position: "sticky",
-              top: 0,
-              zIndex: 1,
-              background: (theme) => theme.palette.background.paper,
-              borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-            }}
-          >
-            <Box
-              className="drawer-brand"
+          <Drawer variant="permanent" open={open}>
+            <DrawerHeader
               sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                opacity: open ? 1 : 0,
-                visibility: open ? "visible" : "hidden",
-                transition: "opacity 0.3s ease, visibility 0.3s ease",
-                flexGrow: 1,
+                position: "sticky",
+                top: 0,
+                zIndex: 1,
+                background: (theme) => theme.palette.background.paper,
+                borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
               }}
             >
-              <img
-                src="/footer-images/logo.png"
-                alt="logo"
-                className="website-logo-mini"
-                style={{ 
-                  width: open ? "2.5rem" : "2rem", 
-                  height: open ? "2.5rem" : "2rem",
-                  transition: "width 0.3s ease, height 0.3s ease"
+              <Box
+                className="drawer-brand"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  opacity: open ? 1 : 0,
+                  visibility: open ? "visible" : "hidden",
+                  transition: "opacity 0.3s ease, visibility 0.3s ease",
+                  flexGrow: 1,
                 }}
-              />
-              <div className="drawer-brand-text" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                <span className="drawer-brand-title">Flavora</span>
-                <span className="drawer-brand-subtitle">
-                  Fresh & Healthy Food
-                </span>
-              </div>
-            </Box>
-          </DrawerHeader>
-          <Box
-            sx={{ display: "flex", flexDirection: "column", height: "100%" }}
-          >
-            <List>
-              {Sidebar_Items.filter(
-                (i) => i.text !== "Settings" && i.text !== "Logout",
-              ).map((item) => (
-                <ListItem
-                  key={item.text}
-                  disablePadding
-                  sx={{ display: "block" }}
-                >
-                  <ListItemButton
-                    selected={activeSidebarItem === item.text}
-                    onClick={() => {
-                      if (item.path) {
-                        navigate(item.path);
-                      } else {
+              >
+                <img
+                  src="/footer-images/logo.png"
+                  alt="logo"
+                  className="website-logo-mini"
+                  style={{
+                    width: open ? "2.5rem" : "2rem",
+                    height: open ? "2.5rem" : "2rem",
+                    transition: "width 0.3s ease, height 0.3s ease"
+                  }}
+                />
+                <div className="drawer-brand-text" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <span className="drawer-brand-title">Flavora</span>
+                  <span className="drawer-brand-subtitle">
+                    Fresh & Healthy Food
+                  </span>
+                </div>
+              </Box>
+            </DrawerHeader>
+            <Box
+              sx={{ display: "flex", flexDirection: "column", height: "100%" }}
+            >
+              <List>
+                {Sidebar_Items.filter(
+                  (i) => i.text !== "Settings" && i.text !== "Logout",
+                ).map((item) => (
+                  <ListItem
+                    key={item.text}
+                    disablePadding
+                    sx={{ display: "block" }}
+                  >
+                    <ListItemButton
+                      selected={activeSidebarItem === item.text}
+                      onClick={() => {
+                        if (item.path) {
+                          navigate(item.path);
+                        } else {
+                          const targetSection = sectionMap[item.text] || "Home";
+                          handleSectionChange(targetSection, item.text);
+                          // Ensure the URL is updated to the home page if not on a specific path
+                          if (location.pathname !== "/home") {
+                            navigate("/home");
+                          }
+                        }
+                      }}
+                      sx={{
+                        minHeight: 48,
+                        justifyContent: open ? "initial" : "center",
+                        px: 2.5,
+                        transition: "background-color 0.2s ease, color 0.2s ease",
+                        "&.Mui-selected": {
+                          background: "var(--primary-gradient)",
+                          color: "white",
+                          "& .MuiListItemIcon-root": {
+                            color: "white",
+                          },
+                          "&:hover": {
+                            background: "var(--primary-gradient)",
+                            opacity: 0.9,
+                          },
+                        },
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 0,
+                          mr: open ? 3 : "auto",
+                          justifyContent: "center",
+                          color:
+                            activeSidebarItem === item.text ? "white" : "inherit",
+                          "& .MuiSvgIcon-root": {
+                            fontSize: 24,
+                          },
+                        }}
+                      >
+                        {item.icon}
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={item.text}
+                        sx={{
+                          opacity: open ? 1 : 0,
+                          transition: "opacity 0.25s ease",
+                        }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+                {Category_Items.map((item) => (
+                  <ListItem
+                    key={item.text}
+                    disablePadding
+                    sx={{ display: "block" }}
+                  >
+                    <ListItemButton
+                      selected={activeSidebarItem === item.text}
+                      onClick={() => {
                         const targetSection = sectionMap[item.text] || "Home";
                         handleSectionChange(targetSection, item.text);
                         // Ensure the URL is updated to the home page if not on a specific path
                         if (location.pathname !== "/home") {
                           navigate("/home");
                         }
-                      }
-                    }}
-                    sx={{
-                      minHeight: 48,
-                      justifyContent: open ? "initial" : "center",
-                      px: 2.5,
-                      transition: "background-color 0.2s ease, color 0.2s ease",
-                      "&.Mui-selected": {
-                        background: "var(--primary-gradient)",
-                        color: "white",
-                        "& .MuiListItemIcon-root": {
-                          color: "white",
-                        },
-                        "&:hover": {
-                          background: "var(--primary-gradient)",
-                          opacity: 0.9,
-                        },
-                      },
-                    }}
-                  >
-                    <ListItemIcon
+                      }}
                       sx={{
-                        minWidth: 0,
-                        mr: open ? 3 : "auto",
-                        justifyContent: "center",
-                        color:
-                          activeSidebarItem === item.text ? "white" : "inherit",
-                        "& .MuiSvgIcon-root": {
-                          fontSize: 24,
+                        minHeight: 48,
+                        justifyContent: open ? "initial" : "center",
+                        px: 2.5,
+                        transition: "background-color 0.2s ease, color 0.2s ease",
+                        "&.Mui-selected": {
+                          background: "var(--primary-gradient)",
+                          color: "white",
+                          "& .MuiListItemIcon-root": {
+                            color: "white",
+                          },
+                          "&:hover": {
+                            background: "var(--primary-gradient)",
+                            opacity: 0.9,
+                          },
                         },
                       }}
                     >
-                      {item.icon}
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={item.text}
-                      sx={{
-                        opacity: open ? 1 : 0,
-                        transition: "opacity 0.25s ease",
-                      }}
-                    />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-              {Category_Items.map((item) => (
-                <ListItem
-                  key={item.text}
-                  disablePadding
-                  sx={{ display: "block" }}
-                >
-                  <ListItemButton
-                    selected={activeSidebarItem === item.text}
-                    onClick={() => {
-                      const targetSection = sectionMap[item.text] || "Home";
-                      handleSectionChange(targetSection, item.text);
-                      // Ensure the URL is updated to the home page if not on a specific path
-                      if (location.pathname !== "/home") {
-                        navigate("/home");
-                      }
-                    }}
-                    sx={{
-                      minHeight: 48,
-                      justifyContent: open ? "initial" : "center",
-                      px: 2.5,
-                      transition: "background-color 0.2s ease, color 0.2s ease",
-                      "&.Mui-selected": {
-                        background: "var(--primary-gradient)",
-                        color: "white",
-                        "& .MuiListItemIcon-root": {
-                          color: "white",
-                        },
-                        "&:hover": {
-                          background: "var(--primary-gradient)",
-                          opacity: 0.9,
-                        },
-                      },
-                    }}
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 0,
+                          mr: open ? 3 : "auto",
+                          justifyContent: "center",
+                          color:
+                            activeSidebarItem === item.text ? "white" : "inherit",
+                          "& .MuiSvgIcon-root": {
+                            fontSize: 24,
+                          },
+                        }}
+                      >
+                        {item.icon}
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={item.text}
+                        sx={{
+                          opacity: open ? 1 : 0,
+                          transition: "opacity 0.25s ease",
+                        }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+              <Box sx={{ flexGrow: 1 }} />
+              <List>
+                {Sidebar_Items.filter(
+                  (i) => i.text === "Settings" || i.text === "Logout",
+                ).map((item) => (
+                  <ListItem
+                    key={item.text}
+                    disablePadding
+                    sx={{ display: "block" }}
                   >
-                    <ListItemIcon
+                    <ListItemButton
+                      selected={activeSidebarItem === item.text}
+                      onClick={() => {
+                        if (item.action === "logout") {
+                          handleLogout();
+                        } else {
+                          const targetSection = sectionMap[item.text] || "Home";
+                          handleSectionChange(targetSection, item.text);
+                        }
+                      }}
                       sx={{
-                        minWidth: 0,
-                        mr: open ? 3 : "auto",
-                        justifyContent: "center",
-                        color:
-                          activeSidebarItem === item.text ? "white" : "inherit",
-                        "& .MuiSvgIcon-root": {
-                          fontSize: 24,
+                        minHeight: 48,
+                        justifyContent: open ? "initial" : "center",
+                        px: 2.5,
+                        transition: "background-color 0.2s ease, color 0.2s ease",
+                        "&.Mui-selected": {
+                          background: "var(--primary-gradient)",
+                          color: "white",
+                          "& .MuiListItemIcon-root": {
+                            color: "white",
+                          },
+                          "&:hover": {
+                            background: "var(--primary-gradient)",
+                            opacity: 0.9,
+                          },
                         },
                       }}
                     >
-                      {item.icon}
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={item.text}
-                      sx={{
-                        opacity: open ? 1 : 0,
-                        transition: "opacity 0.25s ease",
-                      }}
-                    />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-            <Box sx={{ flexGrow: 1 }} />
-            <List>
-              {Sidebar_Items.filter(
-                (i) => i.text === "Settings" || i.text === "Logout",
-              ).map((item) => (
-                <ListItem
-                  key={item.text}
-                  disablePadding
-                  sx={{ display: "block" }}
-                >
-                  <ListItemButton
-                    selected={activeSidebarItem === item.text}
-                    onClick={() => {
-                      if (item.action === "logout") {
-                        handleLogout();
-                      } else {
-                        const targetSection = sectionMap[item.text] || "Home";
-                        handleSectionChange(targetSection, item.text);
-                      }
-                    }}
-                    sx={{
-                      minHeight: 48,
-                      justifyContent: open ? "initial" : "center",
-                      px: 2.5,
-                      transition: "background-color 0.2s ease, color 0.2s ease",
-                      "&.Mui-selected": {
-                        background: "var(--primary-gradient)",
-                        color: "white",
-                        "& .MuiListItemIcon-root": {
-                          color: "white",
-                        },
-                        "&:hover": {
-                          background: "var(--primary-gradient)",
-                          opacity: 0.9,
-                        },
-                      },
-                    }}
-                  >
-                    <ListItemIcon
-                      sx={{
-                        minWidth: 0,
-                        mr: open ? 3 : "auto",
-                        justifyContent: "center",
-                        color:
-                          activeSidebarItem === item.text ? "white" : "inherit",
-                        "& .MuiSvgIcon-root": {
-                          fontSize: 24,
-                        },
-                      }}
-                    >
-                      {item.icon}
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={item.text}
-                      sx={{ opacity: open ? 1 : 0 }}
-                    />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </Box>
-        </Drawer>
-      ) : (
-        <MuiDrawer
-          variant="temporary"
-          open={open}
-          onClose={handleDrawerClose}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: "block", md: "none" },
-            "& .MuiDrawer-paper": {
-              width: drawerWidth,
-              background: appTheme === "dark" ? "var(--nav-bg)" : "white",
-              borderRight: "none",
-              boxShadow: "10px 0 30px rgba(0,0,0,0.1)",
-            },
-          }}
-        >
-          <DrawerHeader sx={{ borderBottom: `1px solid ${appTheme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}` }}>
-            <Box
-              className="drawer-brand"
-              sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
-            >
-              <img
-                src="/footer-images/logo.png"
-                alt="logo"
-                className="website-logo-mini"
-                style={{ width: "1.5rem", height: "1.5rem" }}
-              />
-              <div className="drawer-brand-text">
-                <span className="drawer-brand-title" style={{ fontSize: "0.9rem", fontWeight: 800, color: "var(--primary)" }}>Flavora</span>
-                <span className="drawer-brand-subtitle" style={{ fontSize: "0.6rem", color: "var(--text-sub)" }}>
-                  Fresh & Healthy Food
-                </span>
-              </div>
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 0,
+                          mr: open ? 3 : "auto",
+                          justifyContent: "center",
+                          color:
+                            activeSidebarItem === item.text ? "white" : "inherit",
+                          "& .MuiSvgIcon-root": {
+                            fontSize: 24,
+                          },
+                        }}
+                      >
+                        {item.icon}
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={item.text}
+                        sx={{ opacity: open ? 1 : 0 }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
             </Box>
-            <IconButton onClick={handleDrawerClose} sx={{ color: "var(--text-main)" }}>
-              {theme.direction === "rtl" ? (
-                <ChevronRightIcon />
-              ) : (
-                <ChevronLeftIcon />
-              )}
-            </IconButton>
-          </DrawerHeader>
-          <Box
-            sx={{ display: "flex", flexDirection: "column", height: "100%", overflowY: "auto", scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" } }}
+          </Drawer>
+        ) : (
+          <MuiDrawer
+            variant="temporary"
+            open={open}
+            onClose={handleDrawerClose}
+            ModalProps={{ keepMounted: true }}
+            sx={{
+              display: { xs: "block", md: "none" },
+              "& .MuiDrawer-paper": {
+                width: drawerWidth,
+                background: appTheme === "dark" ? "var(--nav-bg)" : "white",
+                borderRight: "none",
+                boxShadow: "10px 0 30px rgba(0,0,0,0.1)",
+              },
+            }}
           >
-            <List sx={{ px: 1.5, py: 2 }}>
-              {Category_Items.map((item) => (
-                <ListItem
-                  key={item.text}
-                  disablePadding
-                  sx={{ mb: 0.5 }}
-                >
-                  <ListItemButton
-                    selected={activeSidebarItem === item.text}
-                    onClick={() => {
-                      const targetSection = sectionMap[item.text] || "Home";
-                      handleSectionChange(targetSection, item.text);
-                      handleDrawerClose();
-                    }}
-                    sx={{
-                      minHeight: 48,
-                      borderRadius: "12px",
-                      px: 2,
-                      "&.Mui-selected": {
-                        background: "var(--primary-gradient)",
-                        color: "white",
-                        "& .MuiListItemIcon-root": {
-                          color: "white",
-                        },
-                        "&:hover": {
-                          background: "var(--primary-gradient)",
-                          opacity: 0.9,
-                        },
-                      },
-                      "&:hover": {
-                        background: appTheme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
-                      }
-                    }}
+            <DrawerHeader sx={{ borderBottom: `1px solid ${appTheme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}` }}>
+              <Box
+                className="drawer-brand"
+                sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
+              >
+                <img
+                  src="/footer-images/logo.png"
+                  alt="logo"
+                  className="website-logo-mini"
+                  style={{ width: "1.5rem", height: "1.5rem" }}
+                />
+                <div className="drawer-brand-text">
+                  <span className="drawer-brand-title" style={{ fontSize: "0.9rem", fontWeight: 800, color: "var(--primary)" }}>Flavora</span>
+                  <span className="drawer-brand-subtitle" style={{ fontSize: "0.6rem", color: "var(--text-sub)" }}>
+                    Fresh & Healthy Food
+                  </span>
+                </div>
+              </Box>
+              <IconButton onClick={handleDrawerClose} sx={{ color: "var(--text-main)" }}>
+                {theme.direction === "rtl" ? (
+                  <ChevronRightIcon />
+                ) : (
+                  <ChevronLeftIcon />
+                )}
+              </IconButton>
+            </DrawerHeader>
+            <Box
+              sx={{ display: "flex", flexDirection: "column", height: "100%", overflowY: "auto", scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" } }}
+            >
+              <List sx={{ px: 1.5, py: 2 }}>
+                {Category_Items.map((item) => (
+                  <ListItem
+                    key={item.text}
+                    disablePadding
+                    sx={{ mb: 0.5 }}
                   >
-                    <ListItemIcon
-                      sx={{
-                        minWidth: 0,
-                        mr: 2,
-                        color: activeSidebarItem === item.text ? "white" : "var(--primary)",
-                        "& .MuiSvgIcon-root": {
-                          fontSize: 22,
-                        },
-                      }}
-                    >
-                      {item.icon}
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary={item.text} 
-                      primaryTypographyProps={{ 
-                        fontSize: "0.9rem", 
-                        fontWeight: activeSidebarItem === item.text ? 700 : 500,
-                        color: activeSidebarItem === item.text ? "white" : "var(--text-main)"
-                      }} 
-                    />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-            <Box sx={{ flexGrow: 1 }} />
-            <Divider sx={{ mx: 2, opacity: 0.1 }} />
-            <List sx={{ px: 1.5, py: 2 }}>
-              {Sidebar_Items.map((item) => (
-                <ListItem
-                  key={item.text}
-                  disablePadding
-                  sx={{ mb: 0.5 }}
-                >
-                  <ListItemButton
-                    selected={activeSidebarItem === item.text}
-                    onClick={() => {
-                      if (item.action === "logout") {
-                        handleLogout();
-                      } else {
+                    <ListItemButton
+                      selected={activeSidebarItem === item.text}
+                      onClick={() => {
                         const targetSection = sectionMap[item.text] || "Home";
                         handleSectionChange(targetSection, item.text);
                         handleDrawerClose();
-                        if (item.text === "Settings") {
-                          navigate("/home/settings");
-                        }
-                      }
-                    }}
-                    sx={{
-                      minHeight: 48,
-                      borderRadius: "12px",
-                      px: 2,
-                      "&.Mui-selected": {
-                        background: "var(--primary-gradient)",
-                        color: "white",
-                        "& .MuiListItemIcon-root": {
-                          color: "white",
-                        },
-                      },
-                    }}
-                  >
-                    <ListItemIcon
+                      }}
                       sx={{
-                        minWidth: 0,
-                        mr: 2,
-                        color: item.text === "Logout" ? "#f44336" : (activeSidebarItem === item.text ? "white" : "var(--primary)"),
-                        "& .MuiSvgIcon-root": {
-                          fontSize: 22,
+                        minHeight: 48,
+                        borderRadius: "12px",
+                        px: 2,
+                        "&.Mui-selected": {
+                          background: "var(--primary-gradient)",
+                          color: "white",
+                          "& .MuiListItemIcon-root": {
+                            color: "white",
+                          },
+                          "&:hover": {
+                            background: "var(--primary-gradient)",
+                            opacity: 0.9,
+                          },
+                        },
+                        "&:hover": {
+                          background: appTheme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                        }
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 0,
+                          mr: 2,
+                          color: activeSidebarItem === item.text ? "white" : "var(--primary)",
+                          "& .MuiSvgIcon-root": {
+                            fontSize: 22,
+                          },
+                        }}
+                      >
+                        {item.icon}
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={item.text}
+                        primaryTypographyProps={{
+                          fontSize: "0.9rem",
+                          fontWeight: activeSidebarItem === item.text ? 700 : 500,
+                          color: activeSidebarItem === item.text ? "white" : "var(--text-main)"
+                        }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+              <Box sx={{ flexGrow: 1 }} />
+              <Divider sx={{ mx: 2, opacity: 0.1 }} />
+              <List sx={{ px: 1.5, py: 2 }}>
+                {Sidebar_Items.map((item) => (
+                  <ListItem
+                    key={item.text}
+                    disablePadding
+                    sx={{ mb: 0.5 }}
+                  >
+                    <ListItemButton
+                      selected={activeSidebarItem === item.text}
+                      onClick={() => {
+                        if (item.action === "logout") {
+                          handleLogout();
+                        } else {
+                          const targetSection = sectionMap[item.text] || "Home";
+                          handleSectionChange(targetSection, item.text);
+                          handleDrawerClose();
+                          if (item.text === "Settings") {
+                            navigate("/home/settings");
+                          }
+                        }
+                      }}
+                      sx={{
+                        minHeight: 48,
+                        borderRadius: "12px",
+                        px: 2,
+                        "&.Mui-selected": {
+                          background: "var(--primary-gradient)",
+                          color: "white",
+                          "& .MuiListItemIcon-root": {
+                            color: "white",
+                          },
                         },
                       }}
                     >
-                      {item.icon}
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary={item.text} 
-                      primaryTypographyProps={{ 
-                        fontSize: "0.9rem", 
-                        fontWeight: activeSidebarItem === item.text ? 700 : 500,
-                        color: item.text === "Logout" ? "#f44336" : (activeSidebarItem === item.text ? "white" : "var(--text-main)")
-                      }} 
-                    />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </Box>
-        </MuiDrawer>
-      )}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          minWidth: 0,
-          maxWidth: "1440px",
-          margin: "0 auto",
-          overflowY: "auto",
-          height: "100%",
-        }}
-      >
-        {location.pathname === "/home/favorites" ? (
-          <Favorites />
-        ) : location.pathname === "/home/orders" ? (
-          <Orders />
-        ) : location.pathname === "/home/settings" ? (
-          <Settings />
-        ) : (
-          <Bodycontent
-            open={open}
-            currentSection={currentSection}
-            activeCategory={activeCategory}
-            onSectionChange={handleSectionChange}
-          />
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 0,
+                          mr: 2,
+                          color: item.text === "Logout" ? "#f44336" : (activeSidebarItem === item.text ? "white" : "var(--primary)"),
+                          "& .MuiSvgIcon-root": {
+                            fontSize: 22,
+                          },
+                        }}
+                      >
+                        {item.icon}
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={item.text}
+                        primaryTypographyProps={{
+                          fontSize: "0.9rem",
+                          fontWeight: activeSidebarItem === item.text ? 700 : 500,
+                          color: item.text === "Logout" ? "#f44336" : (activeSidebarItem === item.text ? "white" : "var(--text-main)")
+                        }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          </MuiDrawer>
         )}
-      </Box>
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            minWidth: 0,
+            maxWidth: "1440px",
+            margin: "0 auto",
+            overflowY: "auto",
+            height: "100%",
+          }}
+        >
+          {location.pathname === "/home/favorites" ? (
+            <Favorites />
+          ) : location.pathname === "/home/orders" ? (
+            <Orders />
+          ) : location.pathname === "/home/settings" ? (
+            <Settings />
+          ) : (
+            <Bodycontent
+              open={open}
+              currentSection={currentSection}
+              activeCategory={activeCategory}
+              onSectionChange={handleSectionChange}
+            />
+          )}
+        </Box>
       </Box>
 
       <PopupAlert

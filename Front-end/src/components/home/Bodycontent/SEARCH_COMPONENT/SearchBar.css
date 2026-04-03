@@ -10,3 +10,16 @@
 .css-md26zr-MuiInputBase-root-MuiOutlinedInput-root{
    border-radius: 0.5rem;
 }
+
+@media (max-width: 768px) {
+   .search-main-div .MuiAutocomplete-root,
+   .search-main-div .MuiFormControl-root {
+      width: 100% !important;
+   }
+   .search-main-div .MuiInputBase-root {
+      border-radius: 12px !important;
+      font-size: 0.85rem !important;
+      padding: 2px 8px !important;
+      min-height: 38px !important;
+   }
+}
