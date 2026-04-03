@@ -35,9 +35,13 @@
   --nav-bg: #1e1e1e;
 }
 
-[data-theme='dark'] img:not(.website-logo):not(.website-logo-mini) {
+[data-theme='dark'] img:not(.website-logo):not(.website-logo-mini):not(.chatbot-item-img) {
   filter: brightness(0.8) contrast(1.1);
   border: 1px solid var(--border-light);
+}
+
+[data-theme='dark'] .chatbot-item-img {
+  filter: brightness(0.8) contrast(1.1);
 }
 
 [data-theme='dark'] .MuiPaper-root {

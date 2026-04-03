@@ -41,9 +41,8 @@ const Footer = () => {
         return;
       }
       const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${
-        apiKey || ""
-      }&v=quarterly`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey || ""
+        }&v=quarterly`;
       script.async = true;
       script.defer = true;
       script.onload = () => {
@@ -55,7 +54,7 @@ const Footer = () => {
     });
 
   const ensureMap = async () => {
-    await loadGoogleScript().catch(() => {});
+    await loadGoogleScript().catch(() => { });
     if (!window.google?.maps) return;
     if (!mapRef.current && mapContainerRef.current) {
       mapRef.current = new window.google.maps.Map(mapContainerRef.current, {
@@ -80,7 +79,7 @@ const Footer = () => {
         if (result?.results?.[0]) {
           targetLatLng = result.results[0].geometry.location;
         }
-      } catch {}
+      } catch { }
     }
     const map = mapRef.current;
     if (!targetLatLng) return;
@@ -120,9 +119,16 @@ const Footer = () => {
     await flyTo(branches[idx]);
   };
 
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+
   // newsletter subscribe handler
   const handleSubscribe = async () => {
-    if (!newsletterEmail) return setNewsletterStatus("Please enter an email");
+    if (!newsletterEmail) return setNewsletterStatus("Please enter an email.");
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newsletterEmail)) return setNewsletterStatus("Please enter a valid email.");
+
+    setNewsletterLoading(true);
+    setNewsletterStatus("");
     try {
       const API_URL = (
         import.meta.env.VITE_API_URL || "http://localhost:1111"
@@ -141,15 +147,17 @@ const Footer = () => {
         body: JSON.stringify({ email: newsletterEmail }),
       });
       if (res.ok) {
-        setNewsletterStatus("Subscribed successfully!");
+        setNewsletterStatus("success");
         setNewsletterEmail("");
       } else {
         const data = await res.json();
-        setNewsletterStatus(data.message || "Subscription failed");
+        setNewsletterStatus(data.message || "Subscription failed. Try again.");
       }
     } catch (err) {
-      setNewsletterStatus("Subscription error");
+      setNewsletterStatus("Could not connect. Please try again.");
       console.error(err);
+    } finally {
+      setNewsletterLoading(false);
     }
   };
 
@@ -276,19 +284,30 @@ const Footer = () => {
 
           <div className="footer-subscribe">
             <h4>Newsletter</h4>
-            <div className="subscribe-form">
-              <input
-                type="email"
-                placeholder="Your Email Address"
-                value={newsletterEmail}
-                onChange={(e) => setNewsletterEmail(e.target.value)}
-              />
-              <button type="button" onClick={handleSubscribe}>
-                <SendIcon />
-              </button>
-            </div>
-            {newsletterStatus && (
-              <p className="newsletter-status">{newsletterStatus}</p>
+            {newsletterStatus === "success" ? (
+              <div className="newsletter-success">
+                <span>🎉</span>
+                <p>You're subscribed! Check your inbox.</p>
+              </div>
+            ) : (
+              <>
+                <div className="subscribe-form">
+                  <input
+                    type="email"
+                    placeholder="Your Email Address"
+                    value={newsletterEmail}
+                    onChange={(e) => { setNewsletterEmail(e.target.value); setNewsletterStatus(""); }}
+                    onKeyDown={(e) => e.key === "Enter" && handleSubscribe()}
+                    disabled={newsletterLoading}
+                  />
+                  <button type="button" onClick={handleSubscribe} disabled={newsletterLoading}>
+                    {newsletterLoading ? <span className="newsletter-spinner" /> : <SendIcon />}
+                  </button>
+                </div>
+                {newsletterStatus && newsletterStatus !== "success" && (
+                  <p className="newsletter-status newsletter-error">{newsletterStatus}</p>
+                )}
+              </>
             )}
           </div>
         </div>

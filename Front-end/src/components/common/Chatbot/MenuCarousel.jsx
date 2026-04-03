@@ -27,12 +27,12 @@ const MenuCarousel = ({ items, onAddToCart, formatPrice, isLoading }) => (
               {/* Thumbnail */}
               <div
                 className="relative shrink-0 overflow-hidden"
-                style={{ width: "56px", height: "56px", borderRadius: "10px", border: "1px solid #fed7aa" }}
+                style={{ width: "56px", height: "56px", borderRadius: "10px" }}
               >
                 <img
                   src={item.imageUrl}
                   alt={item.name}
-                  className="h-full w-full object-cover"
+                  className="chatbot-item-img h-full w-full object-cover"
                   loading="lazy"
                   onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/footer-images/food.png"; }}
                 />
