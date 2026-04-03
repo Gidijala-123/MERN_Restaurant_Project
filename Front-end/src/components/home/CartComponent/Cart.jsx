@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addToCart,
@@ -36,11 +36,15 @@ const Cart = () => {
   const handleRemoveFromCart = (product) => dispatch(removeFromCart(product));
   const handleClearCart = () => dispatch(clearCart());
 
+  const [pdfLoading, setPdfLoading] = useState(false);
+
   const gst = Math.ceil(cart.cartTotalAmount * 0.18);
   const grandTotal = cart.cartTotalAmount + gst;
   const totalItems = cart.cartItems.reduce((s, i) => s + i.cartQuantity, 0);
 
-  const generatePDF = async () => {
+  // Accepts optional snapshot so it can be called after cart is cleared
+  const generatePDF = async (itemsSnapshot = cart.cartItems, totalSnapshot = cart.cartTotalAmount, gstSnapshot = gst, grandSnapshot = grandTotal) => {
+    setPdfLoading(true);
     const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
       import("jspdf"),
       import("jspdf-autotable"),
@@ -71,7 +75,7 @@ const Cart = () => {
     doc.text(`Date: ${new Date().toLocaleDateString()}`, 25, 65);
     doc.text(`Status: Paid`, 160, 60, { align: "right" });
 
-    const tableData = cart.cartItems.map((item) => [
+    const tableData = itemsSnapshot.map((item) => [
       item.title,
       `Rs. ${item.price}`,
       item.cartQuantity,
@@ -94,16 +98,16 @@ const Cart = () => {
     doc.setFontSize(10);
     doc.setTextColor(105, 105, 105);
     doc.text("Sub-Total:", 140, finalY);
-    doc.text(`Rs. ${cart.cartTotalAmount}`, 190, finalY, { align: "right" });
+    doc.text(`Rs. ${totalSnapshot}`, 190, finalY, { align: "right" });
     doc.text("GST (18%):", 140, finalY + 8);
-    doc.text(`Rs. ${gst}`, 190, finalY + 8, { align: "right" });
+    doc.text(`Rs. ${gstSnapshot}`, 190, finalY + 8, { align: "right" });
     doc.setFillColor(237, 31, 36);
     doc.rect(130, finalY + 13, 60, 10, "F");
     doc.setFontSize(11);
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
     doc.text("Grand Total:", 135, finalY + 20);
-    doc.text(`Rs. ${grandTotal}`, 185, finalY + 20, { align: "right" });
+    doc.text(`Rs. ${grandSnapshot}`, 185, finalY + 20, { align: "right" });
     doc.setFontSize(9);
     doc.setFont("helvetica", "italic");
     doc.setTextColor(150);
@@ -112,6 +116,7 @@ const Cart = () => {
     doc.setTextColor(237, 31, 36);
     doc.text("Thank you for ordering with Flavora!", 105, 282, { align: "center" });
     doc.save(`Flavora_Invoice_${orderNo}.pdf`);
+    setPdfLoading(false);
   };
 
   const handleCheckout = async () => {
@@ -136,13 +141,19 @@ const Cart = () => {
       amount: amountInPaise,
       currency: "INR",
       name: "Flavora",
-      description: `Order of ${totalItems} item${totalItems !== 1 ? "s" : ""}`,
-      image: "/footer-images/logo.png",
+      description: cart.cartItems.map(i => i.title).join(", "),
+      image: `${window.location.origin}/footer-images/logo.png`,
       handler: function (response) {
-        // Payment successful — response.razorpay_payment_id is the real transaction ID
+        // Snapshot cart data before clearing so success page can generate PDF
+        const snapshot = {
+          items: [...cart.cartItems],
+          total: cart.cartTotalAmount,
+          gst,
+          grandTotal,
+        };
         dispatch(clearCart());
         navigate("/checkout-success", {
-          state: { paymentId: response.razorpay_payment_id },
+          state: { paymentId: response.razorpay_payment_id, snapshot },
         });
       },
       prefill: {
@@ -316,8 +327,8 @@ const Cart = () => {
                 <button className="btn-checkout" onClick={handleCheckout}>
                   <span>🚀</span> Proceed to Checkout
                 </button>
-                <button className="btn-bill" onClick={generatePDF}>
-                  <span>📄</span> Download Bill (PDF)
+                <button className="btn-bill" onClick={generatePDF} disabled={pdfLoading}>
+                  <span>📄</span> {pdfLoading ? "Generating PDF…" : "Download Bill (PDF)"}
                 </button>
               </div>
             </div>
