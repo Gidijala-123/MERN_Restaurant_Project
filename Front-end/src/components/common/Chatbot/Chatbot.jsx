@@ -2,7 +2,7 @@ import React, { useMemo, useReducer, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   MdClose, MdSend,
-  MdOutlineRestaurantMenu, MdTableRestaurant, MdDeliveryDining, MdHomeFilled,
+  MdOutlineRestaurantMenu, MdTableRestaurant, MdDeliveryDining, MdHomeFilled, MdSupportAgent,
 } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
@@ -12,6 +12,7 @@ import BookingFlow from "./BookingFlow";
 import MenuCarousel from "./MenuCarousel";
 import OrderTracker from "./OrderTracker";
 import QuickActions from "./QuickActions";
+import SupportScreen from "./SupportScreen";
 import "./Chatbot.css";
 
 const SCREEN = {
@@ -19,6 +20,7 @@ const SCREEN = {
   MENU: "menu",
   BOOKING: "booking",
   TRACKER: "tracker",
+  SUPPORT: "support",
 };
 
 const TRACKING_STEPS = [
@@ -39,6 +41,7 @@ const NAV_TABS = [
   { key: SCREEN.MENU, icon: MdOutlineRestaurantMenu, label: "Menu" },
   { key: SCREEN.BOOKING, icon: MdTableRestaurant, label: "Book" },
   { key: SCREEN.TRACKER, icon: MdDeliveryDining, label: "Track" },
+  { key: SCREEN.SUPPORT, icon: MdSupportAgent, label: "Help" },
 ];
 
 const initialState = {
@@ -138,8 +141,10 @@ const Chatbot = () => {
       nav(SCREEN.BOOKING);
     else if (msg.includes("track") || msg.includes("order") || msg.includes("delivery") || msg.includes("status"))
       nav(SCREEN.TRACKER);
+    else if (msg.includes("help") || msg.includes("support") || msg.includes("issue") || msg.includes("problem") || msg.includes("refund") || msg.includes("wrong") || msg.includes("complaint") || msg.includes("contact"))
+      nav(SCREEN.SUPPORT);
     else
-      toast.info("Try: 'show menu', 'book a table', or 'track my order'", { position: "bottom-left" });
+      toast.info("Try: 'show menu', 'book a table', 'track my order', or 'help'", { position: "bottom-left" });
     setDraft("");
   };
 
@@ -153,6 +158,7 @@ const Chatbot = () => {
     [SCREEN.MENU]: { label: "Chef's picks", sub: `${menuItems.length} dishes ready to add` },
     [SCREEN.BOOKING]: { label: "Reserve a table", sub: "Pick date & time" },
     [SCREEN.TRACKER]: { label: "Your order", sub: TRACKING_STEPS[state.trackerStep].title },
+    [SCREEN.SUPPORT]: { label: "Help & Support", sub: "We're here for you" },
   };
 
   const meta = screenMeta[state.screen];
@@ -165,6 +171,8 @@ const Chatbot = () => {
         return <BookingFlow selectedDate={state.selectedDate} selectedTime={state.selectedTime} bookingConfirmed={state.bookingConfirmed} onDateChange={(d) => stateDispatch({ type: "SET_DATE", payload: d })} onTimeChange={(t) => stateDispatch({ type: "SET_TIME", payload: t })} onConfirm={handleBookingConfirm} />;
       case SCREEN.TRACKER:
         return <OrderTracker currentStep={state.trackerStep} steps={TRACKING_STEPS} onAdvance={() => stateDispatch({ type: "ADVANCE_TRACKER" })} />;
+      case SCREEN.SUPPORT:
+        return <SupportScreen />;
       default:
         return <QuickActions onNavigate={nav} greeting={getGreeting()} microCopy={getMicroCopy()} />;
     }

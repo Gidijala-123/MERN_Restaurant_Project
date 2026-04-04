@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MdDeliveryDining, MdOutlineRestaurantMenu, MdTableRestaurant, MdWhatshot } from "react-icons/md";
+import { MdDeliveryDining, MdOutlineRestaurantMenu, MdTableRestaurant, MdWhatshot, MdSupportAgent } from "react-icons/md";
 
 const ACTIONS = [
   { key: "menu", label: "Menu", icon: MdOutlineRestaurantMenu, bg: "bg-orange-500" },
   { key: "booking", label: "Book", icon: MdTableRestaurant, bg: "bg-rose-500" },
   { key: "tracker", label: "Track", icon: MdDeliveryDining, bg: "bg-amber-500" },
+  { key: "support", label: "Help", icon: MdSupportAgent, bg: "bg-blue-500" },
 ];
 
 const CAPABILITIES = [
@@ -14,6 +15,8 @@ const CAPABILITIES = [
   { text: "track your order in real-time", icon: "🛵" },
   { text: "get chef-picked recommendations", icon: "👨‍🍳" },
   { text: "check live delivery status", icon: "📍" },
+  { text: "report an issue or get a refund", icon: "🎫" },
+  { text: "contact support via call or WhatsApp", icon: "📞" },
 ];
 
 const TYPING_SPEED = 45;
@@ -112,7 +115,7 @@ const QuickActions = ({ onNavigate, greeting, microCopy }) => {
       </div>
 
       {/* ── Action cards ── */}
-      <div className="shrink-0 grid grid-cols-3 gap-2">
+      <div className="shrink-0 grid grid-cols-4 gap-2">
         {ACTIONS.map((a, i) => {
           const Icon = a.icon;
           return (

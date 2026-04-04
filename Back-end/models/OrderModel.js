@@ -14,6 +14,7 @@ const OrderSchema = new mongoose.Schema({
   subtotal: { type: Number, default: 0 },
   gst: { type: Number, default: 0 },
   grandTotal: { type: Number, default: 0 },
+  status: { type: String, enum: ["pending", "preparing", "out_for_delivery", "delivered", "cancelled"], default: "pending" },
   createdAt: { type: Date, default: Date.now },
 });
 

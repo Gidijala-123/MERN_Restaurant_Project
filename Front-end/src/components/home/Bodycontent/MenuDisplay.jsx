@@ -265,13 +265,41 @@ const MenuDisplay = () => {
                   { key: "calories", label: "Calories", type: "number" },
                   { key: "serves", label: "Serves", type: "number" },
                   { key: "rating", label: "Rating (0-5)", type: "number" },
-                  { key: "imageUrl", label: "Image URL", type: "text" },
                 ].map(({ key, label, type }) => (
                   <div key={key} className="adm-form-field">
                     <label>{label}</label>
                     <input type={type} value={editForm[key] || ""} onChange={(e) => setEditForm({ ...editForm, [key]: type === "number" ? Number(e.target.value) : e.target.value })} />
                   </div>
                 ))}
+
+                {/* Image — URL or file upload */}
+                <div className="adm-form-field adm-form-full">
+                  <label>Image</label>
+                  <div className="adm-img-row">
+                    {editForm.imageUrl && (
+                      <img src={editForm.imageUrl} alt="preview" className="adm-img-preview" onError={(e) => { e.target.style.display = "none"; }} />
+                    )}
+                    <div className="adm-img-inputs">
+                      <input
+                        type="text"
+                        placeholder="Paste image URL…"
+                        value={editForm.imageUrl || ""}
+                        onChange={(e) => setEditForm({ ...editForm, imageUrl: e.target.value })}
+                      />
+                      <div className="adm-img-or">or</div>
+                      <label className="adm-upload-btn">
+                        📁 Upload from device
+                        <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = () => setEditForm({ ...editForm, imageUrl: reader.result });
+                          reader.readAsDataURL(file);
+                        }} />
+                      </label>
+                    </div>
+                  </div>
+                </div>
                 <div className="adm-form-field">
                   <label>Category</label>
                   <select value={editForm.category || ""} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}>
