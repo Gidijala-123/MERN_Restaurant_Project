@@ -283,3 +283,15 @@
     display: none;         /* too cramped on very small screens */
   }
 }
+
+/* Admin theme overrides */
+:global([data-role='admin']) .ctaButton {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35) !important;
+}
+:global([data-role='admin']) .ctaButton:hover {
+  box-shadow: 0 15px 30px rgba(79, 70, 229, 0.4) !important;
+}
+:global([data-role='admin']) .dotActive {
+  background: #4f46e5 !important;
+}

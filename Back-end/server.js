@@ -38,6 +38,7 @@ import requestId from "./middleware/requestId.js";
 import logger from "./logging/logger.js";
 import { issueCsrf, checkCsrf } from "./middleware/csrf.js";
 import newsletterRouter from "./routers/newsletterRouter.js";
+import adminRouter from "./routers/adminRouter.js";
 import { sendToAll as sendNewsletterToAll } from "./services/newsletterService.js";
 import Order from "./models/OrderModel.js";
 
@@ -54,64 +55,64 @@ const port = process.env.PORT || 1234;
  */
 app.set("trust proxy", 1);
 app.disable("x-powered-by");
-  const envOrigins = String(process.env.ALLOWED_ORIGINS || "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const allowedOrigins = new Set([
-    ...envOrigins,
-    (process.env.FRONTEND_URL || "http://localhost:3002").replace(/\/$/, ""),
-    "https://gbr-kitchen.onrender.com",
-    "http://localhost:3000",
-    "http://localhost:3001",
-  ]);
-  app.use(
-    cors({
-      origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
-        // Remove trailing slash for comparison
-        const normalizedOrigin = origin.replace(/\/$/, "");
-        if (allowedOrigins.has(normalizedOrigin)) return callback(null, true);
-        return callback(new Error("Not allowed by CORS"));
-      },
-      credentials: true,
-    }),
-  );
-  app.use(
-    helmet({
-      hsts: process.env.NODE_ENV === "production",
-      crossOriginResourcePolicy: { policy: "cross-origin" },
-    }),
-  );
-  app.use(express.json({ limit: "5mb" }));
-  app.use(cookieParser());
-  app.use(compression());
-  
-  // Custom response header for performance monitoring
-  app.use((req, res, next) => {
-    const start = Date.now();
-    res.on('finish', () => {
-      const duration = Date.now() - start;
-      logger.debug(`${req.method} ${req.originalUrl} [${res.statusCode}] - ${duration}ms`);
-    });
-    next();
-  });
+const envOrigins = String(process.env.ALLOWED_ORIGINS || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+const allowedOrigins = new Set([
+  ...envOrigins,
+  (process.env.FRONTEND_URL || "http://localhost:3002").replace(/\/$/, ""),
+  "https://gbr-kitchen.onrender.com",
+  "http://localhost:3000",
+  "http://localhost:3001",
+]);
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      // Remove trailing slash for comparison
+      const normalizedOrigin = origin.replace(/\/$/, "");
+      if (allowedOrigins.has(normalizedOrigin)) return callback(null, true);
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  }),
+);
+app.use(
+  helmet({
+    hsts: process.env.NODE_ENV === "production",
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
+app.use(express.json({ limit: "5mb" }));
+app.use(cookieParser());
+app.use(compression());
 
-  app.use(requestId);
-  morgan.token("id", (req) => req.id);
-  app.use(
-    morgan(":id :method :url :status :res[content-length] - :response-time ms"),
-  );
-  initPassport();
-  app.use(passport.initialize());
-  app.use(
-    rateLimit({
-      windowMs: 15 * 60 * 1000,
-      max: 100,
-      standardHeaders: true,
-      legacyHeaders: false,
-    }),
-  );
+// Custom response header for performance monitoring
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    logger.debug(`${req.method} ${req.originalUrl} [${res.statusCode}] - ${duration}ms`);
+  });
+  next();
+});
+
+app.use(requestId);
+morgan.token("id", (req) => req.id);
+app.use(
+  morgan(":id :method :url :status :res[content-length] - :response-time ms"),
+);
+initPassport();
+app.use(passport.initialize());
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+  }),
+);
 
 /**
  * API Routes
@@ -188,6 +189,9 @@ app.use("/api/menu", menuRouter);
 
 // Newsletter
 app.use("/api/newsletter", newsletterRouter);
+
+// Admin routes
+app.use("/api/admin", adminRouter);
 app.post("/api/admin/broadcast-newsletter", requireRole("admin"), async (req, res) => {
   try {
     const { subject, body } = req.body;
@@ -198,14 +202,13 @@ app.post("/api/admin/broadcast-newsletter", requireRole("admin"), async (req, re
   }
 });
 
-// Orders (example producer entrypoint)
+// Orders
 app.post("/api/order", verifyAccessToken, checkCsrf, orderValidation, async (req, res) => {
-  const { items = [] } = req.body || {};
-  // persist order for newsletter personalization
+  const { items = [], paymentId = "", subtotal = 0, gst = 0, grandTotal = 0 } = req.body || {};
   try {
     const userEmail = req.tokenKey?.uemail;
     if (items.length) {
-      await Order.create({ userEmail, items });
+      await Order.create({ userEmail, paymentId, items, subtotal, gst, grandTotal });
     }
   } catch (err) {
     console.error("failed to save order", err);
@@ -214,61 +217,61 @@ app.post("/api/order", verifyAccessToken, checkCsrf, orderValidation, async (req
 });
 
 // OTP Routes
-  app.post("/api/otp/send", otpSendValidation, async (req, res) => {
-    const { channel, contact } = req.body;
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setOtp(contact, code);
+app.post("/api/otp/send", otpSendValidation, async (req, res) => {
+  const { channel, contact } = req.body;
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  setOtp(contact, code);
 
-    try {
-      if (channel === "sms") await sendSmsOtp({ to: contact, code });
-      else if (channel === "whatsapp") await sendWhatsAppOtp({ to: contact, code });
-      else await sendEmailOtp({ to: contact, code });
-      res.json({ ok: true });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+  try {
+    if (channel === "sms") await sendSmsOtp({ to: contact, code });
+    else if (channel === "whatsapp") await sendWhatsAppOtp({ to: contact, code });
+    else await sendEmailOtp({ to: contact, code });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/otp/verify", otpVerifyValidation, (req, res) => {
+  const { contact, code } = req.body;
+  const isValid = verifyOtp(contact, code);
+  res.json({ ok: isValid });
+});
+
+// Serve static files in production
+const currentFileDir = path.dirname(fileURLToPath(import.meta.url));
+const buildPath = path.resolve(currentFileDir, "..", "Front-end", "dist");
+
+if (process.env.NODE_ENV === "production") {
+  // Check if the build folder exists
+  import("fs").then((fs) => {
+    if (fs.existsSync(buildPath)) {
+      app.use(express.static(buildPath));
+      app.get("*", (req, res) => {
+        res.sendFile(path.join(buildPath, "index.html"), (err) => {
+          if (err) {
+            res.status(500).send("Error loading index.html: Build missing or path incorrect.");
+          }
+        });
+      });
+    } else {
+      console.warn(`Static build folder not found at: ${buildPath}`);
+      app.get("*", (req, res) => {
+        res.status(503).send("Frontend build not found. Please run build script.");
+      });
     }
   });
-
-  app.post("/api/otp/verify", otpVerifyValidation, (req, res) => {
-    const { contact, code } = req.body;
-    const isValid = verifyOtp(contact, code);
-    res.json({ ok: isValid });
+} else {
+  // In development, provide a simple health check or redirect if not handled by Vite
+  app.get("/", (req, res) => {
+    res.json({ message: "Backend API is running. Start Frontend separately for development." });
   });
+}
 
-  // Serve static files in production
-  const currentFileDir = path.dirname(fileURLToPath(import.meta.url));
-  const buildPath = path.resolve(currentFileDir, "..", "Front-end", "dist");
+// Error handling middleware
+app.use(errorHandler);
 
-  if (process.env.NODE_ENV === "production") {
-    // Check if the build folder exists
-    import("fs").then((fs) => {
-      if (fs.existsSync(buildPath)) {
-        app.use(express.static(buildPath));
-        app.get("*", (req, res) => {
-          res.sendFile(path.join(buildPath, "index.html"), (err) => {
-            if (err) {
-              res.status(500).send("Error loading index.html: Build missing or path incorrect.");
-            }
-          });
-        });
-      } else {
-        console.warn(`Static build folder not found at: ${buildPath}`);
-        app.get("*", (req, res) => {
-          res.status(503).send("Frontend build not found. Please run build script.");
-        });
-      }
-    });
-  } else {
-    // In development, provide a simple health check or redirect if not handled by Vite
-    app.get("/", (req, res) => {
-      res.json({ message: "Backend API is running. Start Frontend separately for development." });
-    });
-  }
-
-  // Error handling middleware
-  app.use(errorHandler);
-
-  // Start the server
-  app.listen(port, () => {
-    console.log(`Worker ${process.pid} listening on port ${port}`);
-  });
+// Start the server
+app.listen(port, () => {
+  console.log(`Worker ${process.pid} listening on port ${port}`);
+});

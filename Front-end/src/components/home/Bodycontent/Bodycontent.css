@@ -1971,3 +1971,27 @@ img {
       height: 6.25rem !important;
    }
 }
+
+/* ── Admin theme overrides for hardcoded orange in Bodycontent ── */
+[data-role='admin'] .filter-trigger-btn {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3) !important;
+}
+[data-role='admin'] .filter-trigger-btn:hover {
+  box-shadow: 0 12px 24px rgba(79, 70, 229, 0.4) !important;
+}
+[data-role='admin'] .view-all-link {
+  background: #eef2ff !important;
+  color: #4f46e5 !important;
+}
+[data-role='admin'] .view-all-link:hover {
+  background: #4f46e5 !important;
+  color: white !important;
+}
+[data-role='admin'] .main-action-btn {
+  color: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+}
+[data-role='admin'] .offers-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+}

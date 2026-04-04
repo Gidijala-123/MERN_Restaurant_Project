@@ -57,11 +57,11 @@ function SignInForm({ toggleMobile }) {
         { withCredentials: true, headers: { "x-csrf-token": csrfToken } },
       );
       if (res.status === 200) {
-        toast.update(toastId, { 
-          render: "Login successful!", 
-          type: "success", 
+        toast.update(toastId, {
+          render: "Login successful!",
+          type: "success",
           isLoading: false,
-          autoClose: 2000 
+          autoClose: 2000
         });
 
         // Use user info from login response instead of making another call
@@ -69,20 +69,23 @@ function SignInForm({ toggleMobile }) {
         if (user) {
           if (user.uname) localStorage.setItem("userName", user.uname);
           if (user.avatar) localStorage.setItem("userAvatar", user.avatar);
+          if (user.role) localStorage.setItem("userRole", user.role);
         }
-        
-        navigate("/home");
+
+        // Redirect based on role — admin goes to admin panel, users go home
+        const role = res.data?.user?.role || "user";
+        navigate(role === "admin" ? "/admin" : "/home");
       }
     } catch (err) {
       const msg =
         err.response?.data?.message ||
         err.response?.data?.Message ||
         "Invalid email or password.";
-      toast.update(toastId, { 
-        render: msg, 
-        type: "error", 
+      toast.update(toastId, {
+        render: msg,
+        type: "error",
         isLoading: false,
-        autoClose: 3000 
+        autoClose: 3000
       });
       setApiError(msg);
     } finally {
@@ -203,8 +206,8 @@ function SignInForm({ toggleMobile }) {
 
       <span className="span-tag error-text">{apiError}</span>
 
-      <button 
-        className="codepen-button" 
+      <button
+        className="codepen-button"
         type="submit"
         disabled={isLoading}
       >
@@ -212,12 +215,12 @@ function SignInForm({ toggleMobile }) {
       </button>
 
       {/* Server spin-up notice */}
-      <div style={{ 
-        fontSize: "0.75rem", 
-        color: "#666", 
-        marginTop: "10px", 
+      <div style={{
+        fontSize: "0.75rem",
+        color: "#666",
+        marginTop: "10px",
         textAlign: "center",
-        fontStyle: "italic" 
+        fontStyle: "italic"
       }}>
         Note: Initial request may take 30-60 seconds due to server wake-up time on free hosting.
       </div>

@@ -2,14 +2,18 @@ import mongoose from "mongoose";
 
 const OrderSchema = new mongoose.Schema({
   userEmail: { type: String, lowercase: true },
+  paymentId: { type: String, default: "" },
   items: [
     {
       id: String,
       title: String,
       price: Number,
-      quantity: { type: Number, default: 1 },
+      cartQuantity: { type: Number, default: 1 },
     },
   ],
+  subtotal: { type: Number, default: 0 },
+  gst: { type: Number, default: 0 },
+  grandTotal: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
 });
 

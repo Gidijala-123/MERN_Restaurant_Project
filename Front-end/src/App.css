@@ -230,3 +230,75 @@ img {
     opacity: 0.6;
   }
 }
+
+
+/* ── Admin theme — purple/indigo replaces orange when data-role="admin" is on <html> ── */
+/* Normal user light/dark themes are completely unaffected (different attribute) */
+
+[data-role='admin'] .btn,
+[data-role='admin'] .codepen-button,
+[data-role='admin'] .shopnow-btn,
+[data-role='admin'] .btn-checkout,
+[data-role='admin'] .add-btn,
+[data-role='admin'] .quantity-btn,
+[data-role='admin'] .filter-chip.active,
+[data-role='admin'] .main-action-btn {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+  border-color: #4f46e5 !important;
+}
+
+[data-role='admin'] .heading-title,
+[data-role='admin'] .category-title,
+[data-role='admin'] .food-price,
+[data-role='admin'] .discounted-price,
+[data-role='admin'] .offer-pricing .new-price,
+[data-role='admin'] .view-all-link,
+[data-role='admin'] .cart-page-header h2,
+[data-role='admin'] .trending-items-title,
+[data-role='admin'] .greeting-bottom {
+  color: #4f46e5 !important;
+}
+
+[data-role='admin'] .section-badge,
+[data-role='admin'] .trending-badge,
+[data-role='admin'] .discount-badge,
+[data-role='admin'] .cart-count-badge,
+[data-role='admin'] .summary-header {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+}
+
+[data-role='admin'] .summary-row.total {
+  background: linear-gradient(135deg, #eef2ff, #ede9fe) !important;
+  border-color: #c7d2fe !important;
+  color: #4f46e5 !important;
+}
+
+[data-role='admin'] .cart-items-heading {
+  background: linear-gradient(to right, #eef2ff, #ede9fe) !important;
+  border-bottom-color: #c7d2fe !important;
+}
+[data-role='admin'] .cart-items-heading h4 { color: #3730a3 !important; }
+
+[data-role='admin'] .cart-product-quantity {
+  background: #eef2ff !important;
+  border-color: #c7d2fe !important;
+}
+
+[data-role='admin'] .cart-panel-footer {
+  background: #f5f3ff !important;
+  border-top-color: #e0e7ff !important;
+}
+
+/* Dark mode admin — keep dark backgrounds, only accent changes */
+[data-role='admin'][data-theme='dark'] .summary-row.total {
+  background: linear-gradient(135deg, #1e1b4b, #2e1065) !important;
+}
+[data-role='admin'][data-theme='dark'] .cart-items-heading {
+  background: linear-gradient(to right, #1e1b4b, #2e1065) !important;
+}
+[data-role='admin'][data-theme='dark'] .cart-product-quantity {
+  background: #1e1b4b !important;
+}
+[data-role='admin'][data-theme='dark'] .cart-panel-footer {
+  background: #1a1a2e !important;
+}

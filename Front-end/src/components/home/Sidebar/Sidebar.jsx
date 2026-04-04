@@ -209,8 +209,26 @@ export default function Sidebar() {
   const [activeCategory, setActiveCategory] = useState("Hot Offers");
   const [userName, setUserName] = useState("");
   const [userAvatar, setUserAvatar] = useState("");
-  const [logoutMessage, setLogoutMessage] = useState("");
+  const [userRole, setUserRole] = useState(localStorage.getItem("userRole") || "user");
+
+  // Apply or remove admin theme on mount based on cached role
+  useEffect(() => {
+    if (localStorage.getItem("userRole") === "admin") {
+      document.documentElement.setAttribute("data-role", "admin");
+      document.documentElement.style.setProperty("--primary", "#4f46e5");
+      document.documentElement.style.setProperty("--primary-dark", "#3730a3");
+      document.documentElement.style.setProperty("--primary-gradient", "linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%)");
+      document.documentElement.style.setProperty("--border-light", "#c7d2fe");
+    } else {
+      document.documentElement.removeAttribute("data-role");
+      document.documentElement.style.removeProperty("--primary");
+      document.documentElement.style.removeProperty("--primary-dark");
+      document.documentElement.style.removeProperty("--primary-gradient");
+      document.documentElement.style.removeProperty("--border-light");
+    }
+  }, []);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [logoutMessage, setLogoutMessage] = useState("");
   const [accountAnchorEl, setAccountAnchorEl] = useState(null);
   const isAccountMenuOpen = Boolean(accountAnchorEl);
 
@@ -256,6 +274,23 @@ export default function Sidebar() {
             localStorage.setItem("userAvatar", me.avatar);
             setUserAvatar(me.avatar);
           }
+          if (me?.role) {
+            localStorage.setItem("userRole", me.role);
+            setUserRole(me.role);
+            if (me.role === "admin") {
+              document.documentElement.setAttribute("data-role", "admin");
+              document.documentElement.style.setProperty("--primary", "#4f46e5");
+              document.documentElement.style.setProperty("--primary-dark", "#3730a3");
+              document.documentElement.style.setProperty("--primary-gradient", "linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%)");
+              document.documentElement.style.setProperty("--border-light", "#c7d2fe");
+            } else {
+              document.documentElement.removeAttribute("data-role");
+              document.documentElement.style.removeProperty("--primary");
+              document.documentElement.style.removeProperty("--primary-dark");
+              document.documentElement.style.removeProperty("--primary-gradient");
+              document.documentElement.style.removeProperty("--border-light");
+            }
+          }
         }
       } catch { }
     };
@@ -282,6 +317,12 @@ export default function Sidebar() {
     setTimeout(() => {
       localStorage.removeItem("token");
       localStorage.removeItem("userName");
+      localStorage.removeItem("userRole");
+      document.documentElement.removeAttribute("data-role");
+      document.documentElement.style.removeProperty("--primary");
+      document.documentElement.style.removeProperty("--primary-dark");
+      document.documentElement.style.removeProperty("--primary-gradient");
+      document.documentElement.style.removeProperty("--border-light");
       window.location.href = "/";
     }, 1500);
   }, [userName]);
@@ -426,17 +467,17 @@ export default function Sidebar() {
               marginLeft: { xs: 0.5, md: "13.5px" }, // Center within 65px: (65-38)/2 = 13.5
               marginRight: { xs: 1, md: "13.5px" },
               borderRadius: "8px",
-              background: "linear-gradient(135deg, #FF6A00 0%, #FF8C3A 100%)",
+              background: userRole === "admin" ? "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)" : "linear-gradient(135deg, #FF6A00 0%, #FF8C3A 100%)",
               color: "white",
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 4px 12px rgba(255, 106, 0, 0.3)",
+              boxShadow: userRole === "admin" ? "0 4px 12px rgba(79,70,229,0.3)" : "0 4px 12px rgba(255, 106, 0, 0.3)",
               "&:hover": {
-                background: "linear-gradient(135deg, #FF8C3A 0%, #FF6A00 100%)",
+                background: userRole === "admin" ? "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)" : "linear-gradient(135deg, #FF8C3A 0%, #FF6A00 100%)",
                 transform: "scale(1.05) translateY(-2px)",
-                boxShadow: "0 6px 20px rgba(255, 106, 0, 0.4)"
+                boxShadow: userRole === "admin" ? "0 6px 20px rgba(79,70,229,0.4)" : "0 6px 20px rgba(255, 106, 0, 0.4)"
               },
               zIndex: 1300
             }}
@@ -587,8 +628,8 @@ export default function Sidebar() {
                   {favoritesCount > 0 ? (
                     <FavoritesIcon sx={{
                       fontSize: { xs: 18, md: 22 },
-                      color: "#FF6A00",
-                      fill: "#FF6A00"
+                      color: userRole === "admin" ? "#4f46e5" : "#FF6A00",
+                      fill: userRole === "admin" ? "#4f46e5" : "#FF6A00"
                     }} />
                   ) : (
                     <FavoriteBorderIcon sx={{
@@ -642,18 +683,33 @@ export default function Sidebar() {
                   }
                 }}
               >
-                <Avatar
-                  src={userAvatar || undefined}
+                <Badge
+                  badgeContent={userRole === "admin" ? "A" : null}
                   sx={{
-                    width: { xs: 32, md: 38 },
-                    height: { xs: 32, md: 38 },
-                    borderRadius: "8px",
-                    background: "var(--primary-gradient)",
-                    fontSize: "0.9rem",
+                    "& .MuiBadge-badge": {
+                      background: "var(--primary-gradient)",
+                      color: "#fff",
+                      fontSize: "0.55rem",
+                      fontWeight: 800,
+                      height: 16,
+                      minWidth: 16,
+                      borderRadius: "50%",
+                    }
                   }}
                 >
-                  {userName ? userName.charAt(0).toUpperCase() : "U"}
-                </Avatar>
+                  <Avatar
+                    src={userAvatar || undefined}
+                    sx={{
+                      width: { xs: 32, md: 38 },
+                      height: { xs: 32, md: 38 },
+                      borderRadius: "8px",
+                      background: "var(--primary-gradient)",
+                      fontSize: "0.9rem",
+                    }}
+                  >
+                    {userName ? userName.charAt(0).toUpperCase() : "U"}
+                  </Avatar>
+                </Badge>
               </IconButton>
               <Menu
                 id="account-menu"
@@ -699,6 +755,14 @@ export default function Sidebar() {
                   </ListItemIcon>
                   Profile
                 </MenuItem>
+                {userRole === "admin" && (
+                  <MenuItem onClick={() => { handleAccountMenuClose(); navigate("/admin"); }}>
+                    <ListItemIcon sx={{ minWidth: "auto", color: "#4f46e5" }}>
+                      <SettingsIcon fontSize="small" />
+                    </ListItemIcon>
+                    <span style={{ color: "#4f46e5", fontWeight: 700 }}>Admin Panel</span>
+                  </MenuItem>
+                )}
                 <Divider sx={{ my: 0.5, opacity: 0.6 }} />
                 <MenuItem onClick={handleLogout}>
                   <ListItemIcon sx={{ minWidth: "auto", color: "#f44336" }}>

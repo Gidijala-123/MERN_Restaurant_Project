@@ -103,8 +103,8 @@ const StyledRating = styled(Rating)(() => ({
   },
 }));
 
-const ORANGE = "#ea580c";
-const ORANGE_LIGHT = "#fb923c";
+const ORANGE = document.documentElement.getAttribute("data-role") === "admin" ? "#4f46e5" : "#ea580c";
+const ORANGE_LIGHT = document.documentElement.getAttribute("data-role") === "admin" ? "#7c3aed" : "#fb923c";
 
 const customIcons = {
   1: {

@@ -323,6 +323,24 @@ const Cart = () => {
         };
         localStorage.setItem("userOrders", JSON.stringify([newOrder, ...existingOrders]));
 
+        // Persist order to backend DB for analytics
+        const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
+        fetch(`${API_URL}/api/csrf`, { credentials: "include" })
+          .then((r) => r.json())
+          .then((csrf) => fetch(`${API_URL}/api/order`, {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json", "x-csrf-token": csrf?.csrfToken || "" },
+            body: JSON.stringify({
+              items: cart.cartItems,
+              paymentId: response.razorpay_payment_id,
+              subtotal: cart.cartTotalAmount,
+              gst,
+              grandTotal,
+            }),
+          }))
+          .catch(() => { });
+
         dispatch(clearCart());
         navigate("/checkout-success", {
           state: { paymentId: response.razorpay_payment_id, snapshot },
