@@ -130,11 +130,11 @@ function Signup() {
       );
 
       if (res.status === 200) {
-        toast.update(toastId, { 
-          render: "Registration successful! You can now log in.", 
-          type: "success", 
+        toast.update(toastId, {
+          render: "Registration successful! You can now log in.",
+          type: "success",
           isLoading: false,
-          autoClose: 3000 
+          autoClose: 3000
         });
         setApiStatus({
           error: "",
@@ -157,11 +157,11 @@ function Signup() {
       }
     } catch (err) {
       const errorMsg = err.response?.data?.Message || err.response?.data?.Error || "Registration failed.";
-      toast.update(toastId, { 
-        render: errorMsg, 
-        type: "error", 
+      toast.update(toastId, {
+        render: errorMsg,
+        type: "error",
         isLoading: false,
-        autoClose: 3000 
+        autoClose: 3000
       });
       if (err.response?.status === 403 || err.response?.status === 400) {
         setApiStatus({
@@ -251,7 +251,7 @@ function Signup() {
   const sendOtp = async () => {
     setValidationErrors({});
     setOtpMsg("");
-    
+
     // Validate initial fields before sending OTP
     const errors = {};
     if (!uname) errors.uname = "Name is required.";
@@ -278,16 +278,17 @@ function Signup() {
         headers: { "x-csrf-token": csrf?.csrfToken },
       });
       if (res.status === 200) {
+        const channelLabel = channel === "email" ? `email (${contact})` : channel === "sms" ? `SMS to ${contact}` : `WhatsApp to ${contact}`;
+        const channelIcon = channel === "email" ? "📧" : channel === "sms" ? "📱" : "💬";
         setOtpMsg(`OTP sent via ${channel} to ${contact}`);
         setIsOtpSent(true);
-        setTimer(60); // Start 60s countdown
-        // display styled popup message
-        showPopup(
-          `OTP has been sent to your ${channel === "email" ? "email" : channel.toUpperCase()}`,
-        );
+        setTimer(60);
+        toast.success(`${channelIcon} OTP sent via ${channelLabel}! Check and enter below.`, { autoClose: 5000 });
+        showPopup(`${channelIcon} OTP sent to your ${channel === "email" ? "email inbox" : channel === "sms" ? "phone via SMS" : "WhatsApp"}`);
       }
     } catch {
       setOtpMsg("Failed to send OTP");
+      toast.error("Failed to send OTP. Please check your details and try again.");
     }
   };
   const verifyOtp = async () => {
@@ -481,9 +482,9 @@ function Signup() {
                     }}
                     className="form-select otp-channel-select"
                   >
-                    <option value="sms">SMS</option>
-                    <option value="whatsapp">WhatsApp</option>
-                    <option value="email">Email</option>
+                    <option value="email">📧 Email</option>
+                    <option value="sms">📱 SMS</option>
+                    <option value="whatsapp">💬 WhatsApp</option>
                   </select>
                   {channel === "email" ? (
                     <input
@@ -494,19 +495,15 @@ function Signup() {
                         setUemail(e.target.value);
                         setContact(e.target.value);
                       }}
-                      placeholder="Email for OTP"
+                      placeholder="Email address for OTP"
                     />
                   ) : (
                     <input
                       className="form-control"
-                      type="text"
+                      type="tel"
                       value={contact}
                       onChange={(e) => setContact(e.target.value)}
-                      placeholder={
-                        channel === "whatsapp"
-                          ? "WhatsApp number"
-                          : "+Phone for OTP"
-                      }
+                      placeholder={channel === "whatsapp" ? "WhatsApp number (e.g. +91XXXXXXXXXX)" : "Mobile number (e.g. +91XXXXXXXXXX)"}
                     />
                   )}
                   <button
@@ -525,8 +522,8 @@ function Signup() {
                 )}
                 {isOtpSent && timer === 0 && (
                   <div style={{ textAlign: "right", marginTop: "-10px", marginBottom: "10px" }}>
-                    <span 
-                      onClick={sendOtp} 
+                    <span
+                      onClick={sendOtp}
                       style={{ fontSize: "0.75rem", color: "var(--primary)", cursor: "pointer", textDecoration: "underline", fontWeight: "bold" }}
                     >
                       Resend OTP
@@ -562,22 +559,22 @@ function Signup() {
                 <span className="span-tag success-text">
                   {isOtpVerified ? "✅ OTP Verified Successfully" : otpMsg}
                 </span>
-                <button 
-                  className="codepen-button" 
-                  type="submit" 
+                <button
+                  className="codepen-button"
+                  type="submit"
                   disabled={isLoading || !isOtpVerified}
                   style={{ opacity: (!isOtpVerified && !isLoading) ? 0.6 : 1, cursor: (!isOtpVerified && !isLoading) ? "not-allowed" : "pointer" }}
                 >
                   {isLoading ? "Processing..." : "Sign Up"}
                 </button>
-                
+
                 {/* Server spin-up notice */}
-                <div style={{ 
-                  fontSize: "0.75rem", 
-                  color: "#666", 
-                  marginTop: "10px", 
+                <div style={{
+                  fontSize: "0.75rem",
+                  color: "#666",
+                  marginTop: "10px",
                   textAlign: "center",
-                  fontStyle: "italic" 
+                  fontStyle: "italic"
                 }}>
                   Note: Initial request may take 30-60 seconds due to server wake-up time on free hosting.
                 </div>

@@ -5,66 +5,106 @@ let transporter = null;
 
 export async function sendSmsOtp({ to, code }) {
   const provider = process.env.OTP_PROVIDER || "mock";
-  const message = `Your GBR Grocery verification code is: ${code}. Valid for 5 minutes. Do not share this code.`;
+  const message = `Your Flavora verification code is: ${code}. Valid for 5 minutes. Do not share this code.`;
 
-  if (provider === "twilio" && process.env.TWILIO_ACCOUNT_SID) {
+  // Fast2SMS — free tier, India numbers only
+  if (process.env.FAST2SMS_API_KEY) {
     try {
-      const twilio = require("twilio");
-      const client = twilio(
-        process.env.TWILIO_ACCOUNT_SID,
-        process.env.TWILIO_AUTH_TOKEN,
-      );
-
-      const response = await client.messages.create({
-        body: message,
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: to.startsWith("+") ? to : `+${to}`,
+      const response = await fetch("https://www.fast2sms.com/dev/bulkV2", {
+        method: "POST",
+        headers: {
+          authorization: process.env.FAST2SMS_API_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          route: "q",
+          message,
+          language: "english",
+          flash: 0,
+          numbers: to.replace(/^\+91/, "").replace(/\D/g, ""),
+        }),
       });
-
-      console.log(`[Twilio SMS] Sent to ${to}, SID: ${response.sid}`);
-      return { ok: true, provider: "twilio", messageSid: response.sid };
+      const data = await response.json();
+      if (data.return === true) {
+        console.log(`[Fast2SMS] Sent to ${to}, requestId: ${data.request_id}`);
+        return { ok: true, provider: "fast2sms", requestId: data.request_id };
+      }
+      throw new Error(data.message || "Fast2SMS failed");
     } catch (error) {
-      console.error(`[Twilio SMS Error]`, error.message);
-      // Fall back to mock if Twilio fails
+      console.error(`[Fast2SMS Error]`, error.message);
       console.log(`[SMS Mock Fallback] To ${to}: ${code}`);
       return { ok: true, provider: "mock", error: error.message };
     }
   }
 
-  // Default mock provider for development
+  if (provider === "twilio" && process.env.TWILIO_ACCOUNT_SID) {
+    try {
+      const { default: twilio } = await import("twilio");
+      const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+      const response = await client.messages.create({
+        body: message,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: to.startsWith("+") ? to : `+${to}`,
+      });
+      console.log(`[Twilio SMS] Sent to ${to}, SID: ${response.sid}`);
+      return { ok: true, provider: "twilio", messageSid: response.sid };
+    } catch (error) {
+      console.error(`[Twilio SMS Error]`, error.message);
+      console.log(`[SMS Mock Fallback] To ${to}: ${code}`);
+      return { ok: true, provider: "mock", error: error.message };
+    }
+  }
+
   console.log(`[SMS Mock] To ${to}: ${code}`);
   return { ok: true, provider: "mock" };
 }
 
 export async function sendWhatsAppOtp({ to, code }) {
-  const provider = process.env.OTP_PROVIDER || "mock";
-  const message = `Your GBR Grocery verification code is: ${code}. Valid for 5 minutes. Do not share this code.`;
+  const message = `🍽️ *Flavora* — Your verification code is: *${code}*\n\nValid for 5 minutes. Do not share this code with anyone.`;
 
-  if (provider === "twilio" && process.env.TWILIO_ACCOUNT_SID) {
+  // WaBlas free tier (requires account at wablas.com)
+  if (process.env.WABLAS_TOKEN && process.env.WABLAS_DOMAIN) {
     try {
-      const twilio = require("twilio");
-      const client = twilio(
-        process.env.TWILIO_ACCOUNT_SID,
-        process.env.TWILIO_AUTH_TOKEN,
-      );
-
-      const response = await client.messages.create({
-        body: message,
-        from: `whatsapp:${process.env.TWILIO_WHATSAPP_FROM}`,
-        to: `whatsapp:${to.startsWith("+") ? to : "+" + to}`,
+      const phone = to.replace(/^\+/, "").replace(/\D/g, "");
+      const response = await fetch(`https://${process.env.WABLAS_DOMAIN}/api/send-message`, {
+        method: "POST",
+        headers: {
+          Authorization: process.env.WABLAS_TOKEN,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ phone, message }),
       });
-
-      console.log(`[Twilio WhatsApp] Sent to ${to}, SID: ${response.sid}`);
-      return { ok: true, provider: "twilio", messageSid: response.sid };
+      const data = await response.json();
+      if (data.status) {
+        console.log(`[WaBlas WhatsApp] Sent to ${to}`);
+        return { ok: true, provider: "wablas" };
+      }
+      throw new Error(data.message || "WaBlas failed");
     } catch (error) {
-      console.error(`[Twilio WhatsApp Error]`, error.message);
-      // Fall back to mock if Twilio fails
+      console.error(`[WaBlas Error]`, error.message);
       console.log(`[WhatsApp Mock Fallback] To ${to}: ${code}`);
       return { ok: true, provider: "mock", error: error.message };
     }
   }
 
-  // Default mock provider for development
+  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_WHATSAPP_FROM) {
+    try {
+      const { default: twilio } = await import("twilio");
+      const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+      const response = await client.messages.create({
+        body: message,
+        from: `whatsapp:${process.env.TWILIO_WHATSAPP_FROM}`,
+        to: `whatsapp:${to.startsWith("+") ? to : "+" + to}`,
+      });
+      console.log(`[Twilio WhatsApp] Sent to ${to}, SID: ${response.sid}`);
+      return { ok: true, provider: "twilio", messageSid: response.sid };
+    } catch (error) {
+      console.error(`[Twilio WhatsApp Error]`, error.message);
+      console.log(`[WhatsApp Mock Fallback] To ${to}: ${code}`);
+      return { ok: true, provider: "mock", error: error.message };
+    }
+  }
+
   console.log(`[WhatsApp Mock] To ${to}: ${code}`);
   return { ok: true, provider: "mock" };
 }
@@ -90,7 +130,7 @@ export async function sendEmailOtp({
     // Generate default OTP template
     console.log("[sendEmailOtp] Generating OTP template");
     subject = "Verification Code - Tasty Kitchen";
-    
+
     // Create OTP digits with table-based layout for better email support
     const otpDigits = String(code)
       .split("")
@@ -203,9 +243,9 @@ export async function sendEmailOtp({
         auth:
           process.env.SMTP_USER && process.env.SMTP_PASS
             ? {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS,
-              }
+              user: process.env.SMTP_USER,
+              pass: process.env.SMTP_PASS,
+            }
             : undefined,
       };
     }
@@ -221,10 +261,10 @@ export async function sendEmailOtp({
     !!transportOpts,
     transportOpts
       ? {
-          service: transportOpts.service,
-          host: transportOpts.host,
-          port: transportOpts.port,
-        }
+        service: transportOpts.service,
+        host: transportOpts.host,
+        port: transportOpts.port,
+      }
       : null,
   );
 
