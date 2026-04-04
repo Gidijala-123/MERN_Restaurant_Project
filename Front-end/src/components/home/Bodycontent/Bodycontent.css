@@ -136,8 +136,8 @@
 .chefs-special-card,
 .thankyou-section,
 .discount-sale-container {
-   padding-top: 3.75rem;
-   padding-bottom: 3.75rem;
+   padding-top: 2rem;
+   padding-bottom: 2rem;
 }
 
 /* Global Section Fixes */
@@ -301,22 +301,18 @@ img {
    background: var(--white) !important;
    border: 1px solid var(--border-light) !important;
    border-radius: 24px !important;
-   /* Larger rounding matching image */
-   padding: 1.5rem !important;
+   padding: 0.9rem !important;
    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
    height: 100% !important;
    display: flex !important;
    flex-direction: column !important;
    align-items: center !important;
-   /* Centered content as per image */
    text-align: center !important;
-   gap: 0.75rem !important;
+   gap: 0.4rem !important;
    position: relative !important;
    flex: 0 0 260px !important;
-   /* Consistent width */
    contain: content;
-   /* Performance optimization: content visibility */
 }
 
 @media (max-width: 48rem) {
@@ -361,10 +357,10 @@ img {
 .trending-items-sub-div img,
 .discount-item img {
    width: 100% !important;
-   height: 160px !important;
+   height: 130px !important;
    object-fit: cover !important;
-   border-radius: 20px !important;
-   margin-bottom: 0.5rem !important;
+   border-radius: 16px !important;
+   margin-bottom: 0.35rem !important;
    background: var(--bg-light) !important;
    transition: transform 0.3s ease;
 }
@@ -424,7 +420,7 @@ img {
 
 /* Card Content Typography */
 .trending-items-title {
-   font-size: 1.1rem !important;
+   font-size: 1rem !important;
    font-weight: 800 !important;
    color: var(--text-main) !important;
    margin: 0 !important;
@@ -432,27 +428,25 @@ img {
    display: flex !important;
    align-items: center !important;
    justify-content: center !important;
-   /* Center text within flex title */
-   gap: 0.5rem !important;
+   gap: 0.4rem !important;
    width: 100% !important;
 }
 
 .title-icon {
-   font-size: 1.2rem !important;
+   font-size: 1rem !important;
 }
 
 .card-description {
-   font-size: 0.75rem !important;
+   font-size: 0.72rem !important;
    color: var(--text-sub) !important;
-   line-height: 1.4 !important;
-   margin: 0.25rem 0 !important;
+   line-height: 1.3 !important;
+   margin: 0.1rem 0 !important;
    display: -webkit-box !important;
    -webkit-line-clamp: 2 !important;
    -webkit-box-orient: vertical !important;
    overflow: hidden !important;
    opacity: 0.8 !important;
    text-align: center !important;
-   /* Explicitly center description */
    width: 100% !important;
 }
 
@@ -460,21 +454,21 @@ img {
    display: flex !important;
    align-items: center !important;
    justify-content: center !important;
-   gap: 1rem !important;
-   margin: 0.25rem 0 !important;
+   gap: 0.75rem !important;
+   margin: 0.1rem 0 !important;
    width: 100% !important;
 }
 
 .meta-item {
    display: flex !important;
    align-items: center !important;
-   gap: 0.25rem !important;
-   font-size: 0.75rem !important;
+   gap: 0.2rem !important;
+   font-size: 0.7rem !important;
    font-weight: 600 !important;
    color: var(--text-sub) !important;
    background: var(--bg-light) !important;
-   padding: 4px 8px !important;
-   border-radius: 8px !important;
+   padding: 2px 6px !important;
+   border-radius: 6px !important;
 }
 
 .trending-rating {
@@ -495,8 +489,8 @@ img {
    display: flex !important;
    align-items: center !important;
    justify-content: center !important;
-   gap: 10px !important;
-   margin-bottom: 0.5rem !important;
+   gap: 8px !important;
+   margin-bottom: 0.25rem !important;
 }
 
 .original-price {
@@ -509,7 +503,7 @@ img {
 .discounted-price {
    color: var(--primary) !important;
    font-weight: 900 !important;
-   font-size: 1.15rem !important;
+   font-size: 1rem !important;
 }
 
 /* "Grab Now" Style Buttons */
@@ -623,7 +617,7 @@ img {
 
 .trending-items-sub-div>img {
    width: 100%;
-   height: 140px;
+   height: 115px;
    object-fit: cover;
    border-radius: 12px;
    margin-bottom: 0.75rem;
@@ -1351,14 +1345,14 @@ img {
 .offer-card {
    background: var(--white);
    border-radius: 1.125rem;
-   padding: 1rem;
+   padding: 0.75rem;
    box-shadow: var(--shadow-sm);
    border: 1px solid var(--border-light);
    display: flex;
    flex-direction: column;
    align-items: center;
    height: auto;
-   min-height: 20rem;
+   min-height: 17rem;
    width: 18.75rem;
    min-width: 18.75rem;
    flex-shrink: 0;
@@ -1370,10 +1364,10 @@ img {
 
 .offer-image {
    width: 100% !important;
-   height: 8.75rem !important;
+   height: 7.5rem !important;
    object-fit: cover;
    border-radius: 0.75rem;
-   margin-bottom: 0.625rem;
+   margin-bottom: 0.4rem;
 }
 
 .offer-cat {
@@ -1625,8 +1619,8 @@ img {
 .trending-title-wrapper {
    display: flex;
    align-items: center;
-   padding: 0 40px;
-   margin-bottom: 20px;
+   padding: 0 24px;
+   margin-bottom: 10px;
 }
 
 .trending-badge,
@@ -1683,10 +1677,8 @@ img {
 .discount-sale-container,
 .fancy-section {
    background: var(--white);
-   padding: 10px 0 10px;
-   /* less vertical padding inside */
-   margin: 20px 0;
-   /* tighter vertical spacing around sections */
+   padding: 6px 0 6px;
+   margin: 12px 0;
    overflow: hidden;
    border-radius: 25px;
    box-shadow: var(--shadow-md);
@@ -1711,9 +1703,8 @@ img {
 .section-title-wrapper {
    display: flex;
    align-items: center;
-   padding: 10px 40px;
-   /* add vertical padding */
-   margin-bottom: 20px;
+   padding: 6px 24px;
+   margin-bottom: 10px;
 }
 
 @media (max-width: 48rem) {
@@ -1946,7 +1937,7 @@ img {
 
 .trending-today-container .trending-items-sub-div>img {
    width: 100% !important;
-   height: 140px !important;
+   height: 115px !important;
    object-fit: cover !important;
    border-radius: 12px;
    margin-bottom: 10px;

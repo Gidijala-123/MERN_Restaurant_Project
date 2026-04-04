@@ -69,13 +69,13 @@ const MenuDisplay = () => {
   const handleFavoriteToggle = useCallback((itemId) => {
     const saved = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
     const updated = { ...saved, [itemId]: !saved[itemId] };
-    
+
     // 1. Update localStorage synchronously first
     localStorage.setItem("menuFavorites", JSON.stringify(updated));
-    
+
     // 2. Update React state
     setFavoriteItems(updated);
-    
+
     // 3. Dispatch event to update navbar favorites count
     window.dispatchEvent(new Event("favoritesUpdated"));
   }, []);
@@ -123,11 +123,11 @@ const MenuDisplay = () => {
     return selectedCategory === "Hot Offers"
       ? { All: filteredItems }
       : subCategories.reduce((acc, subCat) => {
-          acc[subCat] = filteredItems.filter(
-            (item) => item.subCategory === subCat,
-          );
-          return acc;
-        }, {});
+        acc[subCat] = filteredItems.filter(
+          (item) => item.subCategory === subCat,
+        );
+        return acc;
+      }, {});
   }, [selectedCategory, filteredItems, subCategories]);
 
   return (
@@ -170,7 +170,7 @@ const MenuDisplay = () => {
             </Typography>
           )}
 
-          <Grid container spacing={3} sx={{ mb: 5 }}>
+          <Grid container spacing={2} sx={{ mb: 2 }}>
             {items.map((item) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
                 <Card className="food-card">
@@ -189,7 +189,7 @@ const MenuDisplay = () => {
                       }}
                       loading="lazy"
                     />
-                    
+
                     {/* Floating Badges */}
                     <div className="card-badges">
                       <div className="veg-badge">

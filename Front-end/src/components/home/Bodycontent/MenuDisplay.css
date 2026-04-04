@@ -1,23 +1,23 @@
 /* MenuDisplay Styles */
 
 .menu-display-container {
-  padding: 2rem 0;
+  padding: 1rem 0;
 }
 
 .category-header {
-  margin-bottom: 2.5rem;
+  margin-bottom: 1rem;
 }
 
 .category-title {
-  font-size: 3rem !important;
+  font-size: 2rem !important;
   font-weight: 900 !important;
   color: #ff6a00 !important;
   text-transform: capitalize;
-  margin-bottom: 0.5rem !important;
+  margin-bottom: 0.25rem !important;
 }
 
 .category-description {
-  font-size: 1.1rem !important;
+  font-size: 0.9rem !important;
   color: #666 !important;
   font-weight: 500 !important;
 }
@@ -25,17 +25,17 @@
 /* Subcategory Filter Chips */
 .subcategory-filter-container {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
 }
 
 .filter-chip {
-  padding: 10px 24px !important;
+  padding: 6px 16px !important;
   height: auto !important;
   border-radius: 50px !important;
   font-weight: 600 !important;
-  font-size: 0.95rem !important;
+  font-size: 0.82rem !important;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
   border: 1.5px solid #eee !important;
   background-color: white !important;
@@ -56,13 +56,13 @@
 
 /* Section Title */
 .subcategory-title {
-  font-size: 1.8rem !important;
+  font-size: 1.2rem !important;
   font-weight: 800 !important;
   color: #333 !important;
-  margin: 2rem 0 1.5rem 0 !important;
+  margin: 1rem 0 0.75rem 0 !important;
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
 }
 
 .subcategory-title::after {
@@ -93,7 +93,7 @@
 
 .card-image-wrapper {
   position: relative;
-  height: 220px;
+  height: 140px;
   overflow: hidden;
 }
 
@@ -200,7 +200,7 @@
 
 /* Card Content */
 .food-card-content {
-  padding: 1.5rem !important;
+  padding: 0.75rem !important;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
@@ -210,22 +210,22 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.75rem;
-  gap: 10px;
+  margin-bottom: 0.3rem;
+  gap: 6px;
 }
 
 .food-name {
-  font-size: 1.25rem !important;
+  font-size: 0.95rem !important;
   font-weight: 800 !important;
   color: #2d3436 !important;
   line-height: 1.2 !important;
 }
 
 .food-description {
-  font-size: 0.9rem !important;
+  font-size: 0.75rem !important;
   color: #636e72 !important;
-  margin-bottom: 1.25rem !important;
-  line-height: 1.5 !important;
+  margin-bottom: 0.5rem !important;
+  line-height: 1.4 !important;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -234,21 +234,21 @@
 
 .food-meta {
   display: flex;
-  gap: 15px;
-  margin-bottom: 1.5rem;
+  gap: 10px;
+  margin-bottom: 0.5rem;
 }
 
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   color: #636e72;
-  font-size: 0.85rem;
+  font-size: 0.72rem;
   font-weight: 600;
 }
 
 .meta-icon {
-  font-size: 1.1rem !important;
+  font-size: 0.85rem !important;
 }
 
 /* Footer with Price and Add */
@@ -257,30 +257,30 @@
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
-  padding-top: 1.25rem;
+  padding-top: 0.5rem;
   border-top: 1.5px dashed #eee;
 }
 
 .food-price {
-  font-size: 1.4rem !important;
+  font-size: 1.05rem !important;
   font-weight: 900 !important;
   color: #2d3436 !important;
 }
 
 .food-price span {
-  font-size: 1rem;
-  margin-right: 2px;
+  font-size: 0.85rem;
+  margin-right: 1px;
 }
 
 .add-btn {
   background: linear-gradient(135deg, #ff8c00 0%, #ff6a00 100%) !important;
   color: white !important;
-  padding: 8px 24px !important;
-  border-radius: 12px !important;
+  padding: 5px 16px !important;
+  border-radius: 10px !important;
   font-weight: 700 !important;
   text-transform: none !important;
-  font-size: 0.95rem !important;
-  box-shadow: 0 6px 12px rgba(255, 106, 0, 0.2) !important;
+  font-size: 0.8rem !important;
+  box-shadow: 0 4px 10px rgba(255, 106, 0, 0.2) !important;
   transition: all 0.3s ease !important;
 }
 

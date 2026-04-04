@@ -1084,9 +1084,9 @@ const Bodycontent = (props) => {
                           </div>
                         </div>
 
-                        <div className="trending-rating feedback-rating" style={{ flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
-                          <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', fontWeight: '600' }}>Your Feedback:</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div className="trending-rating feedback-rating" style={{ flexDirection: 'column', gap: '3px', alignItems: 'flex-start' }}>
+                          <span style={{ fontSize: '0.72rem', color: 'var(--text-sub)', fontWeight: '600' }}>Your Feedback:</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <StyledRating
                               name={`rating-${item.id}`}
                               value={itemRatings[item.id] || 0}
@@ -1096,12 +1096,12 @@ const Bodycontent = (props) => {
                               highlightSelectedOnly
                             />
                             {itemRatings[item.id] && (
-                              <span style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: '700' }}>
+                              <span style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: '700' }}>
                                 {customIcons[itemRatings[item.id]].label}
                               </span>
                             )}
                           </div>
-                          <div className="reviews-text" style={{ marginTop: '4px' }}>
+                          <div className="reviews-text" style={{ marginTop: '1px' }}>
                             (Previously: ⭐ {item.rating})
                           </div>
                         </div>
