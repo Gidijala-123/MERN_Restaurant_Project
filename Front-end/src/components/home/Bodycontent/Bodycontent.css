@@ -204,7 +204,7 @@ img {
    font-size: 1.5rem;
    font-weight: 800;
    text-align: left;
-   margin: 1.25rem 0 0.3125rem 0;
+   margin: 0;
    filter: none;
    display: flex;
    align-items: center;
@@ -1619,6 +1619,7 @@ img {
 .trending-title-wrapper {
    display: flex;
    align-items: center;
+   gap: 12px;
    padding: 0 24px;
    margin-bottom: 10px;
 }
@@ -1631,7 +1632,6 @@ img {
    border-radius: 50px;
    font-size: 0.875rem;
    font-weight: 800;
-   margin-right: 0.9375rem;
    animation: pulse 2s infinite;
 }
 
@@ -1703,6 +1703,7 @@ img {
 .section-title-wrapper {
    display: flex;
    align-items: center;
+   gap: 12px;
    padding: 6px 24px;
    margin-bottom: 10px;
 }

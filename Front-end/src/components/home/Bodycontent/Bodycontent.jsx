@@ -94,31 +94,37 @@ const DISCOUNT_SALE_ITEMS = [
   },
 ];
 
-const StyledRating = styled(Rating)(({ theme }) => ({
+const StyledRating = styled(Rating)(() => ({
   "& .MuiRating-iconEmpty .MuiSvgIcon-root": {
-    color: theme.palette.action.disabled,
+    color: "#e0d0c0",
+  },
+  "& .MuiRating-iconFilled .MuiSvgIcon-root": {
+    filter: "drop-shadow(0 1px 3px rgba(234,88,12,0.4))",
   },
 }));
 
+const ORANGE = "#ea580c";
+const ORANGE_LIGHT = "#fb923c";
+
 const customIcons = {
   1: {
-    icon: <SentimentVeryDissatisfiedIcon color="error" />,
+    icon: <SentimentVeryDissatisfiedIcon sx={{ color: ORANGE, fontSize: "1.6rem" }} />,
     label: "Very Dissatisfied",
   },
   2: {
-    icon: <SentimentDissatisfiedIcon color="error" />,
+    icon: <SentimentDissatisfiedIcon sx={{ color: ORANGE, fontSize: "1.6rem" }} />,
     label: "Dissatisfied",
   },
   3: {
-    icon: <SentimentSatisfiedIcon color="warning" />,
+    icon: <SentimentSatisfiedIcon sx={{ color: ORANGE_LIGHT, fontSize: "1.6rem" }} />,
     label: "Neutral",
   },
   4: {
-    icon: <SentimentSatisfiedAltIcon color="success" />,
+    icon: <SentimentSatisfiedAltIcon sx={{ color: ORANGE, fontSize: "1.6rem" }} />,
     label: "Satisfied",
   },
   5: {
-    icon: <SentimentVerySatisfiedIcon color="success" />,
+    icon: <SentimentVerySatisfiedIcon sx={{ color: ORANGE, fontSize: "1.6rem" }} />,
     label: "Very Satisfied",
   },
 };
@@ -1428,16 +1434,14 @@ const Bodycontent = (props) => {
               {/* Why Choose Us Section */}
               <div className="why-choose-us-section">
                 <div className="section-title-wrapper border-0">
-                  <div className="section-title-left">
-                    <span className="section-badge">WHY US?</span>
-                    <h2 className="heading-title">Why Choose Us</h2>
-                  </div>
+                  <span className="section-badge">WHY US?</span>
+                  <h2 className="heading-title">Why Choose Us</h2>
                 </div>
                 <div className="feature-grid">
                   <div className="feature-card">
                     <div className="feature-icon-wrapper">
                       <img
-                        src="/footer-images/noun_fresh food_3374221.png"
+                        src="/footer-images/veggies.jpg"
                         alt="Fresh Food"
                       />
                     </div>
@@ -1449,7 +1453,7 @@ const Bodycontent = (props) => {
                   </div>
                   <div className="feature-card">
                     <div className="feature-icon-wrapper">
-                      <img src="/footer-images/best-price.png" alt="Best Price" />
+                      <img src="/footer-images/food.png" alt="Best Price" />
                     </div>
                     <h3>Best Price</h3>
                     <p>
@@ -1460,7 +1464,7 @@ const Bodycontent = (props) => {
                   <div className="feature-card">
                     <div className="feature-icon-wrapper">
                       <img
-                        src="/footer-images/iconfinder_FoodDelivery-food-delivery-meal-order_6071826.png"
+                        src="/footer-images/deliverypayment.jpg"
                         alt="Fast Delivery"
                       />
                     </div>
