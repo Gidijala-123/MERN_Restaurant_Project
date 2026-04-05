@@ -2105,3 +2105,58 @@ img {
     font-size: 1.1rem !important;
   }
 }
+
+/* ── Section title alignment fixes for mobile ── */
+.section-title-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 30rem) {
+  /* Stack badge above heading on small screens */
+  .section-title-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  /* Center content inside orange sections */
+  .delivery-payment-section .section-title-left,
+  .thankyou-section .section-title-left {
+    align-items: center;
+    text-align: center;
+    width: 100%;
+  }
+
+  .delivery-payment-section .section-title-wrapper,
+  .thankyou-section .section-title-wrapper {
+    justify-content: center;
+  }
+
+  /* Explore Menu button — center on mobile */
+  .delivery-payment-section .main-action-btn {
+    margin-left: 0 !important;
+    align-self: center !important;
+    width: 100% !important;
+    max-width: 200px !important;
+  }
+
+  /* payment-methods flex items full width */
+  .payment-methods {
+    align-items: center !important;
+  }
+
+  /* Thank You heading underline fix */
+  .thankyou-section .heading-title {
+    display: block !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  /* Why Choose Us section title */
+  .why-choose-us-section .section-title-wrapper {
+    padding: 4px 12px !important;
+  }
+}

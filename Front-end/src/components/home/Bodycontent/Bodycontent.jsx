@@ -1520,7 +1520,7 @@ const Bodycontent = (props) => {
                         </div>
                       </div>
                     ))}
-                    <button className="main-action-btn" style={{ marginLeft: "auto" }}>
+                    <button className="main-action-btn" style={{ marginLeft: "auto", alignSelf: "flex-start" }}>
                       Explore Menu
                     </button>
                   </div>
