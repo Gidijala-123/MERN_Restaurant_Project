@@ -164,10 +164,10 @@ const Cart = () => {
       // ── Items table ──
       const tableData = items.map((item, i) => [
         `${i + 1}`,
-        item.title,
+        item.title || item.name || "—",
         `Rs. ${item.price}`,
-        `${item.cartQuantity}`,
-        `Rs. ${item.price * item.cartQuantity}`,
+        `${item.cartQuantity || item.quantity || 1}`,
+        `Rs. ${item.price * (item.cartQuantity || item.quantity || 1)}`,
       ]);
 
       autoTable(doc, {

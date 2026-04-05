@@ -1995,3 +1995,113 @@ img {
 [data-role='admin'] .offers-scroll::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
 }
+
+/* ── Galaxy A50 / small mobile fixes (≤480px) ── */
+@media (max-width: 30rem) {
+
+  .delivery-payment-section {
+    padding: 1.25rem !important;
+    margin: 1rem 0 !important;
+    border-radius: 1rem !important;
+    gap: 1rem !important;
+  }
+
+  .delivery-content {
+    text-align: center;
+  }
+
+  .special-heading {
+    font-size: 1.2rem !important;
+    margin-top: 0.75rem !important;
+  }
+
+  .special-para {
+    font-size: 0.8rem !important;
+    line-height: 1.5 !important;
+  }
+
+  .payment-methods {
+    gap: 1rem !important;
+    justify-content: center !important;
+  }
+
+  /* Why Choose Flavora feature items */
+  .payment-methods > div {
+    width: 100% !important;
+    justify-content: flex-start !important;
+    border-radius: 10px !important;
+    padding: 8px 12px !important;
+    font-size: 0.78rem !important;
+  }
+
+  .delivery-img {
+    height: 10rem !important;
+    border-radius: 0.75rem !important;
+  }
+
+  /* Why Choose Us feature grid */
+  .why-choose-us-section {
+    padding: 1.25rem 0 !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+    padding: 0 0.5rem !important;
+  }
+
+  .feature-card {
+    padding: 1rem !important;
+    border-radius: 12px !important;
+  }
+
+  .feature-card h3 {
+    font-size: 0.95rem !important;
+  }
+
+  .feature-card p {
+    font-size: 0.78rem !important;
+  }
+
+  /* Thank You section */
+  .thankyou-section {
+    padding: 1.5rem 1rem !important;
+    margin: 1rem 0 !important;
+    border-radius: 1.25rem !important;
+  }
+
+  .thankyou-heading {
+    font-size: 1.3rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .thankyou-para {
+    font-size: 0.8rem !important;
+  }
+
+  .thankyou-img {
+    max-width: 160px !important;
+    margin: 0 auto !important;
+  }
+
+  /* Section title wrappers */
+  .section-title-wrapper,
+  .trending-title-wrapper,
+  .discount-title-wrapper {
+    padding: 4px 12px !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  .section-badge,
+  .trending-badge,
+  .discount-badge {
+    font-size: 0.65rem !important;
+    padding: 4px 12px !important;
+  }
+
+  .heading-title {
+    font-size: 1.1rem !important;
+  }
+}

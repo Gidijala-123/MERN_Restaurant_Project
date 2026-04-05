@@ -112,10 +112,10 @@ const CheckoutSuccess = () => {
 
       const tableData = snapshot.items.map((item, i) => [
         `${i + 1}`,
-        item.title,
+        item.title || item.name || "—",
         `Rs. ${item.price}`,
-        `${item.cartQuantity}`,
-        `Rs. ${item.price * item.cartQuantity}`,
+        `${item.cartQuantity || item.quantity || 1}`,
+        `Rs. ${item.price * (item.cartQuantity || item.quantity || 1)}`,
       ]);
       autoTable(doc, {
         startY: tableStartY,
@@ -179,7 +179,7 @@ const CheckoutSuccess = () => {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(8);
       doc.setTextColor(180, 80, 10);
-      doc.text(`${snapshot.items.length} item${snapshot.items.length !== 1 ? "s" : ""}  ·  ${snapshot.items.reduce((s, i) => s + i.cartQuantity, 0)} qty`, 19, tY + 19);
+      doc.text(`${snapshot.items.length} item${snapshot.items.length !== 1 ? "s" : ""}  ·  ${snapshot.items.reduce((s, i) => s + (i.cartQuantity || i.quantity || 1), 0)} qty`, 19, tY + 19);
 
       // Footer
       const footerY = 272;
