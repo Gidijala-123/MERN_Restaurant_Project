@@ -13,8 +13,13 @@ import LockIcon from "@mui/icons-material/Lock";
 import EditIcon from "@mui/icons-material/Edit";
 import GoogleIcon from "@mui/icons-material/Google";
 import GitHubIcon from "@mui/icons-material/GitHub";
-
 import { toast } from "react-toastify";
+
+const BG_IMAGES = [
+  "/dark1.jpg",
+  "/dark2.jpg",
+  "/dark3.jpg",
+];
 
 function Signup() {
   const [type, setType] = useState("signUp");
@@ -28,8 +33,8 @@ function Signup() {
   const [uconfirmPassword, setUconfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [contact, setContact] = useState(""); // phone number or email depending on channel
-  const [channel, setChannel] = useState("email"); // sms, whatsapp, email (default changed to email)
+  const [contact, setContact] = useState("");
+  const [channel, setChannel] = useState("email");
   const [otpCode, setOtpCode] = useState("");
   const [otpMsg, setOtpMsg] = useState("");
   const [isOtpSent, setIsOtpSent] = useState(false);
@@ -37,7 +42,20 @@ function Signup() {
   const [timer, setTimer] = useState(0);
   const [avatar, setAvatar] = useState("");
   const [popup, setPopup] = useState({ visible: false, text: "" });
+  const [bgIndex, setBgIndex] = useState(0);
+  const [prevBgIndex, setPrevBgIndex] = useState(null);
   const navigate = useNavigate();
+
+  // Slideshow: advance every 6 seconds to match the slow zoom
+  useEffect(() => {
+    const id = setInterval(() => {
+      setBgIndex((i) => {
+        setPrevBgIndex(i);
+        return (i + 1) % BG_IMAGES.length;
+      });
+    }, 6000);
+    return () => clearInterval(id);
+  }, []);
 
   const showPopup = (msg) => {
     setPopup({ visible: true, text: msg });
@@ -328,6 +346,15 @@ function Signup() {
         onClose={() => setPopup({ visible: false, text: "" })}
       />
       <div className="signlog-div">
+        {/* Background slideshow */}
+        {BG_IMAGES.map((src, i) => (
+          <div
+            key={src}
+            className={`signlog-bg-slide${i === bgIndex ? " active" : i === prevBgIndex ? " leaving" : ""}`}
+            style={{ backgroundImage: `url(${src})` }}
+          />
+        ))}
+        <div className="signlog-bg-overlay" />
         <div
           className={`container ${type === "signUp" ? "right-panel-active" : ""}`}
           id="container"

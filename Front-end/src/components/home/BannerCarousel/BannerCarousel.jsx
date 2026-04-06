@@ -27,6 +27,21 @@ const slides = [
     title: "Fresh salads with Veggies",
     category: "Salads",
   },
+  {
+    url: "/dark1.jpg",
+    title: "Crafted for the Bold",
+    category: "Signature Dishes",
+  },
+  {
+    url: "/dark2.jpg",
+    title: "Flavours of the Night",
+    category: "Main Course",
+  },
+  {
+    url: "/dark3.jpg",
+    title: "Indulge in Every Bite",
+    category: "Desserts",
+  },
 ];
 
 const BannerCarousel = ({ onSectionChange }) => {
@@ -58,7 +73,7 @@ const BannerCarousel = ({ onSectionChange }) => {
     if (onSectionChange) {
       const section = categoryToSection[category] || "Home";
       onSectionChange(section, category);
-      
+
       // Smooth scroll to the menu display section if it exists
       const menuSection = document.querySelector(".offers-section") || document.querySelector(".home-container");
       if (menuSection) {
@@ -126,7 +141,7 @@ const BannerCarousel = ({ onSectionChange }) => {
           <p className={styles.description}>
             Experience culinary perfection with our fresh, locally sourced ingredients and masterfully crafted recipes.
           </p>
-          <button 
+          <button
             className={styles.ctaButton}
             onClick={() => handleViewMenu(slides[index].category)}
           >
@@ -138,13 +153,13 @@ const BannerCarousel = ({ onSectionChange }) => {
   );
 
   return (
-    <div 
+    <div
       className={styles.carouselRoot}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      <div 
+      <div
         className={styles.inner}
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >

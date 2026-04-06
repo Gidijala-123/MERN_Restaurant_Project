@@ -18,16 +18,63 @@
 }
 
 .signlog-div {
-  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/banner-images/banner2.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   font-family: 'Outfit', sans-serif;
   min-height: 100vh;
   padding: 1.25rem;
+  overflow: hidden;
+}
+
+/* Slideshow layers sit behind everything */
+.signlog-bg-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transform: scale(1.0);
+  transition: opacity 2.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
+}
+
+.signlog-bg-slide.active {
+  opacity: 1;
+  animation: signlog-zoom 6s ease-in-out forwards;
+}
+
+/* Leaving slide: keep its final scale, just fade out — no snap back */
+.signlog-bg-slide.leaving {
+  opacity: 0;
+  transform: scale(1.0);
+  transition: opacity 2.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: none;
+}
+
+@keyframes signlog-zoom {
+  from { transform: scale(1.06); }
+  to   { transform: scale(1.0);  }
+}
+
+/* Dark overlay on top of slides — heavier so form pops */
+.signlog-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.72) 0%,
+    rgba(10, 5, 0, 0.65) 50%,
+    rgba(0, 0, 0, 0.75) 100%
+  );
+  z-index: 1;
+}
+
+/* Everything inside must sit above the slides */
+.signlog-div > .container {
+  position: relative;
+  z-index: 2;
 }
 
 .container {
