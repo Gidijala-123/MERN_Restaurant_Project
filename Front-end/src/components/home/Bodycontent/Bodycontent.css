@@ -387,16 +387,18 @@ img {
 /* Card Badge - e.g. "45% OFF" */
 .card-badge {
    position: absolute !important;
-   top: 15px !important;
-   left: 15px !important;
+   top: 10px !important;
+   left: 10px !important;
    background: var(--primary-gradient) !important;
    color: white !important;
-   padding: 4px 12px !important;
+   padding: 5px 10px !important;
    border-radius: 50px !important;
-   font-size: 0.65rem !important;
+   font-size: 0.62rem !important;
    font-weight: 800 !important;
-   box-shadow: 0 4px 10px rgba(230, 81, 0, 0.3) !important;
+   letter-spacing: 0.4px !important;
+   box-shadow: 0 3px 10px rgba(230, 81, 0, 0.35) !important;
    z-index: 2 !important;
+   line-height: 1.2 !important;
 }
 
 /* Heart/Bookmark Icon placement */
@@ -583,8 +585,9 @@ img {
    }
 
    .card-badge {
-      font-size: 0.65rem !important;
-      padding: 0.2rem 0.5rem !important;
+      font-size: 0.6rem !important;
+      padding: 4px 9px !important;
+      letter-spacing: 0.3px !important;
    }
 }
 
