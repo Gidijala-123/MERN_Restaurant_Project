@@ -113,9 +113,15 @@ export const me = asyncHandler(async (req, res) => {
     const uid = tokenKey?.uid;
     if (!uid) return res.status(200).json({ authenticated: false });
 
-    const user = await EmployeeModel.findById(uid).select(
-      "avatar uname uemail role"
-    );
+    // OAuth users have a provider-issued uid (not a MongoDB ObjectId).
+    // Try findById first; if it fails (cast error), fall back to tokenKey data.
+    let user = null;
+    try {
+      user = await EmployeeModel.findById(uid).select("avatar uname uemail role");
+    } catch {
+      // uid is not a valid ObjectId (e.g. Google/GitHub profile id) — that's fine
+    }
+
     res.json({
       authenticated: true,
       ...tokenKey,
