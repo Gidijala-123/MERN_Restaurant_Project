@@ -538,18 +538,22 @@ img {
    box-shadow: 0 12px 30px rgba(230, 81, 0, 0.3) !important;
 }
 
-/* Section Header Badges Matching Image */
+/* Section Header Badges */
 .section-badge,
 .discount-badge,
 .trending-badge {
    background: var(--primary-gradient) !important;
    color: white !important;
-   padding: 8px 20px !important;
+   padding: 0.3125rem 0.9375rem !important;
    border-radius: 50px !important;
    font-size: 0.75rem !important;
    font-weight: 800 !important;
-   box-shadow: 0 6px 15px rgba(230, 81, 0, 0.3) !important;
-   display: inline-block !important;
+   box-shadow: 0 4px 12px rgba(230, 81, 0, 0.25) !important;
+   display: inline-flex !important;
+   align-items: center !important;
+   white-space: nowrap !important;
+   flex-shrink: 0 !important;
+   line-height: 1 !important;
 }
 
 .view-all-link {
@@ -912,8 +916,7 @@ img {
 }
 
 .payment-img-container {
-   flex: 0.8;
-   /* Image takes slightly less space */
+   flex: 1.1;
    display: flex;
    justify-content: center;
    align-items: center;
@@ -922,9 +925,7 @@ img {
 .delivery-img {
    width: 100%;
    height: 100% !important;
-   /* Take full height of parent */
-   max-width: 28rem;
-   /* Slightly wider */
+   max-width: 100%;
    object-fit: cover;
    border-radius: 1.25rem;
    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -1630,9 +1631,13 @@ img {
    color: white;
    padding: 0.3125rem 0.9375rem;
    border-radius: 50px;
-   font-size: 0.875rem;
+   font-size: 0.75rem;
    font-weight: 800;
-   animation: pulse 2s infinite;
+   white-space: nowrap;
+   flex-shrink: 0;
+   line-height: 1;
+   display: inline-flex;
+   align-items: center;
 }
 
 .marquee-track {
@@ -1704,7 +1709,8 @@ img {
    display: flex;
    align-items: center;
    gap: 12px;
-   padding: 6px 24px;
+   padding: 0 24px;
+   min-height: 48px;
    margin-bottom: 10px;
 }
 
@@ -1736,6 +1742,8 @@ img {
 .section-title-wrapper .heading-title {
    margin: 0;
    line-height: 1.2;
+   display: flex;
+   align-items: center;
 }
 
 .discount-badge {

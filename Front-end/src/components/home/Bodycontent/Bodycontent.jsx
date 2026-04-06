@@ -877,7 +877,7 @@ const Bodycontent = (props) => {
               {/* Our offers */}
               <div className="fancy-section offers-section">
                 <div className="section-title-wrapper">
-                  <span className="section-badge">OFFERS</span>
+                  <span className="section-badge" style={{ background: "linear-gradient(135deg,#e65100,#ff8f00)", color: "white" }}>OFFERS</span>
                   <h2 className="heading-title">Our Offers</h2>
                 </div>
                 <div className="offers-scroll">
@@ -1029,7 +1029,7 @@ const Bodycontent = (props) => {
 
               <div className="preview-section fancy-section">
                 <div className="preview-section-header section-title-wrapper">
-                  <span className="section-badge">POPULAR</span>
+                  <span className="section-badge" style={{ background: "linear-gradient(135deg,#e65100,#ff8f00)", color: "white" }}>POPULAR</span>
                   <h2 className="heading-title">Popular Dishes</h2>
                   <span
                     className="view-all-link"
@@ -1136,8 +1136,10 @@ const Bodycontent = (props) => {
 
               <div className="preview-section fancy-section">
                 <div className="preview-section-header section-title-wrapper">
-                  <span className="section-badge">RECENT</span>
-                  <h2 className="heading-title">Recent Orders</h2>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                    <span className="section-badge" style={{ background: "linear-gradient(135deg,#e65100,#ff8f00)", color: "white" }}>RECENT</span>
+                    <h2 className="heading-title">Recent Orders</h2>
+                  </div>
                   <span
                     className="view-all-link"
                     onClick={() =>
@@ -1434,7 +1436,7 @@ const Bodycontent = (props) => {
               {/* Why Choose Us Section */}
               <div className="why-choose-us-section">
                 <div className="section-title-wrapper border-0">
-                  <span className="section-badge">WHY US?</span>
+                  <span className="section-badge" style={{ background: "linear-gradient(135deg,#e65100,#ff8f00)", color: "white" }}>WHY US?</span>
                   <h2 className="heading-title">Why Choose Us</h2>
                 </div>
                 <div className="feature-grid">
@@ -1520,10 +1522,10 @@ const Bodycontent = (props) => {
                         </div>
                       </div>
                     ))}
-                    <button className="main-action-btn" style={{ marginLeft: "auto", alignSelf: "flex-start" }}>
-                      Explore Menu
-                    </button>
                   </div>
+                  <button className="main-action-btn" style={{ marginTop: "20px", alignSelf: "flex-start" }}>
+                    Explore Menu
+                  </button>
                 </div>
                 <div className="payment-img-container">
                   <img
