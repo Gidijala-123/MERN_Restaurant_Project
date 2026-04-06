@@ -102,7 +102,7 @@ const normalizeMenuItems = (products) => {
 const panelVariants = {
   initial: { opacity: 0, y: 60, scale: 0.82, rotateX: 8, transformOrigin: "bottom right" },
   animate: { opacity: 1, y: 0, scale: 1, rotateX: 0, transformOrigin: "bottom right" },
-  exit: { opacity: 0, y: 40, scale: 0.88, rotateX: 4, transformOrigin: "bottom right" },
+  exit: { opacity: 0, y: 56, scale: 0.78, rotateX: 10, transformOrigin: "bottom right" },
 };
 
 const screenVariants = {
@@ -116,6 +116,15 @@ const Chatbot = () => {
   const { data: products = [], isLoading } = useGetAllProductsQuery();
   const [state, stateDispatch] = useReducer(chatbotReducer, initialState);
   const [isOpen, setIsOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsOpen(false);
+      setIsClosing(false);
+    }, 80);
+  };
   const [draft, setDraft] = useState("");
   const inputRef = useRef(null);
   const menuItems = useMemo(() => normalizeMenuItems(products), [products]);
@@ -190,10 +199,12 @@ const Chatbot = () => {
               initial="initial" animate="animate" exit="exit"
               transition={{
                 default: { type: "spring", stiffness: 340, damping: 28, mass: 0.9 },
-                opacity: { duration: 0.18, ease: "easeOut" },
-                rotateX: { type: "spring", stiffness: 300, damping: 30 },
+                opacity: { duration: 0.28, ease: [0.4, 0, 1, 1] },
+                scale: { type: "spring", stiffness: 260, damping: 28, mass: 1.1 },
+                y: { type: "spring", stiffness: 260, damping: 28, mass: 1.1 },
+                rotateX: { type: "spring", stiffness: 260, damping: 30 },
               }}
-              className="flavie-panel flex h-[min(44rem,calc(100vh-5rem))] w-[22rem] flex-col overflow-hidden rounded-2xl"
+              className={`flavie-panel flex h-[min(44rem,calc(100vh-5rem))] w-[22rem] flex-col overflow-hidden rounded-2xl${isClosing ? " closing" : ""}`}
               role="dialog"
               aria-label="Flavie food assistant"
             >
@@ -245,7 +256,7 @@ const Chatbot = () => {
                   {/* Close — same size and radius as avatar */}
                   <motion.button
                     type="button"
-                    onClick={() => setIsOpen(false)}
+                    onClick={handleClose}
                     whileHover={{ scale: 1.1, rotate: 90 }}
                     whileTap={{ scale: 0.88, rotate: 180 }}
                     transition={{ type: "spring", stiffness: 400, damping: 20 }}

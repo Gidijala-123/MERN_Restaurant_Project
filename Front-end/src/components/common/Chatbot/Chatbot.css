@@ -56,6 +56,11 @@
   perspective: 800px;
   transform-style: preserve-3d;
   will-change: transform, opacity;
+  transition: box-shadow 0.3s ease;
+}
+
+.flavie-panel.closing {
+  box-shadow: 0 2px 8px rgba(230,81,0,0.06);
 }
 
 /* Online pulse */
