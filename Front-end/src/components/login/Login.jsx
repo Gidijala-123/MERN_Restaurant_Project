@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../signup/Signup.css";
 import axios from "axios";
@@ -9,18 +9,26 @@ import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import GoogleIcon from "@mui/icons-material/Google";
 import GitHubIcon from "@mui/icons-material/GitHub";
-
 import { toast } from "react-toastify";
 
+// Step: "login" | "forgot-email" | "forgot-otp" | "forgot-newpw"
 function SignInForm({ toggleMobile }) {
   const [validationErrors, setValidationErrors] = useState({});
   const [apiError, setApiError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
   const [uemail, setUemail] = useState("");
   const [upassword, setUpassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
+  // Forgot password state
+  const [step, setStep] = useState("login");
+  const [fpEmail, setFpEmail] = useState("");
+  const [fpOtp, setFpOtp] = useState("");
+  const [fpNewPw, setFpNewPw] = useState("");
+  const [fpConfirmPw, setFpConfirmPw] = useState("");
+  const [fpResetToken, setFpResetToken] = useState("");
+  const [showFpPw, setShowFpPw] = useState(false);
 
   const API_BASE_URL = (
     import.meta.env.VITE_API_URL || "http://localhost:1111"
@@ -30,26 +38,18 @@ function SignInForm({ toggleMobile }) {
     e.preventDefault();
     setValidationErrors({});
     setApiError("");
-
-    // Yup Validation
     try {
       await loginSchema.validate({ uemail, upassword }, { abortEarly: false });
     } catch (err) {
       const errors = {};
-      err.inner.forEach((e) => {
-        errors[e.path] = e.message;
-      });
+      err.inner.forEach((e) => { errors[e.path] = e.message; });
       setValidationErrors(errors);
       return;
     }
-
     setIsLoading(true);
     const toastId = toast.loading("Logging in... Please wait for server wake-up.");
-
     try {
-      const csrfRes = await fetch(`${API_BASE_URL}/api/csrf`, {
-        credentials: "include",
-      });
+      const csrfRes = await fetch(`${API_BASE_URL}/api/csrf`, { credentials: "include" });
       const { csrfToken } = (await csrfRes.json()) || {};
       const res = await axios.post(
         `${API_BASE_URL}/api/auth/login`,
@@ -57,201 +57,236 @@ function SignInForm({ toggleMobile }) {
         { withCredentials: true, headers: { "x-csrf-token": csrfToken } },
       );
       if (res.status === 200) {
-        toast.update(toastId, {
-          render: "Login successful!",
-          type: "success",
-          isLoading: false,
-          autoClose: 2000
-        });
-
-        // Use user info from login response instead of making another call
+        toast.update(toastId, { render: "Login successful!", type: "success", isLoading: false, autoClose: 2000 });
         const user = res.data?.user;
         if (user) {
           if (user.uname) localStorage.setItem("userName", user.uname);
           if (user.avatar) localStorage.setItem("userAvatar", user.avatar);
           if (user.role) localStorage.setItem("userRole", user.role);
         }
-
-        // Redirect based on role — admin goes to admin panel, users go home
-        const role = res.data?.user?.role || "user";
-        navigate(role === "admin" ? "/admin" : "/home");
+        navigate(res.data?.user?.role === "admin" ? "/admin" : "/home");
       }
     } catch (err) {
-      const msg =
-        err.response?.data?.message ||
-        err.response?.data?.Message ||
-        "Invalid email or password.";
-      toast.update(toastId, {
-        render: msg,
-        type: "error",
-        isLoading: false,
-        autoClose: 3000
-      });
+      const msg = err.response?.data?.message || err.response?.data?.Message || "Invalid email or password.";
+      toast.update(toastId, { render: msg, type: "error", isLoading: false, autoClose: 3000 });
       setApiError(msg);
     } finally {
       setIsLoading(false);
     }
   };
 
-  /* OLD LOGIC WRAPPED IN COMMENTS AS REQUESTED
-  const loginOnSubmit = async (e) => {
+  const sendFpOtp = async (e) => {
     e.preventDefault();
-    setValidationErrors({});
-    setApiError("");
-
-    // Yup Validation
+    if (!fpEmail) return toast.error("Enter your email");
+    setIsLoading(true);
     try {
-      await loginSchema.validate({ uemail, upassword }, { abortEarly: false });
+      await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { uemail: fpEmail });
+      toast.success("OTP sent to your email");
+      setStep("forgot-otp");
     } catch (err) {
-      const errors = {};
-      err.inner.forEach((e) => {
-        errors[e.path] = e.message;
-      });
-      setValidationErrors(errors);
-      return;
-    }
-
-    try {
-      const csrfRes = await fetch(`${API_BASE_URL}/api/csrf`, {
-        credentials: "include",
-      });
-      const { csrfToken } = (await csrfRes.json()) || {};
-      const res = await axios.post(
-        `${API_BASE_URL}/api/auth/login`,
-        { uemail, upassword },
-        { withCredentials: true, headers: { "x-csrf-token": csrfToken } },
-      );
-      if (res.status === 200) {
-        try {
-          const meRes = await fetch(`${API_BASE_URL}/api/auth/me`, {
-            credentials: "include",
-          });
-          if (meRes.ok) {
-            const me = await meRes.json();
-            if (me?.uname) localStorage.setItem("userName", me.uname);
-          }
-        } catch {}
-        navigate("/home");
-      }
-    } catch (err) {
-      const msg =
-        err.response?.data?.message ||
-        err.response?.data?.Message ||
-        "Invalid email or password.";
-      setApiError(msg);
+      const msg = err.response?.data?.message || "Failed to send OTP. Try again.";
+      toast.error(msg);
+    } finally {
+      setIsLoading(false);
     }
   };
-  */
 
+  const verifyFpOtp = async (e) => {
+    e.preventDefault();
+    const cleanOtp = fpOtp.replace(/\D/g, "");
+    if (cleanOtp.length !== 6) return toast.error("Enter the 6-digit OTP");
+    setIsLoading(true);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/api/auth/verify-forgot-otp`, {
+        uemail: fpEmail,
+        code: cleanOtp,
+      });
+      if (res.data?.ok) {
+        setFpResetToken(res.data.resetToken);
+        toast.success("OTP verified!");
+        setStep("forgot-newpw");
+      } else {
+        toast.error("Invalid or expired OTP. Please try again.");
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Invalid or expired OTP.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resetPassword = async (e) => {
+    e.preventDefault();
+    if (fpNewPw.length < 8) return toast.error("Password must be at least 8 characters");
+    if (fpNewPw !== fpConfirmPw) return toast.error("Passwords do not match");
+    setIsLoading(true);
+    try {
+      await axios.post(`${API_BASE_URL}/api/auth/reset-password`, {
+        resetToken: fpResetToken,
+        newPassword: fpNewPw,
+      });
+      toast.success("Password reset successful! Please log in.");
+      setStep("login");
+      setFpEmail(""); setFpOtp(""); setFpNewPw(""); setFpConfirmPw(""); setFpResetToken("");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Reset failed. Please start over.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ── Forgot password screens ──
+  if (step === "forgot-email") {
+    return (
+      <form className="form-div" onSubmit={sendFpOtp}>
+        <div className="login-heading">
+          <img src="/user-ani.webp" alt="profile" className="auth-illustration" style={{ borderRadius: "50%" }} />
+          <h1 className="heading-h1">Forgot Password</h1>
+        </div>
+        <p style={{ fontSize: "0.82rem", color: "#666", textAlign: "center", marginBottom: "1rem" }}>
+          Enter your registered email and we'll send you an OTP to reset your password.
+        </p>
+        <div className="mb-3">
+          <div className="input-group">
+            <span className="input-group-text icon-badge"><EmailIcon fontSize="small" /></span>
+            <input className="form-control" type="email" value={fpEmail}
+              onChange={(e) => setFpEmail(e.target.value)} placeholder="Email Address" required />
+          </div>
+        </div>
+        <button className="codepen-button" type="submit" disabled={isLoading}>
+          {isLoading ? "Sending..." : "Send OTP"}
+        </button>
+        <div style={{ textAlign: "center", marginTop: "0.75rem" }}>
+          <span style={{ fontSize: "0.82rem", color: "#ea580c", cursor: "pointer" }}
+            onClick={() => setStep("login")}>← Back to Login</span>
+        </div>
+      </form>
+    );
+  }
+
+  if (step === "forgot-otp") {
+    return (
+      <form className="form-div" onSubmit={verifyFpOtp}>
+        <div className="login-heading">
+          <img src="/user-ani.webp" alt="profile" className="auth-illustration" style={{ borderRadius: "50%" }} />
+          <h1 className="heading-h1">Enter OTP</h1>
+        </div>
+        <p style={{ fontSize: "0.82rem", color: "#666", textAlign: "center", marginBottom: "1rem" }}>
+          OTP sent to <strong>{fpEmail}</strong>. Valid for 5 minutes.
+        </p>
+        <div className="mb-3">
+          <div className="input-group">
+            <span className="input-group-text icon-badge"><LockIcon fontSize="small" /></span>
+            <input className="form-control" type="text" inputMode="numeric" maxLength={6}
+              value={fpOtp}
+              onChange={(e) => setFpOtp(e.target.value.replace(/\D/g, ""))}
+              onPaste={(e) => {
+                e.preventDefault();
+                const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+                setFpOtp(pasted);
+              }}
+              placeholder="6-digit OTP" required />
+          </div>
+        </div>
+        <button className="codepen-button" type="submit" disabled={isLoading || fpOtp.replace(/\D/g, "").length !== 6}>
+          {isLoading ? "Verifying..." : "Verify OTP"}
+        </button>
+        <div style={{ textAlign: "center", marginTop: "0.75rem" }}>
+          <span style={{ fontSize: "0.82rem", color: "#ea580c", cursor: "pointer" }}
+            onClick={() => setStep("forgot-email")}>← Resend OTP</span>
+        </div>
+      </form>
+    );
+  }
+
+  if (step === "forgot-newpw") {
+    return (
+      <form className="form-div" onSubmit={resetPassword}>
+        <div className="login-heading">
+          <img src="/user-ani.webp" alt="profile" className="auth-illustration" style={{ borderRadius: "50%" }} />
+          <h1 className="heading-h1">New Password</h1>
+        </div>
+        <div className="mb-3">
+          <div className="input-group">
+            <span className="input-group-text icon-badge"><LockIcon fontSize="small" /></span>
+            <input className="form-control" type={showFpPw ? "text" : "password"}
+              value={fpNewPw} onChange={(e) => setFpNewPw(e.target.value)}
+              placeholder="New Password (min 8 chars)" required />
+            <button type="button" className="btn btn-outline-secondary"
+              onClick={() => setShowFpPw(!showFpPw)} aria-label="Toggle password visibility">
+              {showFpPw ? <VisibilityOff /> : <Visibility />}
+            </button>
+          </div>
+        </div>
+        <div className="mb-3">
+          <div className="input-group">
+            <span className="input-group-text icon-badge"><LockIcon fontSize="small" /></span>
+            <input className="form-control" type={showFpPw ? "text" : "password"}
+              value={fpConfirmPw} onChange={(e) => setFpConfirmPw(e.target.value)}
+              placeholder="Confirm New Password" required />
+          </div>
+        </div>
+        <button className="codepen-button" type="submit" disabled={isLoading}>
+          {isLoading ? "Resetting..." : "Reset Password"}
+        </button>
+      </form>
+    );
+  }
+
+  // ── Default login screen ──
   return (
     <form className="form-div" onSubmit={loginOnSubmit}>
       <div className="login-heading">
-        <img
-          src="/user-ani.webp"
-          alt="profile"
-          className="auth-illustration"
-          style={{ borderRadius: "50%" }}
-        />
+        <img src="/user-ani.webp" alt="profile" className="auth-illustration" style={{ borderRadius: "50%" }} />
         <h1 className="heading-h1">Welcome Back</h1>
       </div>
       <div className="mb-3">
         <div className="input-group">
-          <span className="input-group-text icon-badge">
-            <EmailIcon fontSize="small" />
-          </span>
-          <input
-            className="form-control"
-            type="email"
-            id="login-email"
-            value={uemail}
-            onChange={(e) => setUemail(e.target.value)}
-            placeholder="Email Address"
-            autoComplete="email"
-            required
-          />
+          <span className="input-group-text icon-badge"><EmailIcon fontSize="small" /></span>
+          <input className="form-control" type="email" id="login-email" value={uemail}
+            onChange={(e) => setUemail(e.target.value)} placeholder="Email Address"
+            autoComplete="email" required />
         </div>
-        {validationErrors.uemail && (
-          <span className="span-tag error-text">{validationErrors.uemail}</span>
-        )}
+        {validationErrors.uemail && <span className="span-tag error-text">{validationErrors.uemail}</span>}
       </div>
-
       <div className="mb-3">
         <div className="input-group">
-          <span className="input-group-text icon-badge">
-            <LockIcon fontSize="small" />
-          </span>
-          <input
-            className="form-control"
-            type={showPassword ? "text" : "password"}
-            id="login-password"
-            value={upassword}
-            onChange={(e) => setUpassword(e.target.value)}
-            placeholder="Password"
-            autoComplete="current-password"
-            required
-          />
-          <button
-            type="button"
-            className="btn btn-outline-secondary"
-            onClick={() => setShowPassword(!showPassword)}
-            aria-label="Toggle password visibility"
-          >
+          <span className="input-group-text icon-badge"><LockIcon fontSize="small" /></span>
+          <input className="form-control" type={showPassword ? "text" : "password"} id="login-password"
+            value={upassword} onChange={(e) => setUpassword(e.target.value)}
+            placeholder="Password" autoComplete="current-password" required />
+          <button type="button" className="btn btn-outline-secondary"
+            onClick={() => setShowPassword(!showPassword)} aria-label="Toggle password visibility">
             {showPassword ? <VisibilityOff /> : <Visibility />}
           </button>
         </div>
-        {validationErrors.upassword && (
-          <span className="span-tag error-text">{validationErrors.upassword}</span>
-        )}
+        {validationErrors.upassword && <span className="span-tag error-text">{validationErrors.upassword}</span>}
+      </div>
+
+      <div style={{ textAlign: "right", marginTop: "-0.5rem", marginBottom: "0.75rem" }}>
+        <span style={{ fontSize: "0.8rem", color: "#ea580c", cursor: "pointer", fontWeight: 600 }}
+          onClick={() => { setStep("forgot-email"); setFpEmail(uemail); }}>
+          Forgot password?
+        </span>
       </div>
 
       <span className="span-tag error-text">{apiError}</span>
-
-      <button
-        className="codepen-button"
-        type="submit"
-        disabled={isLoading}
-      >
+      <button className="codepen-button" type="submit" disabled={isLoading}>
         {isLoading ? "Processing..." : "Login"}
       </button>
-
-      {/* Server spin-up notice */}
-      <div style={{
-        fontSize: "0.75rem",
-        color: "#666",
-        marginTop: "10px",
-        textAlign: "center",
-        fontStyle: "italic"
-      }}>
+      <div style={{ fontSize: "0.75rem", color: "#666", marginTop: "10px", textAlign: "center", fontStyle: "italic" }}>
         Note: Initial request may take 30-60 seconds due to server wake-up time on free hosting.
       </div>
-
       <div className="auth-social-row" style={{ marginTop: "0.75rem" }}>
-        <button
-          type="button"
-          className="codepen-button"
-          onClick={() =>
-            (window.location.href = `${API_BASE_URL}/api/oauth/google`)
-          }
-        >
-          <span className="btn-icon">
-            <GoogleIcon fontSize="small" />
-          </span>{" "}
-          Login with Google
+        <button type="button" className="codepen-button"
+          onClick={() => (window.location.href = `${API_BASE_URL}/api/oauth/google`)}>
+          <span className="btn-icon"><GoogleIcon fontSize="small" /></span> Login with Google
         </button>
-        <button
-          type="button"
-          className="codepen-button"
-          onClick={() =>
-            (window.location.href = `${API_BASE_URL}/api/oauth/github`)
-          }
-        >
-          <span className="btn-icon">
-            <GitHubIcon fontSize="small" />
-          </span>{" "}
-          Login with GitHub
+        <button type="button" className="codepen-button"
+          onClick={() => (window.location.href = `${API_BASE_URL}/api/oauth/github`)}>
+          <span className="btn-icon"><GitHubIcon fontSize="small" /></span> Login with GitHub
         </button>
       </div>
-
       <div className="mobile-toggle">
         Don't have an account? <span onClick={toggleMobile}>Sign Up</span>
       </div>

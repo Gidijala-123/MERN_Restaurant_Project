@@ -22,6 +22,9 @@ import {
   logout,
   me,
   updateAvatar,
+  forgotPassword,
+  verifyForgotOtp,
+  resetPassword,
 } from "./controllers/authController.js";
 import { verifyAccessToken, requireRole } from "./middleware/auth.js";
 import { setOtp, verifyOtp } from "./services/otpStore.js";
@@ -135,6 +138,9 @@ app.get("/api/auth/refresh", refresh);
 app.post("/api/auth/logout", checkCsrf, logout);
 app.get("/api/auth/me", me);
 app.patch("/api/auth/avatar", verifyAccessToken, checkCsrf, updateAvatar);
+app.post("/api/auth/forgot-password", forgotPassword);
+app.post("/api/auth/verify-forgot-otp", verifyForgotOtp);
+app.post("/api/auth/reset-password", resetPassword);
 // OAuth routes (activate only if env is provided)
 app.get(
   "/api/oauth/google",

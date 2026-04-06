@@ -270,11 +270,8 @@ export async function sendEmailOtp({
 
   if ((provider === "smtp" || provider === "gmail") && transportOpts) {
     try {
-      // Initialize transporter singleton if it doesn't exist
-      if (!transporter) {
-        console.log("[sendEmailOtp] Creating new nodemailer transporter");
-        transporter = nodemailer.createTransport(transportOpts);
-      }
+      // Always create a fresh transporter to pick up latest env config
+      transporter = nodemailer.createTransport(transportOpts);
 
       const fromEmail =
         process.env.EMAIL_FROM ||

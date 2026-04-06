@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import EmployeeModel from "../models/EmployeeModel.js";
+import { setOtp, verifyOtp } from "../services/otpStore.js";
+import { sendEmailOtp } from "../services/otpService.js";
 
 dotenv.config();
 
@@ -131,6 +133,75 @@ export const me = asyncHandler(async (req, res) => {
   } catch {
     return res.status(200).json({ authenticated: false });
   }
+});
+
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const { uemail } = req.body;
+  console.log("[forgotPassword] called with uemail:", uemail);
+  if (!uemail) return res.status(400).json({ message: "Email is required" });
+
+  const normalizedEmail = uemail.toLowerCase().trim();
+  const user = await EmployeeModel.findOne({ uemail: { $regex: new RegExp(`^${normalizedEmail}$`, "i") } });
+  console.log("[forgotPassword] user found:", user ? user.uemail : "NOT FOUND");
+  if (!user) return res.status(404).json({ message: "No account found with this email" });
+
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  console.log("[forgotPassword] generated OTP code:", code);
+  setOtp(user.uemail, code);
+  console.log("[forgotPassword] OTP stored, now calling sendEmailOtp to:", user.uemail);
+  console.log("[forgotPassword] ENV CHECK - OTP_PROVIDER:", process.env.OTP_PROVIDER);
+  console.log("[forgotPassword] ENV CHECK - SMTP_SERVICE:", process.env.SMTP_SERVICE);
+  console.log("[forgotPassword] ENV CHECK - SMTP_USER:", process.env.SMTP_USER);
+  console.log("[forgotPassword] ENV CHECK - SMTP_PASS length:", process.env.SMTP_PASS?.length);
+  console.log("[forgotPassword] ENV CHECK - EMAIL_FROM:", process.env.EMAIL_FROM);
+
+  try {
+    const result = await sendEmailOtp({ to: user.uemail, code });
+    console.log("[forgotPassword] sendEmailOtp result:", JSON.stringify(result));
+  } catch (err) {
+    console.error("[forgotPassword] sendEmailOtp THREW ERROR:", err.message, err.stack);
+  }
+
+  res.json({ ok: true });
+});
+
+export const verifyForgotOtp = asyncHandler(async (req, res) => {
+  const { uemail, code } = req.body;
+  if (!uemail || !code) return res.status(400).json({ message: "Email and OTP are required" });
+
+  const user = await EmployeeModel.findOne({ uemail: { $regex: new RegExp(`^${uemail.trim()}$`, "i") } });
+  if (!user) return res.status(400).json({ message: "Invalid or expired OTP" });
+
+  const valid = verifyOtp(user.uemail, String(code).trim());
+  if (!valid) return res.status(400).json({ message: "Invalid or expired OTP" });
+
+  // Issue a short-lived reset token (5 min)
+  const resetToken = jwt.sign(
+    { uemail: user.uemail, purpose: "reset" },
+    process.env.ACCESS_TOKEN || "bhargava@123",
+    { expiresIn: "5m" }
+  );
+  res.json({ ok: true, resetToken });
+});
+
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { resetToken, newPassword } = req.body;
+  if (!resetToken || !newPassword)
+    return res.status(400).json({ message: "Reset token and new password are required" });
+
+  let payload;
+  try {
+    payload = jwt.verify(resetToken, process.env.ACCESS_TOKEN || "bhargava@123");
+  } catch {
+    return res.status(400).json({ message: "Reset link expired. Please start over." });
+  }
+
+  if (payload.purpose !== "reset")
+    return res.status(400).json({ message: "Invalid reset token" });
+
+  const hashed = await bcrypt.hash(newPassword, 10);
+  await EmployeeModel.findOneAndUpdate({ uemail: payload.uemail }, { upassword: hashed });
+  res.json({ ok: true });
 });
 
 export const updateAvatar = asyncHandler(async (req, res) => {
