@@ -211,7 +211,6 @@ function Signup() {
         setTimer(30);
         setOtpMsg(`OTP sent to ${contact}`);
         toast.update(toastId, { render: `${icons[channel]} OTP sent via ${labels[channel]}!`, type: "success", isLoading: false, autoClose: 5000 });
-        showPopup(`${icons[channel]} OTP sent! Check your ${channel === "email" ? "inbox" : channel}.`);
         setTimeout(() => otpInputRef.current?.focus(), 100);
       }
     } catch (err) {
