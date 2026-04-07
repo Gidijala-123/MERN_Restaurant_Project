@@ -17,8 +17,6 @@ I challenged myself: Can I build a production-ready web app using AI, even for c
 → OTP via Email / SMS / WhatsApp
 → OAuth (Google & GitHub) · Rate limiting · Helmet.js
 
----
-
 ✨ WHAT USERS GET?
 
 🔐 Auth — OTP signup, OAuth login, forgot password flow

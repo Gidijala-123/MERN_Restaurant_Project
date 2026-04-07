@@ -79,13 +79,14 @@ function SignInForm({ toggleMobile }) {
     e.preventDefault();
     if (!fpEmail) return toast.error("Enter your email");
     setIsLoading(true);
+    const toastId = toast.loading("Sending OTP... This may take a moment on first request.");
     try {
       await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { uemail: fpEmail });
-      toast.success("OTP sent to your email");
+      toast.update(toastId, { render: "OTP sent to your email!", type: "success", isLoading: false, autoClose: 4000 });
       setStep("forgot-otp");
     } catch (err) {
       const msg = err.response?.data?.message || "Failed to send OTP. Try again.";
-      toast.error(msg);
+      toast.update(toastId, { render: msg, type: "error", isLoading: false, autoClose: 4000 });
     } finally {
       setIsLoading(false);
     }
@@ -96,6 +97,7 @@ function SignInForm({ toggleMobile }) {
     const cleanOtp = fpOtp.replace(/\D/g, "");
     if (cleanOtp.length !== 6) return toast.error("Enter the 6-digit OTP");
     setIsLoading(true);
+    const toastId = toast.loading("Verifying OTP...");
     try {
       const res = await axios.post(`${API_BASE_URL}/api/auth/verify-forgot-otp`, {
         uemail: fpEmail,
@@ -103,13 +105,13 @@ function SignInForm({ toggleMobile }) {
       });
       if (res.data?.ok) {
         setFpResetToken(res.data.resetToken);
-        toast.success("OTP verified!");
+        toast.update(toastId, { render: "✅ OTP verified!", type: "success", isLoading: false, autoClose: 3000 });
         setStep("forgot-newpw");
       } else {
-        toast.error("Invalid or expired OTP. Please try again.");
+        toast.update(toastId, { render: "Invalid or expired OTP. Please try again.", type: "error", isLoading: false, autoClose: 4000 });
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Invalid or expired OTP.");
+      toast.update(toastId, { render: err.response?.data?.message || "Invalid or expired OTP.", type: "error", isLoading: false, autoClose: 4000 });
     } finally {
       setIsLoading(false);
     }
@@ -120,16 +122,17 @@ function SignInForm({ toggleMobile }) {
     if (fpNewPw.length < 8) return toast.error("Password must be at least 8 characters");
     if (fpNewPw !== fpConfirmPw) return toast.error("Passwords do not match");
     setIsLoading(true);
+    const toastId = toast.loading("Resetting your password...");
     try {
       await axios.post(`${API_BASE_URL}/api/auth/reset-password`, {
         resetToken: fpResetToken,
         newPassword: fpNewPw,
       });
-      toast.success("Password reset successful! Please log in.");
+      toast.update(toastId, { render: "Password reset successful! Please log in.", type: "success", isLoading: false, autoClose: 3000 });
       setStep("login");
       setFpEmail(""); setFpOtp(""); setFpNewPw(""); setFpConfirmPw(""); setFpResetToken("");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Reset failed. Please start over.");
+      toast.update(toastId, { render: err.response?.data?.message || "Reset failed. Please start over.", type: "error", isLoading: false, autoClose: 4000 });
     } finally {
       setIsLoading(false);
     }
@@ -154,7 +157,9 @@ function SignInForm({ toggleMobile }) {
           </div>
         </div>
         <button className="codepen-button" type="submit" disabled={isLoading}>
-          {isLoading ? "Sending..." : "Send OTP"}
+          {isLoading ? (
+            <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />Sending...</>
+          ) : "Send OTP"}
         </button>
         <div style={{ textAlign: "center", marginTop: "0.75rem" }}>
           <span style={{ fontSize: "0.82rem", color: "#ea580c", cursor: "pointer" }}
@@ -189,7 +194,9 @@ function SignInForm({ toggleMobile }) {
           </div>
         </div>
         <button className="codepen-button" type="submit" disabled={isLoading || fpOtp.replace(/\D/g, "").length !== 6}>
-          {isLoading ? "Verifying..." : "Verify OTP"}
+          {isLoading ? (
+            <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />Verifying...</>
+          ) : "Verify OTP"}
         </button>
         <div style={{ textAlign: "center", marginTop: "0.75rem" }}>
           <span style={{ fontSize: "0.82rem", color: "#ea580c", cursor: "pointer" }}
@@ -227,7 +234,9 @@ function SignInForm({ toggleMobile }) {
           </div>
         </div>
         <button className="codepen-button" type="submit" disabled={isLoading}>
-          {isLoading ? "Resetting..." : "Reset Password"}
+          {isLoading ? (
+            <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />Resetting...</>
+          ) : "Reset Password"}
         </button>
       </form>
     );

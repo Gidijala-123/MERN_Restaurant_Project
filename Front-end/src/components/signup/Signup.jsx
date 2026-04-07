@@ -40,6 +40,8 @@ function Signup() {
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
   const [timer, setTimer] = useState(0);
+  const [isOtpSending, setIsOtpSending] = useState(false);
+  const [isOtpVerifying, setIsOtpVerifying] = useState(false);
   const [avatar, setAvatar] = useState("");
   const [popup, setPopup] = useState({ visible: false, text: "" });
   const [bgIndex, setBgIndex] = useState(0);
@@ -284,6 +286,9 @@ function Signup() {
       return;
     }
 
+    setIsOtpSending(true);
+    const toastId = toast.loading("Sending OTP... This may take a moment on first request.");
+
     try {
       const csrf = await fetch(`${API_URL}/api/csrf`, {
         credentials: "include",
@@ -301,16 +306,30 @@ function Signup() {
         setOtpMsg(`OTP sent via ${channel} to ${contact}`);
         setIsOtpSent(true);
         setTimer(60);
-        toast.success(`${channelIcon} OTP sent via ${channelLabel}! Check and enter below.`, { autoClose: 5000 });
+        toast.update(toastId, {
+          render: `${channelIcon} OTP sent via ${channelLabel}! Check and enter below.`,
+          type: "success",
+          isLoading: false,
+          autoClose: 5000,
+        });
         showPopup(`${channelIcon} OTP sent to your ${channel === "email" ? "email inbox" : channel === "sms" ? "phone via SMS" : "WhatsApp"}`);
       }
     } catch {
       setOtpMsg("Failed to send OTP");
-      toast.error("Failed to send OTP. Please check your details and try again.");
+      toast.update(toastId, {
+        render: "Failed to send OTP. Please check your details and try again.",
+        type: "error",
+        isLoading: false,
+        autoClose: 4000,
+      });
+    } finally {
+      setIsOtpSending(false);
     }
   };
   const verifyOtp = async () => {
     setOtpMsg("");
+    setIsOtpVerifying(true);
+    const toastId = toast.loading("Verifying OTP...");
     try {
       const csrf = await fetch(`${API_URL}/api/csrf`, {
         credentials: "include",
@@ -327,13 +346,18 @@ function Signup() {
         setIsOtpSent(false);
         setIsOtpVerified(true);
         setOtpCode("");
+        toast.update(toastId, { render: "✅ OTP verified successfully!", type: "success", isLoading: false, autoClose: 3000 });
         showPopup("OTP verified successfully!");
       } else {
         setOtpMsg("Invalid or Expired OTP");
+        toast.update(toastId, { render: "Invalid or expired OTP. Please try again.", type: "error", isLoading: false, autoClose: 4000 });
         showPopup("The OTP you entered is incorrect or has expired.");
       }
     } catch {
       setOtpMsg("Failed to verify OTP");
+      toast.update(toastId, { render: "Failed to verify OTP. Please try again.", type: "error", isLoading: false, autoClose: 4000 });
+    } finally {
+      setIsOtpVerifying(false);
     }
   };
 
@@ -537,9 +561,15 @@ function Signup() {
                     type="button"
                     className="btn btn-outline-secondary"
                     onClick={sendOtp}
-                    disabled={timer > 0 || isOtpVerified}
+                    disabled={timer > 0 || isOtpVerified || isOtpSending}
+                    style={{ minWidth: "110px" }}
                   >
-                    {timer > 0 ? `Resend in ${timer}s` : "Send OTP"}
+                    {isOtpSending ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />
+                        Sending...
+                      </>
+                    ) : timer > 0 ? `Resend in ${timer}s` : "Send OTP"}
                   </button>
                 </div>
                 {isOtpSent && timer > 0 && (
@@ -578,8 +608,15 @@ function Signup() {
                       type="button"
                       className="btn btn-success"
                       onClick={verifyOtp}
+                      disabled={isOtpVerifying || !otpCode}
+                      style={{ minWidth: "110px" }}
                     >
-                      Verify OTP
+                      {isOtpVerifying ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />
+                          Verifying...
+                        </>
+                      ) : "Verify OTP"}
                     </button>
                   </div>
                 )}
