@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "../signup/Signup.css";
 import Login from "../login/Login";
@@ -14,14 +14,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import GoogleIcon from "@mui/icons-material/Google";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import { toast } from "react-toastify";
-import useDebounce from "../../hooks/useDebounce";
 
 const BG_IMAGES = ["/dark1.jpg", "/dark2.jpg", "/dark3.jpg"];
-
 const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
 
-// Fetch and cache CSRF token — shared across send + verify so we only hit the
-// server once. Resets if the token is missing (e.g. after a server restart).
 let _csrfCache = "";
 async function getCsrf() {
   if (_csrfCache) return _csrfCache;
@@ -29,10 +25,22 @@ async function getCsrf() {
     const res = await fetch(`${API_URL}/api/csrf`, { credentials: "include" });
     const data = await res.json();
     _csrfCache = data?.csrfToken || "";
-  } catch {
-    _csrfCache = "";
-  }
+  } catch { _csrfCache = ""; }
   return _csrfCache;
+}
+
+// Check email against DB — called on blur
+async function checkEmailExists(email) {
+  try {
+    const res = await fetch(
+      `${API_URL}/api/signupLoginRouter/checkEmail?email=${encodeURIComponent(email)}`,
+      { credentials: "include" }
+    );
+    const data = await res.json();
+    return data.exists === true;
+  } catch {
+    return false;
+  }
 }
 
 function Signup() {
@@ -41,7 +49,6 @@ function Signup() {
   const [apiStatus, setApiStatus] = useState({ error: "", success: "" });
   const [isLoading, setIsLoading] = useState(false);
 
-  // Form fields
   const [uname, setUname] = useState("");
   const [uemail, setUemail] = useState("");
   const [upassword, setUpassword] = useState("");
@@ -50,7 +57,6 @@ function Signup() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [avatar, setAvatar] = useState("");
 
-  // OTP state
   const [channel, setChannel] = useState("email");
   const [contact, setContact] = useState("");
   const [otpCode, setOtpCode] = useState("");
@@ -61,32 +67,28 @@ function Signup() {
   const [isOtpVerifying, setIsOtpVerifying] = useState(false);
   const [timer, setTimer] = useState(0);
 
-  // Debounced email — fires check 600ms after user stops typing
-  const debouncedEmail = useDebounce(uemail, 600);
-  const [emailCheckStatus, setEmailCheckStatus] = useState("idle"); // idle | checking | taken | available
+  // "idle" | "checking" | "taken" | "available"
+  const [emailCheckStatus, setEmailCheckStatus] = useState("idle");
+  const emailCheckTimer = useRef(null);
 
-  // Auto-check email as user types
-  useEffect(() => {
-    if (!debouncedEmail || !/\S+@\S+\.\S+/.test(debouncedEmail)) {
-      setEmailCheckStatus("idle");
-      return;
-    }
+  // Shared check function — used by both onBlur and onChange (autocomplete)
+  const triggerEmailCheck = useCallback(async (email) => {
+    const val = email.trim();
+    if (!val || !/\S+@\S+\.\S+/.test(val)) return;
     setEmailCheckStatus("checking");
-    fetch(`${API_URL}/api/signupLoginRouter/checkEmail?email=${encodeURIComponent(debouncedEmail)}`, { credentials: "include" })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.exists) {
-          setEmailCheckStatus("taken");
-          setValidationErrors((p) => ({ ...p, uemail: "This email is already registered. Please login instead." }));
-        } else {
-          setEmailCheckStatus("available");
-          setValidationErrors((p) => ({ ...p, uemail: "" }));
-        }
-      })
-      .catch(() => setEmailCheckStatus("idle"));
-  }, [debouncedEmail]);
+    const exists = await checkEmailExists(val);
+    if (exists) {
+      setEmailCheckStatus("taken");
+      setValidationErrors((p) => ({ ...p, uemail: "This email is already registered. Please login instead." }));
+      resetOtpState();
+      toast.error("⚠️ This email is already registered.", { toastId: "email-taken", autoClose: false });
+    } else {
+      setEmailCheckStatus("available");
+      setValidationErrors((p) => ({ ...p, uemail: "" }));
+      toast.dismiss("email-taken");
+    }
+  }, []);
 
-  // UI
   const [popup, setPopup] = useState({ visible: false, text: "" });
   const [bgIndex, setBgIndex] = useState(0);
   const [prevBgIndex, setPrevBgIndex] = useState(null);
@@ -101,26 +103,21 @@ function Signup() {
     return () => clearInterval(id);
   }, []);
 
-  // Countdown timer for OTP resend
+  // Countdown timer
   useEffect(() => {
     if (timer <= 0) return;
     const id = setInterval(() => setTimer((t) => t - 1), 1000);
     return () => clearInterval(id);
   }, [timer]);
 
-  // Keep contact in sync when channel is email
+  // Sync contact with email channel
   useEffect(() => {
     if (channel === "email") setContact(uemail);
   }, [channel, uemail]);
 
-  // Pre-warm server AND prefetch CSRF token in parallel on mount.
-  // By the time the user fills the form, the server is already awake
-  // and the CSRF token is cached — Send OTP becomes a single API call.
+  // Pre-warm server + prefetch CSRF on mount
   useEffect(() => {
-    Promise.all([
-      fetch(`${API_URL}/health`).catch(() => { }),
-      getCsrf(),
-    ]);
+    Promise.all([fetch(`${API_URL}/health`).catch(() => { }), getCsrf()]);
   }, []);
 
   const showPopup = (msg) => {
@@ -129,12 +126,9 @@ function Signup() {
   };
 
   const resetOtpState = () => {
-    setOtpCode("");
-    setOtpMsg("");
-    setIsOtpSent(false);
-    setIsOtpVerified(false);
-    setTimer(0);
-    _csrfCache = ""; // clear cache so next session gets a fresh token
+    setOtpCode(""); setOtpMsg("");
+    setIsOtpSent(false); setIsOtpVerified(false);
+    setTimer(0); _csrfCache = "";
   };
 
   const toggleSignupLogin = (text) => {
@@ -142,7 +136,30 @@ function Signup() {
     setType(text);
     setValidationErrors({});
     setApiStatus({ error: "", success: "" });
+    setEmailCheckStatus("idle");
     resetOtpState();
+    toast.dismiss("email-taken");
+  };
+
+  // ── Email blur handler — fires the moment user leaves the email field ──────
+  const handleEmailBlur = () => {
+    clearTimeout(emailCheckTimer.current);
+    triggerEmailCheck(uemail);
+  };
+
+  // ── Email change — also handles browser autocomplete filling the field ─────
+  const handleEmailChange = (e) => {
+    const val = e.target.value;
+    setUemail(val);
+    setEmailCheckStatus("idle");
+    setValidationErrors((p) => ({ ...p, uemail: "" }));
+    toast.dismiss("email-taken");
+    // If value already looks like a complete email (autocomplete scenario),
+    // trigger check after 800ms without waiting for blur
+    if (/\S+@\S+\.\S+/.test(val.trim())) {
+      clearTimeout(emailCheckTimer.current);
+      emailCheckTimer.current = setTimeout(() => triggerEmailCheck(val), 800);
+    }
   };
 
   // ── Send OTP ──────────────────────────────────────────────────────────────
@@ -150,7 +167,6 @@ function Signup() {
     setValidationErrors({});
     setOtpMsg("");
 
-    // Client-side validation before hitting the server
     const errors = {};
     if (!uname.trim()) errors.uname = "Name is required.";
     if (!uemail.trim()) errors.uemail = "Email is required.";
@@ -163,29 +179,25 @@ function Signup() {
       return;
     }
 
-    // Check if email already exists BEFORE showing loading state
-    try {
-      const checkRes = await fetch(
-        `${API_URL}/api/signupLoginRouter/checkEmail?email=${encodeURIComponent(uemail)}`,
-        { credentials: "include" }
-      );
-      const checkData = await checkRes.json();
-      if (checkData.exists) {
-        setValidationErrors({ uemail: "This email is already registered. Please login instead." });
-        toast.error("This email is already registered.", { autoClose: 5000 });
-        return;
-      }
-    } catch {
-      // Network error on check — proceed anyway, backend will catch it on register
+    // Hard block if email is already taken
+    if (emailCheckStatus === "taken") {
+      toast.error("This email is already registered. Please login instead.", { autoClose: 4000 });
+      return;
     }
 
+    // Final safety check in case blur was skipped
     setIsOtpSending(true);
     const toastId = toast.loading("Sending OTP...");
-
     try {
-      // getCsrf() returns the cached token instantly if already fetched on mount
-      const token = await getCsrf();
+      const exists = await checkEmailExists(uemail);
+      if (exists) {
+        setEmailCheckStatus("taken");
+        setValidationErrors({ uemail: "This email is already registered. Please login instead." });
+        toast.update(toastId, { render: "This email is already registered.", type: "error", isLoading: false, autoClose: 5000 });
+        return;
+      }
 
+      const token = await getCsrf();
       const res = await axios.post(
         `${API_URL}/api/otp/send`,
         { contact, channel },
@@ -194,27 +206,19 @@ function Signup() {
 
       if (res.status === 200) {
         const icons = { email: "📧", sms: "📱", whatsapp: "💬" };
-        const labels = {
-          email: `email (${contact})`,
-          sms: `SMS to ${contact}`,
-          whatsapp: `WhatsApp to ${contact}`,
-        };
+        const labels = { email: `email (${contact})`, sms: `SMS to ${contact}`, whatsapp: `WhatsApp to ${contact}` };
         setIsOtpSent(true);
         setTimer(60);
         setOtpMsg(`OTP sent to ${contact}`);
-        toast.update(toastId, {
-          render: `${icons[channel]} OTP sent via ${labels[channel]}!`,
-          type: "success", isLoading: false, autoClose: 5000,
-        });
+        toast.update(toastId, { render: `${icons[channel]} OTP sent via ${labels[channel]}!`, type: "success", isLoading: false, autoClose: 5000 });
         showPopup(`${icons[channel]} OTP sent! Check your ${channel === "email" ? "inbox" : channel}.`);
-        // Auto-focus OTP input
         setTimeout(() => otpInputRef.current?.focus(), 100);
       }
     } catch (err) {
       const msg = err.response?.data?.error || "Failed to send OTP. Please try again.";
       setOtpMsg(msg);
       toast.update(toastId, { render: msg, type: "error", isLoading: false, autoClose: 4000 });
-      _csrfCache = ""; // reset cache on error — token may have expired
+      _csrfCache = "";
     } finally {
       setIsOtpSending(false);
     }
@@ -225,28 +229,20 @@ function Signup() {
     setOtpMsg("");
     setIsOtpVerifying(true);
     const toastId = toast.loading("Verifying OTP...");
-
     try {
-      // Reuse cached token — no extra server round-trip
       const token = await getCsrf();
-
       const res = await axios.post(
         `${API_URL}/api/otp/verify`,
         { contact, code: otpCode.trim() },
         { withCredentials: true, headers: { "x-csrf-token": token } },
       );
-
       if (res.data?.ok) {
-        setIsOtpSent(false);
-        setIsOtpVerified(true);
-        setOtpCode("");
-        setOtpMsg("");
+        setIsOtpSent(false); setIsOtpVerified(true);
+        setOtpCode(""); setOtpMsg("");
         toast.update(toastId, { render: "✅ OTP verified!", type: "success", isLoading: false, autoClose: 3000 });
-        showPopup("OTP verified successfully!");
       } else {
         setOtpMsg("Invalid or expired OTP.");
         toast.update(toastId, { render: "Invalid or expired OTP. Try again.", type: "error", isLoading: false, autoClose: 4000 });
-        showPopup("The OTP you entered is incorrect or has expired.");
       }
     } catch {
       setOtpMsg("Verification failed. Please try again.");
@@ -262,6 +258,10 @@ function Signup() {
     setValidationErrors({});
     setApiStatus({ error: "", success: "" });
 
+    if (emailCheckStatus === "taken") {
+      toast.error("This email is already registered. Please login instead.");
+      return;
+    }
     if (!isOtpVerified) {
       toast.error("Please verify your OTP before signing up.");
       return;
@@ -282,19 +282,14 @@ function Signup() {
 
     setIsLoading(true);
     const toastId = toast.loading("Creating your account...");
-
     try {
-      const res = await axios.post(
-        `${API_URL}/api/signupLoginRouter/registerUser`,
-        { uname, uemail, upassword, avatar },
-      );
-
+      const res = await axios.post(`${API_URL}/api/signupLoginRouter/registerUser`, { uname, uemail, upassword, avatar });
       if (res.status === 200) {
         toast.update(toastId, { render: "Account created! You can now log in.", type: "success", isLoading: false, autoClose: 3000 });
         setApiStatus({ error: "", success: "Registration successful! You can now log in." });
-        // Reset entire form
         setUname(""); setUemail(""); setUpassword(""); setUconfirmPassword("");
         setContact(""); setAvatar(""); setChannel("email");
+        setEmailCheckStatus("idle");
         resetOtpState();
         setValidationErrors({});
         setTimeout(() => toggleSignupLogin("signIn"), 2000);
@@ -315,8 +310,7 @@ function Signup() {
       <PopupAlert visible={popup.visible} text={popup.text} onClose={() => setPopup({ visible: false, text: "" })} />
       <div className="signlog-div">
         {BG_IMAGES.map((src, i) => (
-          <div
-            key={src}
+          <div key={src}
             className={`signlog-bg-slide${i === bgIndex ? " active" : i === prevBgIndex ? " leaving" : ""}`}
             style={{ backgroundImage: `url(${src})` }}
           />
@@ -339,8 +333,7 @@ function Signup() {
                         const reader = new FileReader();
                         reader.onload = () => setAvatar(String(reader.result || ""));
                         reader.readAsDataURL(file);
-                      }}
-                    />
+                      }} />
                   </label>
                 </div>
                 <h1 className="heading-h1">Create Account</h1>
@@ -358,12 +351,13 @@ function Signup() {
                   {validationErrors.uname && <span className="span-tag error-text">{validationErrors.uname}</span>}
                 </div>
 
-                {/* Email */}
+                {/* Email — check fires on blur (when user leaves this field) */}
                 <div className="mb-3">
                   <div className="input-group">
                     <span className="input-group-text icon-badge"><EmailIcon fontSize="small" /></span>
                     <input className="form-control" type="email" value={uemail}
-                      onChange={(e) => { setUemail(e.target.value); setEmailCheckStatus("idle"); setValidationErrors((p) => ({ ...p, uemail: "" })); }}
+                      onChange={handleEmailChange}
+                      onBlur={handleEmailBlur}
                       placeholder="Email Address" autoComplete="email" required />
                     {emailCheckStatus === "checking" && (
                       <span className="input-group-text" style={{ background: "transparent", border: "none" }}>
@@ -371,20 +365,34 @@ function Signup() {
                       </span>
                     )}
                     {emailCheckStatus === "available" && (
-                      <span className="input-group-text" style={{ background: "transparent", border: "none", color: "#059669", fontWeight: 700 }}>✓</span>
+                      <span className="input-group-text" style={{ background: "transparent", border: "none", padding: "0 4px" }}>
+                        <span className="email-status-icon tick">
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <polyline className="tick-path" points="1.5,6 4.5,9.5 10.5,2.5"
+                              stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </span>
+                      </span>
                     )}
                     {emailCheckStatus === "taken" && (
-                      <span className="input-group-text" style={{ background: "transparent", border: "none", color: "#dc2626", fontWeight: 700 }}>✗</span>
+                      <span className="input-group-text" style={{ background: "transparent", border: "none", padding: "0 4px" }}>
+                        <span className="email-status-icon cross">
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <line className="cross-path" x1="2" y1="2" x2="10" y2="10"
+                              stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
+                            <line className="cross-path" x1="10" y1="2" x2="2" y2="10"
+                              stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
+                          </svg>
+                        </span>
+                      </span>
                     )}
                   </div>
                   {validationErrors.uemail && (
                     <span className="span-tag error-text">
                       {validationErrors.uemail}
                       {validationErrors.uemail.includes("already registered") && (
-                        <span
-                          onClick={() => toggleSignupLogin("signIn")}
-                          style={{ marginLeft: "6px", color: "#ea580c", cursor: "pointer", textDecoration: "underline", fontWeight: 700 }}
-                        >
+                        <span onClick={() => toggleSignupLogin("signIn")}
+                          style={{ marginLeft: "6px", color: "#ea580c", cursor: "pointer", textDecoration: "underline", fontWeight: 700 }}>
                           Login instead →
                         </span>
                       )}
@@ -397,7 +405,18 @@ function Signup() {
                   <div className="input-group">
                     <span className="input-group-text icon-badge"><LockIcon fontSize="small" /></span>
                     <input className="form-control" type={showPassword ? "text" : "password"}
-                      value={upassword} onChange={(e) => setUpassword(e.target.value)}
+                      value={upassword} onChange={(e) => {
+                        setUpassword(e.target.value);
+                        setValidationErrors((p) => ({ ...p, upassword: "" }));
+                      }}
+                      onBlur={() => {
+                        if (!upassword) return;
+                        if (upassword.length < 8) return setValidationErrors((p) => ({ ...p, upassword: "Password must be at least 8 characters." }));
+                        if (!/[A-Z]/.test(upassword)) return setValidationErrors((p) => ({ ...p, upassword: "Password must contain at least one uppercase letter." }));
+                        if (!/[a-z]/.test(upassword)) return setValidationErrors((p) => ({ ...p, upassword: "Password must contain at least one lowercase letter." }));
+                        if (!/[0-9]/.test(upassword)) return setValidationErrors((p) => ({ ...p, upassword: "Password must contain at least one number." }));
+                        setValidationErrors((p) => ({ ...p, upassword: "" }));
+                      }}
                       placeholder="Password" autoComplete="new-password" required />
                     <button type="button" className="btn password-toggle-btn"
                       onClick={() => setShowPassword((v) => !v)} aria-label="Toggle password visibility">
@@ -412,7 +431,16 @@ function Signup() {
                   <div className="input-group">
                     <span className="input-group-text icon-badge"><LockIcon fontSize="small" /></span>
                     <input className="form-control" type={showConfirmPassword ? "text" : "password"}
-                      value={uconfirmPassword} onChange={(e) => setUconfirmPassword(e.target.value)}
+                      value={uconfirmPassword} onChange={(e) => {
+                        setUconfirmPassword(e.target.value);
+                        setValidationErrors((p) => ({ ...p, uconfirmPassword: "" }));
+                      }}
+                      onBlur={() => {
+                        if (uconfirmPassword && upassword !== uconfirmPassword)
+                          setValidationErrors((p) => ({ ...p, uconfirmPassword: "Passwords do not match." }));
+                        else
+                          setValidationErrors((p) => ({ ...p, uconfirmPassword: "" }));
+                      }}
                       placeholder="Confirm Password" autoComplete="new-password" required />
                     <button type="button" className="btn password-toggle-btn"
                       onClick={() => setShowConfirmPassword((v) => !v)} aria-label="Toggle confirm password visibility">
@@ -426,10 +454,8 @@ function Signup() {
                   <span className="span-tag error-text">
                     {apiStatus.error}
                     {(apiStatus.error.includes("already registered") || apiStatus.error.includes("already exists")) && (
-                      <span
-                        onClick={() => toggleSignupLogin("signIn")}
-                        style={{ marginLeft: "6px", color: "#ea580c", cursor: "pointer", textDecoration: "underline", fontWeight: 700 }}
-                      >
+                      <span onClick={() => toggleSignupLogin("signIn")}
+                        style={{ marginLeft: "6px", color: "#ea580c", cursor: "pointer", textDecoration: "underline", fontWeight: 700 }}>
                         Login instead →
                       </span>
                     )}
@@ -456,7 +482,7 @@ function Signup() {
                   )}
                   <button type="button" className="btn btn-outline-secondary"
                     onClick={sendOtp}
-                    disabled={timer > 0 || isOtpVerified || isOtpSending || emailCheckStatus === "taken"}
+                    disabled={timer > 0 || isOtpVerified || isOtpSending || emailCheckStatus === "taken" || emailCheckStatus === "checking"}
                     style={{ minWidth: "110px" }}>
                     {isOtpSending
                       ? <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />Sending...</>
@@ -464,7 +490,6 @@ function Signup() {
                   </button>
                 </div>
 
-                {/* Resend hint */}
                 {isOtpSent && timer === 0 && (
                   <div style={{ textAlign: "right", marginBottom: "8px" }}>
                     <span onClick={sendOtp} style={{ fontSize: "0.75rem", color: "var(--primary)", cursor: "pointer", textDecoration: "underline", fontWeight: 600 }}>
@@ -479,13 +504,9 @@ function Signup() {
                   <div className="input-group mb-2">
                     <span className="input-group-text bg-light border-secondary">OTP</span>
                     <input ref={otpInputRef} className="form-control" type="text"
-                      inputMode="numeric" maxLength={6}
-                      value={otpCode}
+                      inputMode="numeric" maxLength={6} value={otpCode}
                       onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-                      onPaste={(e) => {
-                        e.preventDefault();
-                        setOtpCode(e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6));
-                      }}
+                      onPaste={(e) => { e.preventDefault(); setOtpCode(e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6)); }}
                       placeholder="Enter 6-digit OTP" />
                     <button type="button" className="btn btn-success"
                       onClick={verifyOtp}
@@ -498,7 +519,6 @@ function Signup() {
                   </div>
                 )}
 
-                {/* OTP status message */}
                 {(otpMsg || isOtpVerified) && (
                   <span className={`span-tag ${isOtpVerified ? "success-text" : "error-text"}`}>
                     {isOtpVerified ? "✅ OTP Verified Successfully" : otpMsg}
@@ -507,8 +527,8 @@ function Signup() {
 
                 {/* Sign Up button */}
                 <button className="codepen-button" type="submit"
-                  disabled={isLoading || !isOtpVerified}
-                  style={{ opacity: !isOtpVerified ? 0.6 : 1, cursor: !isOtpVerified ? "not-allowed" : "pointer" }}>
+                  disabled={isLoading || !isOtpVerified || emailCheckStatus === "taken"}
+                  style={{ opacity: (!isOtpVerified || emailCheckStatus === "taken") ? 0.6 : 1, cursor: (!isOtpVerified || emailCheckStatus === "taken") ? "not-allowed" : "pointer" }}>
                   {isLoading
                     ? <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />Creating account...</>
                     : "Sign Up"}
@@ -518,7 +538,6 @@ function Signup() {
                   First request may take ~30s on free hosting (Render cold start)
                 </div>
 
-                {/* OAuth */}
                 <div className="auth-social-row" style={{ marginTop: "0.75rem" }}>
                   <button type="button" className="codepen-button"
                     onClick={() => (window.location.href = `${API_URL}/api/oauth/google`)}>
@@ -537,14 +556,12 @@ function Signup() {
             </form>
           </div>
 
-          {/* ── Login Form ── */}
           {type === "signIn" && (
             <div className="form-container sign-in-container">
               <Login toggleMobile={() => toggleSignupLogin("signUp")} />
             </div>
           )}
 
-          {/* ── Overlay panels ── */}
           <div className="overlay-container">
             <div className="overlay">
               <div className="overlay-panel overlay-left">
@@ -559,7 +576,6 @@ function Signup() {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </>
