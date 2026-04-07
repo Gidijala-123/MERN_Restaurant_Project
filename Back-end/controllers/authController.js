@@ -65,14 +65,12 @@ export const me = asyncHandler(async (req, res) => {
     const tokenKey = decoded?.tokenKey;
     const uid = tokenKey?.uid;
     if (!uid) return res.status(200).json({ authenticated: false });
-
     let user = null;
     try {
       user = await EmployeeModel.findById(uid).select("avatar uname uemail role");
     } catch {
-      // uid is not a valid ObjectId (e.g. Google/GitHub profile id) — that's fine
+      // uid is not a valid ObjectId (OAuth provider id) — fine
     }
-
     res.json({ authenticated: true, ...tokenKey, avatar: user?.avatar || "", uname: user?.uname || tokenKey?.uname });
   } catch {
     return res.status(200).json({ authenticated: false });
@@ -84,26 +82,25 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   if (!uemail) return res.status(400).json({ message: "Email is required" });
 
   const normalizedEmail = uemail.toLowerCase().trim();
-  const user = await EmployeeModel.findOne({ uemail: { $regex: new RegExp(`^${normalizedEmail}$`, "i") } });
+  const user = await EmployeeModel.findOne({ uemail: { $regex: new RegExp("^" + normalizedEmail + "$", "i") } });
   if (!user) return res.status(404).json({ message: "No account found with this email" });
 
   const code = Math.floor(100000 + Math.random() * 900000).toString();
   setOtp(user.uemail, code);
 
-  try {
-    await sendEmailOtp({ to: user.uemail, code });
-  } catch (err) {
-    console.error("[forgotPassword] sendEmailOtp error:", err.message);
-  }
-
+  // Respond immediately — email sends in background
   res.json({ ok: true });
+
+  sendEmailOtp({ to: user.uemail, code }).catch((err) =>
+    console.error("[forgotPassword] email error:", err.message)
+  );
 });
 
 export const verifyForgotOtp = asyncHandler(async (req, res) => {
   const { uemail, code } = req.body;
   if (!uemail || !code) return res.status(400).json({ message: "Email and OTP are required" });
 
-  const user = await EmployeeModel.findOne({ uemail: { $regex: new RegExp(`^${uemail.trim()}$`, "i") } });
+  const user = await EmployeeModel.findOne({ uemail: { $regex: new RegExp("^" + uemail.trim() + "$", "i") } });
   if (!user) return res.status(400).json({ message: "Invalid or expired OTP" });
 
   const valid = verifyOtp(user.uemail, String(code).trim());

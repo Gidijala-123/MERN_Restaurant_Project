@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "../signup/Signup.css";
 import axios from "axios";
@@ -14,6 +14,8 @@ import useDebounce from "../../hooks/useDebounce";
 
 // Step: "login" | "forgot-email" | "forgot-otp" | "forgot-newpw"
 function SignInForm({ toggleMobile }) {
+  const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
+
   const [validationErrors, setValidationErrors] = useState({});
   const [apiError, setApiError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +23,31 @@ function SignInForm({ toggleMobile }) {
   const [upassword, setUpassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
+  // Login email check — "idle" | "checking" | "found" | "notfound"
+  const [loginEmailStatus, setLoginEmailStatus] = useState("idle");
+  const loginEmailTimer = useRef(null);
+
+  const checkLoginEmail = useCallback(async (email) => {
+    const val = email.trim();
+    if (!val || !/\S+@\S+\.\S+/.test(val)) return;
+    setLoginEmailStatus("checking");
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/api/signupLoginRouter/checkEmail?email=${encodeURIComponent(val)}`,
+        { credentials: "include" }
+      );
+      const data = await res.json();
+      setLoginEmailStatus(data.exists ? "found" : "notfound");
+      if (!data.exists) {
+        setValidationErrors((p) => ({ ...p, uemail: "No account found with this email. Sign up instead." }));
+      } else {
+        setValidationErrors((p) => ({ ...p, uemail: "" }));
+      }
+    } catch {
+      setLoginEmailStatus("idle");
+    }
+  }, [API_BASE_URL]);
 
   // Forgot password state
   const [step, setStep] = useState("login");
@@ -30,9 +57,7 @@ function SignInForm({ toggleMobile }) {
   const [fpConfirmPw, setFpConfirmPw] = useState("");
   const [fpResetToken, setFpResetToken] = useState("");
   const [showFpPw, setShowFpPw] = useState(false);
-  const [fpEmailExists, setFpEmailExists] = useState("idle"); // idle | checking | found | notfound
-
-  const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
+  const [fpEmailExists, setFpEmailExists] = useState("idle");
 
   // Pre-warm server on mount
   useEffect(() => {
@@ -302,10 +327,57 @@ function SignInForm({ toggleMobile }) {
         <div className="input-group">
           <span className="input-group-text icon-badge"><EmailIcon fontSize="small" /></span>
           <input className="form-control" type="email" id="login-email" value={uemail}
-            onChange={(e) => setUemail(e.target.value)} placeholder="Email Address"
+            onChange={(e) => {
+              const val = e.target.value;
+              setUemail(val);
+              setLoginEmailStatus("idle");
+              setValidationErrors((p) => ({ ...p, uemail: "" }));
+              // Handle autocomplete fill
+              if (/\S+@\S+\.\S+/.test(val.trim())) {
+                clearTimeout(loginEmailTimer.current);
+                loginEmailTimer.current = setTimeout(() => checkLoginEmail(val), 800);
+              }
+            }}
+            onBlur={() => { clearTimeout(loginEmailTimer.current); checkLoginEmail(uemail); }}
+            placeholder="Email Address"
             autoComplete="email" required />
+          {loginEmailStatus === "checking" && (
+            <span className="input-group-text" style={{ background: "transparent", border: "none" }}>
+              <span className="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true" />
+            </span>
+          )}
+          {loginEmailStatus === "found" && (
+            <span className="input-group-text" style={{ background: "transparent", border: "none", padding: "0 4px" }}>
+              <span className="email-status-icon tick">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <polyline className="tick-path" points="1.5,6 4.5,9.5 10.5,2.5"
+                    stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+            </span>
+          )}
+          {loginEmailStatus === "notfound" && (
+            <span className="input-group-text" style={{ background: "transparent", border: "none", padding: "0 4px" }}>
+              <span className="email-status-icon cross">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <line className="cross-path" x1="2" y1="2" x2="10" y2="10" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
+                  <line className="cross-path" x1="10" y1="2" x2="2" y2="10" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </span>
+            </span>
+          )}
         </div>
-        {validationErrors.uemail && <span className="span-tag error-text">{validationErrors.uemail}</span>}
+        {validationErrors.uemail && (
+          <span className="span-tag error-text">
+            {validationErrors.uemail}
+            {validationErrors.uemail.includes("Sign up") && (
+              <span onClick={toggleMobile}
+                style={{ marginLeft: "6px", color: "#ea580c", cursor: "pointer", textDecoration: "underline", fontWeight: 700 }}>
+                Sign up →
+              </span>
+            )}
+          </span>
+        )}
       </div>
       <div className="mb-3">
         <div className="input-group">
@@ -329,7 +401,8 @@ function SignInForm({ toggleMobile }) {
       </div>
 
       <span className="span-tag error-text">{apiError}</span>
-      <button className="codepen-button" type="submit" disabled={isLoading}>
+      <button className="codepen-button" type="submit"
+        disabled={isLoading || loginEmailStatus === "notfound"}>
         {isLoading
           ? <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />Logging in...</>
           : "Login"}

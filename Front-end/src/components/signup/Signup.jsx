@@ -71,6 +71,12 @@ function Signup() {
   const [emailCheckStatus, setEmailCheckStatus] = useState("idle");
   const emailCheckTimer = useRef(null);
 
+  const resetOtpState = () => {
+    setOtpCode(""); setOtpMsg("");
+    setIsOtpSent(false); setIsOtpVerified(false);
+    setTimer(0); _csrfCache = "";
+  };
+
   // Shared check function — used by both onBlur and onChange (autocomplete)
   const triggerEmailCheck = useCallback(async (email) => {
     const val = email.trim();
@@ -123,12 +129,6 @@ function Signup() {
   const showPopup = (msg) => {
     setPopup({ visible: true, text: msg });
     setTimeout(() => setPopup({ visible: false, text: "" }), 3000);
-  };
-
-  const resetOtpState = () => {
-    setOtpCode(""); setOtpMsg("");
-    setIsOtpSent(false); setIsOtpVerified(false);
-    setTimer(0); _csrfCache = "";
   };
 
   const toggleSignupLogin = (text) => {
@@ -208,7 +208,7 @@ function Signup() {
         const icons = { email: "📧", sms: "📱", whatsapp: "💬" };
         const labels = { email: `email (${contact})`, sms: `SMS to ${contact}`, whatsapp: `WhatsApp to ${contact}` };
         setIsOtpSent(true);
-        setTimer(60);
+        setTimer(30);
         setOtpMsg(`OTP sent to ${contact}`);
         toast.update(toastId, { render: `${icons[channel]} OTP sent via ${labels[channel]}!`, type: "success", isLoading: false, autoClose: 5000 });
         showPopup(`${icons[channel]} OTP sent! Check your ${channel === "email" ? "inbox" : channel}.`);

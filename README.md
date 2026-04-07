@@ -57,7 +57,7 @@ Moved from a frontend-hardcoded approach to a **Backend-API-driven architecture*
 ### 2. Advanced Authentication
 - **Dual-Token System**: Short-lived Access Tokens (15m) and long-lived Refresh Tokens (7d) in httpOnly cookies.
 - **OAuth 2.0**: Integrated Google and GitHub login via Passport.js.
-- **OTP Verification**: 6-digit codes via SMS (Twilio), WhatsApp, or Email (Nodemailer).
+- **OTP Verification**: 6-digit codes via SMS (Twilio), WhatsApp, or Email (Resend API).
 
 ### 3. Performance & Reliability
 - **Load Balancing**: Native Node.js `cluster` module forks workers based on CPU count.

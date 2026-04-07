@@ -1,39 +1,26 @@
+import { Resend } from "resend";
 import nodemailer from "nodemailer";
 
-// ── Reusable transporter — created once, reused on every send ──────────────
-// This avoids the ~300ms overhead of recreating the SMTP connection each time.
-let transporter = null;
-
-function getTransporter() {
-  if (transporter) return transporter;
-
-  const opts = buildTransportOptions();
-  if (!opts) return null;
-
-  transporter = nodemailer.createTransport(opts);
-  return transporter;
+// ── Resend client — HTTP/443, no SMTP port throttling ─────────────────────
+let _resend = null;
+function getResend() {
+  if (_resend) return _resend;
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return null;
+  _resend = new Resend(key);
+  return _resend;
 }
 
-function buildTransportOptions() {
-  if (process.env.SMTP_SERVICE) {
-    return {
-      service: process.env.SMTP_SERVICE,
-      auth: process.env.SMTP_USER && process.env.SMTP_PASS
-        ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
-        : undefined,
-    };
-  }
-  if (process.env.SMTP_HOST) {
-    return {
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || "587", 10),
-      secure: process.env.SMTP_SECURE === "true",
-      auth: process.env.SMTP_USER && process.env.SMTP_PASS
-        ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
-        : undefined,
-    };
-  }
-  return null;
+// ── Nodemailer transporter — fallback when Resend domain not verified ──────
+let _transporter = null;
+function getTransporter() {
+  if (_transporter) return _transporter;
+  if (!process.env.SMTP_SERVICE && !process.env.SMTP_HOST) return null;
+  const opts = process.env.SMTP_SERVICE
+    ? { service: process.env.SMTP_SERVICE, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } }
+    : { host: process.env.SMTP_HOST, port: parseInt(process.env.SMTP_PORT || "587"), secure: process.env.SMTP_SECURE === "true", auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } };
+  _transporter = nodemailer.createTransport(opts);
+  return _transporter;
 }
 
 // ── SMS via Fast2SMS or Twilio ─────────────────────────────────────────────
@@ -116,25 +103,37 @@ export async function sendWhatsAppOtp({ to, code }) {
   return { ok: true, provider: "mock" };
 }
 
-// ── Email via SMTP (nodemailer) ────────────────────────────────────────────
+// ── Email via Resend (primary) → Gmail SMTP (fallback) ────────────────────
 export async function sendEmailOtp({ to, code = "", subject: customSubject, html: customHtml }) {
-  const provider = process.env.OTP_PROVIDER || "mock";
-
-  const subject = customSubject || "Verification Code - Flavora";
+  const subject = customSubject || "Your Flavora Verification Code";
   const html = customHtml || buildOtpHtml(code);
 
-  const t = getTransporter();
-
-  if ((provider === "smtp" || provider === "gmail") && t) {
+  // Try Resend first (HTTP/443 — fast, no port throttling)
+  const resend = getResend();
+  if (resend) {
     try {
-      const fromEmail = process.env.EMAIL_FROM || process.env.SMTP_USER || "no-reply@flavora.com";
-      const info = await t.sendMail({ from: fromEmail, to, subject, html });
-      console.log(`[Email OTP] Sent to ${to}, messageId: ${info.messageId}`);
+      const from = process.env.RESEND_FROM || "Flavora <onboarding@resend.dev>";
+      const { data, error } = await resend.emails.send({ from, to, subject, html });
+      if (error) throw new Error(error.message);
+      console.log(`[Resend] Sent to ${to}, id: ${data?.id}`);
+      return { ok: true, provider: "resend", id: data?.id };
+    } catch (err) {
+      console.error("[Resend Error] Falling back to SMTP:", err.message);
+      // fall through to SMTP below
+    }
+  }
+
+  // Fallback: Gmail SMTP via nodemailer
+  const t = getTransporter();
+  if (t) {
+    try {
+      const from = process.env.EMAIL_FROM || process.env.SMTP_USER || "no-reply@flavora.com";
+      const info = await t.sendMail({ from, to, subject, html });
+      console.log(`[SMTP] Sent to ${to}, messageId: ${info.messageId}`);
       return { ok: true, provider: "smtp", messageId: info.messageId };
     } catch (err) {
-      console.error("[Email OTP Error]", err.message);
-      // Reset transporter so it gets recreated on next attempt
-      transporter = null;
+      console.error("[SMTP Error]", err.message);
+      _transporter = null; // reset so it rebuilds on next attempt
       return { ok: false, provider: "smtp", error: err.message };
     }
   }
@@ -158,8 +157,7 @@ function buildOtpHtml(code) {
     <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:20px 0;">
       <table align="center" width="500" cellpadding="0" cellspacing="0"
              style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 10px rgba(0,0,0,.05);">
-        <tr><td align="center"
-                style="background:linear-gradient(135deg,#ff6600,#ff8533);padding:40px 0;">
+        <tr><td align="center" style="background:linear-gradient(135deg,#ff6600,#ff8533);padding:40px 0;">
           <h1 style="margin:0;color:#fff;font-size:24px;font-weight:700;">Flavora</h1>
         </td></tr>
         <tr><td style="padding:40px 30px;">

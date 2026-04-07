@@ -223,13 +223,16 @@ app.post("/api/otp/send", otpSendValidation, async (req, res) => {
   const code = Math.floor(100000 + Math.random() * 900000).toString();
   setOtp(contact, code);
 
+  // Respond immediately — email sends in background (fire-and-forget)
+  // This prevents Render's SMTP port throttling from blocking the response
+  res.json({ ok: true });
+
   try {
     if (channel === "sms") await sendSmsOtp({ to: contact, code });
     else if (channel === "whatsapp") await sendWhatsAppOtp({ to: contact, code });
     else await sendEmailOtp({ to: contact, code });
-    res.json({ ok: true });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("[OTP send background error]", err.message);
   }
 });
 

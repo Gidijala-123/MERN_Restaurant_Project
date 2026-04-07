@@ -14,7 +14,7 @@ Interaction Flow:
 1.  Client (React): Initiates requests (e.g., "Place Order") using RTK Query or Axios.
 2.  API Gateway (Express): The backend receives the request, passes it through security middleware (Helmet, CORS, Rate Limit).
 3.  Controller Layer: Validates input using Zod and executes business logic.
-4.  Service Layer: Handles complex operations like Kafka message production (for orders) or Nodemailer (for emails).
+4.  Service Layer: Handles complex operations like Kafka message production (for orders) or Resend API (for emails).
 5.  Database: Mongoose interacts with MongoDB to persist data.
 6.  Response: The server returns a JSON response, which the Frontend uses to update the Redux state.
 
