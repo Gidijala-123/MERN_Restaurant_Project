@@ -1,26 +1,31 @@
-import { Resend } from "resend";
-import nodemailer from "nodemailer";
+// ── Email via Brevo (HTTP/443) — no SMTP, sends to any address ────────────
+// Free tier: 300 emails/day, no domain verification needed
+// Sign up: https://app.brevo.com → API Keys → Create key
+async function sendViaBrevo({ to, subject, html }) {
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!apiKey) return null;
 
-// ── Resend client — HTTP/443, no SMTP port throttling ─────────────────────
-let _resend = null;
-function getResend() {
-  if (_resend) return _resend;
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return null;
-  _resend = new Resend(key);
-  return _resend;
-}
+  const fromEmail = process.env.BREVO_FROM_EMAIL || process.env.EMAIL_FROM || "browserlogins@gmail.com";
+  const fromName = process.env.BREVO_FROM_NAME || "Flavora";
 
-// ── Nodemailer transporter — fallback when Resend domain not verified ──────
-let _transporter = null;
-function getTransporter() {
-  if (_transporter) return _transporter;
-  if (!process.env.SMTP_SERVICE && !process.env.SMTP_HOST) return null;
-  const opts = process.env.SMTP_SERVICE
-    ? { service: process.env.SMTP_SERVICE, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } }
-    : { host: process.env.SMTP_HOST, port: parseInt(process.env.SMTP_PORT || "587"), secure: process.env.SMTP_SECURE === "true", auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } };
-  _transporter = nodemailer.createTransport(opts);
-  return _transporter;
+  const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "api-key": apiKey,
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+    },
+    body: JSON.stringify({
+      sender: { name: fromName, email: fromEmail },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Brevo send failed");
+  return data;
 }
 
 // ── SMS via Fast2SMS or Twilio ─────────────────────────────────────────────
@@ -103,41 +108,22 @@ export async function sendWhatsAppOtp({ to, code }) {
   return { ok: true, provider: "mock" };
 }
 
-// ── Email via Resend (primary) → Gmail SMTP (fallback) ────────────────────
+// ── Email via Brevo HTTP API (primary) ────────────────────────────────────
 export async function sendEmailOtp({ to, code = "", subject: customSubject, html: customHtml }) {
   const subject = customSubject || "Your Flavora Verification Code";
   const html = customHtml || buildOtpHtml(code);
 
-  // Try Resend first (HTTP/443 — fast, no port throttling)
-  const resend = getResend();
-  if (resend) {
-    try {
-      const from = process.env.RESEND_FROM || "Flavora <onboarding@resend.dev>";
-      const { data, error } = await resend.emails.send({ from, to, subject, html });
-      if (error) throw new Error(error.message);
-      console.log(`[Resend] Sent to ${to}, id: ${data?.id}`);
-      return { ok: true, provider: "resend", id: data?.id };
-    } catch (err) {
-      console.error("[Resend Error] Falling back to SMTP:", err.message);
-      // fall through to SMTP below
+  try {
+    const result = await sendViaBrevo({ to, subject, html });
+    if (result) {
+      console.log(`[Brevo] Sent to ${to}, messageId: ${result.messageId}`);
+      return { ok: true, provider: "brevo", messageId: result.messageId };
     }
+  } catch (err) {
+    console.error("[Brevo Error]", err.message);
   }
 
-  // Fallback: Gmail SMTP via nodemailer
-  const t = getTransporter();
-  if (t) {
-    try {
-      const from = process.env.EMAIL_FROM || process.env.SMTP_USER || "no-reply@flavora.com";
-      const info = await t.sendMail({ from, to, subject, html });
-      console.log(`[SMTP] Sent to ${to}, messageId: ${info.messageId}`);
-      return { ok: true, provider: "smtp", messageId: info.messageId };
-    } catch (err) {
-      console.error("[SMTP Error]", err.message);
-      _transporter = null; // reset so it rebuilds on next attempt
-      return { ok: false, provider: "smtp", error: err.message };
-    }
-  }
-
+  // Mock fallback for local dev without BREVO_API_KEY
   console.log(`[Email Mock] To ${to}: ${code}`);
   return { ok: true, provider: "mock" };
 }
