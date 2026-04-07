@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../signup/Signup.css";
 import axios from "axios";
@@ -33,6 +33,11 @@ function SignInForm({ toggleMobile }) {
   const API_BASE_URL = (
     import.meta.env.VITE_API_URL || "http://localhost:1111"
   ).replace(/\/$/, "");
+
+  // Pre-warm the server on mount to reduce cold-start delay on Render free tier
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/health`).catch(() => { });
+  }, [API_BASE_URL]);
 
   const loginOnSubmit = async (e) => {
     e.preventDefault();
