@@ -3,8 +3,6 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
-import os from "os";
-import cluster from "cluster";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
@@ -15,7 +13,7 @@ import signupLoginRouter from "./routers/signupLoginRouter.js";
 import menuRouter from "./routers/menuRouter.js";
 import products from "./controllers/products.js";
 import errorHandler from "./middleware/errorHandling.js";
-import { signupValidation, loginValidation, orderValidation, otpSendValidation, otpVerifyValidation } from "./middleware/expressValidator.js";
+import { loginValidation, orderValidation, otpSendValidation, otpVerifyValidation } from "./middleware/expressValidator.js";
 import {
   login,
   refresh,
@@ -189,9 +187,6 @@ app.get(
 
 // CSRF token issue
 app.get("/api/csrf", issueCsrf);
-
-// Menu routes
-app.use("/api/menu", menuRouter);
 
 // Newsletter
 app.use("/api/newsletter", newsletterRouter);

@@ -1,9 +1,6 @@
 import MenuItem from "../models/MenuModel.js";
 import logger from "../logging/logger.js";
 
-/**
- * Get all menu items (with optional filtering and pagination)
- */
 export const getAllMenuItems = async (req, res) => {
   try {
     const { category, subCategory, page = 1, limit = 20, search } = req.query;

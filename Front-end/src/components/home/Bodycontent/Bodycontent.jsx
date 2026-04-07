@@ -170,8 +170,6 @@ const Bodycontent = (props) => {
   const [popularBookmarked, setPopularBookmarked] = useState({});
   const [recentBookmarked, setRecentBookmarked] = useState({});
   const [showFilter, setShowFilter] = useState(false);
-  // Address state for billing form
-  const [addressValue, setAddressValue] = useState("");
 
   // Load bookmarks from localStorage on mount
   React.useEffect(() => {
@@ -230,65 +228,7 @@ const Bodycontent = (props) => {
     });
 
     // 2. Check discount items (static list)
-    const discountItems = [
-      {
-        id: 101,
-        title: "Cheesy Pepperoni Pizza",
-        oldPrice: 499,
-        newPrice: 299,
-        discount: "40% OFF",
-        img: "/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg",
-        desc: "Extra cheese & crispy crust",
-        rating: 4.8,
-        reviews: 120,
-      },
-      {
-        id: 102,
-        title: "Crispy Chicken Burger",
-        oldPrice: 250,
-        newPrice: 149,
-        discount: "40% OFF",
-        img: "/footer-images/burger.png",
-        desc: "Spicy mayo & fresh lettuce",
-        rating: 4.5,
-        reviews: 85,
-      },
-      {
-        id: 103,
-        title: "Garden Fresh Salad",
-        oldPrice: 180,
-        newPrice: 99,
-        discount: "45% OFF",
-        img: "/footer-images/salads.jpg",
-        desc: "Organic veggies & olive oil",
-        rating: 4.7,
-        reviews: 60,
-      },
-      {
-        id: 104,
-        title: "Choco Lava Cake",
-        oldPrice: 150,
-        newPrice: 75,
-        discount: "50% OFF",
-        img: "/footer-images/desserts.jpg",
-        desc: "Melting hot chocolate center",
-        rating: 4.9,
-        reviews: 210,
-      },
-      {
-        id: 105,
-        title: "Fresh Fruit Mojito",
-        oldPrice: 120,
-        newPrice: 59,
-        discount: "50% OFF",
-        img: "/footer-images/cooldrinks.png",
-        desc: "Refreshing mint & lime",
-        rating: 4.6,
-        reviews: 45,
-      },
-    ];
-
-    discountItems.forEach((item) => {
+    DISCOUNT_SALE_ITEMS.forEach((item) => {
       if (discountBookmarked[item.id]) {
         favorites.push({ ...item, price: item.newPrice, section: "discount" });
       }
