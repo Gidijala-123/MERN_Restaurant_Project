@@ -10,6 +10,7 @@ import LockIcon from "@mui/icons-material/Lock";
 import GoogleIcon from "@mui/icons-material/Google";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import { toast } from "react-toastify";
+import useDebounce from "../../hooks/useDebounce";
 
 // Step: "login" | "forgot-email" | "forgot-otp" | "forgot-newpw"
 function SignInForm({ toggleMobile }) {
@@ -29,17 +30,31 @@ function SignInForm({ toggleMobile }) {
   const [fpConfirmPw, setFpConfirmPw] = useState("");
   const [fpResetToken, setFpResetToken] = useState("");
   const [showFpPw, setShowFpPw] = useState(false);
-  const [cachedCsrf, setCachedCsrf] = useState("");
+  const [fpEmailExists, setFpEmailExists] = useState("idle"); // idle | checking | found | notfound
 
-  const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || "http://localhost:1111"
-  ).replace(/\/$/, "");
+  const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
 
-  // Pre-warm the server on mount to reduce cold-start delay on Render free tier
+  // Pre-warm server on mount
   useEffect(() => {
     fetch(`${API_BASE_URL}/health`).catch(() => { });
   }, [API_BASE_URL]);
 
+  // Debounce forgot-password email to check if it exists
+  const debouncedFpEmail = useDebounce(fpEmail, 600);
+  useEffect(() => {
+    if (step !== "forgot-email") return;
+    if (!debouncedFpEmail || !/\S+@\S+\.\S+/.test(debouncedFpEmail)) {
+      setFpEmailExists("idle");
+      return;
+    }
+    setFpEmailExists("checking");
+    fetch(`${API_BASE_URL}/api/signupLoginRouter/checkEmail?email=${encodeURIComponent(debouncedFpEmail)}`, { credentials: "include" })
+      .then((r) => r.json())
+      .then((data) => setFpEmailExists(data.exists ? "found" : "notfound"))
+      .catch(() => setFpEmailExists("idle"));
+  }, [debouncedFpEmail, step, API_BASE_URL]);
+
+  // ── Login ──────────────────────────────────────────────────────────────────
   const loginOnSubmit = async (e) => {
     e.preventDefault();
     setValidationErrors({});
@@ -53,11 +68,10 @@ function SignInForm({ toggleMobile }) {
       return;
     }
     setIsLoading(true);
-    const toastId = toast.loading("Logging in... Please wait for server wake-up.");
+    const toastId = toast.loading("Logging in...");
     try {
       const csrfRes = await fetch(`${API_BASE_URL}/api/csrf`, { credentials: "include" });
       const { csrfToken } = (await csrfRes.json()) || {};
-      setCachedCsrf(csrfToken || "");
       const res = await axios.post(
         `${API_BASE_URL}/api/auth/login`,
         { uemail, upassword },
@@ -70,6 +84,7 @@ function SignInForm({ toggleMobile }) {
           if (user.uname) localStorage.setItem("userName", user.uname);
           if (user.avatar) localStorage.setItem("userAvatar", user.avatar);
           if (user.role) localStorage.setItem("userRole", user.role);
+          if (user.uemail) localStorage.setItem("userEmail", user.uemail);
         }
         navigate(res.data?.user?.role === "admin" ? "/admin" : "/home");
       }
@@ -82,19 +97,14 @@ function SignInForm({ toggleMobile }) {
     }
   };
 
+  // ── Forgot password — send OTP ─────────────────────────────────────────────
   const sendFpOtp = async (e) => {
     e.preventDefault();
     if (!fpEmail) return toast.error("Enter your email");
+    if (fpEmailExists === "notfound") return toast.error("No account found with this email.");
     setIsLoading(true);
-    const toastId = toast.loading("Sending OTP... This may take a moment on first request.");
+    const toastId = toast.loading("Sending OTP...");
     try {
-      // Fetch CSRF and send OTP — server is already warm from the ping on mount
-      const [csrfRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/csrf`, { credentials: "include" })
-          .then((r) => r.json())
-          .catch(() => ({})),
-      ]);
-      setCachedCsrf(csrfRes?.csrfToken || "");
       await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { uemail: fpEmail });
       toast.update(toastId, { render: "OTP sent to your email!", type: "success", isLoading: false, autoClose: 4000 });
       setStep("forgot-otp");
@@ -106,6 +116,7 @@ function SignInForm({ toggleMobile }) {
     }
   };
 
+  // ── Forgot password — verify OTP ───────────────────────────────────────────
   const verifyFpOtp = async (e) => {
     e.preventDefault();
     const cleanOtp = fpOtp.replace(/\D/g, "");
@@ -113,10 +124,7 @@ function SignInForm({ toggleMobile }) {
     setIsLoading(true);
     const toastId = toast.loading("Verifying OTP...");
     try {
-      const res = await axios.post(`${API_BASE_URL}/api/auth/verify-forgot-otp`, {
-        uemail: fpEmail,
-        code: cleanOtp,
-      });
+      const res = await axios.post(`${API_BASE_URL}/api/auth/verify-forgot-otp`, { uemail: fpEmail, code: cleanOtp });
       if (res.data?.ok) {
         setFpResetToken(res.data.resetToken);
         toast.update(toastId, { render: "✅ OTP verified!", type: "success", isLoading: false, autoClose: 3000 });
@@ -131,6 +139,7 @@ function SignInForm({ toggleMobile }) {
     }
   };
 
+  // ── Forgot password — reset ────────────────────────────────────────────────
   const resetPassword = async (e) => {
     e.preventDefault();
     if (fpNewPw.length < 8) return toast.error("Password must be at least 8 characters");
@@ -138,10 +147,7 @@ function SignInForm({ toggleMobile }) {
     setIsLoading(true);
     const toastId = toast.loading("Resetting your password...");
     try {
-      await axios.post(`${API_BASE_URL}/api/auth/reset-password`, {
-        resetToken: fpResetToken,
-        newPassword: fpNewPw,
-      });
+      await axios.post(`${API_BASE_URL}/api/auth/reset-password`, { resetToken: fpResetToken, newPassword: fpNewPw });
       toast.update(toastId, { render: "Password reset successful! Please log in.", type: "success", isLoading: false, autoClose: 3000 });
       setStep("login");
       setFpEmail(""); setFpOtp(""); setFpNewPw(""); setFpConfirmPw(""); setFpResetToken("");
@@ -152,7 +158,7 @@ function SignInForm({ toggleMobile }) {
     }
   };
 
-  // ── Forgot password screens ──
+  // ── Forgot password — enter email ──────────────────────────────────────────
   if (step === "forgot-email") {
     return (
       <form className="form-div" onSubmit={sendFpOtp}>
@@ -167,13 +173,35 @@ function SignInForm({ toggleMobile }) {
           <div className="input-group">
             <span className="input-group-text icon-badge"><EmailIcon fontSize="small" /></span>
             <input className="form-control" type="email" value={fpEmail}
-              onChange={(e) => setFpEmail(e.target.value)} placeholder="Email Address" required />
+              onChange={(e) => { setFpEmail(e.target.value); setFpEmailExists("idle"); }}
+              placeholder="Email Address" required />
+            {fpEmailExists === "checking" && (
+              <span className="input-group-text" style={{ background: "transparent", border: "none" }}>
+                <span className="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true" />
+              </span>
+            )}
+            {fpEmailExists === "found" && (
+              <span className="input-group-text" style={{ background: "transparent", border: "none", color: "#059669", fontWeight: 700 }}>✓</span>
+            )}
+            {fpEmailExists === "notfound" && (
+              <span className="input-group-text" style={{ background: "transparent", border: "none", color: "#dc2626", fontWeight: 700 }}>✗</span>
+            )}
           </div>
+          {fpEmailExists === "notfound" && (
+            <span className="span-tag error-text">
+              No account found with this email.{" "}
+              <span onClick={() => { setStep("login"); toggleMobile?.(); }}
+                style={{ color: "#ea580c", cursor: "pointer", textDecoration: "underline", fontWeight: 700 }}>
+                Sign up instead →
+              </span>
+            </span>
+          )}
         </div>
-        <button className="codepen-button" type="submit" disabled={isLoading}>
-          {isLoading ? (
-            <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />Sending...</>
-          ) : "Send OTP"}
+        <button className="codepen-button" type="submit"
+          disabled={isLoading || fpEmailExists === "notfound" || fpEmailExists === "checking"}>
+          {isLoading
+            ? <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />Sending...</>
+            : "Send OTP"}
         </button>
         <div style={{ textAlign: "center", marginTop: "0.75rem" }}>
           <span style={{ fontSize: "0.82rem", color: "#ea580c", cursor: "pointer" }}
@@ -183,6 +211,7 @@ function SignInForm({ toggleMobile }) {
     );
   }
 
+  // ── Forgot password — enter OTP ────────────────────────────────────────────
   if (step === "forgot-otp") {
     return (
       <form className="form-div" onSubmit={verifyFpOtp}>
@@ -199,18 +228,14 @@ function SignInForm({ toggleMobile }) {
             <input className="form-control" type="text" inputMode="numeric" maxLength={6}
               value={fpOtp}
               onChange={(e) => setFpOtp(e.target.value.replace(/\D/g, ""))}
-              onPaste={(e) => {
-                e.preventDefault();
-                const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-                setFpOtp(pasted);
-              }}
-              placeholder="6-digit OTP" required />
+              onPaste={(e) => { e.preventDefault(); setFpOtp(e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6)); }}
+              placeholder="6-digit OTP" autoFocus required />
           </div>
         </div>
         <button className="codepen-button" type="submit" disabled={isLoading || fpOtp.replace(/\D/g, "").length !== 6}>
-          {isLoading ? (
-            <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />Verifying...</>
-          ) : "Verify OTP"}
+          {isLoading
+            ? <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />Verifying...</>
+            : "Verify OTP"}
         </button>
         <div style={{ textAlign: "center", marginTop: "0.75rem" }}>
           <span style={{ fontSize: "0.82rem", color: "#ea580c", cursor: "pointer" }}
@@ -220,7 +245,9 @@ function SignInForm({ toggleMobile }) {
     );
   }
 
+  // ── Forgot password — new password ─────────────────────────────────────────
   if (step === "forgot-newpw") {
+    const pwMismatch = fpConfirmPw.length > 0 && fpNewPw !== fpConfirmPw;
     return (
       <form className="form-div" onSubmit={resetPassword}>
         <div className="login-heading">
@@ -238,6 +265,9 @@ function SignInForm({ toggleMobile }) {
               {showFpPw ? <VisibilityOff /> : <Visibility />}
             </button>
           </div>
+          {fpNewPw.length > 0 && fpNewPw.length < 8 && (
+            <span className="span-tag error-text">Password must be at least 8 characters</span>
+          )}
         </div>
         <div className="mb-3">
           <div className="input-group">
@@ -245,18 +275,23 @@ function SignInForm({ toggleMobile }) {
             <input className="form-control" type={showFpPw ? "text" : "password"}
               value={fpConfirmPw} onChange={(e) => setFpConfirmPw(e.target.value)}
               placeholder="Confirm New Password" required />
+            {!pwMismatch && fpConfirmPw.length > 0 && (
+              <span className="input-group-text" style={{ background: "transparent", border: "none", color: "#059669", fontWeight: 700 }}>✓</span>
+            )}
           </div>
+          {pwMismatch && <span className="span-tag error-text">Passwords do not match</span>}
         </div>
-        <button className="codepen-button" type="submit" disabled={isLoading}>
-          {isLoading ? (
-            <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />Resetting...</>
-          ) : "Reset Password"}
+        <button className="codepen-button" type="submit"
+          disabled={isLoading || fpNewPw.length < 8 || pwMismatch}>
+          {isLoading
+            ? <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />Resetting...</>
+            : "Reset Password"}
         </button>
       </form>
     );
   }
 
-  // ── Default login screen ──
+  // ── Default login screen ───────────────────────────────────────────────────
   return (
     <form className="form-div" onSubmit={loginOnSubmit}>
       <div className="login-heading">
@@ -295,10 +330,12 @@ function SignInForm({ toggleMobile }) {
 
       <span className="span-tag error-text">{apiError}</span>
       <button className="codepen-button" type="submit" disabled={isLoading}>
-        {isLoading ? "Processing..." : "Login"}
+        {isLoading
+          ? <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />Logging in...</>
+          : "Login"}
       </button>
       <div style={{ fontSize: "0.75rem", color: "#666", marginTop: "10px", textAlign: "center", fontStyle: "italic" }}>
-        Note: Initial request may take 30-60 seconds due to server wake-up time on free hosting.
+        First request may take ~30s on free hosting (Render cold start)
       </div>
       <div className="auth-social-row" style={{ marginTop: "0.75rem" }}>
         <button type="button" className="codepen-button"

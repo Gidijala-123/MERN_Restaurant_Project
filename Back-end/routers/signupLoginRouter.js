@@ -1,6 +1,7 @@
 import express from "express";
 import validateToken from "../middleware/validateToken.js";
 import { signupValidation, loginValidation } from "../middleware/expressValidator.js";
+import EmployeeModel from "../models/EmployeeModel.js";
 import {
   registerUser,
   loginUser,
@@ -19,6 +20,12 @@ router
   .post("/registerUser", signupValidation, registerUser)
   .post("/loginUser", loginValidation, loginUser)
   .get("/getCurrentUser", validateToken, getCurrentUser)
+  .get("/checkEmail", async (req, res) => {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ exists: false });
+    const user = await EmployeeModel.findOne({ uemail: email.toLowerCase().trim() }).lean();
+    res.json({ exists: !!user });
+  })
   .post("/bookmark/:productId", validateToken, addBookmark)
   .delete("/bookmark/:productId", validateToken, removeBookmark)
   .get("/bookmarks", validateToken, getBookmarks)

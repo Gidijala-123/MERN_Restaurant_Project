@@ -14,6 +14,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import GoogleIcon from "@mui/icons-material/Google";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import { toast } from "react-toastify";
+import useDebounce from "../../hooks/useDebounce";
 
 const BG_IMAGES = ["/dark1.jpg", "/dark2.jpg", "/dark3.jpg"];
 
@@ -59,6 +60,31 @@ function Signup() {
   const [isOtpSending, setIsOtpSending] = useState(false);
   const [isOtpVerifying, setIsOtpVerifying] = useState(false);
   const [timer, setTimer] = useState(0);
+
+  // Debounced email — fires check 600ms after user stops typing
+  const debouncedEmail = useDebounce(uemail, 600);
+  const [emailCheckStatus, setEmailCheckStatus] = useState("idle"); // idle | checking | taken | available
+
+  // Auto-check email as user types
+  useEffect(() => {
+    if (!debouncedEmail || !/\S+@\S+\.\S+/.test(debouncedEmail)) {
+      setEmailCheckStatus("idle");
+      return;
+    }
+    setEmailCheckStatus("checking");
+    fetch(`${API_URL}/api/signupLoginRouter/checkEmail?email=${encodeURIComponent(debouncedEmail)}`, { credentials: "include" })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.exists) {
+          setEmailCheckStatus("taken");
+          setValidationErrors((p) => ({ ...p, uemail: "This email is already registered. Please login instead." }));
+        } else {
+          setEmailCheckStatus("available");
+          setValidationErrors((p) => ({ ...p, uemail: "" }));
+        }
+      })
+      .catch(() => setEmailCheckStatus("idle"));
+  }, [debouncedEmail]);
 
   // UI
   const [popup, setPopup] = useState({ visible: false, text: "" });
@@ -135,6 +161,22 @@ function Signup() {
       setValidationErrors(errors);
       toast.error("Please fill all required fields correctly.");
       return;
+    }
+
+    // Check if email already exists BEFORE showing loading state
+    try {
+      const checkRes = await fetch(
+        `${API_URL}/api/signupLoginRouter/checkEmail?email=${encodeURIComponent(uemail)}`,
+        { credentials: "include" }
+      );
+      const checkData = await checkRes.json();
+      if (checkData.exists) {
+        setValidationErrors({ uemail: "This email is already registered. Please login instead." });
+        toast.error("This email is already registered.", { autoClose: 5000 });
+        return;
+      }
+    } catch {
+      // Network error on check — proceed anyway, backend will catch it on register
     }
 
     setIsOtpSending(true);
@@ -259,8 +301,9 @@ function Signup() {
       }
     } catch (err) {
       const msg = err.response?.data?.Message || err.response?.data?.Error || "Registration failed.";
-      toast.update(toastId, { render: msg, type: "error", isLoading: false, autoClose: 3000 });
-      setApiStatus({ error: msg, success: "" });
+      const isExisting = err.response?.status === 403;
+      toast.update(toastId, { render: isExisting ? "This email is already registered. Please login." : msg, type: "error", isLoading: false, autoClose: 5000 });
+      setApiStatus({ error: isExisting ? "This email is already registered. Please login instead." : msg, success: "" });
     } finally {
       setIsLoading(false);
     }
@@ -320,10 +363,33 @@ function Signup() {
                   <div className="input-group">
                     <span className="input-group-text icon-badge"><EmailIcon fontSize="small" /></span>
                     <input className="form-control" type="email" value={uemail}
-                      onChange={(e) => setUemail(e.target.value)}
+                      onChange={(e) => { setUemail(e.target.value); setEmailCheckStatus("idle"); setValidationErrors((p) => ({ ...p, uemail: "" })); }}
                       placeholder="Email Address" autoComplete="email" required />
+                    {emailCheckStatus === "checking" && (
+                      <span className="input-group-text" style={{ background: "transparent", border: "none" }}>
+                        <span className="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true" />
+                      </span>
+                    )}
+                    {emailCheckStatus === "available" && (
+                      <span className="input-group-text" style={{ background: "transparent", border: "none", color: "#059669", fontWeight: 700 }}>✓</span>
+                    )}
+                    {emailCheckStatus === "taken" && (
+                      <span className="input-group-text" style={{ background: "transparent", border: "none", color: "#dc2626", fontWeight: 700 }}>✗</span>
+                    )}
                   </div>
-                  {validationErrors.uemail && <span className="span-tag error-text">{validationErrors.uemail}</span>}
+                  {validationErrors.uemail && (
+                    <span className="span-tag error-text">
+                      {validationErrors.uemail}
+                      {validationErrors.uemail.includes("already registered") && (
+                        <span
+                          onClick={() => toggleSignupLogin("signIn")}
+                          style={{ marginLeft: "6px", color: "#ea580c", cursor: "pointer", textDecoration: "underline", fontWeight: 700 }}
+                        >
+                          Login instead →
+                        </span>
+                      )}
+                    </span>
+                  )}
                 </div>
 
                 {/* Password */}
@@ -356,7 +422,19 @@ function Signup() {
                   {validationErrors.uconfirmPassword && <span className="span-tag error-text">{validationErrors.uconfirmPassword}</span>}
                 </div>
 
-                <span className="span-tag error-text">{apiStatus.error}</span>
+                {apiStatus.error && (
+                  <span className="span-tag error-text">
+                    {apiStatus.error}
+                    {(apiStatus.error.includes("already registered") || apiStatus.error.includes("already exists")) && (
+                      <span
+                        onClick={() => toggleSignupLogin("signIn")}
+                        style={{ marginLeft: "6px", color: "#ea580c", cursor: "pointer", textDecoration: "underline", fontWeight: 700 }}
+                      >
+                        Login instead →
+                      </span>
+                    )}
+                  </span>
+                )}
                 <span className="span-tag success-text">{apiStatus.success}</span>
 
                 {/* OTP Channel + Send */}
@@ -378,7 +456,7 @@ function Signup() {
                   )}
                   <button type="button" className="btn btn-outline-secondary"
                     onClick={sendOtp}
-                    disabled={timer > 0 || isOtpVerified || isOtpSending}
+                    disabled={timer > 0 || isOtpVerified || isOtpSending || emailCheckStatus === "taken"}
                     style={{ minWidth: "110px" }}>
                     {isOtpSending
                       ? <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />Sending...</>
