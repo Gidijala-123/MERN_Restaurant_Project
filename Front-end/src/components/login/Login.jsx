@@ -29,6 +29,7 @@ function SignInForm({ toggleMobile }) {
   const [fpConfirmPw, setFpConfirmPw] = useState("");
   const [fpResetToken, setFpResetToken] = useState("");
   const [showFpPw, setShowFpPw] = useState(false);
+  const [cachedCsrf, setCachedCsrf] = useState("");
 
   const API_BASE_URL = (
     import.meta.env.VITE_API_URL || "http://localhost:1111"
@@ -56,6 +57,7 @@ function SignInForm({ toggleMobile }) {
     try {
       const csrfRes = await fetch(`${API_BASE_URL}/api/csrf`, { credentials: "include" });
       const { csrfToken } = (await csrfRes.json()) || {};
+      setCachedCsrf(csrfToken || "");
       const res = await axios.post(
         `${API_BASE_URL}/api/auth/login`,
         { uemail, upassword },
@@ -86,6 +88,13 @@ function SignInForm({ toggleMobile }) {
     setIsLoading(true);
     const toastId = toast.loading("Sending OTP... This may take a moment on first request.");
     try {
+      // Fetch CSRF and send OTP — server is already warm from the ping on mount
+      const [csrfRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/csrf`, { credentials: "include" })
+          .then((r) => r.json())
+          .catch(() => ({})),
+      ]);
+      setCachedCsrf(csrfRes?.csrfToken || "");
       await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { uemail: fpEmail });
       toast.update(toastId, { render: "OTP sent to your email!", type: "success", isLoading: false, autoClose: 4000 });
       setStep("forgot-otp");

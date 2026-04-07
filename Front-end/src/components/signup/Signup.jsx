@@ -42,6 +42,7 @@ function Signup() {
   const [timer, setTimer] = useState(0);
   const [isOtpSending, setIsOtpSending] = useState(false);
   const [isOtpVerifying, setIsOtpVerifying] = useState(false);
+  const [csrfToken, setCsrfToken] = useState("");
   const [avatar, setAvatar] = useState("");
   const [popup, setPopup] = useState({ visible: false, text: "" });
   const [bgIndex, setBgIndex] = useState(0);
@@ -290,15 +291,20 @@ function Signup() {
     const toastId = toast.loading("Sending OTP... This may take a moment on first request.");
 
     try {
-      const csrf = await fetch(`${API_URL}/api/csrf`, {
-        credentials: "include",
-      })
-        .then((r) => r.json())
-        .catch(() => ({}));
+      // Fetch CSRF token and send OTP in parallel to avoid double cold-start wait
+      const [csrfRes] = await Promise.all([
+        fetch(`${API_URL}/api/csrf`, { credentials: "include" })
+          .then((r) => r.json())
+          .catch(() => ({})),
+        // warm-up: the OTP request itself will follow immediately after
+      ]);
+      const token = csrfRes?.csrfToken || "";
+      setCsrfToken(token);
+
       const payload = { contact, channel };
       const res = await axios.post(`${API_URL}/api/otp/send`, payload, {
         withCredentials: true,
-        headers: { "x-csrf-token": csrf?.csrfToken },
+        headers: { "x-csrf-token": token },
       });
       if (res.status === 200) {
         const channelLabel = channel === "email" ? `email (${contact})` : channel === "sms" ? `SMS to ${contact}` : `WhatsApp to ${contact}`;
@@ -331,15 +337,17 @@ function Signup() {
     setIsOtpVerifying(true);
     const toastId = toast.loading("Verifying OTP...");
     try {
-      const csrf = await fetch(`${API_URL}/api/csrf`, {
-        credentials: "include",
-      })
-        .then((r) => r.json())
-        .catch(() => ({}));
+      // Reuse cached CSRF token — no extra server round-trip needed
+      let token = csrfToken;
+      if (!token) {
+        const res = await fetch(`${API_URL}/api/csrf`, { credentials: "include" }).then((r) => r.json()).catch(() => ({}));
+        token = res?.csrfToken || "";
+        setCsrfToken(token);
+      }
       const res = await axios.post(
         `${API_URL}/api/otp/verify`,
         { contact: contact, code: otpCode.replace(/\s/g, "") },
-        { withCredentials: true, headers: { "x-csrf-token": csrf?.csrfToken } },
+        { withCredentials: true, headers: { "x-csrf-token": token } },
       );
       if (res.data?.ok) {
         setOtpMsg("OTP verified");
