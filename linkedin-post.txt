@@ -1,0 +1,55 @@
+🍽️ I Built a Full-Stack Restaurant App Using AI Tools — Here's What I Learned
+
+I challenged myself: Can I build a production-ready web app using AI, even for concepts I'm still learning?
+✅ The answer? YES.
+
+🔗 Live App link → https://gbr-kitchen.onrender.com/
+
+🛠️ WHAT'S UNDER THE HOOD(MERN STACK)?
+
+⚡ Performance
+→ Kafka for event-driven order processing
+→ Clustering, load balancing & compression
+→ Debouncing, lazy loading & code splitting
+
+🔒 Security
+→ JWT + Refresh Tokens · bcrypt · CSRF protection
+→ OTP via Email / SMS / WhatsApp
+→ OAuth (Google & GitHub) · Rate limiting · Helmet.js
+
+---
+
+✨ WHAT USERS GET?
+
+🔐 Auth — OTP signup, OAuth login, forgot password flow
+🍴 Menu — Filter, search, 16+ categories, per-item ratings
+🛒 Cart — Real-time updates, GST calc, PDF invoice, Razorpay checkout
+❤️ Favourites — Bookmark & quick add-to-cart
+👤 Profile — Avatar upload, map-based address picker, loyalty rewards
+📧 Newsletter — Personalized emails based on order history
+🤖 Chatbot "Flavie" — Menu browsing, table booking, order tracking, live support
+🛠️ Admin Panel — Full menu CRUD, order & user management, analytics dashboard
+
+
+🚧 STILL BUILDING
+→ QR code at checkout · Push notifications
+→ Promo codes · PWA support · i18n (multi-language)
+
+
+🤖 How AI Helped Me
+I'm not an expert in all of this — but AI tools helped me:
+→ Understand concepts faster
+→ Implement them in the right place
+→ Debug smarter, write cleaner code
+
+AI didn't build this for me. It helped me build it better.
+
+
+💬 What feature would YOU add to a food app?
+Drop it in the comments — I'm taking notes for v2! 👇
+
+If you're a recruiter or dev, I'd love to connect 🙌
+
+💻 My Portfolio: https://gbr-portfolio.onrender.com/
+
+#MERN #React #NodeJS #FullStack #WebDevelopment #AI #JavaScript #OpenToWork #TechProjects #MongoDB #freelance #responsive #hiring
