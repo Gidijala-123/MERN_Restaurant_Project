@@ -8,21 +8,12 @@ const router = express.Router();
 // subscribe endpoint
 router.post("/subscribe", checkCsrf, async (req, res) => {
   const { email } = req.body || {};
-  console.log("[Newsletter Router] /subscribe POST received, email:", email);
-  if (!email) {
-    console.log("[Newsletter Router] ERROR: No email provided");
-    return res.status(400).json({ message: "Email required" });
-  }
+  if (!email) return res.status(400).json({ message: "Email required" });
   try {
-    console.log(
-      "[Newsletter Router] Calling subscribeEmail for:",
-      email.toLowerCase(),
-    );
     const sub = await subscribeEmail(email.toLowerCase());
-    console.log("[Newsletter Router] Subscribe success, returning:", sub);
     res.json({ ok: true, subscriber: sub });
   } catch (err) {
-    console.error("[Newsletter Router] Subscribe error:", err.message, err);
+    console.error("[Newsletter] Subscribe error:", err.message);
     res.status(500).json({ ok: false, error: err.message });
   }
 });

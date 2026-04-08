@@ -89,6 +89,20 @@ app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 app.use(compression());
 
+// ── Cache-Control headers ─────────────────────────────────────────────────
+// All API routes return dynamic data — never cache by default.
+// Menu routes get a short 60s cache since they change infrequently.
+app.use("/api/menu", (req, res, next) => {
+  if (req.method === "GET") res.set("Cache-Control", "public, max-age=60");
+  else res.set("Cache-Control", "no-store");
+  next();
+});
+app.use("/api", (req, res, next) => {
+  // Only set if not already set (menu routes above already set theirs)
+  if (!res.getHeader("Cache-Control")) res.set("Cache-Control", "no-store");
+  next();
+});
+
 // Custom response header for performance monitoring
 app.use((req, res, next) => {
   const start = Date.now();
