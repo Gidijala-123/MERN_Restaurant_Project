@@ -42,11 +42,54 @@ import newsletterRouter from "./routers/newsletterRouter.js";
 import adminRouter from "./routers/adminRouter.js";
 import { sendToAll as sendNewsletterToAll } from "./services/newsletterService.js";
 import Order from "./models/OrderModel.js";
+import MenuItem from "./models/MenuModel.js";
 
 dotenv.config();
 
 // Initialize MongoDB database connection
 dbConnection();
+
+// Auto-seed menu data if DB has fewer than 60 items
+async function seedMenuIfEmpty() {
+  try {
+    const count = await MenuItem.countDocuments();
+    logger.info(`[Seed] ${count} menu items in DB — checking for missing items...`);
+    const { MENU_DATA: SEED } = await import("../Front-end/src/data/menuData.js").catch(() => ({}));
+    if (!SEED?.length) return;
+    const docs = SEED.map((item) => ({
+      itemId: item.id,
+      name: item.name,
+      category: item.category,
+      subCategory: item.subCategory,
+      price: item.price,
+      rating: item.rating ?? 4.0,
+      reviews: item.reviews ?? 0,
+      calories: item.calories ?? 0,
+      serves: item.serves ?? 1,
+      imageUrl: item.imageUrl || "/footer-images/food.png",
+      description: item.description || "",
+      veg: item.veg ?? true,
+      availability: true,
+      isHotOffer: false,
+    }));
+    // Upsert: insert only if itemId doesn't exist — preserves admin edits
+    let seeded = 0;
+    for (const doc of docs) {
+      const result = await MenuItem.updateOne(
+        { itemId: doc.itemId },
+        { $setOnInsert: doc },
+        { upsert: true }
+      );
+      if (result.upsertedCount) seeded++;
+    }
+    logger.info(`[Seed] Upserted ${seeded} new menu items (${docs.length - seeded} already existed).`);
+  } catch (err) {
+    logger.warn("[Seed] Auto-seed skipped:", err.message);
+  }
+}
+
+// Run after DB connection stabilises
+setTimeout(seedMenuIfEmpty, 4000);
 
 const app = express();
 const port = process.env.PORT || 1234;

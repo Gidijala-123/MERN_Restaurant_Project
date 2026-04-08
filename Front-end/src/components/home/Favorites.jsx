@@ -9,10 +9,12 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../features/cartSlice";
 import { MENU_DATA } from "../../data/menuData";
+import { useMenu } from "../../context/MenuContext";
 import "./Favorites.css";
 
 export default function Favorites() {
   const { data = [], isLoading } = useGetAllProductsQuery();
+  const { allItems: liveMenuData = MENU_DATA } = useMenu();
 
   const resolveImageSrc = (item) => {
     // Prefer explicit image fields.
@@ -122,7 +124,7 @@ export default function Favorites() {
       return "";
     };
 
-    MENU_DATA.forEach((item) => {
+    liveMenuData.forEach((item) => {
       if (isItemBookmarked(item.id)) {
         list.push({
           ...item,
@@ -142,7 +144,7 @@ export default function Favorites() {
     });
 
     return list;
-  }, [data, trendingBookmarked, discountBookmarked, offerBookmarked, popularBookmarked, recentBookmarked, menuFavorites]);
+  }, [data, liveMenuData, trendingBookmarked, discountBookmarked, offerBookmarked, popularBookmarked, recentBookmarked, menuFavorites]);
 
   const toggleFavorite = (item) => {
     const { id } = item;

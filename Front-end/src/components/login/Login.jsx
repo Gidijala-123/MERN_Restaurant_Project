@@ -111,7 +111,7 @@ function SignInForm({ toggleMobile }) {
           if (user.role) localStorage.setItem("userRole", user.role);
           if (user.uemail) localStorage.setItem("userEmail", user.uemail);
         }
-        navigate(res.data?.user?.role === "admin" ? "/admin" : "/home");
+        navigate("/home");
       }
     } catch (err) {
       const msg = err.response?.data?.message || err.response?.data?.Message || "Invalid email or password.";

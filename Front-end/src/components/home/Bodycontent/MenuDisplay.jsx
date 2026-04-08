@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { Box, Grid, Card, CardContent, Typography, Button, Chip, Container } from "@mui/material";
 import { useMenu } from "../../../context/MenuContext";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -73,16 +74,47 @@ const csrf = () =>
   fetch(`${API}/api/csrf`, { credentials: "include" }).then((r) => r.json()).catch(() => ({}));
 
 const MenuDisplay = () => {
-  const { selectedCategory, selectedSubCategory, filteredItems, handleSubCategoryChange, getSubCategories, refreshMenu } = useMenu();
+  const { selectedCategory, selectedSubCategory, filteredItems, setFilteredItems, menuVersion, handleSubCategoryChange, getSubCategories, refreshMenu } = useMenu();
   const dispatch = useDispatch();
   const admin = isAdmin();
+
+  // menuVersion is bumped by refreshMenu after save/delete
+  // MenuContext re-fetches from API automatically when menuVersion changes
 
   const [favoriteItems, setFavoriteItems] = useState(() =>
     JSON.parse(localStorage.getItem("menuFavorites") || "{}")
   );
-  const [editForm, setEditForm] = useState(null); // null=closed, item=edit, EMPTY_FORM=new
+  const [editForm, setEditForm] = useState(null);
+  const [editKey, setEditKey] = useState(0);
   const [fieldErrors, setFieldErrors] = useState({});
   const [saving, setSaving] = useState(false);
+
+  // ── Per-category Todo ──────────────────────────────────────────────────────
+  const todoKey = `adminTodo_${selectedCategory}`;
+  const [todoOpen, setTodoOpen] = useState(false);
+  const [todos, setTodos] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(`adminTodo_${selectedCategory}`) || "[]"); } catch { return []; }
+  });
+  const [todoInput, setTodoInput] = useState("");
+  const todoInputRef = useRef(null);
+
+  useEffect(() => {
+    try { setTodos(JSON.parse(localStorage.getItem(todoKey) || "[]")); } catch { setTodos([]); }
+    setTodoOpen(false);
+  }, [selectedCategory]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { localStorage.setItem(todoKey, JSON.stringify(todos)); }, [todos, todoKey]);
+  useEffect(() => { if (todoOpen) setTimeout(() => todoInputRef.current?.focus(), 60); }, [todoOpen]);
+
+  const addTodo = () => {
+    const text = todoInput.trim();
+    if (!text) return;
+    setTodos((p) => [{ id: Date.now(), text, done: false }, ...p]);
+    setTodoInput("");
+  };
+  const toggleTodo = (id) => setTodos((p) => p.map((t) => t.id === id ? { ...t, done: !t.done } : t));
+  const removeTodo = (id) => setTodos((p) => p.filter((t) => t.id !== id));
+  const pendingCount = todos.filter((t) => !t.done).length;
 
   // Validate a single field on change
   const handleFieldChange = (key, value) => {
@@ -111,11 +143,13 @@ const MenuDisplay = () => {
 
   const openAdd = (subCat) => {
     setFieldErrors({});
+    setEditKey((k) => k + 1);
     setEditForm({ ...EMPTY_FORM, category: selectedCategory, subCategory: subCat || "" });
   };
 
   const openEdit = (item) => {
     setFieldErrors({});
+    setEditKey((k) => k + 1);
     setEditForm({ ...item });
   };
 
@@ -128,8 +162,7 @@ const MenuDisplay = () => {
         headers: { "x-csrf-token": csrfData?.csrfToken || "" },
       });
       toast.success(`"${item.name}" deleted`);
-      if (refreshMenu) refreshMenu();
-      else window.location.reload();
+      refreshMenu();
     } catch { toast.error("Delete failed"); }
   };
 
@@ -157,8 +190,7 @@ const MenuDisplay = () => {
       }
       setEditForm(null);
       setFieldErrors({});
-      if (refreshMenu) refreshMenu();
-      else window.location.reload();
+      refreshMenu(); // bumps menuVersion → triggers API re-fetch
     } catch (e) {
       toast.error(e.response?.data?.message || "Save failed");
     } finally {
@@ -188,11 +220,58 @@ const MenuDisplay = () => {
   return (
     <Container maxWidth="lg" className="menu-display-container">
       <Box className="category-header">
-        <Typography variant="h4" className="category-title">{selectedCategory}</Typography>
-        <Typography variant="body2" className="category-description">
-          Browse our curated selection of {selectedCategory.toLowerCase()}.
-          {admin && <span className="adm-inline-hint"> (Admin: hover cards to edit)</span>}
-        </Typography>
+        <div className="category-header-row">
+          <div>
+            <Typography variant="h4" className="category-title">{selectedCategory}</Typography>
+            <Typography variant="body2" className="category-description">
+              Browse our curated selection of {selectedCategory.toLowerCase()}.
+            </Typography>
+          </div>
+          {admin && (
+            <div className="cat-todo-wrap">
+              <button
+                className="cat-todo-btn"
+                onClick={() => setTodoOpen((o) => !o)}
+                title={`Todo for ${selectedCategory}`}
+              >
+                📋 Notes
+                {pendingCount > 0 && <span className="cat-todo-badge">{pendingCount}</span>}
+              </button>
+              {todoOpen && (
+                <div className="cat-todo-panel" onClick={(e) => e.stopPropagation()}>
+                  <div className="cat-todo-header">
+                    <span>📋 {selectedCategory} Notes</span>
+                    <button className="cat-todo-close" onClick={() => setTodoOpen(false)}>✕</button>
+                  </div>
+                  <div className="cat-todo-input-row">
+                    <input
+                      ref={todoInputRef}
+                      className="cat-todo-input"
+                      placeholder="Add a note…"
+                      value={todoInput}
+                      onChange={(e) => setTodoInput(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && addTodo()}
+                    />
+                    <button className="cat-todo-add" onClick={addTodo}>Add</button>
+                  </div>
+                  <div className="cat-todo-list">
+                    {todos.length === 0 ? (
+                      <p className="cat-todo-empty">No notes yet for this category.</p>
+                    ) : todos.map((t) => (
+                      <div key={t.id} className={`cat-todo-item ${t.done ? "done" : ""}`}>
+                        <button className={`cat-todo-check ${t.done ? "checked" : ""}`} onClick={() => toggleTodo(t.id)}>
+                          {t.done ? "✓" : ""}
+                        </button>
+                        <span className="cat-todo-text">{t.text}</span>
+                        <button className="cat-todo-remove" onClick={() => removeTodo(t.id)}>✕</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </Box>
 
       {subCategories.length > 0 && (
@@ -214,15 +293,53 @@ const MenuDisplay = () => {
             {items.map((item) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={item.id || item._id}>
                 <Card className={`food-card ${admin ? "food-card--admin" : ""}`}>
-                  {/* Admin overlay */}
+                  {/* Admin action bar — full width with availability toggle on left */}
                   {admin && (
-                    <div className="admin-card-overlay">
-                      <button className="admin-card-btn admin-edit-btn" onClick={() => openEdit(item)} title="Edit">
-                        <EditIcon fontSize="small" /> Edit
+                    <div className="admin-card-actions">
+                      <button
+                        className={`admin-toggle-switch ${item.availability === false ? "off" : "on"} ${!item._id ? "disabled" : ""}`}
+                        onMouseDown={async (e) => {
+                          e.preventDefault(); e.stopPropagation();
+                          if (!item._id) {
+                            toast.info("Edit & save this item first to enable toggle.");
+                            return;
+                          }
+                          const csrfData = await csrf();
+                          try {
+                            await axios.patch(`${API}/api/admin/menu/${item._id}/toggle`, {}, {
+                              withCredentials: true,
+                              headers: { "x-csrf-token": csrfData?.csrfToken || "" },
+                            });
+                            refreshMenu();
+                          } catch (err) {
+                            toast.error(err.response?.data?.message || "Toggle failed");
+                          }
+                        }}
+                        title={!item._id ? "Edit & save first" : item.availability === false ? "Click to enable" : "Click to disable"}
+                      >
+                        <span className="admin-toggle-track">
+                          <span className="admin-toggle-thumb" />
+                        </span>
+                        <span className="admin-toggle-label">
+                          {item.availability === false ? "Off" : "On"}
+                        </span>
                       </button>
-                      <button className="admin-card-btn admin-del-btn" onClick={() => handleDelete(item)} title="Delete">
-                        <DeleteIcon fontSize="small" /> Delete
-                      </button>
+                      <div className="admin-card-actions-right">
+                        <button
+                          className="admin-card-btn admin-edit-btn"
+                          onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); openEdit(item); }}
+                          title="Edit"
+                        >
+                          <EditIcon fontSize="small" /> Edit
+                        </button>
+                        <button
+                          className="admin-card-btn admin-del-btn"
+                          onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(item); }}
+                          title="Delete"
+                        >
+                          <DeleteIcon fontSize="small" /> Delete
+                        </button>
+                      </div>
                     </div>
                   )}
 
@@ -290,15 +407,15 @@ const MenuDisplay = () => {
         </Box>
       ))}
 
-      {/* Edit / Add Modal */}
-      {editForm && (
-        <div className="adm-modal-overlay" onClick={() => setEditForm(null)}>
-          <div className="adm-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 580 }}>
-            <div className="adm-modal-header">
+      {/* Edit / Add Modal — rendered via portal so it escapes Suspense/overflow boundaries */}
+      {editForm && createPortal(
+        <div className="md-overlay" onClick={() => setEditForm(null)}>
+          <div key={editKey} className="md-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="md-modal-header">
               <h3>{editForm._id ? `Edit: ${editForm.name}` : "Add New Item"}</h3>
-              <button className="adm-modal-close" onClick={() => setEditForm(null)}>✕</button>
+              <button className="md-modal-close" onClick={() => setEditForm(null)}>✕</button>
             </div>
-            <div className="adm-modal-body">
+            <div className="md-modal-body">
               <div className="adm-form-grid">
                 {[
                   { key: "name", label: "Name", type: "text" },
@@ -308,8 +425,10 @@ const MenuDisplay = () => {
                   { key: "rating", label: "Rating (0-5)", type: "number" },
                 ].map(({ key, label, type }) => (
                   <div key={key} className="adm-form-field">
-                    <label>{label}</label>
+                    <label htmlFor={`adm-field-${key}-${editKey}`}>{label}</label>
                     <input
+                      id={`adm-field-${key}-${editKey}`}
+                      name={key}
                       type={type}
                       value={editForm[key] ?? ""}
                       className={fieldErrors[key] ? "adm-input-error" : ""}
@@ -318,16 +437,16 @@ const MenuDisplay = () => {
                     {fieldErrors[key] && <span className="adm-field-error">{fieldErrors[key]}</span>}
                   </div>
                 ))}
-
-                {/* Image — URL or file upload */}
                 <div className="adm-form-field adm-form-full">
-                  <label>Image</label>
+                  <label htmlFor={`adm-field-imageUrl-${editKey}`}>Image</label>
                   <div className="adm-img-row">
                     {editForm.imageUrl && (
                       <img src={editForm.imageUrl} alt="preview" className="adm-img-preview" onError={(e) => { e.target.style.display = "none"; }} />
                     )}
                     <div className="adm-img-inputs">
                       <input
+                        id={`adm-field-imageUrl-${editKey}`}
+                        name="imageUrl"
                         type="text"
                         placeholder="Paste image URL…"
                         value={editForm.imageUrl || ""}
@@ -350,8 +469,10 @@ const MenuDisplay = () => {
                   </div>
                 </div>
                 <div className="adm-form-field">
-                  <label>Category</label>
+                  <label htmlFor={`adm-field-category-${editKey}`}>Category</label>
                   <select
+                    id={`adm-field-category-${editKey}`}
+                    name="category"
                     value={editForm.category || ""}
                     className={fieldErrors.category ? "adm-input-error" : ""}
                     onChange={(e) => handleFieldChange("category", e.target.value)}
@@ -362,16 +483,24 @@ const MenuDisplay = () => {
                   {fieldErrors.category && <span className="adm-field-error">{fieldErrors.category}</span>}
                 </div>
                 <div className="adm-form-field">
-                  <label>Sub Category</label>
+                  <label htmlFor={`adm-field-subCategory-${editKey}`}>Sub Category</label>
                   <input
+                    id={`adm-field-subCategory-${editKey}`}
+                    name="subCategory"
                     type="text"
                     value={editForm.subCategory || ""}
                     onChange={(e) => setEditForm({ ...editForm, subCategory: e.target.value })}
                   />
                 </div>
                 <div className="adm-form-field adm-form-full">
-                  <label>Description</label>
-                  <textarea rows={2} value={editForm.description || ""} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} />
+                  <label htmlFor={`adm-field-description-${editKey}`}>Description</label>
+                  <textarea
+                    id={`adm-field-description-${editKey}`}
+                    name="description"
+                    rows={2}
+                    value={editForm.description || ""}
+                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  />
                 </div>
                 <div className="adm-form-checks">
                   {[["veg", "Vegetarian"], ["availability", "Available"], ["isHotOffer", "Hot Offer"]].map(([k, l]) => (
@@ -383,12 +512,13 @@ const MenuDisplay = () => {
                 </div>
               </div>
             </div>
-            <div className="adm-modal-footer">
+            <div className="md-modal-footer">
               <button className="adm-btn-secondary" onClick={() => setEditForm(null)}>Cancel</button>
               <button className="adm-btn-primary" onClick={handleSave} disabled={saving}>{saving ? "Saving…" : editForm._id ? "Update" : "Create"}</button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </Container>
   );

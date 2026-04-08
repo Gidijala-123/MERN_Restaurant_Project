@@ -135,7 +135,7 @@ function IconContainer(props) {
 }
 
 const Bodycontent = (props) => {
-  const { selectedCategory } = useMenu();
+  const { selectedCategory, allItems: liveMenuData = MENU_DATA } = useMenu();
   const [itemRatings, setItemRatings] = useState({});
 
   const handleRatingChange = useCallback((itemId, newValue) => {
@@ -554,27 +554,27 @@ const Bodycontent = (props) => {
   // Memoize filtered and sorted lists to prevent unnecessary re-calculation on every render
   const popularItems = useMemo(() => {
     return selectedCategory === "Hot Offers"
-      ? [...MENU_DATA].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 6)
-      : MENU_DATA.filter((item) => item.category === selectedCategory)
+      ? [...liveMenuData].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 6)
+      : liveMenuData.filter((item) => item.category === selectedCategory)
         .sort((a, b) => (b.rating || 0) - (a.rating || 0))
         .slice(0, 6);
-  }, [selectedCategory]);
+  }, [selectedCategory, liveMenuData]);
 
   const recentItems = useMemo(() => {
     return selectedCategory === "Hot Offers"
-      ? [...MENU_DATA].slice(-6).reverse()
-      : MENU_DATA.filter((item) => item.category === selectedCategory)
+      ? [...liveMenuData].slice(-6).reverse()
+      : liveMenuData.filter((item) => item.category === selectedCategory)
         .slice(-6)
         .reverse();
-  }, [selectedCategory]);
+  }, [selectedCategory, liveMenuData]);
 
   const trendingItems = useMemo(() => {
     return selectedCategory === "Hot Offers"
-      ? [...MENU_DATA].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 6)
-      : MENU_DATA.filter((item) => item.category === selectedCategory)
+      ? [...liveMenuData].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 6)
+      : liveMenuData.filter((item) => item.category === selectedCategory)
         .sort((a, b) => (b.rating || 0) - (a.rating || 0))
         .slice(0, 6);
-  }, [selectedCategory]);
+  }, [selectedCategory, liveMenuData]);
 
   const dispatch = useDispatch();
   const handleAddToCart = useCallback((product) => {
@@ -829,9 +829,9 @@ const Bodycontent = (props) => {
 
                       const offerItems =
                         selectedCategory === "Hot Offers"
-                          ? MENU_DATA.slice(0, 6)
+                          ? liveMenuData.slice(0, 6)
                           : isIndianMenu
-                            ? MENU_DATA.filter(
+                            ? liveMenuData.filter(
                               (item) => item.category === selectedCategory,
                             ).slice(0, 6)
                             : (() => {
