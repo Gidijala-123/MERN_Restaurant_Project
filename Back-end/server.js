@@ -261,26 +261,23 @@ const currentFileDir = path.dirname(fileURLToPath(import.meta.url));
 const buildPath = path.resolve(currentFileDir, "..", "Front-end", "dist");
 
 if (process.env.NODE_ENV === "production") {
-  // Check if the build folder exists
   import("fs").then((fs) => {
     if (fs.existsSync(buildPath)) {
-      app.use(express.static(buildPath));
-      app.get("*", (req, res) => {
+      // Serve static assets (JS, CSS, images) with correct MIME types
+      app.use(express.static(buildPath, { index: false }));
+      // SPA fallback — all non-API routes return index.html so React Router works on direct reload
+      app.get("*", (req, res, next) => {
+        if (req.path.startsWith("/api/") || req.path === "/health") return next();
         res.sendFile(path.join(buildPath, "index.html"), (err) => {
-          if (err) {
-            res.status(500).send("Error loading index.html: Build missing or path incorrect.");
-          }
+          if (err) res.status(500).send("Error loading app.");
         });
       });
     } else {
       console.warn(`Static build folder not found at: ${buildPath}`);
-      app.get("*", (req, res) => {
-        res.status(503).send("Frontend build not found. Please run build script.");
-      });
+      app.get("*", (req, res) => res.status(503).send("Frontend build not found."));
     }
   });
 } else {
-  // In development, provide a simple health check or redirect if not handled by Vite
   app.get("/", (req, res) => {
     res.json({ message: "Backend API is running. Start Frontend separately for development." });
   });

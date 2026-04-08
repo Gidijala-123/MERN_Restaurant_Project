@@ -102,25 +102,17 @@ export default function Favorites() {
 
   const favorites = useMemo(() => {
     const list = [];
-    const trendingBookmarked = JSON.parse(localStorage.getItem("trendingBookmarked") || "{}");
-    const discountBookmarked = JSON.parse(localStorage.getItem("discountBookmarked") || "{}");
-    const offerBookmarked = JSON.parse(localStorage.getItem("offerBookmarked") || "{}");
-    const popularBookmarked = JSON.parse(localStorage.getItem("popularBookmarked") || "{}");
-    const recentBookmarked = JSON.parse(localStorage.getItem("recentBookmarked") || "{}");
-    const menuFavorites = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
 
-    // Helper to check if an ID exists in any of the bookmark objects
     const isItemBookmarked = (id) => {
       const idStr = String(id).trim();
-      return trendingBookmarked[idStr] || 
-             discountBookmarked[idStr] || 
-             offerBookmarked[idStr] || 
-             popularBookmarked[idStr] || 
-             recentBookmarked[idStr] || 
-             menuFavorites[idStr];
+      return trendingBookmarked[idStr] ||
+        discountBookmarked[idStr] ||
+        offerBookmarked[idStr] ||
+        popularBookmarked[idStr] ||
+        recentBookmarked[idStr] ||
+        menuFavorites[idStr];
     };
 
-    // Helper to get the correct section for a bookmarked item
     const getBookmarkSection = (id) => {
       const idStr = String(id).trim();
       if (trendingBookmarked[idStr]) return "Trending";
@@ -132,11 +124,10 @@ export default function Favorites() {
       return "";
     };
 
-    // 1. Check MENU_DATA (Local items)
     MENU_DATA.forEach((item) => {
       if (isItemBookmarked(item.id)) {
-        list.push({ 
-          ...item, 
+        list.push({
+          ...item,
           section: getBookmarkSection(item.id),
           title: item.name,
           img: item.imageUrl,
@@ -145,15 +136,10 @@ export default function Favorites() {
       }
     });
 
-    // 2. Check API data
     data?.forEach((product) => {
       if (list.some(existing => String(existing.id).trim() === String(product.id).trim())) return;
-
       if (isItemBookmarked(product.id)) {
-        list.push({ 
-          ...product, 
-          section: getBookmarkSection(product.id) 
-        });
+        list.push({ ...product, section: getBookmarkSection(product.id) });
       }
     });
 
@@ -236,13 +222,13 @@ export default function Favorites() {
           <Typography color="text.secondary" sx={{ mb: 4, maxWidth: 400, mx: 'auto' }}>
             Looks like you haven't bookmarked anything yet. Explore our menu and save your favorite dishes!
           </Typography>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={() => navigate("/home")}
-            sx={{ 
-              borderRadius: "15px", 
-              px: 4, 
-              py: 1.5, 
+            sx={{
+              borderRadius: "15px",
+              px: 4,
+              py: 1.5,
               fontWeight: 800,
               background: 'var(--primary-gradient)',
               boxShadow: '0 8px 20px rgba(230, 81, 0, 0.2)'
@@ -252,9 +238,9 @@ export default function Favorites() {
           </Button>
         </div>
       ) : (
-        <Box 
-          sx={{ 
-            display: 'grid', 
+        <Box
+          sx={{
+            display: 'grid',
             gridTemplateColumns: {
               xs: '1fr',
               sm: 'repeat(2, 1fr)',
@@ -288,7 +274,7 @@ export default function Favorites() {
                   <Typography className="favorite-item-desc">
                     {item.desc || item.description || "Indulge in this delicious selection, crafted with fresh ingredients and authentic flavors for a perfect dining experience."}
                   </Typography>
-                  
+
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto' }}>
                     <Typography variant="h5" sx={{ fontWeight: 900, color: 'var(--primary)' }}>
                       ₹{item.newPrice || item.price}
@@ -311,10 +297,10 @@ export default function Favorites() {
                   >
                     Remove
                   </Button>
-                  <IconButton 
+                  <IconButton
                     onClick={() => handleAddToCart(item)}
-                    sx={{ 
-                      background: 'var(--primary-gradient)', 
+                    sx={{
+                      background: 'var(--primary-gradient)',
                       color: 'white',
                       borderRadius: '12px',
                       '&:hover': {
