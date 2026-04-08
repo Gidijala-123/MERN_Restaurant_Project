@@ -30,7 +30,7 @@ export const signupValidation = [
     .trim()
     .notEmpty().withMessage("Email Address is required")
     .isEmail().withMessage("Invalid email format")
-    .normalizeEmail(),
+    .customSanitizer((val) => val.toLowerCase().trim()),
   body("upassword")
     .notEmpty().withMessage("Password is required")
     .isLength({ min: 8 }).withMessage("Password must contain at least 8 characters")
@@ -45,7 +45,7 @@ export const loginValidation = [
     .trim()
     .notEmpty().withMessage("Email Address is required")
     .isEmail().withMessage("Invalid email format")
-    .normalizeEmail(),
+    .customSanitizer((val) => val.toLowerCase().trim()),
   body("upassword")
     .notEmpty().withMessage("Password is required"),
   validateResult
