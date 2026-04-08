@@ -1,7 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Box, Typography, Grid, Card, CardContent, CardActions, Button, Chip, IconButton, Container } from "@mui/material";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import { Box, Typography, Button, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -147,35 +145,25 @@ export default function Favorites() {
   }, [data, trendingBookmarked, discountBookmarked, offerBookmarked, popularBookmarked, recentBookmarked, menuFavorites]);
 
   const toggleFavorite = (item) => {
-    const { section, id } = item;
-    const storageKey = section === "Menu" ? "menuFavorites" : `${section.toLowerCase()}Bookmarked`;
-    const bookmarkedItems = JSON.parse(localStorage.getItem(storageKey) || "{}");
-    const next = { ...bookmarkedItems, [id]: !bookmarkedItems[id] };
-    localStorage.setItem(storageKey, JSON.stringify(next));
+    const { id } = item;
+    // Remove from ALL bookmark stores to ensure count and list stay in sync
+    const allKeys = [
+      { key: "trendingBookmarked", setter: setTrendingBookmarked },
+      { key: "discountBookmarked", setter: setDiscountBookmarked },
+      { key: "offerBookmarked", setter: setOfferBookmarked },
+      { key: "popularBookmarked", setter: setPopularBookmarked },
+      { key: "recentBookmarked", setter: setRecentBookmarked },
+      { key: "menuFavorites", setter: setMenuFavorites },
+    ];
 
-    // Update state to trigger re-render
-    switch (section) {
-      case "Trending":
-        setTrendingBookmarked(next);
-        break;
-      case "Discount":
-        setDiscountBookmarked(next);
-        break;
-      case "Offer":
-        setOfferBookmarked(next);
-        break;
-      case "Popular":
-        setPopularBookmarked(next);
-        break;
-      case "Recent":
-        setRecentBookmarked(next);
-        break;
-      case "Menu":
-        setMenuFavorites(next);
-        break;
-      default:
-        break;
-    }
+    allKeys.forEach(({ key, setter }) => {
+      const saved = JSON.parse(localStorage.getItem(key) || "{}");
+      if (saved[id]) {
+        const updated = { ...saved, [id]: false };
+        localStorage.setItem(key, JSON.stringify(updated));
+        setter(updated);
+      }
+    });
 
     window.dispatchEvent(new Event("favoritesUpdated"));
   };
@@ -260,6 +248,7 @@ export default function Favorites() {
                     src={resolveImageSrc(item)}
                     alt={item.title || item.name}
                     loading="lazy"
+                    onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/footer-images/food.png"; }}
                   />
                   <div className="favorite-badges">
                     <span className="section-badge">{item.section}</span>
@@ -292,25 +281,16 @@ export default function Favorites() {
                     className="remove-fav-btn"
                     startIcon={<DeleteOutlineIcon />}
                     onClick={() => toggleFavorite(item)}
-                    fullWidth
-                    sx={{ mr: 1 }}
                   >
                     Remove
                   </Button>
-                  <IconButton
+                  <Button
+                    className="add-to-cart-btn"
+                    startIcon={<ShoppingBagIcon />}
                     onClick={() => handleAddToCart(item)}
-                    sx={{
-                      background: 'var(--primary-gradient)',
-                      color: 'white',
-                      borderRadius: '12px',
-                      '&:hover': {
-                        transform: 'scale(1.1)',
-                        background: 'var(--primary-dark)',
-                      }
-                    }}
                   >
-                    <ShoppingBagIcon />
-                  </IconButton>
+                    Add to Cart
+                  </Button>
                 </div>
               </div>
             </div>
