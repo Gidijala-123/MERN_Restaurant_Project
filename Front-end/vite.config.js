@@ -22,7 +22,7 @@ export default defineConfig(async () => {
         brotliSize: true,
       }),
     ],
-    base: "./",
+    base: "/",
     server: {
       port: 3000,
       open: true,
