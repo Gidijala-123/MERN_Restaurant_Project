@@ -28,7 +28,9 @@ export const createMenuItem = async (req, res) => {
 
 export const updateMenuItem = async (req, res) => {
   try {
-    const item = await MenuItem.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    // Strip _id / id from body to prevent BSONError cast failures
+    const { _id, id, ...updateData } = req.body;
+    const item = await MenuItem.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true });
     if (!item) return res.status(404).json({ status: "error", message: "Item not found" });
     logActivity(req.tokenKey?.uemail, "UPDATE_ITEM", item.name);
     res.json({ status: "success", data: item });

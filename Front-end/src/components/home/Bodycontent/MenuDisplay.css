@@ -382,3 +382,24 @@
   margin-left: 8px;
   opacity: 0.8;
 }
+
+/* ── Field-level validation ── */
+.adm-input-error {
+  border-color: #ef4444 !important;
+  background: #fff5f5 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15) !important;
+}
+
+.adm-field-error {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #ef4444;
+  line-height: 1.3;
+}
+
+[data-theme='dark'] .adm-input-error {
+  background: rgba(239, 68, 68, 0.08) !important;
+  border-color: #ef4444 !important;
+}

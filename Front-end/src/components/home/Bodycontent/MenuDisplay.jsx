@@ -49,6 +49,26 @@ const EMPTY_FORM = {
   imageUrl: "", veg: true, availability: true, isHotOffer: false,
 };
 
+// Validation rules per field
+const VALIDATORS = {
+  name: (v) => !v?.trim() ? "Name is required" : v.trim().length < 2 ? "Name must be at least 2 characters" : "",
+  price: (v) => (!v && v !== 0) || v === "" ? "Price is required" : Number(v) <= 0 ? "Price must be greater than 0" : "",
+  calories: (v) => v !== "" && Number(v) < 0 ? "Calories cannot be negative" : "",
+  serves: (v) => v !== "" && Number(v) < 1 ? "Serves must be at least 1" : "",
+  rating: (v) => v !== "" && (Number(v) < 0 || Number(v) > 5) ? "Rating must be between 0 and 5" : "",
+  category: (v) => !v ? "Category is required" : "",
+  imageUrl: (v) => v && !v.startsWith("/") && !v.startsWith("http") && !v.startsWith("data:") ? "Enter a valid URL or upload an image" : "",
+};
+
+function validateAll(form) {
+  const errs = {};
+  Object.keys(VALIDATORS).forEach((k) => {
+    const msg = VALIDATORS[k](form[k]);
+    if (msg) errs[k] = msg;
+  });
+  return errs;
+}
+
 const csrf = () =>
   fetch(`${API}/api/csrf`, { credentials: "include" }).then((r) => r.json()).catch(() => ({}));
 
@@ -61,7 +81,17 @@ const MenuDisplay = () => {
     JSON.parse(localStorage.getItem("menuFavorites") || "{}")
   );
   const [editForm, setEditForm] = useState(null); // null=closed, item=edit, EMPTY_FORM=new
+  const [fieldErrors, setFieldErrors] = useState({});
   const [saving, setSaving] = useState(false);
+
+  // Validate a single field on change
+  const handleFieldChange = (key, value) => {
+    setEditForm((prev) => ({ ...prev, [key]: value }));
+    if (VALIDATORS[key]) {
+      const msg = VALIDATORS[key](value);
+      setFieldErrors((prev) => ({ ...prev, [key]: msg }));
+    }
+  };
 
   const subCategories = useMemo(() => getSubCategories(), [getSubCategories]);
 
@@ -80,10 +110,14 @@ const MenuDisplay = () => {
   }, []);
 
   const openAdd = (subCat) => {
+    setFieldErrors({});
     setEditForm({ ...EMPTY_FORM, category: selectedCategory, subCategory: subCat || "" });
   };
 
-  const openEdit = (item) => setEditForm({ ...item });
+  const openEdit = (item) => {
+    setFieldErrors({});
+    setEditForm({ ...item });
+  };
 
   const handleDelete = async (item) => {
     if (!confirm(`Delete "${item.name}"?`)) return;
@@ -100,22 +134,29 @@ const MenuDisplay = () => {
   };
 
   const handleSave = async () => {
-    if (!editForm.name || !editForm.price) {
-      toast.error("Name and price are required");
+    // Run full validation before submit
+    const errs = validateAll(editForm);
+    if (Object.keys(errs).length > 0) {
+      setFieldErrors(errs);
       return;
     }
     setSaving(true);
     const csrfData = await csrf();
     const headers = { "Content-Type": "application/json", "x-csrf-token": csrfData?.csrfToken || "" };
+
+    // Strip _id and numeric id from body — Mongoose rejects non-ObjectId _id values
+    const { _id, id, ...payload } = editForm;
+
     try {
-      if (editForm._id) {
-        await axios.put(`${API}/api/admin/menu/${editForm._id}`, editForm, { withCredentials: true, headers });
+      if (_id) {
+        await axios.put(`${API}/api/admin/menu/${_id}`, payload, { withCredentials: true, headers });
         toast.success("Item updated!");
       } else {
-        await axios.post(`${API}/api/admin/menu`, editForm, { withCredentials: true, headers });
+        await axios.post(`${API}/api/admin/menu`, payload, { withCredentials: true, headers });
         toast.success("Item added!");
       }
       setEditForm(null);
+      setFieldErrors({});
       if (refreshMenu) refreshMenu();
       else window.location.reload();
     } catch (e) {
@@ -268,7 +309,13 @@ const MenuDisplay = () => {
                 ].map(({ key, label, type }) => (
                   <div key={key} className="adm-form-field">
                     <label>{label}</label>
-                    <input type={type} value={editForm[key] || ""} onChange={(e) => setEditForm({ ...editForm, [key]: type === "number" ? Number(e.target.value) : e.target.value })} />
+                    <input
+                      type={type}
+                      value={editForm[key] ?? ""}
+                      className={fieldErrors[key] ? "adm-input-error" : ""}
+                      onChange={(e) => handleFieldChange(key, type === "number" ? Number(e.target.value) : e.target.value)}
+                    />
+                    {fieldErrors[key] && <span className="adm-field-error">{fieldErrors[key]}</span>}
                   </div>
                 ))}
 
@@ -284,8 +331,10 @@ const MenuDisplay = () => {
                         type="text"
                         placeholder="Paste image URL…"
                         value={editForm.imageUrl || ""}
-                        onChange={(e) => setEditForm({ ...editForm, imageUrl: e.target.value })}
+                        className={fieldErrors.imageUrl ? "adm-input-error" : ""}
+                        onChange={(e) => handleFieldChange("imageUrl", e.target.value)}
                       />
+                      {fieldErrors.imageUrl && <span className="adm-field-error">{fieldErrors.imageUrl}</span>}
                       <div className="adm-img-or">or</div>
                       <label className="adm-upload-btn">
                         📁 Upload from device
@@ -293,7 +342,7 @@ const MenuDisplay = () => {
                           const file = e.target.files?.[0];
                           if (!file) return;
                           const reader = new FileReader();
-                          reader.onload = () => setEditForm({ ...editForm, imageUrl: reader.result });
+                          reader.onload = () => handleFieldChange("imageUrl", reader.result);
                           reader.readAsDataURL(file);
                         }} />
                       </label>
@@ -302,13 +351,23 @@ const MenuDisplay = () => {
                 </div>
                 <div className="adm-form-field">
                   <label>Category</label>
-                  <select value={editForm.category || ""} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}>
+                  <select
+                    value={editForm.category || ""}
+                    className={fieldErrors.category ? "adm-input-error" : ""}
+                    onChange={(e) => handleFieldChange("category", e.target.value)}
+                  >
+                    <option value="">— Select —</option>
                     {MENU_CATEGORIES.map((c) => <option key={c}>{c}</option>)}
                   </select>
+                  {fieldErrors.category && <span className="adm-field-error">{fieldErrors.category}</span>}
                 </div>
                 <div className="adm-form-field">
                   <label>Sub Category</label>
-                  <input type="text" value={editForm.subCategory || ""} onChange={(e) => setEditForm({ ...editForm, subCategory: e.target.value })} />
+                  <input
+                    type="text"
+                    value={editForm.subCategory || ""}
+                    onChange={(e) => setEditForm({ ...editForm, subCategory: e.target.value })}
+                  />
                 </div>
                 <div className="adm-form-field adm-form-full">
                   <label>Description</label>
