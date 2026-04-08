@@ -146,12 +146,16 @@ const Footer = () => {
         },
         body: JSON.stringify({ email: newsletterEmail }),
       });
-      if (res.ok) {
-        setNewsletterStatus("success");
-        setNewsletterEmail("");
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        if (data.message === "already_subscribed") {
+          setNewsletterStatus("already");
+        } else {
+          setNewsletterStatus("success");
+          setNewsletterEmail("");
+        }
       } else {
-        const data = await res.json();
-        setNewsletterStatus(data.message || "Subscription failed. Try again.");
+        setNewsletterStatus(data.error || data.message || "Subscription failed. Try again.");
       }
     } catch (err) {
       setNewsletterStatus("Could not connect. Please try again.");
@@ -287,7 +291,8 @@ const Footer = () => {
             {newsletterStatus === "success" ? (
               <div className="newsletter-success">
                 <span>🎉</span>
-                <p>You're subscribed! Check your inbox.</p>
+                <p>Subscribed! Check your inbox.</p>
+                <button className="newsletter-reset" onClick={() => setNewsletterStatus("")}>Subscribe another</button>
               </div>
             ) : (
               <>
@@ -304,7 +309,10 @@ const Footer = () => {
                     {newsletterLoading ? <span className="newsletter-spinner" /> : <SendIcon />}
                   </button>
                 </div>
-                {newsletterStatus && newsletterStatus !== "success" && (
+                {newsletterStatus === "already" && (
+                  <p className="newsletter-status newsletter-already">✅ Already subscribed!</p>
+                )}
+                {newsletterStatus && newsletterStatus !== "already" && (
                   <p className="newsletter-status newsletter-error">{newsletterStatus}</p>
                 )}
               </>

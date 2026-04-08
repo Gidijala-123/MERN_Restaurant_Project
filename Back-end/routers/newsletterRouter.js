@@ -10,8 +10,11 @@ router.post("/subscribe", checkCsrf, async (req, res) => {
   const { email } = req.body || {};
   if (!email) return res.status(400).json({ message: "Email required" });
   try {
-    const sub = await subscribeEmail(email.toLowerCase());
-    res.json({ ok: true, subscriber: sub });
+    const result = await subscribeEmail(email.toLowerCase());
+    if (result.alreadySubscribed) {
+      return res.status(200).json({ ok: true, message: "already_subscribed" });
+    }
+    res.json({ ok: true, message: "subscribed" });
   } catch (err) {
     console.error("[Newsletter] Subscribe error:", err.message);
     res.status(500).json({ ok: false, error: err.message });
