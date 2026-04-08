@@ -15,7 +15,6 @@ const OrderSchema = new mongoose.Schema({
   gst: { type: Number, default: 0 },
   grandTotal: { type: Number, default: 0 },
   status: { type: String, enum: ["pending", "preparing", "out_for_delivery", "delivered", "cancelled"], default: "pending" },
-  createdAt: { type: Date, default: Date.now },
-});
+}, { timestamps: true });
 
 export default mongoose.models.Order || mongoose.model("Order", OrderSchema);
