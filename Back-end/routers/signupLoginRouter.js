@@ -23,10 +23,10 @@ router
   .get("/checkEmail", async (req, res) => {
     const { email } = req.query;
     if (!email) return res.status(400).json({ exists: false });
-    // Prevent browser/CDN caching — result changes after registration
     res.set("Cache-Control", "no-store");
+    // Simple lowercase match — emails are stored lowercase since registration fix
     const user = await EmployeeModel.findOne({
-      uemail: { $regex: new RegExp("^" + email.trim() + "$", "i") }
+      uemail: email.trim().toLowerCase()
     }).lean();
     res.json({ exists: !!user });
   })

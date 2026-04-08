@@ -8,6 +8,8 @@ import { sendEmailOtp } from "../services/otpService.js";
 
 dotenv.config();
 
+// ── Helpers ────────────────────────────────────────────────────────────────
+
 const signAccess = (tokenKey) => {
   const secret = process.env.ACCESS_TOKEN || "bhargava@123";
   return jwt.sign({ tokenKey }, secret, { expiresIn: "15m" });
@@ -18,10 +20,15 @@ const signRefresh = (tokenKey) => {
   return jwt.sign({ tokenKey }, secret, { expiresIn: "7d" });
 };
 
+// Safe email lookup — always lowercase, no regex, works with any special chars
+const findUserByEmail = (email) =>
+  EmployeeModel.findOne({ uemail: email.toLowerCase().trim() });
+
+// ── Auth handlers ──────────────────────────────────────────────────────────
+
 export const login = asyncHandler(async (req, res) => {
   const { uemail, upassword } = req.body;
-  // Case-insensitive lookup — handles email casing differences between signup and login
-  const user = await EmployeeModel.findOne({ uemail: { $regex: new RegExp("^" + uemail.trim() + "$", "i") } });
+  const user = await findUserByEmail(uemail);
   if (!user || !(await bcrypt.compare(upassword, user.upassword))) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
@@ -82,8 +89,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   const { uemail } = req.body;
   if (!uemail) return res.status(400).json({ message: "Email is required" });
 
-  const normalizedEmail = uemail.toLowerCase().trim();
-  const user = await EmployeeModel.findOne({ uemail: { $regex: new RegExp("^" + normalizedEmail + "$", "i") } });
+  const user = await findUserByEmail(uemail);
   if (!user) return res.status(404).json({ message: "No account found with this email" });
 
   const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -101,7 +107,7 @@ export const verifyForgotOtp = asyncHandler(async (req, res) => {
   const { uemail, code } = req.body;
   if (!uemail || !code) return res.status(400).json({ message: "Email and OTP are required" });
 
-  const user = await EmployeeModel.findOne({ uemail: { $regex: new RegExp("^" + uemail.trim() + "$", "i") } });
+  const user = await findUserByEmail(uemail);
   if (!user) return res.status(400).json({ message: "Invalid or expired OTP" });
 
   const valid = verifyOtp(user.uemail, String(code).trim());
