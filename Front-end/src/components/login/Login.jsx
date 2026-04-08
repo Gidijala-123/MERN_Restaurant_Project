@@ -402,7 +402,8 @@ function SignInForm({ toggleMobile }) {
 
       <span className="span-tag error-text">{apiError}</span>
       <button className="codepen-button" type="submit"
-        disabled={isLoading || loginEmailStatus === "notfound"}>
+        disabled={isLoading || loginEmailStatus === "notfound" || loginEmailStatus === "checking" || !uemail.trim() || !upassword.trim()}
+        style={{ opacity: (!uemail.trim() || !upassword.trim() || loginEmailStatus === "notfound") ? 0.6 : 1, cursor: (!uemail.trim() || !upassword.trim() || loginEmailStatus === "notfound") ? "not-allowed" : "pointer" }}>
         {isLoading
           ? <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />Logging in...</>
           : "Login"}
