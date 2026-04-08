@@ -33,8 +33,8 @@ async function getCsrf() {
 async function checkEmailExists(email) {
   try {
     const res = await fetch(
-      `${API_URL}/api/signupLoginRouter/checkEmail?email=${encodeURIComponent(email)}`,
-      { credentials: "include" }
+      `${API_URL}/api/signupLoginRouter/checkEmail?email=${encodeURIComponent(email)}&_=${Date.now()}`,
+      { credentials: "include", cache: "no-store" }
     );
     const data = await res.json();
     return data.exists === true;

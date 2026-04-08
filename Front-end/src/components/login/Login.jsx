@@ -34,8 +34,8 @@ function SignInForm({ toggleMobile }) {
     setLoginEmailStatus("checking");
     try {
       const res = await fetch(
-        `${API_BASE_URL}/api/signupLoginRouter/checkEmail?email=${encodeURIComponent(val)}`,
-        { credentials: "include" }
+        `${API_BASE_URL}/api/signupLoginRouter/checkEmail?email=${encodeURIComponent(val)}&_=${Date.now()}`,
+        { credentials: "include", cache: "no-store" }
       );
       const data = await res.json();
       setLoginEmailStatus(data.exists ? "found" : "notfound");
@@ -73,7 +73,7 @@ function SignInForm({ toggleMobile }) {
       return;
     }
     setFpEmailExists("checking");
-    fetch(`${API_BASE_URL}/api/signupLoginRouter/checkEmail?email=${encodeURIComponent(debouncedFpEmail)}`, { credentials: "include" })
+    fetch(`${API_BASE_URL}/api/signupLoginRouter/checkEmail?email=${encodeURIComponent(debouncedFpEmail)}&_=${Date.now()}`, { credentials: "include", cache: "no-store" })
       .then((r) => r.json())
       .then((data) => setFpEmailExists(data.exists ? "found" : "notfound"))
       .catch(() => setFpEmailExists("idle"));

@@ -23,6 +23,8 @@ router
   .get("/checkEmail", async (req, res) => {
     const { email } = req.query;
     if (!email) return res.status(400).json({ exists: false });
+    // Prevent browser/CDN caching — result changes after registration
+    res.set("Cache-Control", "no-store");
     const user = await EmployeeModel.findOne({
       uemail: { $regex: new RegExp("^" + email.trim() + "$", "i") }
     }).lean();
