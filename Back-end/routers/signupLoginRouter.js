@@ -23,7 +23,9 @@ router
   .get("/checkEmail", async (req, res) => {
     const { email } = req.query;
     if (!email) return res.status(400).json({ exists: false });
-    const user = await EmployeeModel.findOne({ uemail: email.toLowerCase().trim() }).lean();
+    const user = await EmployeeModel.findOne({
+      uemail: { $regex: new RegExp("^" + email.trim() + "$", "i") }
+    }).lean();
     res.json({ exists: !!user });
   })
   .post("/bookmark/:productId", validateToken, addBookmark)

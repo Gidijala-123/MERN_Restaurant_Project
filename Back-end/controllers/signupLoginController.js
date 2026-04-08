@@ -7,7 +7,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { uname, uemail, upassword, avatar = "" } = req.body;
+  const { uname, upassword, avatar = "" } = req.body;
+  const uemail = req.body.uemail?.toLowerCase().trim();
   const existing = await EmployeeModel.findOne({ uemail });
   if (existing) return res.status(403).json({ Message: "User already exists..!" });
 

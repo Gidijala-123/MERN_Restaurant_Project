@@ -20,7 +20,8 @@ const signRefresh = (tokenKey) => {
 
 export const login = asyncHandler(async (req, res) => {
   const { uemail, upassword } = req.body;
-  const user = await EmployeeModel.findOne({ uemail });
+  // Case-insensitive lookup — handles email casing differences between signup and login
+  const user = await EmployeeModel.findOne({ uemail: { $regex: new RegExp("^" + uemail.trim() + "$", "i") } });
   if (!user || !(await bcrypt.compare(upassword, user.upassword))) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
