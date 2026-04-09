@@ -156,14 +156,34 @@ export default function Settings() {
     return Object.keys(errors).length === 0;
   };
 
-  const saveProfile = () => {
+  const saveProfile = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before saving.");
       return;
     }
     setSaving(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const API = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
+
+      // Get CSRF token
+      const csrf = await fetch(`${API}/api/csrf`, { credentials: "include" })
+        .then((r) => r.json()).catch(() => ({}));
+
+      // Persist name + avatar to backend DB
+      await fetch(`${API}/api/auth/profile`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": csrf?.csrfToken || "",
+        },
+        body: JSON.stringify({
+          uname: profileForm.name.trim(),
+          avatar: profileForm.avatar,
+        }),
+      });
+
+      // Save everything else to localStorage
       Object.entries(profileForm).forEach(([key, value]) => {
         if (Array.isArray(value)) {
           localStorage.setItem(
@@ -177,10 +197,18 @@ export default function Settings() {
           );
         }
       });
+
       setSavedProfile({ ...profileForm });
-      setSaving(false);
+
+      // Notify Sidebar to re-read userName and userAvatar immediately
+      window.dispatchEvent(new Event("profileUpdated"));
+
       toast.success("Profile settings updated successfully!");
-    }, 1000);
+    } catch {
+      toast.error("Failed to save profile. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleInputChange = (field, value) => {

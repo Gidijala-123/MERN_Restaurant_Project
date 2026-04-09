@@ -20,6 +20,7 @@ import {
   logout,
   me,
   updateAvatar,
+  updateProfile,
   forgotPassword,
   verifyForgotOtp,
   resetPassword,
@@ -193,6 +194,7 @@ app.get("/api/auth/refresh", refresh);
 app.post("/api/auth/logout", checkCsrf, logout);
 app.get("/api/auth/me", me);
 app.patch("/api/auth/avatar", verifyAccessToken, checkCsrf, updateAvatar);
+app.patch("/api/auth/profile", verifyAccessToken, checkCsrf, updateProfile);
 app.post("/api/auth/forgot-password", forgotPassword);
 app.post("/api/auth/verify-forgot-otp", verifyForgotOtp);
 app.post("/api/auth/reset-password", resetPassword);
@@ -269,7 +271,7 @@ app.post("/api/order", verifyAccessToken, checkCsrf, orderValidation, async (req
       await Order.create({ userEmail, paymentId, items, subtotal, gst, grandTotal });
     }
   } catch (err) {
-    console.error("failed to save order", err);
+    logger.error("failed to save order", err);
   }
   res.json({ ok: true });
 });
@@ -289,7 +291,7 @@ app.post("/api/otp/send", otpSendValidation, async (req, res) => {
     else if (channel === "whatsapp") await sendWhatsAppOtp({ to: contact, code });
     else await sendEmailOtp({ to: contact, code });
   } catch (err) {
-    console.error("[OTP send background error]", err.message);
+    logger.error("[OTP send background error]", err.message);
   }
 });
 
@@ -316,7 +318,7 @@ if (process.env.NODE_ENV === "production") {
         });
       });
     } else {
-      console.warn(`Static build folder not found at: ${buildPath}`);
+      logger.warn(`Static build folder not found at: ${buildPath}`);
       app.get("*", (req, res) => res.status(503).send("Frontend build not found."));
     }
   });
@@ -331,5 +333,5 @@ app.use(errorHandler);
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Worker ${process.pid} listening on port ${port}`);
+  logger.info(`Worker ${process.pid} listening on port ${port}`);
 });

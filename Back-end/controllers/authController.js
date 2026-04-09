@@ -148,3 +148,15 @@ export const updateAvatar = asyncHandler(async (req, res) => {
   await EmployeeModel.findByIdAndUpdate(uid, { avatar });
   res.json({ ok: true });
 });
+
+export const updateProfile = asyncHandler(async (req, res) => {
+  const uid = req.tokenKey?.uid;
+  if (!uid) return res.status(401).json({ message: "Unauthorized" });
+  const { uname, avatar } = req.body || {};
+  const update = {};
+  if (uname && typeof uname === "string" && uname.trim()) update.uname = uname.trim();
+  if (avatar && typeof avatar === "string") update.avatar = avatar;
+  if (!Object.keys(update).length) return res.status(400).json({ message: "Nothing to update" });
+  await EmployeeModel.findByIdAndUpdate(uid, update);
+  res.json({ ok: true });
+});

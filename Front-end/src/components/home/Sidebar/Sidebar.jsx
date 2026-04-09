@@ -216,12 +216,19 @@ export default function Sidebar() {
   useEffect(() => {
     const storedUserName = localStorage.getItem("userName");
     const storedAvatar = localStorage.getItem("userAvatar") || "";
-    if (storedUserName) {
-      setUserName(storedUserName);
-    }
-    if (storedAvatar) {
-      setUserAvatar(storedAvatar);
-    }
+    if (storedUserName) setUserName(storedUserName);
+    if (storedAvatar) setUserAvatar(storedAvatar);
+  }, []);
+
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      const name = localStorage.getItem("userName") || "";
+      const avatar = localStorage.getItem("userAvatar") || "";
+      if (name) setUserName(name);
+      setUserAvatar(avatar);
+    };
+    window.addEventListener("profileUpdated", handleProfileUpdate);
+    return () => window.removeEventListener("profileUpdated", handleProfileUpdate);
   }, []);
 
   useEffect(() => {
