@@ -381,25 +381,8 @@ export default function Sidebar() {
   }, [cartItems]);
 
   const computeFavorites = useCallback(() => {
-    const keys = [
-      "trendingBookmarked",
-      "discountBookmarked",
-      "offerBookmarked",
-      "popularBookmarked",
-      "recentBookmarked",
-      "menuFavorites"
-    ];
-    const allIds = new Set();
-    keys.forEach(key => {
-      const saved = JSON.parse(localStorage.getItem(key) || "{}");
-      Object.entries(saved).forEach(([id, isBookmarked]) => {
-        if (isBookmarked) {
-          // Normalize ID to string and trim any whitespace
-          allIds.add(String(id).trim());
-        }
-      });
-    });
-    return allIds.size;
+    const saved = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
+    return Object.values(saved).filter(Boolean).length;
   }, []);
 
   useEffect(() => {

@@ -84,6 +84,13 @@ const MenuDisplay = () => {
   const [favoriteItems, setFavoriteItems] = useState(() =>
     JSON.parse(localStorage.getItem("menuFavorites") || "{}")
   );
+
+  // Keep favoriteItems in sync when toggled from Favorites page
+  useEffect(() => {
+    const sync = () => setFavoriteItems(JSON.parse(localStorage.getItem("menuFavorites") || "{}"));
+    window.addEventListener("favoritesUpdated", sync);
+    return () => window.removeEventListener("favoritesUpdated", sync);
+  }, []);
   const [editForm, setEditForm] = useState(null);
   const [editKey, setEditKey] = useState(0);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -133,7 +140,8 @@ const MenuDisplay = () => {
     dispatch(addToCart({ cartQuantity: 1, ...item, title: item.name, img: item.imageUrl, price: item.price }));
   }, [dispatch]);
 
-  const handleFavoriteToggle = useCallback((itemId) => {
+  const handleFavoriteToggle = useCallback((item) => {
+    const itemId = String(item._id || item.id);
     const saved = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
     const updated = { ...saved, [itemId]: !saved[itemId] };
     localStorage.setItem("menuFavorites", JSON.stringify(updated));
@@ -358,8 +366,8 @@ const MenuDisplay = () => {
                     </div>
                     {!admin && (
                       <div className="favorite-btn-wrapper">
-                        <Button onClick={() => handleFavoriteToggle(item.id)} className={`floating-fav-btn ${favoriteItems[item.id] ? "active" : ""}`}>
-                          {favoriteItems[item.id] ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                        <Button onClick={() => handleFavoriteToggle(item)} className={`floating-fav-btn ${favoriteItems[String(item._id || item.id)] ? "active" : ""}`}>
+                          {favoriteItems[String(item._id || item.id)] ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                         </Button>
                       </div>
                     )}

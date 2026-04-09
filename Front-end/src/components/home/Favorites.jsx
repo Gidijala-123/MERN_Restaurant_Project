@@ -42,35 +42,17 @@ export default function Favorites() {
     return src;
   };
 
-  const [discountBookmarked, setDiscountBookmarked] = useState({});
-  const [trendingBookmarked, setTrendingBookmarked] = useState({});
-  const [offerBookmarked, setOfferBookmarked] = useState({});
-  const [popularBookmarked, setPopularBookmarked] = useState({});
-  const [recentBookmarked, setRecentBookmarked] = useState({});
   const [menuFavorites, setMenuFavorites] = useState({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
     const loadBookmarks = () => {
-      const savedDiscount = JSON.parse(localStorage.getItem("discountBookmarked") || "{}");
-      const savedTrending = JSON.parse(localStorage.getItem("trendingBookmarked") || "{}");
-      const savedOffer = JSON.parse(localStorage.getItem("offerBookmarked") || "{}");
-      const savedPopular = JSON.parse(localStorage.getItem("popularBookmarked") || "{}");
-      const savedRecent = JSON.parse(localStorage.getItem("recentBookmarked") || "{}");
-      const savedMenu = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
-      setDiscountBookmarked(savedDiscount);
-      setTrendingBookmarked(savedTrending);
-      setOfferBookmarked(savedOffer);
-      setPopularBookmarked(savedPopular);
-      setRecentBookmarked(savedRecent);
-      setMenuFavorites(savedMenu);
+      setMenuFavorites(JSON.parse(localStorage.getItem("menuFavorites") || "{}"));
     };
-
     loadBookmarks();
     window.addEventListener("favoritesUpdated", loadBookmarks);
     window.addEventListener("storage", loadBookmarks);
-
     return () => {
       window.removeEventListener("favoritesUpdated", loadBookmarks);
       window.removeEventListener("storage", loadBookmarks);
@@ -79,71 +61,42 @@ export default function Favorites() {
 
   const favorites = useMemo(() => {
     const list = [];
+    const seen = new Set();
 
-    const isItemBookmarked = (id) => {
-      const idStr = String(id).trim();
-      return trendingBookmarked[idStr] ||
-        discountBookmarked[idStr] ||
-        offerBookmarked[idStr] ||
-        popularBookmarked[idStr] ||
-        recentBookmarked[idStr] ||
-        menuFavorites[idStr];
-    };
-
-    const getBookmarkSection = (id) => {
-      const idStr = String(id).trim();
-      if (trendingBookmarked[idStr]) return "Trending";
-      if (offerBookmarked[idStr]) return "Offer";
-      if (popularBookmarked[idStr]) return "Popular";
-      if (recentBookmarked[idStr]) return "Recent";
-      if (discountBookmarked[idStr]) return "Discount";
-      if (menuFavorites[idStr]) return "Menu";
-      return "";
+    // Check both _id and id for a match in menuFavorites
+    const isBookmarked = (item) => {
+      const ids = [String(item._id || ""), String(item.id || ""), String(item.itemId || "")].filter(Boolean);
+      return ids.some((id) => menuFavorites[id]);
     };
 
     liveMenuData.forEach((item) => {
-      if (isItemBookmarked(item.id)) {
-        list.push({
-          ...item,
-          section: getBookmarkSection(item.id),
-          title: item.name,
-          img: item.imageUrl,
-          desc: item.description
-        });
-      }
+      if (!isBookmarked(item)) return;
+      const key = String(item._id || item.id);
+      if (seen.has(key)) return;
+      seen.add(key);
+      list.push({ ...item, title: item.name, img: item.imageUrl, desc: item.description });
     });
 
+    // Also check API products not in liveMenuData
     data?.forEach((product) => {
-      if (list.some(existing => String(existing.id).trim() === String(product.id).trim())) return;
-      if (isItemBookmarked(product.id)) {
-        list.push({ ...product, section: getBookmarkSection(product.id) });
-      }
+      if (!isBookmarked(product)) return;
+      const key = String(product._id || product.id);
+      if (seen.has(key)) return;
+      seen.add(key);
+      list.push({ ...product, title: product.name, img: product.imageUrl, desc: product.description });
     });
 
     return list;
-  }, [data, liveMenuData, trendingBookmarked, discountBookmarked, offerBookmarked, popularBookmarked, recentBookmarked, menuFavorites]);
+  }, [data, liveMenuData, menuFavorites]);
 
   const toggleFavorite = (item) => {
-    const { id } = item;
-    // Remove from ALL bookmark stores to ensure count and list stay in sync
-    const allKeys = [
-      { key: "trendingBookmarked", setter: setTrendingBookmarked },
-      { key: "discountBookmarked", setter: setDiscountBookmarked },
-      { key: "offerBookmarked", setter: setOfferBookmarked },
-      { key: "popularBookmarked", setter: setPopularBookmarked },
-      { key: "recentBookmarked", setter: setRecentBookmarked },
-      { key: "menuFavorites", setter: setMenuFavorites },
-    ];
-
-    allKeys.forEach(({ key, setter }) => {
-      const saved = JSON.parse(localStorage.getItem(key) || "{}");
-      if (saved[id]) {
-        const updated = { ...saved, [id]: false };
-        localStorage.setItem(key, JSON.stringify(updated));
-        setter(updated);
-      }
-    });
-
+    // Remove all possible ID variants from menuFavorites
+    const ids = [String(item._id || ""), String(item.id || ""), String(item.itemId || "")].filter(Boolean);
+    const saved = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
+    const updated = { ...saved };
+    ids.forEach((id) => { if (updated[id]) updated[id] = false; });
+    localStorage.setItem("menuFavorites", JSON.stringify(updated));
+    setMenuFavorites(updated);
     window.dispatchEvent(new Event("favoritesUpdated"));
   };
 
