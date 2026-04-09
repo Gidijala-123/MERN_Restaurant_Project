@@ -16,7 +16,7 @@ import "./Favorites.css";
 export default function Favorites() {
   const { data = [], isLoading } = useGetAllProductsQuery();
   const { allItems: liveMenuData = MENU_DATA } = useMenu();
-  const { favorites: menuFavorites, toggle: toggleFav } = useFavorites();
+  const { favorites: menuFavorites, remove: removeFav } = useFavorites();
 
   const FALLBACK_IMAGES = {
     "Veg Starters": "/footer-images/vegitem.jpg",
@@ -83,7 +83,7 @@ export default function Favorites() {
 
   const toggleFavorite = (item) => {
     const id = String(item._id || item.id || item.itemId);
-    toggleFav(id);
+    removeFav(id);
   };
 
   const handleAddToCart = (item) => {
