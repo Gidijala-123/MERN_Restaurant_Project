@@ -677,6 +677,7 @@ export default function Sidebar() {
                       borderRadius: "8px",
                       background: "var(--primary-gradient)",
                       fontSize: "0.9rem",
+                      "& img": { objectFit: "cover", width: "100%", height: "100%", borderRadius: "8px" },
                     }}
                   >
                     {userName ? userName.charAt(0).toUpperCase() : "U"}
