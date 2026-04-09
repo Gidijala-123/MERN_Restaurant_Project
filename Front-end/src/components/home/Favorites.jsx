@@ -16,53 +16,30 @@ export default function Favorites() {
   const { data = [], isLoading } = useGetAllProductsQuery();
   const { allItems: liveMenuData = MENU_DATA } = useMenu();
 
+  const FALLBACK_IMAGES = {
+    "Veg Starters": "/footer-images/vegitem.jpg",
+    "Non-Veg Starters": "/footer-images/nonvegitem.jpg",
+    "Tandooris": "/footer-images/meat.png",
+    "Soups": "/footer-images/soups.jpg",
+    "Salads": "/footer-images/salads.jpg",
+    "Sandwiches": "/footer-images/burger.png",
+    "Signature Dishes": "/footer-images/maincourse.jpg",
+    "Biryanis": "/footer-images/chicken.png",
+    "Main Course": "/footer-images/maincourse.jpg",
+    "Rice & Breads": "/footer-images/food.png",
+    "South Indian": "/footer-images/food.png",
+    "Chinese/Indo-Chinese": "/footer-images/chinese.png",
+    "Beverages": "/footer-images/drinks.jpg",
+    "Cocktails/Mocktails": "/footer-images/cooldrinks.png",
+    "Desserts": "/footer-images/desserts.jpg",
+  };
+
   const resolveImageSrc = (item) => {
-    // Prefer explicit image fields.
-    const candidate = item?.image || item?.img || item?.imageUrl;
-
-    // If candidate is from /menu-images, map it to a real public image (menu-images isn't included in build).
-    if (candidate?.startsWith("/menu-images/")) {
-      const filename = candidate.split("/").pop()?.toLowerCase();
-      const mapped = {
-        "samosa.jpg": "/footer-images/vegitem.jpg",
-        "paneer-tikka.jpg": "/footer-images/vegitem.jpg",
-        "spring-rolls.jpg": "/footer-images/veggies.jpg",
-        "aloo-tikki.jpg": "/footer-images/vegitem.jpg",
-        "corn-fritters.jpg": "/footer-images/vegitem.jpg",
-        "chicken-tikka.jpg": "/footer-images/chicken.png",
-        "tandoori-prawns.jpg": "/footer-images/chicken.png",
-        "fish-amritsari.jpg": "/footer-images/seafood.jpg",
-        "chicken-pakora.jpg": "/footer-images/chicken.png",
-        "mutton-seekh.jpg": "/footer-images/meat.png",
-        "tandoori-chicken-half.jpg": "/footer-images/meat.png",
-        "tandoori-fish.jpg": "/footer-images/seafood.jpg",
-        "tandoori-mushroom.jpg": "/footer-images/vegitem.jpg",
-        "tandoori-paneer.jpg": "/footer-images/vegitem.jpg",
-        "tomato-soup.jpg": "/footer-images/soups.jpg",
-        "chicken-soup.jpg": "/footer-images/soups.jpg",
-        "mulligatawny.jpg": "/footer-images/soups.jpg",
-        "veg-soup.jpg": "/footer-images/soups.jpg",
-        "greek-salad.jpg": "/footer-images/salads.jpg",
-        "chicken-salad.jpg": "/footer-images/salads.jpg",
-        "caesar-salad.jpg": "/footer-images/salads.jpg",
-        "veg-manchurian.jpg": "/footer-images/veggies.jpg",
-        "chicken-manchurian.jpg": "/footer-images/chicken.png",
-        "veg-fried-rice.jpg": "/footer-images/food.png",
-        "chicken-fried-rice.jpg": "/footer-images/food.png",
-        "paneer-butter-masala.jpg": "/footer-images/food.png",
-        "butter-chicken.jpg": "/footer-images/chicken.png",
-        "mutton-biryani.jpg": "/footer-images/chicken.png",
-        "hyd-biryani.jpg": "/footer-images/chicken.png",
-        "gulab-jamun.jpg": "/footer-images/desserts.jpg",
-        "rasmalai.jpg": "/footer-images/desserts.jpg",
-        "kheer.jpg": "/footer-images/desserts.jpg",
-        "ice-cream.jpg": "/footer-images/ice_cream.jpg",
-      }[filename];
-
-      if (mapped) return mapped;
-      return `https://source.unsplash.com/600x400/?${encodeURIComponent(item?.name || item?.title || "food")}`;
+    const src = item?.imageUrl || item?.image || item?.img;
+    if (!src || src.startsWith("/menu-images/")) {
+      return FALLBACK_IMAGES[item?.category] || "/footer-images/food.png";
     }
-    return candidate || "/footer-images/food.png";
+    return src;
   };
 
   const [discountBookmarked, setDiscountBookmarked] = useState({});
