@@ -103,7 +103,7 @@ function SignInForm({ toggleMobile }) {
         { withCredentials: true, headers: { "x-csrf-token": csrfToken } },
       );
       if (res.status === 200) {
-        toast.update(toastId, { render: "Login successful!", type: "success", isLoading: false, autoClose: 2000 });
+        toast.update(toastId, { render: "Login successful!", type: "success", isLoading: false, autoClose: 1500 });
         const user = res.data?.user;
         if (user) {
           if (user.uname) localStorage.setItem("userName", user.uname);
@@ -115,7 +115,7 @@ function SignInForm({ toggleMobile }) {
       }
     } catch (err) {
       const msg = err.response?.data?.message || err.response?.data?.Message || "Invalid email or password.";
-      toast.update(toastId, { render: msg, type: "error", isLoading: false, autoClose: 3000 });
+      toast.update(toastId, { render: msg, type: "error", isLoading: false, autoClose: 1500 });
       setApiError(msg);
     } finally {
       setIsLoading(false);
@@ -131,11 +131,11 @@ function SignInForm({ toggleMobile }) {
     const toastId = toast.loading("Sending OTP...");
     try {
       await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { uemail: fpEmail });
-      toast.update(toastId, { render: "OTP sent to your email!", type: "success", isLoading: false, autoClose: 4000 });
+      toast.update(toastId, { render: "OTP sent to your email!", type: "success", isLoading: false, autoClose: 1500 });
       setStep("forgot-otp");
     } catch (err) {
       const msg = err.response?.data?.message || "Failed to send OTP. Try again.";
-      toast.update(toastId, { render: msg, type: "error", isLoading: false, autoClose: 4000 });
+      toast.update(toastId, { render: msg, type: "error", isLoading: false, autoClose: 1500 });
     } finally {
       setIsLoading(false);
     }
@@ -152,13 +152,13 @@ function SignInForm({ toggleMobile }) {
       const res = await axios.post(`${API_BASE_URL}/api/auth/verify-forgot-otp`, { uemail: fpEmail, code: cleanOtp });
       if (res.data?.ok) {
         setFpResetToken(res.data.resetToken);
-        toast.update(toastId, { render: "✅ OTP verified!", type: "success", isLoading: false, autoClose: 3000 });
+        toast.update(toastId, { render: "✅ OTP verified!", type: "success", isLoading: false, autoClose: 1500 });
         setStep("forgot-newpw");
       } else {
-        toast.update(toastId, { render: "Invalid or expired OTP. Please try again.", type: "error", isLoading: false, autoClose: 4000 });
+        toast.update(toastId, { render: "Invalid or expired OTP. Please try again.", type: "error", isLoading: false, autoClose: 1500 });
       }
     } catch (err) {
-      toast.update(toastId, { render: err.response?.data?.message || "Invalid or expired OTP.", type: "error", isLoading: false, autoClose: 4000 });
+      toast.update(toastId, { render: err.response?.data?.message || "Invalid or expired OTP.", type: "error", isLoading: false, autoClose: 1500 });
     } finally {
       setIsLoading(false);
     }
@@ -173,11 +173,11 @@ function SignInForm({ toggleMobile }) {
     const toastId = toast.loading("Resetting your password...");
     try {
       await axios.post(`${API_BASE_URL}/api/auth/reset-password`, { resetToken: fpResetToken, newPassword: fpNewPw });
-      toast.update(toastId, { render: "Password reset successful! Please log in.", type: "success", isLoading: false, autoClose: 3000 });
+      toast.update(toastId, { render: "Password reset successful! Please log in.", type: "success", isLoading: false, autoClose: 1500 });
       setStep("login");
       setFpEmail(""); setFpOtp(""); setFpNewPw(""); setFpConfirmPw(""); setFpResetToken("");
     } catch (err) {
-      toast.update(toastId, { render: err.response?.data?.message || "Reset failed. Please start over.", type: "error", isLoading: false, autoClose: 4000 });
+      toast.update(toastId, { render: err.response?.data?.message || "Reset failed. Please start over.", type: "error", isLoading: false, autoClose: 1500 });
     } finally {
       setIsLoading(false);
     }

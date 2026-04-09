@@ -181,7 +181,7 @@ function Signup() {
 
     // Hard block if email is already taken
     if (emailCheckStatus === "taken") {
-      toast.error("This email is already registered. Please login instead.", { autoClose: 4000 });
+      toast.error("This email is already registered. Please login instead.", { autoClose: 1500 });
       return;
     }
 
@@ -193,7 +193,7 @@ function Signup() {
       if (exists) {
         setEmailCheckStatus("taken");
         setValidationErrors({ uemail: "This email is already registered. Please login instead." });
-        toast.update(toastId, { render: "This email is already registered.", type: "error", isLoading: false, autoClose: 5000 });
+        toast.update(toastId, { render: "This email is already registered.", type: "error", isLoading: false, autoClose: 1500 });
         return;
       }
 
@@ -210,13 +210,13 @@ function Signup() {
         setIsOtpSent(true);
         setTimer(30);
         setOtpMsg(`OTP sent to ${contact}`);
-        toast.update(toastId, { render: `${icons[channel]} OTP sent via ${labels[channel]}!`, type: "success", isLoading: false, autoClose: 5000 });
+        toast.update(toastId, { render: `${icons[channel]} OTP sent via ${labels[channel]}!`, type: "success", isLoading: false, autoClose: 1500 });
         setTimeout(() => otpInputRef.current?.focus(), 100);
       }
     } catch (err) {
       const msg = err.response?.data?.error || "Failed to send OTP. Please try again.";
       setOtpMsg(msg);
-      toast.update(toastId, { render: msg, type: "error", isLoading: false, autoClose: 4000 });
+      toast.update(toastId, { render: msg, type: "error", isLoading: false, autoClose: 1500 });
       _csrfCache = "";
     } finally {
       setIsOtpSending(false);
@@ -238,14 +238,14 @@ function Signup() {
       if (res.data?.ok) {
         setIsOtpSent(false); setIsOtpVerified(true);
         setOtpCode(""); setOtpMsg("");
-        toast.update(toastId, { render: "✅ OTP verified!", type: "success", isLoading: false, autoClose: 3000 });
+        toast.update(toastId, { render: "✅ OTP verified!", type: "success", isLoading: false, autoClose: 1500 });
       } else {
         setOtpMsg("Invalid or expired OTP.");
-        toast.update(toastId, { render: "Invalid or expired OTP. Try again.", type: "error", isLoading: false, autoClose: 4000 });
+        toast.update(toastId, { render: "Invalid or expired OTP. Try again.", type: "error", isLoading: false, autoClose: 1500 });
       }
     } catch {
       setOtpMsg("Verification failed. Please try again.");
-      toast.update(toastId, { render: "Verification failed. Please try again.", type: "error", isLoading: false, autoClose: 4000 });
+      toast.update(toastId, { render: "Verification failed. Please try again.", type: "error", isLoading: false, autoClose: 1500 });
     } finally {
       setIsOtpVerifying(false);
     }
@@ -284,7 +284,7 @@ function Signup() {
     try {
       const res = await axios.post(`${API_URL}/api/signupLoginRouter/registerUser`, { uname, uemail, upassword, avatar });
       if (res.status === 200) {
-        toast.update(toastId, { render: "Account created! You can now log in.", type: "success", isLoading: false, autoClose: 3000 });
+        toast.update(toastId, { render: "Account created! You can now log in.", type: "success", isLoading: false, autoClose: 1500 });
         setApiStatus({ error: "", success: "Registration successful! You can now log in." });
         setUname(""); setUemail(""); setUpassword(""); setUconfirmPassword("");
         setContact(""); setAvatar(""); setChannel("email");
@@ -296,7 +296,7 @@ function Signup() {
     } catch (err) {
       const msg = err.response?.data?.Message || err.response?.data?.Error || "Registration failed.";
       const isExisting = err.response?.status === 403;
-      toast.update(toastId, { render: isExisting ? "This email is already registered. Please login." : msg, type: "error", isLoading: false, autoClose: 5000 });
+      toast.update(toastId, { render: isExisting ? "This email is already registered. Please login." : msg, type: "error", isLoading: false, autoClose: 1500 });
       setApiStatus({ error: isExisting ? "This email is already registered. Please login instead." : msg, success: "" });
     } finally {
       setIsLoading(false);

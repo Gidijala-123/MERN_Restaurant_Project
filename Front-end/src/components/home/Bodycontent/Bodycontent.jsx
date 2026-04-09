@@ -142,7 +142,7 @@ const Bodycontent = (props) => {
     if (newValue) {
       toast.success(`Thank you for your feedback! You rated it ${newValue} stars.`, {
         position: "top-center",
-        autoClose: 2000,
+        autoClose: 1500,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,

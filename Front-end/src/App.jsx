@@ -32,9 +32,9 @@ function App() {
         {/* BrowserRouter provides client-side navigation using the HTML5 History API */}
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           {/* ToastContainer displays alert messages across the application */}
-          <ToastContainer 
+          <ToastContainer
             position="top-center"
-            autoClose={3000}
+            autoClose={1500}
             hideProgressBar={false}
             newestOnTop
             closeOnClick
@@ -43,7 +43,7 @@ function App() {
             draggable
             pauseOnHover
             theme="colored"
-            toastStyle={{ 
+            toastStyle={{
               borderRadius: '16px',
               fontWeight: '700',
               fontFamily: 'Okra, sans-serif',
