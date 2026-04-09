@@ -393,14 +393,14 @@ function SignInForm({ toggleMobile }) {
         {validationErrors.upassword && <span className="span-tag error-text">{validationErrors.upassword}</span>}
       </div>
 
-      <div style={{ textAlign: "right", marginTop: "-0.5rem", marginBottom: "0.75rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "-0.5rem", marginBottom: "0.75rem" }}>
+        <span className="span-tag error-text" style={{ margin: 0 }}>{apiError}</span>
         <span style={{ fontSize: "0.8rem", color: "#ea580c", cursor: "pointer", fontWeight: 600 }}
           onClick={() => { setStep("forgot-email"); setFpEmail(uemail); }}>
           Forgot password?
         </span>
       </div>
 
-      <span className="span-tag error-text">{apiError}</span>
       <button className="codepen-button" type="submit"
         disabled={isLoading || loginEmailStatus === "notfound" || loginEmailStatus === "checking" || !uemail.trim() || !upassword.trim()}
         style={{ opacity: (!uemail.trim() || !upassword.trim() || loginEmailStatus === "notfound") ? 0.6 : 1, cursor: (!uemail.trim() || !upassword.trim() || loginEmailStatus === "notfound") ? "not-allowed" : "pointer" }}>
