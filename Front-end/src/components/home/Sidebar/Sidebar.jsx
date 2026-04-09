@@ -669,19 +669,26 @@ export default function Sidebar() {
                     }
                   }}
                 >
-                  <Avatar
-                    src={userAvatar || undefined}
+                  <Box
                     sx={{
                       width: { xs: 32, md: 38 },
                       height: { xs: 32, md: 38 },
                       borderRadius: "8px",
-                      background: "var(--primary-gradient)",
+                      background: userAvatar
+                        ? `url("${userAvatar}") center/cover no-repeat`
+                        : "var(--primary-gradient)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                       fontSize: "0.9rem",
-                      "& img": { objectFit: "cover", width: "100%", height: "100%", borderRadius: "8px" },
+                      fontWeight: 800,
+                      color: "#fff",
+                      flexShrink: 0,
+                      overflow: "hidden",
                     }}
                   >
-                    {userName ? userName.charAt(0).toUpperCase() : "U"}
-                  </Avatar>
+                    {!userAvatar && (userName ? userName.charAt(0).toUpperCase() : "U")}
+                  </Box>
                 </Badge>
               </IconButton>
               <Menu

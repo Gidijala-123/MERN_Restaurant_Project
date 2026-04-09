@@ -563,18 +563,28 @@ export default function Settings() {
                     accept="image/*"
                     onChange={handleAvatarChange}
                   />
-                  <Avatar
-                    src={profileForm.avatar}
+                  <Box
                     sx={{
                       width: 100,
                       height: 100,
+                      borderRadius: "50%",
                       mx: "auto",
                       border: "4px solid white",
                       boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
+                      background: profileForm.avatar
+                        ? `url("${profileForm.avatar}") center/cover no-repeat`
+                        : "var(--primary-gradient)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "2.2rem",
+                      fontWeight: 800,
+                      color: "#fff",
+                      flexShrink: 0,
                     }}
                   >
-                    {profileForm.name?.charAt(0)}
-                  </Avatar>
+                    {!profileForm.avatar && (profileForm.name?.charAt(0) || "U")}
+                  </Box>
                 </Badge>
                 <Typography
                   variant="h6"
