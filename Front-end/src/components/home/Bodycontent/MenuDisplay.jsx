@@ -349,8 +349,11 @@ const MenuDisplay = () => {
                     </div>
                     {!admin && (
                       <div className="favorite-btn-wrapper">
-                        <Button onClick={() => toggleFav(item._id || item.id)} className={`floating-fav-btn ${isFav(item._id || item.id) ? "active" : ""}`}>
-                          {isFav(item._id || item.id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                        <Button
+                          onClick={() => toggleFav(String(item?.itemId ?? item?.id ?? item?._id ?? ""))}
+                          className={`floating-fav-btn ${isFav(String(item?.itemId ?? item?.id ?? item?._id ?? "")) ? "active" : ""}`}
+                        >
+                          {isFav(String(item?.itemId ?? item?.id ?? item?._id ?? "")) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                         </Button>
                       </div>
                     )}

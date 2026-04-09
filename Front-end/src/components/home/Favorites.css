@@ -32,7 +32,34 @@
 }
 
 .favorites-grid {
-  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .favorites-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .favorites-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.favorites-grid > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.favorite-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .favorite-card {

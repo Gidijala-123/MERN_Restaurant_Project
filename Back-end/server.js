@@ -19,7 +19,7 @@ import {
   updateAvatar, updateProfile,
   getProfileSettings, saveProfileSettings,
   getCart, saveCart,
-  getFavorites, toggleFavorite,
+  getFavorites, toggleFavorite, setFavorites,
   forgotPassword, verifyForgotOtp, resetPassword,
 } from "./controllers/authController.js";
 import { verifyAccessToken, requireRole } from "./middleware/auth.js";
@@ -164,9 +164,14 @@ app.use(passport.initialize());
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: 500,
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req) => {
+      // Don't rate-limit read-only endpoints that fire on every page load
+      const skipPaths = ["/api/csrf", "/api/auth/me", "/api/auth/refresh", "/api/menu", "/api/auth/cart", "/api/auth/favorites", "/health"];
+      return skipPaths.some((p) => req.path.startsWith(p)) && req.method === "GET";
+    },
   }),
 );
 
@@ -198,6 +203,7 @@ app.get("/api/auth/cart", verifyAccessToken, getCart);
 app.patch("/api/auth/cart", verifyAccessToken, checkCsrf, saveCart);
 app.get("/api/auth/favorites", verifyAccessToken, getFavorites);
 app.patch("/api/auth/favorites/:itemId", verifyAccessToken, checkCsrf, toggleFavorite);
+app.put("/api/auth/favorites", verifyAccessToken, checkCsrf, setFavorites);
 app.post("/api/auth/forgot-password", forgotPassword);
 app.post("/api/auth/verify-forgot-otp", verifyForgotOtp);
 app.post("/api/auth/reset-password", resetPassword);

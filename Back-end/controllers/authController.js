@@ -237,3 +237,13 @@ export const toggleFavorite = asyncHandler(async (req, res) => {
   await EmployeeModel.findByIdAndUpdate(uid, { favorites: updated });
   res.json({ favorites: updated, added: idx === -1 });
 });
+
+export const setFavorites = asyncHandler(async (req, res) => {
+  const uid = req.tokenKey?.uid;
+  if (!uid) return res.status(401).json({ message: "Unauthorized" });
+  const { favorites } = req.body || {};
+  if (!Array.isArray(favorites)) return res.status(400).json({ message: "favorites must be an array" });
+  const clean = [...new Set(favorites.map(String))];
+  await EmployeeModel.findByIdAndUpdate(uid, { favorites: clean });
+  res.json({ ok: true, favorites: clean });
+});

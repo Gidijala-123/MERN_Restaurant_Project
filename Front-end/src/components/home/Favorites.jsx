@@ -9,40 +9,41 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../features/cartSlice";
 import { MENU_DATA } from "../../data/menuData";
+import { DISCOUNT_SALE_ITEMS } from "../../data/discountItems";
 import { useMenu } from "../../context/MenuContext";
 import useFavorites from "../../hooks/useFavorites";
 import "./Favorites.css";
 
+const FALLBACK_IMAGES = {
+  "Veg Starters": "/footer-images/vegitem.jpg",
+  "Non-Veg Starters": "/footer-images/nonvegitem.jpg",
+  "Tandooris": "/footer-images/chicken.png",
+  "Soups": "/footer-images/soups.jpg",
+  "Salads": "/footer-images/salads.jpg",
+  "Sandwiches": "/footer-images/burger.png",
+  "Signature Dishes": "/footer-images/maincourse.jpg",
+  "Biryanis": "/footer-images/peppers.png",
+  "Main Course": "/footer-images/maincourse.jpg",
+  "Rice & Breads": "/footer-images/food.png",
+  "South Indian": "/footer-images/food.png",
+  "Chinese/Indo-Chinese": "/footer-images/chinese.png",
+  "Beverages": "/footer-images/drinks.jpg",
+  "Cocktails/Mocktails": "/footer-images/cooldrinks.png",
+  "Desserts": "/footer-images/desserts.jpg",
+};
+
+// Same logic as MenuDisplay — use imageUrl directly, fall back to category image on error
+const getFallback = (category) => FALLBACK_IMAGES[category] || "/footer-images/food.png";
+const getImageSrc = (item) => item?.imageUrl || item?.img || item?.image || getFallback(item?.category);
+
 export default function Favorites() {
   const { data = [], isLoading } = useGetAllProductsQuery();
   const { allItems: liveMenuData = MENU_DATA } = useMenu();
-  const { favorites: menuFavorites, remove: removeFav } = useFavorites();
+  const { favorites: menuFavorites, remove: removeFav, loaded: favsLoaded, ids: favIds } = useFavorites();
+  // Show loader only if we have no local data yet (first ever load)
+  const hasLocalData = favIds.length > 0;
 
-  const FALLBACK_IMAGES = {
-    "Veg Starters": "/footer-images/vegitem.jpg",
-    "Non-Veg Starters": "/footer-images/nonvegitem.jpg",
-    "Tandooris": "/footer-images/meat.png",
-    "Soups": "/footer-images/soups.jpg",
-    "Salads": "/footer-images/salads.jpg",
-    "Sandwiches": "/footer-images/burger.png",
-    "Signature Dishes": "/footer-images/maincourse.jpg",
-    "Biryanis": "/footer-images/chicken.png",
-    "Main Course": "/footer-images/maincourse.jpg",
-    "Rice & Breads": "/footer-images/food.png",
-    "South Indian": "/footer-images/food.png",
-    "Chinese/Indo-Chinese": "/footer-images/chinese.png",
-    "Beverages": "/footer-images/drinks.jpg",
-    "Cocktails/Mocktails": "/footer-images/cooldrinks.png",
-    "Desserts": "/footer-images/desserts.jpg",
-  };
-
-  const resolveImageSrc = (item) => {
-    const src = item?.imageUrl || item?.image || item?.img;
-    if (!src || src.startsWith("/menu-images/")) {
-      return FALLBACK_IMAGES[item?.category] || "/footer-images/food.png";
-    }
-    return src;
-  };
+  const resolveImageSrc = getImageSrc;
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -51,38 +52,33 @@ export default function Favorites() {
     const list = [];
     const seen = new Set();
 
-    // Check both _id and id for a match in menuFavorites
+    const getKey = (item) => String(item?.itemId ?? item?.id ?? item?._id ?? "");
     const isBookmarked = (item) => {
-      const ids = [
-        item._id ? String(item._id) : null,
-        item.id != null ? String(item.id) : null,
-        item.itemId != null ? String(item.itemId) : null,
-      ].filter(Boolean);
-      return ids.some((id) => menuFavorites[id] === true);
+      const key = getKey(item);
+      return key !== "" && menuFavorites[key] === true;
     };
 
-    liveMenuData.forEach((item) => {
-      if (!isBookmarked(item)) return;
-      const key = String(item._id || item.id);
-      if (seen.has(key)) return;
-      seen.add(key);
-      list.push({ ...item, title: item.name, img: item.imageUrl, desc: item.description });
-    });
+    // Search all possible sources — liveMenuData (DB-merged), raw MENU_DATA (fallback), API products, discount items
+    const allSources = [
+      ...liveMenuData,
+      ...MENU_DATA,           // fallback if liveMenuData hasn't loaded from API yet
+      ...(data || []),        // RTK Query API products
+      ...DISCOUNT_SALE_ITEMS, // hardcoded frontend-only items
+    ];
 
-    // Also check API products not in liveMenuData
-    data?.forEach((product) => {
-      if (!isBookmarked(product)) return;
-      const key = String(product._id || product.id);
+    allSources.forEach((item) => {
+      if (!isBookmarked(item)) return;
+      const key = getKey(item);
       if (seen.has(key)) return;
       seen.add(key);
-      list.push({ ...product, title: product.name, img: product.imageUrl, desc: product.description });
+      list.push({ ...item, title: item.name || item.title, desc: item.description });
     });
 
     return list;
   }, [data, liveMenuData, menuFavorites]);
 
   const toggleFavorite = (item) => {
-    const id = String(item._id || item.id || item.itemId);
+    const id = String(item?.itemId ?? item?.id ?? item?._id ?? "");
     removeFav(id);
   };
 
@@ -113,7 +109,7 @@ export default function Favorites() {
         Discover the items you love the most, all in one place.
       </Typography>
 
-      {isLoading ? (
+      {(isLoading || (!favsLoaded && !hasLocalData)) ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
           <video width="320" height="180" autoPlay loop muted style={{ borderRadius: '20px' }}>
             <source src="/footer-images/loading.mp4" type="video/mp4" />
@@ -144,32 +140,19 @@ export default function Favorites() {
           </Button>
         </div>
       ) : (
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: {
-              xs: '1fr',
-              sm: 'repeat(2, 1fr)',
-              md: 'repeat(3, 1fr)',
-              lg: 'repeat(3, 1fr)'
-            },
-            gap: 3,
-            mt: 2
-          }}
-          className="favorites-grid"
-        >
+        <div className="favorites-grid">
           {favorites.map((item) => (
-            <div key={`${item.section}-${item.id}`}>
+            <div key={String(item._id || item.id)} className="favorite-card-wrapper">
               <div className="favorite-card">
                 <div className="favorite-image-wrapper">
                   <img
                     src={resolveImageSrc(item)}
                     alt={item.title || item.name}
                     loading="lazy"
-                    onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/footer-images/food.png"; }}
+                    onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = getFallback(item.category); }}
                   />
                   <div className="favorite-badges">
-                    <span className="section-badge">{item.section}</span>
+                    <span className="section-badge">{item.category}</span>
                     {item.discount && <span className="fav-badge">{item.discount}</span>}
                   </div>
                 </div>
@@ -179,7 +162,7 @@ export default function Favorites() {
                     {item.title || item.name}
                   </Typography>
                   <Typography className="favorite-item-desc">
-                    {item.desc || item.description || "Indulge in this delicious selection, crafted with fresh ingredients and authentic flavors for a perfect dining experience."}
+                    {item.desc || item.description || "Indulge in this delicious selection, crafted with fresh ingredients and authentic flavors."}
                   </Typography>
 
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto' }}>
@@ -213,7 +196,7 @@ export default function Favorites() {
               </div>
             </div>
           ))}
-        </Box>
+        </div>
       )}
     </div>
   );

@@ -34,64 +34,8 @@ import { useGetAllProductsQuery } from "../../features/productsApi";
 import { useMenu } from "../../../context/MenuContext";
 import { MENU_DATA } from "../../../data/menuData";
 import useFavorites from "../../../hooks/useFavorites";
-
-const DISCOUNT_SALE_ITEMS = [
-  {
-    id: 101,
-    title: "Cheesy Pepperoni Pizza",
-    oldPrice: 499,
-    newPrice: 299,
-    discount: "40% OFF",
-    img: "/footer-images/original-bd99e6afd7177b69f8bdf6bfe7fd0643.jpg",
-    desc: "Extra cheese & crispy crust",
-    rating: 4.8,
-    reviews: 120,
-  },
-  {
-    id: 102,
-    title: "Crispy Chicken Burger",
-    oldPrice: 250,
-    newPrice: 149,
-    discount: "40% OFF",
-    img: "/footer-images/burger.png",
-    desc: "Spicy mayo & fresh lettuce",
-    rating: 4.5,
-    reviews: 85,
-  },
-  {
-    id: 103,
-    title: "Garden Fresh Salad",
-    oldPrice: 180,
-    newPrice: 99,
-    discount: "45% OFF",
-    img: "/footer-images/salads.jpg",
-    desc: "Organic veggies & olive oil",
-    rating: 4.7,
-    reviews: 60,
-  },
-  {
-    id: 104,
-    title: "Choco Lava Cake",
-    oldPrice: 150,
-    newPrice: 75,
-    discount: "50% OFF",
-    img: "/footer-images/desserts.jpg",
-    desc: "Melting hot chocolate center",
-    rating: 4.9,
-    reviews: 210,
-  },
-  {
-    id: 105,
-    title: "Fresh Fruit Mojito",
-    oldPrice: 120,
-    newPrice: 59,
-    discount: "50% OFF",
-    img: "/footer-images/cooldrinks.png",
-    desc: "Refreshing mint & lime",
-    rating: 4.6,
-    reviews: 45,
-  },
-];
+import { resolveItemImage } from "../../../utils/imageUtils";
+import { DISCOUNT_SALE_ITEMS } from "../../../data/discountItems";
 
 const StyledRating = styled(Rating)(() => ({
   "& .MuiRating-iconEmpty .MuiSvgIcon-root": {
@@ -163,32 +107,12 @@ const Bodycontent = (props) => {
     Contact: false,
   });
 
-  const [discountBookmarked, setDiscountBookmarked] = useState({});
-  const [trendingBookmarked, setTrendingBookmarked] = useState({});
-  const [offerBookmarked, setOfferBookmarked] = useState({});
-  const [popularBookmarked, setPopularBookmarked] = useState({});
-  const [recentBookmarked, setRecentBookmarked] = useState({});
+  const { isFav, toggle } = useFavorites();
+
+  // Always use itemId (stable numeric key) for bookmarking — consistent across static and DB items
+  const getItemKey = (item) => String(item?.itemId ?? item?.id ?? item?._id ?? "");
+  const handleBookmarkToggle = (item) => toggle(getItemKey(item));
   const [showFilter, setShowFilter] = useState(false);
-  const { isFav, toggle: toggleFav } = useFavorites();
-
-  // Keep section-specific heart states in sync with DB-backed favorites
-  React.useEffect(() => {
-    const sync = () => {
-      const favs = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
-      setDiscountBookmarked(favs);
-      setTrendingBookmarked(favs);
-      setOfferBookmarked(favs);
-      setPopularBookmarked(favs);
-      setRecentBookmarked(favs);
-    };
-    sync();
-    window.addEventListener("favoritesUpdated", sync);
-    return () => window.removeEventListener("favoritesUpdated", sync);
-  }, []);
-
-  const handleBookmarkToggle = useCallback((itemId) => {
-    toggleFav(itemId);
-  }, [toggleFav]);
 
   const { err, isLoading } = useGetAllProductsQuery();
 
@@ -791,7 +715,7 @@ const Bodycontent = (props) => {
                       }
                       return offerItems.map((each) => {
                         const discount = getDiscountPercent(each);
-                        const isBookmarked = offerBookmarked[each.id];
+                        const isBookmarked = isFav(getItemKey(each));
                         return (
                           <div key={each.id} className="offer-card section-card">
                             <div className="card-badge">
@@ -801,7 +725,7 @@ const Bodycontent = (props) => {
                               type="button"
                               className={`bookmark-icon ${isBookmarked ? "active" : ""
                                 }`}
-                              onClick={() => handleBookmarkToggle(each.id)}
+                              onClick={() => handleBookmarkToggle(each)}
                             >
                               {isBookmarked ? (
                                 <FavoriteIcon fontSize="small" />
@@ -911,11 +835,11 @@ const Bodycontent = (props) => {
                         <div className="card-badge">{discount}% OFF</div>
                         <button
                           type="button"
-                          className={`bookmark-icon ${popularBookmarked[item.id] ? "active" : ""
+                          className={`bookmark-icon ${isFav(getItemKey(item)) ? "active" : ""
                             }`}
-                          onClick={() => handleBookmarkToggle(item.id)}
+                          onClick={() => handleBookmarkToggle(item)}
                         >
-                          {popularBookmarked[item.id] ? (
+                          {isFav(getItemKey(item)) ? (
                             <FavoriteIcon fontSize="small" />
                           ) : (
                             <FavoriteBorderIcon fontSize="small" />
@@ -1020,11 +944,11 @@ const Bodycontent = (props) => {
                         <div className="card-badge">{discount}% OFF</div>
                         <button
                           type="button"
-                          className={`bookmark-icon ${recentBookmarked[item.id] ? "active" : ""
+                          className={`bookmark-icon ${isFav(getItemKey(item)) ? "active" : ""
                             }`}
-                          onClick={() => handleBookmarkToggle(item.id)}
+                          onClick={() => handleBookmarkToggle(item)}
                         >
-                          {recentBookmarked[item.id] ? (
+                          {isFav(getItemKey(item)) ? (
                             <FavoriteIcon fontSize="small" />
                           ) : (
                             <FavoriteBorderIcon fontSize="small" />
@@ -1098,7 +1022,7 @@ const Bodycontent = (props) => {
                     {[...Array(2)].map((_, i) => (
                       <React.Fragment key={i}>
                         {DISCOUNT_SALE_ITEMS.map((item, index) => {
-                          const isBookmarked = discountBookmarked[item.id];
+                          const isBookmarked = isFav(getItemKey(item));
                           return (
                             <div className="section-card" key={`${i}-${index}`}>
                               <button
@@ -1106,7 +1030,7 @@ const Bodycontent = (props) => {
                                 className={`bookmark-icon ${isBookmarked ? "active" : ""
                                   }`}
                                 onClick={() =>
-                                  handleBookmarkToggle(item.id)
+                                  handleBookmarkToggle(item)
                                 }
                               >
                                 {isBookmarked ? (
@@ -1186,13 +1110,13 @@ const Bodycontent = (props) => {
                             <div className="card-badge">TRENDING</div>
                             <button
                               type="button"
-                              className={`bookmark-icon ${trendingBookmarked[item.id] ? "active" : ""
+                              className={`bookmark-icon ${isFav(getItemKey(item)) ? "active" : ""
                                 }`}
                               onClick={() =>
-                                handleBookmarkToggle(item.id)
+                                handleBookmarkToggle(item)
                               }
                             >
-                              {trendingBookmarked[item.id] ? (
+                              {isFav(getItemKey(item)) ? (
                                 <FavoriteIcon fontSize="small" />
                               ) : (
                                 <FavoriteBorderIcon fontSize="small" />
