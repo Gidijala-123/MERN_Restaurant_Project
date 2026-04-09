@@ -29,7 +29,6 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import PeopleIcon from "@mui/icons-material/People";
 
-// carttttt
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../features/cartSlice";
 import { useGetAllProductsQuery } from "../../features/productsApi";
@@ -214,7 +213,6 @@ const Bodycontent = (props) => {
     window.dispatchEvent(new Event("favoritesUpdated"));
   }, []);
 
-  //  carttttt
   const { data, err, isLoading } = useGetAllProductsQuery();
 
   const getFavorites = useMemo(() => {

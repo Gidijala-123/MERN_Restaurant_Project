@@ -24,12 +24,10 @@ export const productsFetch = createAsyncThunk(
 const productsSlice = createSlice({
   name: "products",
   initialState,
-  //   this is will generate action creators and handle the action types
   reducers: {},
-  //   this will won't generate action creators, it only handle action types
   extraReducers: (builder) => {
     builder
-      .addCase(productsFetch.pending, (state, action) => {
+      .addCase(productsFetch.pending, (state) => {
         state.status = "pending";
       })
       .addCase(productsFetch.fulfilled, (state, action) => {

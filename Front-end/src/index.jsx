@@ -3,9 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
-import productsReducer, {
-  productsFetch,
-} from "./components/features/productsSlice";
+import productsReducer from "./components/features/productsSlice";
 import { productsApi } from "./components/features/productsApi";
 import cartReducer from "./components/features/cartSlice";
 
