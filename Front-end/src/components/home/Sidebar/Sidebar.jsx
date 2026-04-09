@@ -25,11 +25,8 @@ import {
   Menu as MenuIcon,
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
-  Mail as MailIcon,
-  Notifications as NotificationsIcon,
   DarkMode as DarkModeIcon,
   LightMode as LightModeIcon,
-  ShoppingBag as OrdersIcon,
   Favorite as FavoritesIcon,
   FavoriteBorder as FavoriteBorderIcon,
   Settings as SettingsIcon,
@@ -51,32 +48,10 @@ import {
   LocalDrink as CocktailIcon,
   Icecream as DessertIcon,
   Logout as LogoutIcon,
-  Email as EmailIcon,
-  Phone as PhoneIcon,
-  LocationOn as LocationIcon,
-  CreditCard as CreditCardIcon,
-  Notes as NotesIcon,
-  LocalShipping as DeliveryIcon,
-  Add as AddIcon,
-  Delete as DeleteIcon,
 } from "@mui/icons-material";
 
 import {
-  Modal,
-  Fade,
-  Backdrop,
-  TextField,
-  Button,
   Avatar,
-  Card,
-  CardContent,
-  Chip,
-  Grid,
-  ToggleButtonGroup,
-  ToggleButton,
-  InputAdornment,
-  LinearProgress,
-  IconButton as MuiIconButton,
   Divider,
 } from "@mui/material";
 
@@ -90,11 +65,9 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useTheme as useAppTheme } from "../../../context/ThemeContext";
 import { useMenu } from "../../../context/MenuContext";
 
-// carttttt
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import SearchBar from "../Bodycontent/SEARCH_COMPONENT/SearchBar";
-import { addToCart } from "../../features/cartSlice";
 import { useGetAllProductsQuery } from "../../features/productsApi";
 
 import Favorites from "../Favorites";
@@ -331,10 +304,6 @@ export default function Sidebar() {
     setOpen((prev) => !prev);
   }, []);
 
-  const handleDrawerOpen = useCallback(() => {
-    setOpen(true);
-  }, []);
-
   const handleDrawerClose = useCallback(() => {
     setOpen(false);
   }, []);
@@ -355,10 +324,6 @@ export default function Sidebar() {
       navigate("/home/settings");
     }, 300);
   }, [handleAccountMenuClose, navigate]);
-
-  const menuStyle = useMemo(() => ({
-    color: appTheme === "dark" ? "white" : "inherit",
-  }), [appTheme]);
 
   const handleSectionChange = useCallback((section, sidebarItemOrTerm = null) => {
     setCurrentSection(section);

@@ -401,25 +401,6 @@ img {
    line-height: 1.2 !important;
 }
 
-/* Heart/Bookmark Icon placement */
-.bookmark-icon {
-   position: absolute !important;
-   top: 15px !important;
-   right: 15px !important;
-   width: 32px !important;
-   height: 32px !important;
-   background: white !important;
-   border-radius: 50% !important;
-   display: flex !important;
-   align-items: center !important;
-   justify-content: center !important;
-   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
-   color: #333 !important;
-   cursor: pointer !important;
-   transition: all 0.2s ease !important;
-   z-index: 2 !important;
-}
-
 /* Card Content Typography */
 .trending-items-title {
    font-size: 1rem !important;

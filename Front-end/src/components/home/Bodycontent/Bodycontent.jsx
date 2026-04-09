@@ -22,7 +22,6 @@ import Filter from "./FILTER_COMPONENT/Filter";
 import SkeletonLoader from "../../common/SkeletonLoader.jsx";
 import FoodLoader from "../../common/FoodLoader";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -213,60 +212,7 @@ const Bodycontent = (props) => {
     window.dispatchEvent(new Event("favoritesUpdated"));
   }, []);
 
-  const { data, err, isLoading } = useGetAllProductsQuery();
-
-  const getFavorites = useMemo(() => {
-    const favorites = [];
-
-    // 1. Check trending items (from API data)
-    data?.forEach((product) => {
-      if (trendingBookmarked[product.id]) {
-        favorites.push({ ...product, section: "trending" });
-      }
-    });
-
-    // 2. Check discount items (static list)
-    DISCOUNT_SALE_ITEMS.forEach((item) => {
-      if (discountBookmarked[item.id]) {
-        favorites.push({ ...item, price: item.newPrice, section: "discount" });
-      }
-    });
-
-    // 3. Check popular items
-    MENU_DATA.forEach((item) => {
-      if (popularBookmarked[item.id]) {
-        favorites.push({ ...item, section: "popular" });
-      }
-    });
-
-    // 4. Check recent items
-    MENU_DATA.forEach((item) => {
-      if (recentBookmarked[item.id]) {
-        favorites.push({ ...item, section: "recent" });
-      }
-    });
-
-    // 5. Check offer items
-    MENU_DATA.forEach((item) => {
-      if (offerBookmarked[item.id]) {
-        favorites.push({ ...item, section: "offer" });
-      }
-    });
-
-    // Filter out duplicates (item might be in multiple categories)
-    const uniqueFavorites = Array.from(new Set(favorites.map((f) => f.id))).map(
-      (id) => favorites.find((f) => f.id === id),
-    );
-
-    return uniqueFavorites;
-  }, [
-    data,
-    discountBookmarked,
-    trendingBookmarked,
-    offerBookmarked,
-    popularBookmarked,
-    recentBookmarked,
-  ]);
+  const { err, isLoading } = useGetAllProductsQuery();
 
   // Sync with props.currentSection
   React.useEffect(() => {
@@ -578,8 +524,6 @@ const Bodycontent = (props) => {
   const handleAddToCart = useCallback((product) => {
     dispatch(addToCart(product));
   }, [dispatch]);
-
-  // carouselllll
 
   const containerStyles = useMemo(() => ({
     width: "100%",
