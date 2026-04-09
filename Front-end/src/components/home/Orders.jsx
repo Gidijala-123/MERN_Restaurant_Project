@@ -6,8 +6,22 @@ export default function Orders() {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("userOrders") || "[]");
-    setOrders(Array.isArray(stored) ? stored : []);
+    const API = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
+    // Fetch from DB first, fall back to localStorage
+    fetch(`${API}/api/orders/my`, { credentials: "include" })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data?.orders) {
+          setOrders(data.orders);
+        } else {
+          const stored = JSON.parse(localStorage.getItem("userOrders") || "[]");
+          setOrders(Array.isArray(stored) ? stored : []);
+        }
+      })
+      .catch(() => {
+        const stored = JSON.parse(localStorage.getItem("userOrders") || "[]");
+        setOrders(Array.isArray(stored) ? stored : []);
+      });
   }, []);
 
   return (

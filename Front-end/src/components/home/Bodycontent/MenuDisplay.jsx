@@ -14,6 +14,7 @@ import { useDispatch } from "react-redux";
 import { addToCart } from "../../features/cartSlice";
 import { toast } from "react-toastify";
 import axios from "axios";
+import useFavorites from "../../../hooks/useFavorites";
 import "./MenuDisplay.css";
 
 const API = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
@@ -77,20 +78,11 @@ const MenuDisplay = () => {
   const { selectedCategory, selectedSubCategory, filteredItems, setFilteredItems, menuVersion, handleSubCategoryChange, getSubCategories, refreshMenu } = useMenu();
   const dispatch = useDispatch();
   const admin = isAdmin();
+  const { isFav, toggle: toggleFav } = useFavorites();
 
   // menuVersion is bumped by refreshMenu after save/delete
   // MenuContext re-fetches from API automatically when menuVersion changes
 
-  const [favoriteItems, setFavoriteItems] = useState(() =>
-    JSON.parse(localStorage.getItem("menuFavorites") || "{}")
-  );
-
-  // Keep favoriteItems in sync when toggled from Favorites page
-  useEffect(() => {
-    const sync = () => setFavoriteItems(JSON.parse(localStorage.getItem("menuFavorites") || "{}"));
-    window.addEventListener("favoritesUpdated", sync);
-    return () => window.removeEventListener("favoritesUpdated", sync);
-  }, []);
   const [editForm, setEditForm] = useState(null);
   const [editKey, setEditKey] = useState(0);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -139,16 +131,6 @@ const MenuDisplay = () => {
   const handleAddToCart = useCallback((item) => {
     dispatch(addToCart({ cartQuantity: 1, ...item, title: item.name, img: item.imageUrl, price: item.price }));
   }, [dispatch]);
-
-  const handleFavoriteToggle = useCallback((item) => {
-    const itemId = String(item._id || item.id);
-    const saved = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
-    const isCurrentlyOn = saved[itemId] === true;
-    const updated = { ...saved, [itemId]: !isCurrentlyOn };
-    localStorage.setItem("menuFavorites", JSON.stringify(updated));
-    setFavoriteItems(updated);
-    window.dispatchEvent(new Event("favoritesUpdated"));
-  }, []);
 
   const openAdd = (subCat) => {
     setFieldErrors({});
@@ -367,8 +349,8 @@ const MenuDisplay = () => {
                     </div>
                     {!admin && (
                       <div className="favorite-btn-wrapper">
-                        <Button onClick={() => handleFavoriteToggle(item)} className={`floating-fav-btn ${favoriteItems[String(item._id || item.id)] ? "active" : ""}`}>
-                          {favoriteItems[String(item._id || item.id)] ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                        <Button onClick={() => toggleFav(item._id || item.id)} className={`floating-fav-btn ${isFav(item._id || item.id) ? "active" : ""}`}>
+                          {isFav(item._id || item.id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                         </Button>
                       </div>
                     )}

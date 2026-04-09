@@ -33,6 +33,7 @@ import { addToCart } from "../../features/cartSlice";
 import { useGetAllProductsQuery } from "../../features/productsApi";
 import { useMenu } from "../../../context/MenuContext";
 import { MENU_DATA } from "../../../data/menuData";
+import useFavorites from "../../../hooks/useFavorites";
 
 const DISCOUNT_SALE_ITEMS = [
   {
@@ -168,45 +169,26 @@ const Bodycontent = (props) => {
   const [popularBookmarked, setPopularBookmarked] = useState({});
   const [recentBookmarked, setRecentBookmarked] = useState({});
   const [showFilter, setShowFilter] = useState(false);
+  const { isFav, toggle: toggleFav } = useFavorites();
 
-  // Load bookmarks from localStorage on mount and on external changes
+  // Keep section-specific heart states in sync with DB-backed favorites
   React.useEffect(() => {
-    const loadBookmarks = () => {
-      setDiscountBookmarked(JSON.parse(localStorage.getItem("discountBookmarked") || "{}"));
-      setTrendingBookmarked(JSON.parse(localStorage.getItem("trendingBookmarked") || "{}"));
-      setOfferBookmarked(JSON.parse(localStorage.getItem("offerBookmarked") || "{}"));
-      setPopularBookmarked(JSON.parse(localStorage.getItem("popularBookmarked") || "{}"));
-      setRecentBookmarked(JSON.parse(localStorage.getItem("recentBookmarked") || "{}"));
+    const sync = () => {
+      const favs = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
+      setDiscountBookmarked(favs);
+      setTrendingBookmarked(favs);
+      setOfferBookmarked(favs);
+      setPopularBookmarked(favs);
+      setRecentBookmarked(favs);
     };
-    loadBookmarks();
-    window.addEventListener("favoritesUpdated", loadBookmarks);
-    return () => window.removeEventListener("favoritesUpdated", loadBookmarks);
+    sync();
+    window.addEventListener("favoritesUpdated", sync);
+    return () => window.removeEventListener("favoritesUpdated", sync);
   }, []);
 
-  const handleBookmarkToggle = useCallback((itemId, section) => {
-    const storageKey = `${section}Bookmarked`;
-    const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
-    const isCurrentlyOn = saved[itemId] === true;
-    const updated = { ...saved, [itemId]: !isCurrentlyOn };
-
-    // 1. Update section-specific store (for heart state in Bodycontent)
-    localStorage.setItem(storageKey, JSON.stringify(updated));
-
-    // 2. Also sync to menuFavorites (single source of truth for Favorites page)
-    const menuFavs = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
-    const menuUpdated = { ...menuFavs, [String(itemId)]: !isCurrentlyOn };
-    localStorage.setItem("menuFavorites", JSON.stringify(menuUpdated));
-
-    // 3. Update React states
-    if (section === "discount") setDiscountBookmarked(updated);
-    else if (section === "trending") setTrendingBookmarked(updated);
-    else if (section === "offer") setOfferBookmarked(updated);
-    else if (section === "popular") setPopularBookmarked(updated);
-    else if (section === "recent") setRecentBookmarked(updated);
-
-    // 4. Notify Favorites page and navbar count
-    window.dispatchEvent(new Event("favoritesUpdated"));
-  }, []);
+  const handleBookmarkToggle = useCallback((itemId) => {
+    toggleFav(itemId);
+  }, [toggleFav]);
 
   const { err, isLoading } = useGetAllProductsQuery();
 
@@ -819,7 +801,7 @@ const Bodycontent = (props) => {
                               type="button"
                               className={`bookmark-icon ${isBookmarked ? "active" : ""
                                 }`}
-                              onClick={() => handleBookmarkToggle(each.id, "offer")}
+                              onClick={() => handleBookmarkToggle(each.id)}
                             >
                               {isBookmarked ? (
                                 <FavoriteIcon fontSize="small" />
@@ -931,7 +913,7 @@ const Bodycontent = (props) => {
                           type="button"
                           className={`bookmark-icon ${popularBookmarked[item.id] ? "active" : ""
                             }`}
-                          onClick={() => handleBookmarkToggle(item.id, "popular")}
+                          onClick={() => handleBookmarkToggle(item.id)}
                         >
                           {popularBookmarked[item.id] ? (
                             <FavoriteIcon fontSize="small" />
@@ -1040,7 +1022,7 @@ const Bodycontent = (props) => {
                           type="button"
                           className={`bookmark-icon ${recentBookmarked[item.id] ? "active" : ""
                             }`}
-                          onClick={() => handleBookmarkToggle(item.id, "recent")}
+                          onClick={() => handleBookmarkToggle(item.id)}
                         >
                           {recentBookmarked[item.id] ? (
                             <FavoriteIcon fontSize="small" />
@@ -1124,7 +1106,7 @@ const Bodycontent = (props) => {
                                 className={`bookmark-icon ${isBookmarked ? "active" : ""
                                   }`}
                                 onClick={() =>
-                                  handleBookmarkToggle(item.id, "discount")
+                                  handleBookmarkToggle(item.id)
                                 }
                               >
                                 {isBookmarked ? (
@@ -1207,7 +1189,7 @@ const Bodycontent = (props) => {
                               className={`bookmark-icon ${trendingBookmarked[item.id] ? "active" : ""
                                 }`}
                               onClick={() =>
-                                handleBookmarkToggle(item.id, "trending")
+                                handleBookmarkToggle(item.id)
                               }
                             >
                               {trendingBookmarked[item.id] ? (

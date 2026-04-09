@@ -121,28 +121,49 @@ export default function Settings() {
   }, []);
 
   useEffect(() => {
-    const stored = {
-      name: localStorage.getItem("userName") || "",
-      email: localStorage.getItem("userEmail") || "",
-      phone: localStorage.getItem("userPhone") || "",
-      address: localStorage.getItem("userAddress") || "",
-      deliveryInstructions:
-        localStorage.getItem("userDeliveryInstructions") || "",
-      paymentMethod: localStorage.getItem("userPaymentMethod") || "Cash",
-      foodType: localStorage.getItem("userFoodType") || "veg",
-      deliverySpeed: localStorage.getItem("userDeliverySpeed") || "Standard",
-      savedAddresses:
-        JSON.parse(localStorage.getItem("userSavedAddresses")) || [],
-      dietaryRestrictions:
-        JSON.parse(localStorage.getItem("userDietaryRestrictions")) || [],
-      referralCode: localStorage.getItem("userReferralCode") || "FLAVORA2024",
-      avatar: localStorage.getItem("userAvatar") || "",
-      selectedAddressId: localStorage.getItem("userSelectedAddressId")
-        ? parseInt(localStorage.getItem("userSelectedAddressId"))
-        : null,
-    };
-    setProfileForm(stored);
-    setSavedProfile(stored);
+    const API = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
+    fetch(`${API}/api/auth/profile/settings`, { credentials: "include" })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (!data) return;
+        const stored = {
+          name: data.uname || localStorage.getItem("userName") || "",
+          email: data.uemail || localStorage.getItem("userEmail") || "",
+          phone: data.profile?.phone || "",
+          address: data.profile?.address || "",
+          deliveryInstructions: data.profile?.deliveryInstructions || "",
+          paymentMethod: data.profile?.paymentMethod || "Cash",
+          foodType: data.profile?.foodType || "veg",
+          deliverySpeed: data.profile?.deliverySpeed || "Standard",
+          savedAddresses: data.profile?.savedAddresses || [],
+          dietaryRestrictions: data.profile?.dietaryRestrictions || [],
+          referralCode: data.profile?.referralCode || "FLAVORA2024",
+          avatar: data.avatar || localStorage.getItem("userAvatar") || "",
+          selectedAddressId: null,
+        };
+        setProfileForm(stored);
+        setSavedProfile(stored);
+      })
+      .catch(() => {
+        // Fallback to localStorage if API fails
+        const stored = {
+          name: localStorage.getItem("userName") || "",
+          email: localStorage.getItem("userEmail") || "",
+          phone: localStorage.getItem("userPhone") || "",
+          address: localStorage.getItem("userAddress") || "",
+          deliveryInstructions: localStorage.getItem("userDeliveryInstructions") || "",
+          paymentMethod: localStorage.getItem("userPaymentMethod") || "Cash",
+          foodType: localStorage.getItem("userFoodType") || "veg",
+          deliverySpeed: localStorage.getItem("userDeliverySpeed") || "Standard",
+          savedAddresses: JSON.parse(localStorage.getItem("userSavedAddresses")) || [],
+          dietaryRestrictions: JSON.parse(localStorage.getItem("userDietaryRestrictions")) || [],
+          referralCode: localStorage.getItem("userReferralCode") || "FLAVORA2024",
+          avatar: localStorage.getItem("userAvatar") || "",
+          selectedAddressId: null,
+        };
+        setProfileForm(stored);
+        setSavedProfile(stored);
+      });
   }, []);
 
   const validateForm = () => {
@@ -173,13 +194,25 @@ export default function Settings() {
       await fetch(`${API}/api/auth/profile`, {
         method: "PATCH",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          "x-csrf-token": csrf?.csrfToken || "",
-        },
+        headers: { "Content-Type": "application/json", "x-csrf-token": csrf?.csrfToken || "" },
+        body: JSON.stringify({ uname: profileForm.name.trim(), avatar: profileForm.avatar }),
+      });
+
+      // Persist profile settings to backend DB
+      await fetch(`${API}/api/auth/profile/settings`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", "x-csrf-token": csrf?.csrfToken || "" },
         body: JSON.stringify({
-          uname: profileForm.name.trim(),
-          avatar: profileForm.avatar,
+          phone: profileForm.phone,
+          address: profileForm.address,
+          deliveryInstructions: profileForm.deliveryInstructions,
+          paymentMethod: profileForm.paymentMethod,
+          foodType: profileForm.foodType,
+          deliverySpeed: profileForm.deliverySpeed,
+          savedAddresses: profileForm.savedAddresses,
+          dietaryRestrictions: profileForm.dietaryRestrictions,
+          referralCode: profileForm.referralCode,
         }),
       });
 

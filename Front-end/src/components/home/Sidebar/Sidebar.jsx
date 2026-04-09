@@ -71,6 +71,7 @@ import SearchBar from "../Bodycontent/SEARCH_COMPONENT/SearchBar";
 import { useGetAllProductsQuery } from "../../features/productsApi";
 
 import Favorites from "../Favorites";
+import useFavorites from "../../../hooks/useFavorites";
 import Orders from "../Orders";
 import Settings from "../Settings";
 import Chatbot from "../../common/Chatbot/Chatbot";
@@ -210,7 +211,7 @@ export default function Sidebar() {
 
   const { theme: appTheme, toggleTheme } = useAppTheme();
   const { handleCategoryChange } = useMenu();
-  const [favoritesCount, setFavoritesCount] = useState(0);
+  const { count: favoritesCount } = useFavorites();
   const { data, isLoading } = useGetAllProductsQuery();
 
   useEffect(() => {
@@ -295,9 +296,11 @@ export default function Sidebar() {
       });
     } catch { }
     setTimeout(() => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("userName");
-      localStorage.removeItem("userRole");
+      // Clear all user-specific data so next user starts fresh
+      ["token", "userName", "userRole", "userEmail", "userAvatar", "menuFavorites", "cartItems",
+        "userPhone", "userAddress", "userDeliveryInstructions", "userPaymentMethod",
+        "userFoodType", "userDeliverySpeed", "userSavedAddresses", "userDietaryRestrictions",
+        "userReferralCode", "userOrders"].forEach((k) => localStorage.removeItem(k));
       document.documentElement.removeAttribute("data-role");
       document.documentElement.style.removeProperty("--primary");
       document.documentElement.style.removeProperty("--primary-dark");
@@ -380,23 +383,6 @@ export default function Sidebar() {
     }, 0);
   }, [cartItems]);
 
-  const computeFavorites = useCallback(() => {
-    const saved = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
-    return Object.values(saved).filter(Boolean).length;
-  }, []);
-
-  useEffect(() => {
-    const updateFavoritesCount = () => {
-      setFavoritesCount(computeFavorites());
-    };
-    updateFavoritesCount();
-    window.addEventListener("storage", updateFavoritesCount);
-    window.addEventListener("favoritesUpdated", updateFavoritesCount);
-    return () => {
-      window.removeEventListener("storage", updateFavoritesCount);
-      window.removeEventListener("favoritesUpdated", updateFavoritesCount);
-    };
-  }, [computeFavorites]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>

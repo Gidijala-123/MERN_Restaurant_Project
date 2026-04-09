@@ -160,3 +160,80 @@ export const updateProfile = asyncHandler(async (req, res) => {
   await EmployeeModel.findByIdAndUpdate(uid, update);
   res.json({ ok: true });
 });
+
+// ── Profile settings ───────────────────────────────────────────────────────
+
+export const getProfileSettings = asyncHandler(async (req, res) => {
+  const uid = req.tokenKey?.uid;
+  if (!uid) return res.status(401).json({ message: "Unauthorized" });
+  const user = await EmployeeModel.findById(uid).select("profile uname uemail avatar");
+  res.json({ profile: user?.profile || {}, uname: user?.uname || "", uemail: user?.uemail || "", avatar: user?.avatar || "" });
+});
+
+export const saveProfileSettings = asyncHandler(async (req, res) => {
+  const uid = req.tokenKey?.uid;
+  if (!uid) return res.status(401).json({ message: "Unauthorized" });
+  const { phone, address, deliveryInstructions, paymentMethod, foodType,
+    deliverySpeed, savedAddresses, dietaryRestrictions, referralCode } = req.body || {};
+  const update = {};
+  if (phone !== undefined) update["profile.phone"] = phone;
+  if (address !== undefined) update["profile.address"] = address;
+  if (deliveryInstructions !== undefined) update["profile.deliveryInstructions"] = deliveryInstructions;
+  if (paymentMethod !== undefined) update["profile.paymentMethod"] = paymentMethod;
+  if (foodType !== undefined) update["profile.foodType"] = foodType;
+  if (deliverySpeed !== undefined) update["profile.deliverySpeed"] = deliverySpeed;
+  if (savedAddresses !== undefined) update["profile.savedAddresses"] = savedAddresses;
+  if (dietaryRestrictions !== undefined) update["profile.dietaryRestrictions"] = dietaryRestrictions;
+  if (referralCode !== undefined) update["profile.referralCode"] = referralCode;
+  await EmployeeModel.findByIdAndUpdate(uid, { $set: update });
+  res.json({ ok: true });
+});
+
+// ── Cart ───────────────────────────────────────────────────────────────────
+
+export const getCart = asyncHandler(async (req, res) => {
+  const uid = req.tokenKey?.uid;
+  if (!uid) return res.status(401).json({ message: "Unauthorized" });
+  const user = await EmployeeModel.findById(uid).select("cart");
+  res.json({ cart: user?.cart || [] });
+});
+
+export const saveCart = asyncHandler(async (req, res) => {
+  const uid = req.tokenKey?.uid;
+  if (!uid) return res.status(401).json({ message: "Unauthorized" });
+  const { cart } = req.body || {};
+  if (!Array.isArray(cart)) return res.status(400).json({ message: "cart must be an array" });
+  await EmployeeModel.findByIdAndUpdate(uid, { cart });
+  res.json({ ok: true });
+});
+
+// ── Favorites ──────────────────────────────────────────────────────────────
+
+export const getFavorites = asyncHandler(async (req, res) => {
+  const uid = req.tokenKey?.uid;
+  if (!uid) return res.status(401).json({ message: "Unauthorized" });
+  const user = await EmployeeModel.findById(uid).select("favorites");
+  res.json({ favorites: user?.favorites || [] });
+});
+
+export const toggleFavorite = asyncHandler(async (req, res) => {
+  const uid = req.tokenKey?.uid;
+  if (!uid) return res.status(401).json({ message: "Unauthorized" });
+  const { itemId } = req.params;
+  if (!itemId) return res.status(400).json({ message: "itemId required" });
+
+  const user = await EmployeeModel.findById(uid).select("favorites");
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  const favs = user.favorites || [];
+  const idx = favs.indexOf(String(itemId));
+  let updated;
+  if (idx === -1) {
+    updated = [...favs, String(itemId)];
+  } else {
+    updated = favs.filter((f) => f !== String(itemId));
+  }
+
+  await EmployeeModel.findByIdAndUpdate(uid, { favorites: updated });
+  res.json({ favorites: updated, added: idx === -1 });
+});

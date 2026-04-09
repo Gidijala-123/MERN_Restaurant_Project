@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { Box, Typography, Button, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
@@ -10,11 +10,13 @@ import { useDispatch } from "react-redux";
 import { addToCart } from "../features/cartSlice";
 import { MENU_DATA } from "../../data/menuData";
 import { useMenu } from "../../context/MenuContext";
+import useFavorites from "../../hooks/useFavorites";
 import "./Favorites.css";
 
 export default function Favorites() {
   const { data = [], isLoading } = useGetAllProductsQuery();
   const { allItems: liveMenuData = MENU_DATA } = useMenu();
+  const { favorites: menuFavorites, toggle: toggleFav } = useFavorites();
 
   const FALLBACK_IMAGES = {
     "Veg Starters": "/footer-images/vegitem.jpg",
@@ -42,22 +44,8 @@ export default function Favorites() {
     return src;
   };
 
-  const [menuFavorites, setMenuFavorites] = useState({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    const loadBookmarks = () => {
-      setMenuFavorites(JSON.parse(localStorage.getItem("menuFavorites") || "{}"));
-    };
-    loadBookmarks();
-    window.addEventListener("favoritesUpdated", loadBookmarks);
-    window.addEventListener("storage", loadBookmarks);
-    return () => {
-      window.removeEventListener("favoritesUpdated", loadBookmarks);
-      window.removeEventListener("storage", loadBookmarks);
-    };
-  }, []);
 
   const favorites = useMemo(() => {
     const list = [];
@@ -94,24 +82,8 @@ export default function Favorites() {
   }, [data, liveMenuData, menuFavorites]);
 
   const toggleFavorite = (item) => {
-    const ids = [String(item._id || ""), String(item.id || ""), String(item.itemId || "")].filter(Boolean);
-
-    // Clear from menuFavorites (single source of truth)
-    const saved = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
-    const updated = { ...saved };
-    ids.forEach((id) => { updated[id] = false; });
-    localStorage.setItem("menuFavorites", JSON.stringify(updated));
-    setMenuFavorites(updated);
-
-    // Also clear from section-specific stores so Bodycontent hearts sync
-    ["offerBookmarked", "trendingBookmarked", "popularBookmarked", "recentBookmarked", "discountBookmarked"].forEach((key) => {
-      const store = JSON.parse(localStorage.getItem(key) || "{}");
-      const storeUpdated = { ...store };
-      ids.forEach((id) => { storeUpdated[id] = false; });
-      localStorage.setItem(key, JSON.stringify(storeUpdated));
-    });
-
-    window.dispatchEvent(new Event("favoritesUpdated"));
+    const id = String(item._id || item.id || item.itemId);
+    toggleFav(id);
   };
 
   const handleAddToCart = (item) => {

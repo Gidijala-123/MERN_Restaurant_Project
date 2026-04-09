@@ -15,15 +15,12 @@ import products from "./controllers/products.js";
 import errorHandler from "./middleware/errorHandling.js";
 import { loginValidation, orderValidation, otpSendValidation, otpVerifyValidation } from "./middleware/expressValidator.js";
 import {
-  login,
-  refresh,
-  logout,
-  me,
-  updateAvatar,
-  updateProfile,
-  forgotPassword,
-  verifyForgotOtp,
-  resetPassword,
+  login, refresh, logout, me,
+  updateAvatar, updateProfile,
+  getProfileSettings, saveProfileSettings,
+  getCart, saveCart,
+  getFavorites, toggleFavorite,
+  forgotPassword, verifyForgotOtp, resetPassword,
 } from "./controllers/authController.js";
 import { verifyAccessToken, requireRole } from "./middleware/auth.js";
 import { setOtp, verifyOtp } from "./services/otpStore.js";
@@ -195,6 +192,12 @@ app.post("/api/auth/logout", checkCsrf, logout);
 app.get("/api/auth/me", me);
 app.patch("/api/auth/avatar", verifyAccessToken, checkCsrf, updateAvatar);
 app.patch("/api/auth/profile", verifyAccessToken, checkCsrf, updateProfile);
+app.get("/api/auth/profile/settings", verifyAccessToken, getProfileSettings);
+app.patch("/api/auth/profile/settings", verifyAccessToken, checkCsrf, saveProfileSettings);
+app.get("/api/auth/cart", verifyAccessToken, getCart);
+app.patch("/api/auth/cart", verifyAccessToken, checkCsrf, saveCart);
+app.get("/api/auth/favorites", verifyAccessToken, getFavorites);
+app.patch("/api/auth/favorites/:itemId", verifyAccessToken, checkCsrf, toggleFavorite);
 app.post("/api/auth/forgot-password", forgotPassword);
 app.post("/api/auth/verify-forgot-otp", verifyForgotOtp);
 app.post("/api/auth/reset-password", resetPassword);
@@ -260,6 +263,14 @@ app.post("/api/admin/broadcast-newsletter", requireRole("admin"), async (req, re
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// Orders — user's own order history
+app.get("/api/orders/my", verifyAccessToken, async (req, res) => {
+  const userEmail = req.tokenKey?.uemail;
+  if (!userEmail) return res.status(401).json({ message: "Unauthorized" });
+  const orders = await Order.find({ userEmail }).sort({ createdAt: -1 }).lean();
+  res.json({ orders });
 });
 
 // Orders
