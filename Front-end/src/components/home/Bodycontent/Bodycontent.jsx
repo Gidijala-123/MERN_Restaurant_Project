@@ -169,46 +169,42 @@ const Bodycontent = (props) => {
   const [recentBookmarked, setRecentBookmarked] = useState({});
   const [showFilter, setShowFilter] = useState(false);
 
-  // Load bookmarks from localStorage on mount
+  // Load bookmarks from localStorage on mount and on external changes
   React.useEffect(() => {
-    const savedDiscount = JSON.parse(
-      localStorage.getItem("discountBookmarked") || "{}",
-    );
-    const savedTrending = JSON.parse(
-      localStorage.getItem("trendingBookmarked") || "{}",
-    );
-    const savedOffer = JSON.parse(
-      localStorage.getItem("offerBookmarked") || "{}",
-    );
-    const savedPopular = JSON.parse(
-      localStorage.getItem("popularBookmarked") || "{}",
-    );
-    const savedRecent = JSON.parse(
-      localStorage.getItem("recentBookmarked") || "{}",
-    );
-    setDiscountBookmarked(savedDiscount);
-    setTrendingBookmarked(savedTrending);
-    setOfferBookmarked(savedOffer);
-    setPopularBookmarked(savedPopular);
-    setRecentBookmarked(savedRecent);
+    const loadBookmarks = () => {
+      setDiscountBookmarked(JSON.parse(localStorage.getItem("discountBookmarked") || "{}"));
+      setTrendingBookmarked(JSON.parse(localStorage.getItem("trendingBookmarked") || "{}"));
+      setOfferBookmarked(JSON.parse(localStorage.getItem("offerBookmarked") || "{}"));
+      setPopularBookmarked(JSON.parse(localStorage.getItem("popularBookmarked") || "{}"));
+      setRecentBookmarked(JSON.parse(localStorage.getItem("recentBookmarked") || "{}"));
+    };
+    loadBookmarks();
+    window.addEventListener("favoritesUpdated", loadBookmarks);
+    return () => window.removeEventListener("favoritesUpdated", loadBookmarks);
   }, []);
 
   const handleBookmarkToggle = useCallback((itemId, section) => {
     const storageKey = `${section}Bookmarked`;
     const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
-    const updated = { ...saved, [itemId]: !saved[itemId] };
+    const isCurrentlyOn = saved[itemId] === true;
+    const updated = { ...saved, [itemId]: !isCurrentlyOn };
 
-    // 1. Update localStorage synchronously first
+    // 1. Update section-specific store (for heart state in Bodycontent)
     localStorage.setItem(storageKey, JSON.stringify(updated));
 
-    // 2. Update React states
+    // 2. Also sync to menuFavorites (single source of truth for Favorites page)
+    const menuFavs = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
+    const menuUpdated = { ...menuFavs, [String(itemId)]: !isCurrentlyOn };
+    localStorage.setItem("menuFavorites", JSON.stringify(menuUpdated));
+
+    // 3. Update React states
     if (section === "discount") setDiscountBookmarked(updated);
     else if (section === "trending") setTrendingBookmarked(updated);
     else if (section === "offer") setOfferBookmarked(updated);
     else if (section === "popular") setPopularBookmarked(updated);
     else if (section === "recent") setRecentBookmarked(updated);
 
-    // 3. Dispatch event to update navbar favorites count
+    // 4. Notify Favorites page and navbar count
     window.dispatchEvent(new Event("favoritesUpdated"));
   }, []);
 

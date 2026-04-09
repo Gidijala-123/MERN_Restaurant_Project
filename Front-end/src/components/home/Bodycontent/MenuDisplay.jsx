@@ -143,7 +143,8 @@ const MenuDisplay = () => {
   const handleFavoriteToggle = useCallback((item) => {
     const itemId = String(item._id || item.id);
     const saved = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
-    const updated = { ...saved, [itemId]: !saved[itemId] };
+    const isCurrentlyOn = saved[itemId] === true;
+    const updated = { ...saved, [itemId]: !isCurrentlyOn };
     localStorage.setItem("menuFavorites", JSON.stringify(updated));
     setFavoriteItems(updated);
     window.dispatchEvent(new Event("favoritesUpdated"));

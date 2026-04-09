@@ -65,8 +65,12 @@ export default function Favorites() {
 
     // Check both _id and id for a match in menuFavorites
     const isBookmarked = (item) => {
-      const ids = [String(item._id || ""), String(item.id || ""), String(item.itemId || "")].filter(Boolean);
-      return ids.some((id) => menuFavorites[id]);
+      const ids = [
+        item._id ? String(item._id) : null,
+        item.id != null ? String(item.id) : null,
+        item.itemId != null ? String(item.itemId) : null,
+      ].filter(Boolean);
+      return ids.some((id) => menuFavorites[id] === true);
     };
 
     liveMenuData.forEach((item) => {
@@ -90,13 +94,23 @@ export default function Favorites() {
   }, [data, liveMenuData, menuFavorites]);
 
   const toggleFavorite = (item) => {
-    // Remove all possible ID variants from menuFavorites
     const ids = [String(item._id || ""), String(item.id || ""), String(item.itemId || "")].filter(Boolean);
+
+    // Clear from menuFavorites (single source of truth)
     const saved = JSON.parse(localStorage.getItem("menuFavorites") || "{}");
     const updated = { ...saved };
-    ids.forEach((id) => { if (updated[id]) updated[id] = false; });
+    ids.forEach((id) => { updated[id] = false; });
     localStorage.setItem("menuFavorites", JSON.stringify(updated));
     setMenuFavorites(updated);
+
+    // Also clear from section-specific stores so Bodycontent hearts sync
+    ["offerBookmarked", "trendingBookmarked", "popularBookmarked", "recentBookmarked", "discountBookmarked"].forEach((key) => {
+      const store = JSON.parse(localStorage.getItem(key) || "{}");
+      const storeUpdated = { ...store };
+      ids.forEach((id) => { storeUpdated[id] = false; });
+      localStorage.setItem(key, JSON.stringify(storeUpdated));
+    });
+
     window.dispatchEvent(new Event("favoritesUpdated"));
   };
 
