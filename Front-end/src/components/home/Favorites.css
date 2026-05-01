@@ -48,17 +48,6 @@
   width: 100% !important;
 }
 
-.favorites-grid>div {
-  display: flex;
-  flex-direction: column;
-}
-
-.favorite-card-wrapper {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
 .favorite-card {
   height: 100% !important;
   display: flex !important;

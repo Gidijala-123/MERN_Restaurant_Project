@@ -194,8 +194,8 @@ export default function Favorites() {
                   </Button>
                 </div>
               </div>
-            </div>
           ))}
+          </div>
         </div>
       )}
     </div>
