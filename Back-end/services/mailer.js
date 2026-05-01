@@ -18,9 +18,7 @@ function getTransporter() {
   }
 
   _transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,              // use SSL
+    service: "gmail",
     pool: true,
     maxConnections: 5,
     maxMessages: Infinity,
@@ -31,13 +29,9 @@ function getTransporter() {
     tls: {
       rejectUnauthorized: true,
     },
-    // Force IPv4 to prevent ENETUNREACH errors on cloud platforms like Render
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 10000,
-    dnsLookup: (hostname, options, callback) => {
-      dns.lookup(hostname, { family: 4 }, callback);
-    }
+    connectionTimeout: 20000, // Increase to 20s for Render
+    greetingTimeout: 20000,
+    socketTimeout: 20000,
   });
 
   return _transporter;
