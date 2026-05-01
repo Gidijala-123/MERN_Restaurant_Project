@@ -40,11 +40,12 @@
 }
 
 .favorites-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr));
-  gap: 1.5rem;
-  margin-top: 1.5rem;
-  align-items: stretch;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr)) !important;
+  gap: 1.5rem !important;
+  margin-top: 1.5rem !important;
+  align-items: stretch !important;
+  width: 100% !important;
 }
 
 .favorites-grid>div {
@@ -59,17 +60,17 @@
 }
 
 .favorite-card {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
   background: var(--white) !important;
   border: 1px solid var(--border-light) !important;
   border-radius: 1.25rem !important;
   overflow: hidden !important;
   transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
   box-shadow: 0 0.25rem 0.9375rem rgba(0, 0, 0, 0.03) !important;
-  position: relative;
-  width: 100%;
+  position: relative !important;
+  width: 100% !important;
 }
 
 .favorite-card:hover {
@@ -79,16 +80,19 @@
 }
 
 .favorite-image-wrapper {
-  position: relative;
-  height: 11.25rem;
-  overflow: hidden;
+  position: relative !important;
+  height: 12.5rem !important;
+  /* Fixed height for consistency */
+  width: 100% !important;
+  overflow: hidden !important;
+  border-bottom: 1px solid var(--border-light) !important;
 }
 
 .favorite-image-wrapper img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  transition: transform 0.5s ease !important;
 }
 
 .favorite-card:hover .favorite-image-wrapper img {
@@ -153,12 +157,33 @@
   opacity: 0.8;
 }
 
+.favorite-price-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-top: auto !important;
+}
+
+.favorite-price-new {
+  font-size: 1.5rem !important;
+  font-weight: 900 !important;
+  color: var(--primary) !important;
+}
+
+.favorite-price-old {
+  font-size: 0.875rem !important;
+  text-decoration: line-through !important;
+  color: var(--text-sub) !important;
+  opacity: 0.6 !important;
+}
+
 .favorite-actions {
   padding: 0 1rem 1rem 1rem !important;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  margin-top: 1rem !important;
 }
 
 .remove-fav-btn {

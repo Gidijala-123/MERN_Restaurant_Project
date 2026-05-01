@@ -140,10 +140,10 @@ export default function Favorites() {
           </Button>
         </div>
       ) : (
-        <div className="favorites-grid">
-          {favorites.map((item) => (
-            <div key={String(item._id || item.id)} className="favorite-card-wrapper">
-              <div className="favorite-card">
+        <div className="favorites-grid-container">
+          <div className="favorites-grid">
+            {favorites.map((item) => (
+              <div key={String(item._id || item.id)} className="favorite-card">
                 <div className="favorite-image-wrapper">
                   <img
                     src={resolveImageSrc(item)}
@@ -158,23 +158,23 @@ export default function Favorites() {
                 </div>
 
                 <div className="favorite-content">
-                  <Typography className="favorite-item-title">
+                  <h3 className="favorite-item-title">
                     {item.title || item.name}
-                  </Typography>
-                  <Typography className="favorite-item-desc">
+                  </h3>
+                  <p className="favorite-item-desc">
                     {item.desc || item.description || "Indulge in this delicious selection, crafted with fresh ingredients and authentic flavors."}
-                  </Typography>
+                  </p>
 
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto' }}>
-                    <Typography variant="h5" sx={{ fontWeight: 900, color: 'var(--primary)' }}>
+                  <div className="favorite-price-row">
+                    <span className="favorite-price-new">
                       ₹{item.newPrice || item.price}
-                    </Typography>
+                    </span>
                     {item.oldPrice && (
-                      <Typography variant="body2" sx={{ textDecoration: 'line-through', color: 'var(--text-sub)', opacity: 0.6 }}>
+                      <span className="favorite-price-old">
                         ₹{item.oldPrice}
-                      </Typography>
+                      </span>
                     )}
-                  </Box>
+                  </div>
                 </div>
 
                 <div className="favorite-actions">
