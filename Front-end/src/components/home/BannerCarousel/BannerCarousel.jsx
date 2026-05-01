@@ -104,8 +104,8 @@ const BannerCarousel = ({ onSectionChange }) => {
     if (isRightSwipe) prevSlide();
   };
 
-  const nextSlide = () => {
-    playSound("click");
+  const nextSlide = (isManual = false) => {
+    if (isManual) playSound("click");
     setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
   };
 
@@ -122,7 +122,7 @@ const BannerCarousel = ({ onSectionChange }) => {
   };
 
   useEffect(() => {
-    const interval = setInterval(nextSlide, 6000); // Increased time slightly for better readability
+    const interval = setInterval(() => nextSlide(false), 6000); // Silent auto-slide
     return () => clearInterval(interval);
   }, [currentIndex]); // Reset interval when slide changes manually
 

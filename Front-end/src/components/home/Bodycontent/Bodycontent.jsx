@@ -292,78 +292,6 @@ const Bodycontent = (props) => {
     Desserts: "/footer-images/desserts.jpg",
   };
 
-  const resolveImageSrc = (item) => {
-    // Prefer explicit image fields.
-    const candidate = item?.image || item?.img || item?.imageUrl;
-
-    // If candidate is from /menu-images, map it to a real public image (menu-images isn't included in build).
-    if (candidate?.startsWith("/menu-images/")) {
-      const filename = candidate.split("/").pop()?.toLowerCase();
-      const mapped = {
-        "samosa.jpg": "/footer-images/vegitem.jpg",
-        "paneer-tikka.jpg": "/footer-images/vegitem.jpg",
-        "spring-rolls.jpg": "/footer-images/veggies.jpg",
-        "aloo-tikki.jpg": "/footer-images/vegitem.jpg",
-        "corn-fritters.jpg": "/footer-images/vegitem.jpg",
-        "chicken-tikka.jpg": "/footer-images/chicken.png",
-        "tandoori-prawns.jpg": "/footer-images/chicken.png",
-        "fish-amritsari.jpg": "/footer-images/seafood.jpg",
-        "chicken-pakora.jpg": "/footer-images/chicken.png",
-        "mutton-seekh.jpg": "/footer-images/meat.png",
-        "tandoori-chicken-half.jpg": "/footer-images/meat.png",
-        "tandoori-fish.jpg": "/footer-images/seafood.jpg",
-        "tandoori-mushroom.jpg": "/footer-images/vegitem.jpg",
-        "tandoori-paneer.jpg": "/footer-images/vegitem.jpg",
-        "tomato-soup.jpg": "/footer-images/soups.jpg",
-        "chicken-soup.jpg": "/footer-images/soups.jpg",
-        "mulligatawny.jpg": "/footer-images/soups.jpg",
-        "veg-soup.jpg": "/footer-images/soups.jpg",
-        "greek-salad.jpg": "/footer-images/salads.jpg",
-        "chicken-salad.jpg": "/footer-images/salads.jpg",
-        "caesar-salad.jpg": "/footer-images/salads.jpg",
-        "veg-manchurian.jpg": "/footer-images/veggies.jpg",
-        "chicken-manchurian.jpg": "/footer-images/chicken.png",
-        "veg-fried-rice.jpg": "/footer-images/food.png",
-        "chicken-fried-rice.jpg": "/footer-images/food.png",
-        "paneer-butter-masala.jpg": "/footer-images/food.png",
-        "butter-chicken.jpg": "/footer-images/chicken.png",
-        "mutton-biryani.jpg": "/footer-images/chicken.png",
-        "hyd-biryani.jpg": "/footer-images/chicken.png",
-        "gulab-jamun.jpg": "/footer-images/desserts.jpg",
-        "rasmalai.jpg": "/footer-images/desserts.jpg",
-        "kheer.jpg": "/footer-images/desserts.jpg",
-        "ice-cream.jpg": "/footer-images/ice_cream.jpg",
-      }[filename];
-
-      if (mapped) {
-        return mapped;
-      }
-
-      // If we don’t have a local mapping, use the item name to fetch a relevant Unsplash image.
-      // This makes “Samosa” show a more appropriate image instead of a generic “food” asset.
-      return `https://source.unsplash.com/600x400/?${encodeURIComponent(
-        item?.name || item?.title || item?.category || "food",
-      )}`;
-    }
-
-    // If candidate exists but is not a /menu-images reference, use it.
-    if (candidate && !candidate.startsWith("/menu-images/")) {
-      return candidate;
-    }
-
-    const categoryFallback = IMAGE_FALLBACK[item?.category];
-
-    // Use a deterministic seed based on item name for consistent, realistic food images
-    const seed = encodeURIComponent(
-      (item?.name || item?.title || item?.category || "Food").replace(/\s+/g, "-").toLowerCase(),
-    );
-
-    return (
-      categoryFallback ||
-      `https://picsum.photos/seed/${seed}/600/400`
-    );
-  };
-
   const getDiscountPercent = (item) => {
     // Deterministic discount based on item id (stable, but varying)
     const base = 10;
@@ -734,7 +662,7 @@ const Bodycontent = (props) => {
                               )}
                             </button>
                             <img
-                              src={resolveImageSrc(each)}
+                              src={resolveItemImage(each)}
                               alt={each.name || each.title}
                               loading="lazy"
                               onError={(e) => {
@@ -799,7 +727,12 @@ const Bodycontent = (props) => {
                             </div>
                             <button
                               className="btn shopnow-btn"
-                              onClick={() => handleAddToCart(each)}
+                              onClick={() => handleAddToCart({
+                                id: each.id,
+                                title: each.name || each.title,
+                                price: each.price || each.newPrice,
+                                img: resolveItemImage(each)
+                              })}
                             >
                               SHOP NOW
                             </button>
@@ -846,7 +779,7 @@ const Bodycontent = (props) => {
                           )}
                         </button>
                         <img
-                          src={resolveImageSrc(item)}
+                          src={resolveItemImage(item)}
                           alt={item.name}
                           loading="lazy"
                           onError={(e) => {
@@ -906,7 +839,7 @@ const Bodycontent = (props) => {
                               id: item.id,
                               title: item.name,
                               price: newPrice,
-                              img: resolveImageSrc(item),
+                              img: resolveItemImage(item),
                             })
                           }
                         >
@@ -955,7 +888,7 @@ const Bodycontent = (props) => {
                           )}
                         </button>
                         <img
-                          src={resolveImageSrc(item)}
+                          src={resolveItemImage(item)}
                           alt={item.name}
                           loading="lazy"
                           onError={(e) => {
@@ -999,7 +932,7 @@ const Bodycontent = (props) => {
                               id: item.id,
                               title: item.name,
                               price: newPrice,
-                              img: resolveImageSrc(item),
+                              img: resolveItemImage(item),
                             })
                           }
                         >

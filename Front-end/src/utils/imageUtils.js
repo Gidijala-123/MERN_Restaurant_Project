@@ -75,11 +75,14 @@ export function resolveItemImage(item) {
   const name = item?.name || item?.title || "";
   const category = item?.category || "";
 
-  // All known generic category fallback paths — if imageUrl is one of these,
-  // skip it and use the name-based seed instead for a unique image per item.
-  const genericPaths = new Set(Object.values(CATEGORY_FALLBACK));
-
+  // If it's already a Picsum or Unsplash URL, return it directly to avoid re-resolution
   const candidate = item?.image || item?.img || item?.imageUrl;
+  if (candidate?.includes("picsum.photos") || candidate?.includes("unsplash.com") || candidate?.includes("mixkit.co")) {
+    return candidate;
+  }
+
+  // All known generic category fallback paths
+  const genericPaths = new Set(Object.values(CATEGORY_FALLBACK));
 
   // Handle /menu-images/ paths
   if (candidate?.startsWith("/menu-images/")) {

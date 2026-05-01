@@ -454,16 +454,16 @@ const Cart = () => {
                 <div className="cart-item" key={cartItem.id} style={{ animationDelay: `${idx * 0.05}s` }}>
                   {/* Product */}
                   <div className="cart-product">
-                    <div className="cart-product-img-wrap">
-                      <img 
-                        src={resolveItemImage(cartItem)} 
-                        alt={cartItem.title} 
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = "/footer-images/food.png";
-                        }}
-                      />
-                    </div>
+                      <div className="cart-product-img-wrap">
+                        <img 
+                          src={cartItem.img || resolveItemImage(cartItem)} 
+                          alt={cartItem.title} 
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = "/footer-images/food.png";
+                          }}
+                        />
+                      </div>
                     <div className="item-texts">
                       <h3>{cartItem.title}</h3>
                       <p className="item-cal">{cartItem.decrp || "Fresh & delicious"}</p>
