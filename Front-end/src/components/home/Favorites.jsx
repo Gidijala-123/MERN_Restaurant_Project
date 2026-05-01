@@ -13,6 +13,7 @@ import { DISCOUNT_SALE_ITEMS } from "../../data/discountItems";
 import { useMenu } from "../../context/MenuContext";
 import useFavorites from "../../hooks/useFavorites";
 import useSound from "../../hooks/useSound";
+import { resolveItemImage } from "../../utils/imageUtils";
 import "./Favorites.css";
 
 const FALLBACK_IMAGES = {
@@ -35,7 +36,6 @@ const FALLBACK_IMAGES = {
 
 // Same logic as MenuDisplay — use imageUrl directly, fall back to category image on error
 const getFallback = (category) => FALLBACK_IMAGES[category] || "/footer-images/food.png";
-const getImageSrc = (item) => item?.imageUrl || item?.img || item?.image || getFallback(item?.category);
 
 export default function Favorites() {
   const { data = [], isLoading } = useGetAllProductsQuery();
@@ -44,8 +44,6 @@ export default function Favorites() {
   const { playSound } = useSound();
   // Show loader only if we have no local data yet (first ever load)
   const hasLocalData = favIds.length > 0;
-
-  const resolveImageSrc = getImageSrc;
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -92,7 +90,7 @@ export default function Favorites() {
         id: item.itemId || item.id || item._id,
         title: item.title || item.name,
         price: item.newPrice || item.price,
-        img: resolveImageSrc(item),
+        img: resolveItemImage(item),
         cartQuantity: 1,
       })
     );
@@ -150,7 +148,7 @@ export default function Favorites() {
               <div key={String(item._id || item.id)} className="favorite-card">
                 <div className="favorite-image-wrapper">
                   <img
-                    src={resolveImageSrc(item)}
+                    src={resolveItemImage(item)}
                     alt={item.title || item.name}
                     loading="lazy"
                     onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = getFallback(item.category); }}

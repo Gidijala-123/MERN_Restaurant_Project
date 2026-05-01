@@ -16,6 +16,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import useFavorites from "../../../hooks/useFavorites";
 import useSound from "../../../hooks/useSound";
+import { resolveItemImage } from "../../../utils/imageUtils";
 import "./MenuDisplay.css";
 
 const API = (import.meta.env.VITE_API_URL || 
@@ -358,7 +359,7 @@ const MenuDisplay = () => {
 
                   <div className="card-image-wrapper">
                     <img
-                      src={item.imageUrl?.startsWith("/menu-images/") ? getFallback(item.category) : item.imageUrl}
+                      src={resolveItemImage(item)}
                       alt={item.name}
                       onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = getFallback(item.category); }}
                       loading="lazy"
