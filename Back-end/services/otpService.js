@@ -8,7 +8,9 @@ async function sendViaBrevo({ to, subject, html }) {
   const fromEmail = process.env.BREVO_FROM_EMAIL || process.env.EMAIL_FROM || "browserlogins@gmail.com";
   const fromName = process.env.BREVO_FROM_NAME || "Flavora";
 
-  const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+  console.log(`[Brevo] Attempting send from: ${fromEmail}`);
+
+   const res = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
       "api-key": apiKey,
@@ -117,6 +119,7 @@ export async function sendEmailOtp({ to, code = "", subject: customSubject, html
 
   // Try Gmail first (usually more reliable for personal use if App Password is set)
   if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+    console.log(`[OTP] Attempting Gmail send to: ${to}`);
     try {
       const result = await sendGmail({ to, subject, html });
       if (result) {

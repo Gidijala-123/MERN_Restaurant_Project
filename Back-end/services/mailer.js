@@ -6,6 +6,7 @@
  * This is the single source of truth for all outgoing email.
  */
 import nodemailer from "nodemailer";
+import dns from "dns";
 
 let _transporter = null;
 
@@ -17,17 +18,26 @@ function getTransporter() {
   }
 
   _transporter = nodemailer.createTransport({
-    service: "gmail",          // resolves host/port automatically
-    pool: true,                // keep connections alive — faster for bursts
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,              // use SSL
+    pool: true,
     maxConnections: 5,
     maxMessages: Infinity,
     auth: {
       user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD, // 16-char App Password, NOT your Gmail password
+      pass: process.env.GMAIL_APP_PASSWORD,
     },
     tls: {
       rejectUnauthorized: true,
     },
+    // Force IPv4 to prevent ENETUNREACH errors on cloud platforms like Render
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
+    dnsLookup: (hostname, options, callback) => {
+      dns.lookup(hostname, { family: 4 }, callback);
+    }
   });
 
   return _transporter;
