@@ -121,27 +121,15 @@ export async function sendWhatsAppOtp({ to, code }) {
 
 import { sendMail as sendGmail } from "./mailer.js";
 
-// ── Email via Brevo HTTP API (primary) with Gmail fallback ────────────────
+// ── Email via Gmail SMTP (primary) with Brevo fallback ────────────────────
 export async function sendEmailOtp({ to, code = "", subject: customSubject, html: customHtml }) {
   const subject = customSubject || "Your Flavora Verification Code";
   const html = customHtml || buildOtpHtml(code);
   let lastError = "";
 
-  // Try Brevo first (HTTP is much more reliable on Render than SMTP)
-  try {
-    const result = await sendViaBrevo({ to, subject, html });
-    if (result) {
-      console.log(`[Brevo Success] Sent to ${to}, messageId: ${result.messageId}`);
-      return { ok: true, provider: "brevo", messageId: result.messageId };
-    }
-  } catch (err) {
-    console.error("[Brevo Final Error]", err.message);
-    lastError = `Brevo: ${err.message}`;
-  }
-
-  // Fallback to Gmail SMTP
+  // Try Gmail first - it's usually more reliable for inbox placement if configured correctly
   if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
-    console.log(`[OTP] Attempting Gmail fallback send to: ${to}`);
+    console.log(`[OTP] Attempting Gmail primary send to: ${to}`);
     try {
       const result = await sendGmail({ to, subject, html });
       if (result) {
@@ -150,8 +138,20 @@ export async function sendEmailOtp({ to, code = "", subject: customSubject, html
       }
     } catch (err) {
       console.error("[Gmail Final Error]", err.message);
-      lastError = (lastError ? lastError + " | " : "") + `Gmail: ${err.message}`;
+      lastError = `Gmail: ${err.message}`;
     }
+  }
+
+  // Fallback to Brevo HTTP API
+  try {
+    const result = await sendViaBrevo({ to, subject, html });
+    if (result) {
+      console.log(`[Brevo Success] Sent to ${to}, messageId: ${result.messageId}`);
+      return { ok: true, provider: "brevo", messageId: result.messageId };
+    }
+  } catch (err) {
+    console.error("[Brevo Final Error]", err.message);
+    lastError = (lastError ? lastError + " | " : "") + `Brevo: ${err.message}`;
   }
 
   // If both failed and we are in production, we MUST surface the error
