@@ -1,11 +1,15 @@
 import { useCallback, useMemo } from 'react';
 
 /**
- * Custom hook to manage project-wide audio feedback.
- * Pre-loads audio objects for faster response and handles browser autoplay restrictions.
+ * Enhanced sound hook with a persistent audio pool.
+ * This approach helps bypass browser "NotAllowedError" by reusing audio objects 
+ * once the user has performed at least one interaction.
  */
+
+// Shared audio instances to bypass "new Audio()" blocking in some browsers
+const audioPool = {};
+
 export default function useSound() {
-  // Mapping of sound types to paths.
   const soundMap = useMemo(() => ({
     click: 'https://www.soundjay.com/buttons/sounds/button-16.mp3',
     pop: 'https://www.soundjay.com/buttons/sounds/button-37.mp3',
@@ -19,25 +23,31 @@ export default function useSound() {
     if (!path) return;
 
     try {
-      const audio = new Audio(path);
-      audio.volume = 0.5; // Increased volume slightly for better audibility
+      // Reuse existing audio object if available in pool
+      if (!audioPool[soundType]) {
+        audioPool[soundType] = new Audio(path);
+      }
       
-      // Pre-load the sound
-      audio.load();
+      const audio = audioPool[soundType];
+      audio.volume = 0.6; // Slightly higher volume for better feedback
+      
+      // Reset sound to beginning if it's already playing
+      if (!audio.paused) {
+        audio.currentTime = 0;
+      }
 
       const playPromise = audio.play();
       
       if (playPromise !== undefined) {
         playPromise.catch(err => {
+          // If blocked, we log a more helpful message for the user
           if (err.name === "NotAllowedError") {
-            console.warn(`[useSound] Playback blocked for "${soundType}". Browser requires a user gesture (click/tap) on the page first.`);
-          } else {
-            console.error(`[useSound] Error playing "${soundType}":`, err);
+            console.warn(`[Sound System] Playback of "${soundType}" was blocked. Please click anywhere on the page to enable sounds.`);
           }
         });
       }
     } catch (e) {
-      console.warn("[useSound] Audio initialization failed", e);
+      console.warn("[Sound System] Initialization error:", e);
     }
   }, [soundMap]);
 

@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { ThemeProvider } from "./context/ThemeContext";
 import { MenuProvider } from "./context/MenuContext";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import LoadingOverlay from "./components/common/LoadingOverlay";
 
 // Lazy load large pages to reduce initial bundle size
@@ -26,6 +26,30 @@ const CheckoutSuccess = lazy(() => import("./components/home/CartComponent/Check
  * Sets up routing, global providers, and core application structure
  */
 function App() {
+  // Global interaction listener to "unlock" audio engine for modern browsers
+  useEffect(() => {
+    const unlockAudio = () => {
+      const silentAudio = new Audio('https://www.soundjay.com/buttons/sounds/button-16.mp3');
+      silentAudio.volume = 0;
+      silentAudio.play().then(() => {
+        console.log("[Sound System] Audio engine unlocked.");
+        window.removeEventListener('click', unlockAudio);
+        window.removeEventListener('keydown', unlockAudio);
+        window.removeEventListener('touchstart', unlockAudio);
+      }).catch(() => {});
+    };
+
+    window.addEventListener('click', unlockAudio);
+    window.addEventListener('keydown', unlockAudio);
+    window.addEventListener('touchstart', unlockAudio);
+
+    return () => {
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+    };
+  }, []);
+
   return (
     <ThemeProvider>
       <MenuProvider>
