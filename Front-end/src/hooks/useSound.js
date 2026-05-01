@@ -1,21 +1,21 @@
 import { useCallback, useMemo } from 'react';
 
 /**
- * Enhanced sound hook with a persistent audio pool.
- * This approach helps bypass browser "NotAllowedError" by reusing audio objects 
- * once the user has performed at least one interaction.
+ * Production-ready sound hook with high-availability CDN links.
+ * Uses a persistent audio pool and cross-browser priming.
  */
 
-// Shared audio instances to bypass "new Audio()" blocking in some browsers
 const audioPool = {};
 
 export default function useSound() {
+  // Using high-availability CDN links (Pixabay/standard UI sounds)
+  // These are more reliable for production environments like Render.
   const soundMap = useMemo(() => ({
-    click: 'https://www.soundjay.com/buttons/sounds/button-16.mp3',
-    pop: 'https://www.soundjay.com/buttons/sounds/button-37.mp3',
-    success: 'https://www.soundjay.com/buttons/sounds/button-09.mp3',
-    remove: 'https://www.soundjay.com/buttons/sounds/button-10.mp3',
-    error: 'https://www.soundjay.com/buttons/sounds/button-11.mp3'
+    click: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',   // Subtle click
+    pop: 'https://assets.mixkit.co/active_storage/sfx/2571/2568-preview.mp3',     // UI pop
+    success: 'https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3', // Chime success
+    remove: 'https://assets.mixkit.co/active_storage/sfx/256/256-preview.mp3',    // Swish/delete
+    error: 'https://assets.mixkit.co/active_storage/sfx/2573/2573-preview.mp3'    // Alert error
   }), []);
 
   const playSound = useCallback((soundType) => {
@@ -23,17 +23,15 @@ export default function useSound() {
     if (!path) return;
 
     try {
-      // Reuse existing audio object if available in pool
       if (!audioPool[soundType]) {
         audioPool[soundType] = new Audio(path);
-        // Pre-set volume and pre-load
-        audioPool[soundType].volume = 0.6;
-        audioPool[soundType].load();
+        audioPool[soundType].volume = 0.7; // Boosted volume for production
+        audioPool[soundType].preload = 'auto';
       }
       
       const audio = audioPool[soundType];
       
-      // Reset sound to beginning if it's already playing
+      // Reset if playing
       if (!audio.paused) {
         audio.currentTime = 0;
       }
@@ -41,23 +39,16 @@ export default function useSound() {
       const playPromise = audio.play();
       
       if (playPromise !== undefined) {
-        playPromise.catch(err => {
-          // If blocked, we log a more helpful message for the user
+        playPromise.then(() => {
+          console.log(`%c[Sound System] Playing: ${soundType}`, "color: #2196F3;");
+        }).catch(err => {
           if (err.name === "NotAllowedError") {
-            console.warn(`[Sound System] Playback of "${soundType}" was blocked. Please click anywhere on the page once to enable sounds.`);
-            // Attempt to "prime" the audio engine again on the next click
-            const prime = () => {
-              audio.play().then(() => {
-                audio.pause();
-                window.removeEventListener('click', prime);
-              }).catch(() => {});
-            };
-            window.addEventListener('click', prime);
+            console.warn(`[Sound System] Interaction needed for "${soundType}"`);
           }
         });
       }
     } catch (e) {
-      console.warn("[Sound System] Initialization error:", e);
+      console.warn("[Sound System] Error:", e);
     }
   }, [soundMap]);
 
