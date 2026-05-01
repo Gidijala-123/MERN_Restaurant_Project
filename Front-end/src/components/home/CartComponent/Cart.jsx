@@ -10,6 +10,7 @@ import {
 } from "../../features/cartSlice";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { resolveItemImage } from "../../../utils/imageUtils";
 import "./Cart.css";
 
 // Dynamically load Razorpay checkout script
@@ -454,10 +455,13 @@ const Cart = () => {
                   {/* Product */}
                   <div className="cart-product">
                     <div className="cart-product-img-wrap">
-                      <img
-                        src={cartItem.img}
-                        alt={cartItem.title}
-                        onError={(e) => { e.target.onerror = null; e.target.src = "/footer-images/food.png"; }}
+                      <img 
+                        src={resolveItemImage(cartItem)} 
+                        alt={cartItem.title} 
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = "/footer-images/food.png";
+                        }}
                       />
                     </div>
                     <div className="item-texts">

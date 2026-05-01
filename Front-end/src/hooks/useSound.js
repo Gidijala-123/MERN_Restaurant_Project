@@ -26,10 +26,12 @@ export default function useSound() {
       // Reuse existing audio object if available in pool
       if (!audioPool[soundType]) {
         audioPool[soundType] = new Audio(path);
+        // Pre-set volume and pre-load
+        audioPool[soundType].volume = 0.6;
+        audioPool[soundType].load();
       }
       
       const audio = audioPool[soundType];
-      audio.volume = 0.6; // Slightly higher volume for better feedback
       
       // Reset sound to beginning if it's already playing
       if (!audio.paused) {
@@ -42,7 +44,15 @@ export default function useSound() {
         playPromise.catch(err => {
           // If blocked, we log a more helpful message for the user
           if (err.name === "NotAllowedError") {
-            console.warn(`[Sound System] Playback of "${soundType}" was blocked. Please click anywhere on the page to enable sounds.`);
+            console.warn(`[Sound System] Playback of "${soundType}" was blocked. Please click anywhere on the page once to enable sounds.`);
+            // Attempt to "prime" the audio engine again on the next click
+            const prime = () => {
+              audio.play().then(() => {
+                audio.pause();
+                window.removeEventListener('click', prime);
+              }).catch(() => {});
+            };
+            window.addEventListener('click', prime);
           }
         });
       }

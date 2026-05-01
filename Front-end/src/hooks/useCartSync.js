@@ -11,6 +11,15 @@ export async function syncCartToDb(cartItems) {
   // Only sync if we have a session
   if (!localStorage.getItem("userName") && !document.cookie.includes("accessToken")) return;
   
+  // Map frontend 'id' to backend 'itemId' to satisfy Mongoose schema
+  const formattedCart = cartItems.map(item => ({
+    itemId: String(item.id || item.itemId || item._id),
+    title: item.title || item.name || "",
+    price: Number(item.price) || 0,
+    img: item.img || item.imageUrl || "",
+    cartQuantity: Number(item.cartQuantity) || 1
+  }));
+
   try {
     const csrf = await fetch(`${API}/api/csrf`, { credentials: "include" })
       .then((r) => r.json()).catch(() => ({}));
@@ -18,7 +27,7 @@ export async function syncCartToDb(cartItems) {
       method: "PATCH",
       credentials: "include",
       headers: { "Content-Type": "application/json", "x-csrf-token": csrf?.csrfToken || "" },
-      body: JSON.stringify({ cart: cartItems }),
+      body: JSON.stringify({ cart: formattedCart }),
     });
   } catch { /* silent — cart is still in localStorage as fallback */ }
 }
@@ -28,6 +37,15 @@ export async function loadCartFromDb() {
     const res = await fetch(`${API}/api/auth/cart`, { credentials: "include" });
     if (!res.ok) return null;
     const data = await res.json();
-    return data?.cart || null;
+    if (!data?.cart) return null;
+
+    // Map backend 'itemId' back to frontend 'id' for Redux consistency
+    return data.cart.map(item => ({
+      id: item.itemId,
+      title: item.title,
+      price: item.price,
+      img: item.img,
+      cartQuantity: item.cartQuantity
+    }));
   } catch { return null; }
 }
