@@ -38,15 +38,20 @@ function getTransporter() {
  * Throws on failure so callers can surface the error to the client.
  */
 export async function sendMail({ to, subject, html }) {
-  const transporter = getTransporter();
+  try {
+    const transporter = getTransporter();
 
-  const info = await transporter.sendMail({
-    from: `"${process.env.GMAIL_FROM_NAME || "Flavora"}" <${process.env.GMAIL_USER}>`,
-    to,
-    subject,
-    html,
-  });
+    const info = await transporter.sendMail({
+      from: `"${process.env.GMAIL_FROM_NAME || "Flavora"}" <${process.env.GMAIL_USER}>`,
+      to,
+      subject,
+      html,
+    });
 
-  console.log(`[Mailer] Sent to ${to} — messageId: ${info.messageId}`);
-  return info;
+    console.log(`[Mailer] Sent to ${to} — messageId: ${info.messageId}`);
+    return info;
+  } catch (err) {
+    console.error(`[Mailer Error] Failed to send to ${to}:`, err.message);
+    throw err;
+  }
 }
