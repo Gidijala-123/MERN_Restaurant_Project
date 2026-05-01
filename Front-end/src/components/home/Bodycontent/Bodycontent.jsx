@@ -1056,14 +1056,14 @@ const Bodycontent = (props) => {
                               )}
                             </button>
                             <img
-                              src={resolveImageSrc(item)}
-                              alt={item.name}
-                              loading="lazy"
-                              onError={(e) => {
-                                e.currentTarget.onerror = null;
-                                e.currentTarget.src = "/footer-images/food.png";
-                              }}
-                            />
+                          src={resolveItemImage(item)}
+                          alt={item.name}
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = "/footer-images/food.png";
+                          }}
+                        />
                             <h4 className="trending-items-title">
                               <span className="title-icon">{CATEGORY_ICONS[item.category] || "🍽️"}</span>
                               {item.name}
@@ -1099,7 +1099,7 @@ const Bodycontent = (props) => {
                                 id: item.id,
                                 title: item.name,
                                 price: item.price,
-                                img: resolveImageSrc(item)
+                                img: resolveItemImage(item)
                               })}
                               className="btn shopnow-btn"
                             >
