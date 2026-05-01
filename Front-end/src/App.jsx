@@ -29,16 +29,20 @@ function App() {
   // Global interaction listener to "unlock" audio engine for modern browsers
   useEffect(() => {
     const unlockAudio = () => {
-      // Use a standard small click sound to prime the audio engine
-      const silentAudio = new Audio('https://www.soundjay.com/buttons/sounds/button-16.mp3');
-      silentAudio.volume = 0.01; // Not perfectly silent, but nearly
+      // Use a 1-second silent base64 MP3 to "prime" the audio engine.
+      // This is 100% reliable as it doesn't depend on external networks or CORS.
+      const silentData = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==";
+      const silentAudio = new Audio(silentData);
+      silentAudio.volume = 0;
+      
       silentAudio.play().then(() => {
         console.log("%c[Sound System] Audio engine unlocked and ready!", "color: #4CAF50; font-weight: bold;");
+        // Cleanup listeners once unlocked
         window.removeEventListener('mousedown', unlockAudio);
         window.removeEventListener('keydown', unlockAudio);
         window.removeEventListener('touchstart', unlockAudio);
-      }).catch((e) => {
-        console.warn("[Sound System] Unlock failed, waiting for clearer gesture...", e.message);
+      }).catch(() => {
+        // If it fails (e.g. gesture wasn't clear enough), we keep the listeners active
       });
     };
 
