@@ -86,6 +86,7 @@ function SignInForm({ toggleMobile }) {
   // ── Login ──────────────────────────────────────────────────────────────────
   const loginOnSubmit = async (e) => {
     e.preventDefault();
+    playSound("click");
     setValidationErrors({});
     setApiError("");
     try {
@@ -106,7 +107,7 @@ function SignInForm({ toggleMobile }) {
         { uemail, upassword },
         { withCredentials: true, headers: { "x-csrf-token": csrfToken } },
       );
-      if (res.status === 200) {
+      if (res.status === 200 || res.data?.success) {
         playSound("success");
         toast.update(toastId, { render: "Login successful!", type: "success", isLoading: false, autoClose: 1500 });
         const user = res.data?.user;
@@ -131,6 +132,7 @@ function SignInForm({ toggleMobile }) {
   // ── Forgot password — send OTP ─────────────────────────────────────────────
   const sendFpOtp = async (e) => {
     e.preventDefault();
+    playSound("click");
     if (!fpEmail) return toast.error("Enter your email");
     if (fpEmailExists === "notfound") return toast.error("No account found with this email.");
     setIsLoading(true);
@@ -152,6 +154,7 @@ function SignInForm({ toggleMobile }) {
   // ── Forgot password — verify OTP ───────────────────────────────────────────
   const verifyFpOtp = async (e) => {
     e.preventDefault();
+    playSound("click");
     const cleanOtp = fpOtp.replace(/\D/g, "");
     if (cleanOtp.length !== 6) return toast.error("Enter the 6-digit OTP");
     setIsLoading(true);
@@ -178,6 +181,7 @@ function SignInForm({ toggleMobile }) {
   // ── Forgot password — reset ────────────────────────────────────────────────
   const resetPassword = async (e) => {
     e.preventDefault();
+    playSound("click");
     if (fpNewPw.length < 8) return toast.error("Password must be at least 8 characters");
     if (fpNewPw !== fpConfirmPw) return toast.error("Passwords do not match");
     setIsLoading(true);

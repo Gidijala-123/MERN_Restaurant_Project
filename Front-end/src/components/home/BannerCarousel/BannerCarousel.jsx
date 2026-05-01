@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "./BannerCarousel.module.css";
+import useSound from "../../../hooks/useSound";
 
 const slides = [
   {
@@ -48,6 +49,7 @@ const BannerCarousel = ({ onSectionChange }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
+  const { playSound } = useSound();
 
   // Mapping of category display names to their section IDs (from Sidebar sectionMap)
   const categoryToSection = {
@@ -70,6 +72,7 @@ const BannerCarousel = ({ onSectionChange }) => {
   };
 
   const handleViewMenu = (category) => {
+    playSound("click");
     if (onSectionChange) {
       const section = categoryToSection[category] || "Home";
       onSectionChange(section, category);
@@ -102,13 +105,20 @@ const BannerCarousel = ({ onSectionChange }) => {
   };
 
   const nextSlide = () => {
+    playSound("click");
     setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
   };
 
   const prevSlide = () => {
+    playSound("click");
     setCurrentIndex(
       (prevIndex) => (prevIndex - 1 + slides.length) % slides.length
     );
+  };
+
+  const handleDotClick = (index) => {
+    playSound("click");
+    setCurrentIndex(index);
   };
 
   useEffect(() => {
@@ -180,7 +190,7 @@ const BannerCarousel = ({ onSectionChange }) => {
           <div
             key={index}
             className={`${styles.dot} ${currentIndex === index ? styles.dotActive : ""}`}
-            onClick={() => setCurrentIndex(index)}
+            onClick={() => handleDotClick(index)}
           />
         ))}
       </div>

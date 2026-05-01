@@ -292,6 +292,7 @@ const Cart = () => {
   };
 
   const handleCheckout = async () => {
+    playSound("click");
     const btn = document.querySelector(".btn-checkout");
     btn.innerText = "Loading…";
     btn.disabled = true;
@@ -321,13 +322,15 @@ const Cart = () => {
       handler: function (response) {
         // Snapshot cart data before clearing so success page can generate PDF
         const snapshot = {
-          items: [...cart.cartItems],
-          total: cart.cartTotalAmount,
-          gst,
-          grandTotal,
-        };
+        items: [...cart.cartItems],
+        total: cart.cartTotalAmount,
+        gst,
+        grandTotal,
+      };
 
-        // Persist order to localStorage for order history
+      playSound("success");
+
+      // Persist order to localStorage for order history
         const existingOrders = JSON.parse(localStorage.getItem("userOrders") || "[]");
         const newOrder = {
           id: response.razorpay_payment_id,

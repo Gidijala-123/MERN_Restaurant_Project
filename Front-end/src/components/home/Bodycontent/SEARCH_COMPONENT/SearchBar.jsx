@@ -7,11 +7,13 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useSelector } from "react-redux";
 import "./SearchBar.css";
 import useDebounce from "../../../../hooks/useDebounce";
+import useSound from "../../../../hooks/useSound";
 
 const SearchBar = React.memo(function SearchBar({ onSearchChange }) {
   const { items: products } = useSelector((state) => state.products);
   const [inputValue, setInputValue] = React.useState("");
   const debounced = useDebounce(inputValue, 300);
+  const { playSound } = useSound();
 
   const memoizedProducts = React.useMemo(() => products || [], [products]);
 
@@ -36,12 +38,13 @@ const SearchBar = React.memo(function SearchBar({ onSearchChange }) {
   const handleChange = React.useCallback(
     (event, newValue) => {
       if (newValue && onSearchChange) {
+        playSound("click");
         const term = typeof newValue === "string" ? newValue : newValue.title || "";
         setInputValue(term);
         onSearchChange("Shop", term);
       }
     },
-    [onSearchChange],
+    [onSearchChange, playSound],
   );
 
   const handleInputChange = React.useCallback((e, value, reason) => {

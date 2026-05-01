@@ -1,16 +1,25 @@
 import React from "react";
 import { IoCheckmarkCircle, IoClose, IoInformationCircle, IoWarning, IoSync, IoRestaurant } from "react-icons/io5";
 import "./PopupAlert.css";
+import useSound from "../../hooks/useSound";
 
 export function PopupAlert({ visible, text, onClose, type = "success" }) {
+  const { playSound } = useSound();
+
   React.useEffect(() => {
-    if (visible && type !== "loading") {
-      const timer = setTimeout(() => {
-        onClose();
-      }, 4000);
-      return () => clearTimeout(timer);
+    if (visible) {
+      if (type === "success") playSound("success");
+      else if (type === "error") playSound("error");
+      else if (type === "info") playSound("pop");
+
+      if (type !== "loading") {
+        const timer = setTimeout(() => {
+          onClose();
+        }, 4000);
+        return () => clearTimeout(timer);
+      }
     }
-  }, [visible, onClose, type]);
+  }, [visible, onClose, type, playSound]);
 
   const getIcon = () => {
     switch (type) {

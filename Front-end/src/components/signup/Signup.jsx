@@ -138,6 +138,7 @@ function Signup() {
 
   const toggleSignupLogin = (text) => {
     if (text === type) return;
+    playSound("click");
     setType(text);
     setValidationErrors({});
     setApiStatus({ error: "", success: "" });
@@ -169,6 +170,7 @@ function Signup() {
 
   // ── Send OTP ──────────────────────────────────────────────────────────────
   const sendOtp = async () => {
+    playSound("click");
     setValidationErrors({});
     setOtpMsg("");
 
@@ -239,6 +241,7 @@ function Signup() {
 
   // ── Verify OTP ────────────────────────────────────────────────────────────
   const verifyOtp = async () => {
+    playSound("click");
     setOtpMsg("");
     setIsOtpVerifying(true);
     const toastId = toast.loading("Verifying OTP...");
@@ -269,8 +272,9 @@ function Signup() {
   };
 
   // ── Sign Up Submit ────────────────────────────────────────────────────────
-  const signupOnSubmit = async (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
+    playSound("click");
     setValidationErrors({});
     setApiStatus({ error: "", success: "" });
 

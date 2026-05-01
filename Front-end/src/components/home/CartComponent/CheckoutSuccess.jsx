@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import useSound from '../../../hooks/useSound';
 
 const CheckoutSuccess = () => {
   const { state } = useLocation();
   const paymentId = state?.paymentId;
   const snapshot = state?.snapshot;
   const [downloading, setDownloading] = useState(false);
+  const { playSound } = useSound();
+
+  useEffect(() => {
+    playSound("success");
+  }, [playSound]);
 
   const downloadPDF = async () => {
     if (!snapshot) return;

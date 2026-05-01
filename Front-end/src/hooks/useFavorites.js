@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import useSound from "./useSound";
 
 const API = (import.meta.env.VITE_API_URL || 
   (typeof window !== "undefined" && window.location.hostname !== "localhost" ? window.location.origin : "http://localhost:1111")
@@ -62,6 +63,7 @@ async function saveToDb(ids) {
 }
 
 export default function useFavorites() {
+  const { playSound } = useSound();
   // ids = string array of favorited item IDs
   const [ids, setIds] = useState([]);
   const [loaded, setLoaded] = useState(false);
@@ -99,7 +101,11 @@ export default function useFavorites() {
       setIds(readLocalIds());
     };
     window.addEventListener("favoritesUpdated", sync);
-    return () => window.removeEventListener("favoritesUpdated", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("favoritesUpdated", sync);
+      window.removeEventListener("storage", sync);
+    };
   }, []);
 
   // Toggle — add if not present, remove if present
@@ -108,12 +114,19 @@ export default function useFavorites() {
     setIds((current) => {
       const exists = current.includes(id);
       const updated = exists ? current.filter((x) => x !== id) : [...current, id];
+
+      if (exists) {
+        playSound("remove");
+      } else {
+        playSound("pop");
+      }
+
       writeLocal(updated);
       saveToDb(updated);
-      setTimeout(() => window.dispatchEvent(new Event("favoritesUpdated")), 0);
+      window.dispatchEvent(new Event("favoritesUpdated"));
       return updated;
     });
-  }, []);
+  }, [playSound]);
 
   // Remove — always removes, never adds
   const remove = useCallback((itemId) => {
@@ -121,12 +134,15 @@ export default function useFavorites() {
     setIds((current) => {
       if (!current.includes(id)) return current;
       const updated = current.filter((x) => x !== id);
+
+      playSound("remove");
+
       writeLocal(updated);
       saveToDb(updated);
-      setTimeout(() => window.dispatchEvent(new Event("favoritesUpdated")), 0);
+      window.dispatchEvent(new Event("favoritesUpdated"));
       return updated;
     });
-  }, []);
+  }, [playSound]);
 
   const isFav = useCallback((itemId) => ids.includes(String(itemId)), [ids]);
 

@@ -158,24 +158,31 @@ const MenuDisplay = () => {
 
   const handleDelete = async (item) => {
     if (!confirm(`Delete "${item.name}"?`)) return;
+    playSound("click");
     const csrfData = await csrf();
     try {
       await axios.delete(`${API}/api/admin/menu/${item._id}`, {
         withCredentials: true,
         headers: { "x-csrf-token": csrfData?.csrfToken || "" },
       });
+      playSound("remove");
       toast.success(`"${item.name}" deleted`);
       refreshMenu();
-    } catch { toast.error("Delete failed"); }
+    } catch {
+      playSound("error");
+      toast.error("Delete failed");
+    }
   };
 
   const handleSave = async () => {
     // Run full validation before submit
     const errs = validateAll(editForm);
     if (Object.keys(errs).length > 0) {
+      playSound("error");
       setFieldErrors(errs);
       return;
     }
+    playSound("click");
     setSaving(true);
     const csrfData = await csrf();
     const headers = { "Content-Type": "application/json", "x-csrf-token": csrfData?.csrfToken || "" };
@@ -186,15 +193,18 @@ const MenuDisplay = () => {
     try {
       if (_id) {
         await axios.put(`${API}/api/admin/menu/${_id}`, payload, { withCredentials: true, headers });
+        playSound("success");
         toast.success("Item updated!");
       } else {
         await axios.post(`${API}/api/admin/menu`, payload, { withCredentials: true, headers });
+        playSound("success");
         toast.success("Item added!");
       }
       setEditForm(null);
       setFieldErrors({});
       refreshMenu(); // bumps menuVersion → triggers API re-fetch
     } catch (e) {
+      playSound("error");
       toast.error(e.response?.data?.message || "Save failed");
     } finally {
       setSaving(false);

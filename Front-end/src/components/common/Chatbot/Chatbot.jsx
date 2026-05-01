@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { addToCart } from "../../features/cartSlice";
 import { useGetAllProductsQuery } from "../../features/productsApi";
+import useSound from "../../../hooks/useSound";
 import BookingFlow from "./BookingFlow";
 import MenuCarousel from "./MenuCarousel";
 import OrderTracker from "./OrderTracker";
@@ -117,8 +118,15 @@ const Chatbot = () => {
   const [state, stateDispatch] = useReducer(chatbotReducer, initialState);
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const { playSound } = useSound();
+
+  const handleOpen = () => {
+    playSound("click");
+    setIsOpen(true);
+  };
 
   const handleClose = () => {
+    playSound("click");
     setIsClosing(true);
     setTimeout(() => {
       setIsOpen(false);
@@ -129,9 +137,13 @@ const Chatbot = () => {
   const inputRef = useRef(null);
   const menuItems = useMemo(() => normalizeMenuItems(products), [products]);
 
-  const nav = (screen) => stateDispatch({ type: "NAVIGATE", payload: screen });
+  const nav = (screen) => {
+    playSound("click");
+    stateDispatch({ type: "NAVIGATE", payload: screen });
+  };
 
   const handleAddToCart = (item) => {
+    playSound("pop");
     dispatch(addToCart({
       id: item.id,
       title: item.name,
@@ -144,6 +156,7 @@ const Chatbot = () => {
   const handleSend = () => {
     const msg = draft.trim().toLowerCase();
     if (!msg) return;
+    playSound("click");
     if (msg.includes("menu") || msg.includes("dish") || msg.includes("food") || msg.includes("eat"))
       nav(SCREEN.MENU);
     else if (msg.includes("book") || msg.includes("table") || msg.includes("reservation") || msg.includes("seat"))
@@ -158,6 +171,7 @@ const Chatbot = () => {
   };
 
   const handleBookingConfirm = () => {
+    playSound("success");
     stateDispatch({ type: "CONFIRM_BOOKING" });
     toast.success("Table reserved! Flavie has noted your slot.", { position: "bottom-left" });
   };
@@ -369,7 +383,7 @@ const Chatbot = () => {
           <motion.button
             key="flavie-fab"
             type="button"
-            onClick={() => setIsOpen(true)}
+            onClick={handleOpen}
             initial={{ opacity: 0, scale: 0.4, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.5, y: 16 }}

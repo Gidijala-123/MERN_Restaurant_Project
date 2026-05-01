@@ -5,10 +5,15 @@ import { SidebarData } from "../../../APIs/Sidebar";
 import "./Navbar.css";
 import { IconContext } from "react-icons";
 import { Link } from "react-router-dom";
+import useSound from "../../../hooks/useSound";
 
 function Navbar() {
 	const [sidebar, setSidebar] = useState(false);
-	const showSidebar = () => setSidebar(!sidebar);
+	const { playSound } = useSound();
+	const showSidebar = () => {
+		playSound("click");
+		setSidebar(!sidebar);
+	};
 
 	return (
 		<>
@@ -43,13 +48,13 @@ function Navbar() {
 					</div>
 
 					<div className="nav-icons-div">
-						<div className="nav-icon" title="Theme">
+						<div className="nav-icon" title="Theme" onClick={() => playSound("click")}>
 							<FaIcons.FaMoon />
 						</div>
-						<div className="nav-icon" title="Favorites">
+						<div className="nav-icon" title="Favorites" onClick={() => playSound("click")}>
 							<FaIcons.FaHeart />
 						</div>
-						<div className="nav-icon" title="Cart" style={{ position: "relative" }}>
+						<div className="nav-icon" title="Cart" style={{ position: "relative" }} onClick={() => playSound("click")}>
 							<FaIcons.FaShoppingCart />
 							<span style={{
 								position: "absolute",
@@ -70,7 +75,7 @@ function Navbar() {
 								zIndex: 2
 							}}>1</span>
 						</div>
-						<div className="nav-icon" title="Profile">
+						<div className="nav-icon" title="Profile" onClick={() => playSound("click")}>
 							{localStorage.getItem("userAvatar") ? (
 								<img 
 									src={localStorage.getItem("userAvatar")} 
