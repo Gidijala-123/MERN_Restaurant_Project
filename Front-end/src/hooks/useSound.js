@@ -1,42 +1,45 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 /**
  * Custom hook to manage project-wide audio feedback.
- * Uses standard HTML5 Audio API for maximum compatibility.
+ * Pre-loads audio objects for faster response and handles browser autoplay restrictions.
  */
 export default function useSound() {
-  const playSound = useCallback((soundType) => {
-    // Mapping of sound types to paths. 
-    // We use reliable CDN links as primary so it works IMMEDIATELY.
-    // If you add local files to /public/sounds/, you can change these paths.
-    const sounds = {
-      click: 'https://www.soundjay.com/buttons/sounds/button-16.mp3',
-      pop: 'https://www.soundjay.com/buttons/sounds/button-37.mp3',
-      success: 'https://www.soundjay.com/buttons/sounds/button-09.mp3',
-      remove: 'https://www.soundjay.com/buttons/sounds/button-10.mp3',
-      error: 'https://www.soundjay.com/buttons/sounds/button-11.mp3'
-    };
+  // Mapping of sound types to paths.
+  const soundMap = useMemo(() => ({
+    click: 'https://www.soundjay.com/buttons/sounds/button-16.mp3',
+    pop: 'https://www.soundjay.com/buttons/sounds/button-37.mp3',
+    success: 'https://www.soundjay.com/buttons/sounds/button-09.mp3',
+    remove: 'https://www.soundjay.com/buttons/sounds/button-10.mp3',
+    error: 'https://www.soundjay.com/buttons/sounds/button-11.mp3'
+  }), []);
 
-    const path = sounds[soundType];
+  const playSound = useCallback((soundType) => {
+    const path = soundMap[soundType];
     if (!path) return;
 
     try {
       const audio = new Audio(path);
-      audio.volume = 0.3; // Very subtle
+      audio.volume = 0.5; // Increased volume slightly for better audibility
       
-      // Attempt to play
+      // Pre-load the sound
+      audio.load();
+
       const playPromise = audio.play();
       
       if (playPromise !== undefined) {
         playPromise.catch(err => {
-          // Browsers block audio until the user interacts with the page (click/tap)
-          console.log("Audio playback waiting for user interaction...");
+          if (err.name === "NotAllowedError") {
+            console.warn(`[useSound] Playback blocked for "${soundType}". Browser requires a user gesture (click/tap) on the page first.`);
+          } else {
+            console.error(`[useSound] Error playing "${soundType}":`, err);
+          }
         });
       }
     } catch (e) {
-      console.warn("Audio initialization failed", e);
+      console.warn("[useSound] Audio initialization failed", e);
     }
-  }, []);
+  }, [soundMap]);
 
   return { playSound };
 }
