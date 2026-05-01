@@ -131,7 +131,8 @@ const Footer = () => {
     setNewsletterStatus("");
     try {
       const API_URL = (
-        import.meta.env.VITE_API_URL || "http://localhost:1111"
+        import.meta.env.VITE_API_URL || 
+        (window.location.hostname === "localhost" ? "http://localhost:1111" : window.location.origin)
       ).replace(/\/$/, "");
       const csrfRes = await fetch(`${API_URL}/api/csrf`, {
         credentials: "include",

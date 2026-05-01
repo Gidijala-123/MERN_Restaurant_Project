@@ -324,7 +324,9 @@ const Cart = () => {
         localStorage.setItem("userOrders", JSON.stringify([newOrder, ...existingOrders]));
 
         // Persist order to backend DB for analytics
-        const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
+        const API_URL = (import.meta.env.VITE_API_URL || 
+   (window.location.hostname === "localhost" ? "http://localhost:1111" : window.location.origin)
+ ).replace(/\/$/, "");
         fetch(`${API_URL}/api/csrf`, { credentials: "include" })
           .then((r) => r.json())
           .then((csrf) => fetch(`${API_URL}/api/order`, {

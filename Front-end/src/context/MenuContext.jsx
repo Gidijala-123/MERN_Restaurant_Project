@@ -4,7 +4,9 @@ import MENU_DATA, {
   getSubCategoriesByCategory,
 } from "../data/menuData";
 
-const API = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
+const API = (import.meta.env.VITE_API_URL || 
+  (typeof window !== "undefined" && window.location.hostname !== "localhost" ? window.location.origin : "http://localhost:1111")
+).replace(/\/$/, "");
 
 // Merge static data with API data:
 // - API items (by itemId/id) override static ones (picks up admin edits)

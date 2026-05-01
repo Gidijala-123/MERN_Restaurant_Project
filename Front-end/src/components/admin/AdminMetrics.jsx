@@ -8,7 +8,9 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import "./AdminMetrics.css";
 
-const API = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
+const API = (import.meta.env.VITE_API_URL || 
+  (window.location.hostname === "localhost" ? "http://localhost:1111" : window.location.origin)
+).replace(/\/$/, "");
 const PRIMARY = "#4f46e5";
 
 const PIE_COLORS = [

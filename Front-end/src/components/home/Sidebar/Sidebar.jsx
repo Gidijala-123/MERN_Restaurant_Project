@@ -240,7 +240,8 @@ export default function Sidebar() {
     const load = async () => {
       try {
         const base = (
-          import.meta.env.VITE_API_URL || "http://localhost:1111"
+          import.meta.env.VITE_API_URL || 
+          (window.location.hostname === "localhost" ? "http://localhost:1111" : window.location.origin)
         ).replace(/\/$/, "");
         const res = await fetch(base + "/api/auth/me", {
           credentials: "include",
@@ -285,7 +286,10 @@ export default function Sidebar() {
     setAccountAnchorEl(null);
 
     try {
-      const base = import.meta.env.VITE_API_URL || "http://localhost:1111";
+      const base = (
+        import.meta.env.VITE_API_URL || 
+        (window.location.hostname === "localhost" ? "http://localhost:1111" : window.location.origin)
+      ).replace(/\/$/, "");
       const csrf = await fetch(base + "/api/csrf", { credentials: "include" })
         .then((r) => r.json())
         .catch(() => ({}));

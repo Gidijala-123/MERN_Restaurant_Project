@@ -6,7 +6,9 @@ export default function Orders() {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    const API = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
+    const API = (import.meta.env.VITE_API_URL || 
+  (window.location.hostname === "localhost" ? "http://localhost:1111" : window.location.origin)
+).replace(/\/$/, "");
     // Fetch from DB first, fall back to localStorage
     fetch(`${API}/api/orders/my`, { credentials: "include" })
       .then((r) => r.ok ? r.json() : null)

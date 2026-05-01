@@ -10,7 +10,9 @@ export const productsFetch = createAsyncThunk(
   "products/productsFetch",
   async (id = null, { rejectWithValue }) => {
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:1111";
+      const baseUrl = (import.meta.env.VITE_API_URL || 
+        (window.location.hostname === "localhost" ? "http://127.0.0.1:1111" : window.location.origin)
+      ).replace(/\/$/, "");
       const response = await axios.get(`${baseUrl}/products`, {
         withCredentials: true,
       });

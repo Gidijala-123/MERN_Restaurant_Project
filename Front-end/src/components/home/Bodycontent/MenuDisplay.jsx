@@ -17,7 +17,9 @@ import axios from "axios";
 import useFavorites from "../../../hooks/useFavorites";
 import "./MenuDisplay.css";
 
-const API = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
+const API = (import.meta.env.VITE_API_URL || 
+  (window.location.hostname === "localhost" ? "http://localhost:1111" : window.location.origin)
+).replace(/\/$/, "");
 const isAdmin = () => localStorage.getItem("userRole") === "admin";
 
 const MENU_CATEGORIES = [

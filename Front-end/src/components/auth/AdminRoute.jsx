@@ -8,7 +8,10 @@ export default function AdminRoute({ children }) {
   useEffect(() => {
     const check = async () => {
       try {
-        const base = import.meta.env.VITE_API_URL || "http://localhost:1111";
+        const base = (
+          import.meta.env.VITE_API_URL || 
+          (window.location.hostname === "localhost" ? "http://localhost:1111" : window.location.origin)
+        ).replace(/\/$/, "");
         const res = await fetch(base + "/api/auth/me", { credentials: "include" });
         if (!res.ok) return setStatus("fail");
         const me = await res.json();

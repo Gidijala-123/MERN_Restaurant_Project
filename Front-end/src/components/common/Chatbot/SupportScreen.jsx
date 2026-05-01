@@ -21,7 +21,9 @@ const ISSUE_TYPES = [
   { key: "other", label: "💬 Other" },
 ];
 
-const API = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
+const API = (import.meta.env.VITE_API_URL || 
+  (window.location.hostname === "localhost" ? "http://localhost:1111" : window.location.origin)
+).replace(/\/$/, "");
 
 const SupportScreen = () => {
   const [openFaq, setOpenFaq] = useState(null);

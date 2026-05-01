@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
-const API = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
+const API = (import.meta.env.VITE_API_URL || 
+  (typeof window !== "undefined" && window.location.hostname !== "localhost" ? window.location.origin : "http://localhost:1111")
+).replace(/\/$/, "");
 const LS_KEY = "menuFavorites";
 
 function writeLocal(ids) {

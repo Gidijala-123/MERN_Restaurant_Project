@@ -105,6 +105,7 @@ const allowedOrigins = new Set([
   ...envOrigins,
   (process.env.FRONTEND_URL || "http://localhost:3002").replace(/\/$/, ""),
   "https://gbr-kitchen.onrender.com",
+  "https://mern-restaurant-proj.com",
   "http://localhost:3000",
   "http://localhost:3001",
 ]);
@@ -320,11 +321,19 @@ app.post("/api/otp/verify", otpVerifyValidation, (req, res) => {
 
 // Serve static files in production
 const currentFileDir = path.dirname(fileURLToPath(import.meta.url));
-const buildPath = path.resolve(currentFileDir, "..", "Front-end", "dist");
+// Try both relative to Back-end and relative to root
+const buildPaths = [
+  path.resolve(currentFileDir, "..", "Front-end", "dist"),
+  path.resolve(process.cwd(), "Front-end", "dist"),
+  path.resolve(process.cwd(), "dist"),
+];
 
 if (process.env.NODE_ENV === "production") {
   import("fs").then((fs) => {
-    if (fs.existsSync(buildPath)) {
+    const buildPath = buildPaths.find(p => fs.existsSync(p));
+
+    if (buildPath) {
+      logger.info(`Serving static files from: ${buildPath}`);
       // Serve static assets (JS, CSS, images) with correct MIME types
       app.use(express.static(buildPath, { index: false }));
       // SPA fallback — all non-API routes return index.html so React Router works on direct reload
@@ -335,8 +344,10 @@ if (process.env.NODE_ENV === "production") {
         });
       });
     } else {
-      logger.warn(`Static build folder not found at: ${buildPath}`);
-      app.get("*", (req, res) => res.status(503).send("Frontend build not found."));
+      logger.warn(`Static build folder not found. Checked: ${buildPaths.join(", ")}`);
+      app.get("*", (req, res) => {
+        res.status(503).send(`Frontend build not found. Please ensure 'npm run build' was executed. Checked: ${buildPaths[0]}`);
+      });
     }
   });
 } else {

@@ -121,7 +121,9 @@ export default function Settings() {
   }, []);
 
   useEffect(() => {
-    const API = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
+    const API = (import.meta.env.VITE_API_URL || 
+  (window.location.hostname === "localhost" ? "http://localhost:1111" : window.location.origin)
+).replace(/\/$/, "");
     fetch(`${API}/api/auth/profile/settings`, { credentials: "include" })
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
