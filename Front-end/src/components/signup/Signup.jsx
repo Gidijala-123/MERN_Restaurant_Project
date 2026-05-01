@@ -217,9 +217,16 @@ function Signup() {
         setTimeout(() => otpInputRef.current?.focus(), 100);
       }
     } catch (err) {
-      const msg = err.response?.data?.error || "Failed to send OTP. Please try again.";
+      const msg = err.response?.data?.error || err.response?.data?.Message || "Failed to send OTP. Please try again.";
       setOtpMsg(msg);
-      toast.update(toastId, { render: msg, type: "error", isLoading: false, autoClose: 1500 });
+      // If it's a provider error, show it clearly
+      const errorDetail = err.response?.data?.error ? ` (${err.response.data.error})` : "";
+      toast.update(toastId, { 
+        render: `❌ ${msg}${errorDetail}`, 
+        type: "error", 
+        isLoading: false, 
+        autoClose: 3000 
+      });
       _csrfCache = "";
     } finally {
       setIsOtpSending(false);

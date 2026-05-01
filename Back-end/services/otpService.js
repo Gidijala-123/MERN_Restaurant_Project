@@ -32,7 +32,10 @@ async function sendViaBrevo({ to, subject, html }) {
   });
 
   const data = await res.json();
-  if (!res.ok) throw new Error(data.message || "Brevo send failed");
+  if (!res.ok) {
+    console.error(`[Brevo API Error] ${res.status}:`, data);
+    throw new Error(data.message || `Brevo API returned ${res.status}`);
+  }
   return data;
 }
 
@@ -122,16 +125,18 @@ import { sendMail as sendGmail } from "./mailer.js";
 export async function sendEmailOtp({ to, code = "", subject: customSubject, html: customHtml }) {
   const subject = customSubject || "Your Flavora Verification Code";
   const html = customHtml || buildOtpHtml(code);
+  let lastError = "";
 
   // Try Brevo first (HTTP is much more reliable on Render than SMTP)
   try {
     const result = await sendViaBrevo({ to, subject, html });
     if (result) {
-      console.log(`[Brevo] Sent to ${to}, messageId: ${result.messageId}`);
+      console.log(`[Brevo Success] Sent to ${to}, messageId: ${result.messageId}`);
       return { ok: true, provider: "brevo", messageId: result.messageId };
     }
   } catch (err) {
-    console.error("[Brevo Error]", err.message);
+    console.error("[Brevo Final Error]", err.message);
+    lastError = `Brevo: ${err.message}`;
   }
 
   // Fallback to Gmail SMTP
@@ -140,12 +145,18 @@ export async function sendEmailOtp({ to, code = "", subject: customSubject, html
     try {
       const result = await sendGmail({ to, subject, html });
       if (result) {
-        console.log(`[Gmail] Sent to ${to}, messageId: ${result.messageId}`);
+        console.log(`[Gmail Success] Sent to ${to}, messageId: ${result.messageId}`);
         return { ok: true, provider: "gmail", messageId: result.messageId };
       }
     } catch (err) {
-      console.error("[Gmail Error]", err.message);
+      console.error("[Gmail Final Error]", err.message);
+      lastError = (lastError ? lastError + " | " : "") + `Gmail: ${err.message}`;
     }
+  }
+
+  // If both failed and we are in production, we MUST surface the error
+  if (process.env.NODE_ENV === "production") {
+    return { ok: false, error: lastError || "All email providers failed" };
   }
 
   // Final mock fallback for local dev
