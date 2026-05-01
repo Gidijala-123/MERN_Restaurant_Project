@@ -108,11 +108,14 @@ export async function sendWhatsAppOtp({ to, code }) {
   return { ok: true, provider: "mock" };
 }
 
-// ── Email via Brevo HTTP API (primary) ────────────────────────────────────
+import { sendMail as sendGmail } from "./mailer.js";
+
+// ── Email via Brevo HTTP API (primary) with Nodemailer fallback ───────────
 export async function sendEmailOtp({ to, code = "", subject: customSubject, html: customHtml }) {
   const subject = customSubject || "Your Flavora Verification Code";
   const html = customHtml || buildOtpHtml(code);
 
+  // Try Brevo first (HTTP is usually safer on cloud platforms)
   try {
     const result = await sendViaBrevo({ to, subject, html });
     if (result) {
@@ -123,7 +126,18 @@ export async function sendEmailOtp({ to, code = "", subject: customSubject, html
     console.error("[Brevo Error]", err.message);
   }
 
-  // Mock fallback for local dev without BREVO_API_KEY
+  // Fallback to Gmail SMTP (mailer.js)
+  try {
+    const result = await sendGmail({ to, subject, html });
+    if (result) {
+      console.log(`[Gmail] Sent to ${to}, messageId: ${result.messageId}`);
+      return { ok: true, provider: "gmail", messageId: result.messageId };
+    }
+  } catch (err) {
+    console.error("[Gmail Error]", err.message);
+  }
+
+  // Final mock fallback for local dev
   console.log(`[Email Mock] To ${to}: ${code}`);
   return { ok: true, provider: "mock" };
 }

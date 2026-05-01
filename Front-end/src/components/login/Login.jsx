@@ -14,7 +14,9 @@ import useDebounce from "../../hooks/useDebounce";
 
 // Step: "login" | "forgot-email" | "forgot-otp" | "forgot-newpw"
 function SignInForm({ toggleMobile }) {
-  const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
+  const API_BASE_URL = (import.meta.env.VITE_API_URL || 
+    (window.location.hostname === "localhost" ? "http://localhost:1111" : window.location.origin)
+  ).replace(/\/$/, "");
 
   const [validationErrors, setValidationErrors] = useState({});
   const [apiError, setApiError] = useState("");

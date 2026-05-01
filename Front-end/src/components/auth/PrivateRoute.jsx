@@ -9,7 +9,8 @@ export default function PrivateRoute({ children }) {
     const check = async () => {
       try {
         const base = (
-          import.meta.env.VITE_API_URL || "http://localhost:1111"
+          import.meta.env.VITE_API_URL || 
+          (window.location.hostname === "localhost" ? "http://localhost:1111" : window.location.origin)
         ).replace(/\/$/, "");
 
         const res = await fetch(base + "/api/auth/me", {

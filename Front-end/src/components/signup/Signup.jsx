@@ -16,7 +16,10 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 import { toast } from "react-toastify";
 
 const BG_IMAGES = ["/dark1.jpg", "/dark2.jpg", "/dark3.jpg"];
-const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:1111").replace(/\/$/, "");
+// Use current origin in production if VITE_API_URL is missing
+const API_URL = (import.meta.env.VITE_API_URL || 
+  (window.location.hostname === "localhost" ? "http://localhost:1111" : window.location.origin)
+).replace(/\/$/, "");
 
 let _csrfCache = "";
 async function getCsrf() {

@@ -30,12 +30,18 @@ store.subscribe(() => {
   cartSyncTimer = setTimeout(() => syncCartToDb(cart), 800);
 });
 
-// On app load, restore cart from DB (overrides localStorage if user is logged in)
-loadCartFromDb().then((dbCart) => {
-  if (dbCart && dbCart.length > 0) {
-    store.dispatch(restoreCart(dbCart));
-  }
-});
+// On app load, restore cart from DB if we have a session hint
+// This avoids a 401 console error on the landing page for guest users
+const hasSession = localStorage.getItem("userName") || document.cookie.includes("accessToken");
+if (hasSession) {
+  loadCartFromDb().then((dbCart) => {
+    if (dbCart && dbCart.length > 0) {
+      store.dispatch(restoreCart(dbCart));
+    }
+  }).catch(() => {
+    // Silent fail — will use localStorage fallback
+  });
+}
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
