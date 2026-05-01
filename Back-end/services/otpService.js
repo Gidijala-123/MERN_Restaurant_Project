@@ -10,7 +10,7 @@ async function sendViaBrevo({ to, subject, html }) {
 
   console.log(`[OTP-System] Attempting Brevo send via: ${fromEmail}`);
 
-   const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+  const res = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
       "api-key": apiKey,
@@ -22,6 +22,12 @@ async function sendViaBrevo({ to, subject, html }) {
       to: [{ email: to }],
       subject,
       htmlContent: html,
+      headers: {
+        "X-Entity-Ref-ID": Date.now().toString(),
+        "List-Unsubscribe": `<mailto:${fromEmail}?subject=unsubscribe>`,
+        "X-Priority": "1 (Highest)",
+        "X-Mailer": "FlavoraKitchen-Custom",
+      }
     }),
   });
 
@@ -112,14 +118,25 @@ export async function sendWhatsAppOtp({ to, code }) {
 
 import { sendMail as sendGmail } from "./mailer.js";
 
-// ── Email via Gmail SMTP (primary) with Brevo fallback ────────────────────
+// ── Email via Brevo HTTP API (primary) with Gmail fallback ────────────────
 export async function sendEmailOtp({ to, code = "", subject: customSubject, html: customHtml }) {
   const subject = customSubject || "Your Flavora Verification Code";
   const html = customHtml || buildOtpHtml(code);
 
-  // Try Gmail first (usually more reliable for personal use if App Password is set)
+  // Try Brevo first (HTTP is much more reliable on Render than SMTP)
+  try {
+    const result = await sendViaBrevo({ to, subject, html });
+    if (result) {
+      console.log(`[Brevo] Sent to ${to}, messageId: ${result.messageId}`);
+      return { ok: true, provider: "brevo", messageId: result.messageId };
+    }
+  } catch (err) {
+    console.error("[Brevo Error]", err.message);
+  }
+
+  // Fallback to Gmail SMTP
   if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
-    console.log(`[OTP] Attempting Gmail send to: ${to}`);
+    console.log(`[OTP] Attempting Gmail fallback send to: ${to}`);
     try {
       const result = await sendGmail({ to, subject, html });
       if (result) {
@@ -129,19 +146,6 @@ export async function sendEmailOtp({ to, code = "", subject: customSubject, html
     } catch (err) {
       console.error("[Gmail Error]", err.message);
     }
-  } else {
-    console.log("[OTP] Skipping Gmail (env vars missing)");
-  }
-
-  // Fallback to Brevo HTTP API
-  try {
-    const result = await sendViaBrevo({ to, subject, html });
-    if (result) {
-      console.log(`[Brevo] Sent to ${to}, messageId: ${result.messageId}`);
-      return { ok: true, provider: "brevo", messageId: result.messageId };
-    }
-  } catch (err) {
-    console.error("[Brevo Error]", err.message);
   }
 
   // Final mock fallback for local dev

@@ -29,9 +29,9 @@ function getTransporter() {
     tls: {
       rejectUnauthorized: true,
     },
-    connectionTimeout: 20000, // Increase to 20s for Render
-    greetingTimeout: 20000,
-    socketTimeout: 20000,
+    connectionTimeout: 10000, // Reduced to 10s for faster failure if needed
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
   });
 
   return _transporter;
