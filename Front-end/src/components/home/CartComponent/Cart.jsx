@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import useSound from "../../../hooks/useSound";
 import {
   addToCart,
   clearCart,
@@ -26,15 +27,30 @@ const Cart = () => {
   const cart = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { playSound } = useSound();
 
   useEffect(() => {
     dispatch(getTotals());
   }, [cart, dispatch]);
 
-  const handleAddToCart = (product) => dispatch(addToCart(product));
-  const handleDecreaseCart = (product) => dispatch(decreaseCart(product));
-  const handleRemoveFromCart = (product) => dispatch(removeFromCart(product));
-  const handleClearCart = () => dispatch(clearCart());
+  const handleAddToCart = (product) => {
+    playSound("pop");
+    dispatch(addToCart(product));
+  };
+  const handleDecreaseCart = (product) => {
+    playSound("click");
+    dispatch(decreaseCart(product));
+  };
+  const handleRemoveFromCart = (product) => {
+    playSound("remove");
+    dispatch(removeFromCart(product));
+  };
+  const handleClearCart = () => {
+    if (confirm("Clear your entire basket?")) {
+      playSound("remove");
+      dispatch(clearCart());
+    }
+  };
 
   const [pdfLoading, setPdfLoading] = useState(false);
 
@@ -322,6 +338,8 @@ const Cart = () => {
           grandTotal,
         };
         localStorage.setItem("userOrders", JSON.stringify([newOrder, ...existingOrders]));
+
+        playSound("success");
 
         // Persist order to backend DB for analytics
         const API_URL = (import.meta.env.VITE_API_URL || 

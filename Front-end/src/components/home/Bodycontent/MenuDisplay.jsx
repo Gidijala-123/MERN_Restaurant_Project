@@ -15,6 +15,7 @@ import { addToCart } from "../../features/cartSlice";
 import { toast } from "react-toastify";
 import axios from "axios";
 import useFavorites from "../../../hooks/useFavorites";
+import useSound from "../../../hooks/useSound";
 import "./MenuDisplay.css";
 
 const API = (import.meta.env.VITE_API_URL || 
@@ -81,6 +82,7 @@ const MenuDisplay = () => {
   const dispatch = useDispatch();
   const admin = isAdmin();
   const { isFav, toggle: toggleFav } = useFavorites();
+  const { playSound } = useSound();
 
   // menuVersion is bumped by refreshMenu after save/delete
   // MenuContext re-fetches from API automatically when menuVersion changes
@@ -131,6 +133,7 @@ const MenuDisplay = () => {
   const getFallback = useCallback((cat) => FALLBACK_IMAGES[cat] || "/footer-images/food.png", []);
 
   const handleAddToCart = useCallback((item) => {
+    playSound("pop");
     dispatch(addToCart({ 
       cartQuantity: 1, 
       ...item, 
@@ -139,7 +142,7 @@ const MenuDisplay = () => {
       img: item.imageUrl || item.img || item.image || getFallback(item.category), 
       price: item.price 
     }));
-  }, [dispatch, getFallback]);
+  }, [dispatch, getFallback, playSound]);
 
   const openAdd = (subCat) => {
     setFieldErrors({});
@@ -359,7 +362,10 @@ const MenuDisplay = () => {
                     {!admin && (
                       <div className="favorite-btn-wrapper">
                         <Button
-                          onClick={() => toggleFav(String(item?.itemId ?? item?.id ?? item?._id ?? ""))}
+                          onClick={() => {
+                            playSound(isFav(String(item?.itemId ?? item?.id ?? item?._id ?? "")) ? "remove" : "pop");
+                            toggleFav(String(item?.itemId ?? item?.id ?? item?._id ?? ""));
+                          }}
                           className={`floating-fav-btn ${isFav(String(item?.itemId ?? item?.id ?? item?._id ?? "")) ? "active" : ""}`}
                         >
                           {isFav(String(item?.itemId ?? item?.id ?? item?._id ?? "")) ? <FavoriteIcon /> : <FavoriteBorderIcon />}

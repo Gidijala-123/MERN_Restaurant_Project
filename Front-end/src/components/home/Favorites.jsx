@@ -12,6 +12,7 @@ import { MENU_DATA } from "../../data/menuData";
 import { DISCOUNT_SALE_ITEMS } from "../../data/discountItems";
 import { useMenu } from "../../context/MenuContext";
 import useFavorites from "../../hooks/useFavorites";
+import useSound from "../../hooks/useSound";
 import "./Favorites.css";
 
 const FALLBACK_IMAGES = {
@@ -40,6 +41,7 @@ export default function Favorites() {
   const { data = [], isLoading } = useGetAllProductsQuery();
   const { allItems: liveMenuData = MENU_DATA } = useMenu();
   const { favorites: menuFavorites, remove: removeFav, loaded: favsLoaded, ids: favIds } = useFavorites();
+  const { playSound } = useSound();
   // Show loader only if we have no local data yet (first ever load)
   const hasLocalData = favIds.length > 0;
 
@@ -78,11 +80,13 @@ export default function Favorites() {
   }, [data, liveMenuData, menuFavorites]);
 
   const toggleFavorite = (item) => {
+    playSound("remove");
     const id = String(item?.itemId ?? item?.id ?? item?._id ?? "");
     removeFav(id);
   };
 
   const handleAddToCart = (item) => {
+    playSound("pop");
     dispatch(
       addToCart({
         id: item.itemId || item.id || item._id,

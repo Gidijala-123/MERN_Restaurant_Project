@@ -69,6 +69,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import SearchBar from "../Bodycontent/SEARCH_COMPONENT/SearchBar";
 import { useGetAllProductsQuery } from "../../features/productsApi";
+import useSound from "../../../hooks/useSound";
 
 import Favorites from "../Favorites";
 import useFavorites from "../../../hooks/useFavorites";
@@ -213,6 +214,7 @@ export default function Sidebar() {
   const { handleCategoryChange } = useMenu();
   const { count: favoritesCount } = useFavorites();
   const { data, isLoading } = useGetAllProductsQuery();
+  const { playSound } = useSound();
 
   useEffect(() => {
     const storedUserName = localStorage.getItem("userName");
@@ -310,17 +312,20 @@ export default function Sidebar() {
       document.documentElement.style.removeProperty("--primary-dark");
       document.documentElement.style.removeProperty("--primary-gradient");
       document.documentElement.style.removeProperty("--border-light");
+      playSound("success");
       window.location.href = "/";
     }, 1500);
   }, [userName]);
 
   const handleDrawerToggle = useCallback(() => {
+    playSound("click");
     setOpen((prev) => !prev);
-  }, []);
+  }, [playSound]);
 
   const handleDrawerClose = useCallback(() => {
+    playSound("click");
     setOpen(false);
-  }, []);
+  }, [playSound]);
 
   const handleAccountMenuOpen = useCallback((event) => {
     setAccountAnchorEl(event.currentTarget);
@@ -340,6 +345,7 @@ export default function Sidebar() {
   }, [handleAccountMenuClose, navigate]);
 
   const handleSectionChange = useCallback((section, sidebarItemOrTerm = null) => {
+    playSound("click");
     setCurrentSection(section);
     // If called from search, sidebarItemOrTerm is the search string
     if (section === "Shop") {
@@ -527,7 +533,7 @@ export default function Sidebar() {
             >
               <IconButton
                 color="inherit"
-                onClick={toggleTheme}
+                onClick={() => { playSound("pop"); toggleTheme(); }}
                 sx={{
                   p: { xs: 0.8, md: 1.2 },
                   borderRadius: "10px",

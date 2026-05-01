@@ -14,6 +14,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import GoogleIcon from "@mui/icons-material/Google";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import { toast } from "react-toastify";
+import useSound from "../../hooks/useSound";
 
 const BG_IMAGES = ["/dark1.jpg", "/dark2.jpg", "/dark3.jpg"];
 // Use current origin in production if VITE_API_URL is missing
@@ -103,6 +104,7 @@ function Signup() {
   const [prevBgIndex, setPrevBgIndex] = useState(null);
   const navigate = useNavigate();
   const otpInputRef = useRef(null);
+  const { playSound } = useSound();
 
   // Background slideshow
   useEffect(() => {
@@ -208,6 +210,7 @@ function Signup() {
       );
 
       if (res.status === 200) {
+        playSound("success");
         const icons = { email: "📧", sms: "📱", whatsapp: "💬" };
         const labels = { email: `email (${contact})`, sms: `SMS to ${contact}`, whatsapp: `WhatsApp to ${contact}` };
         setIsOtpSent(true);
@@ -217,6 +220,7 @@ function Signup() {
         setTimeout(() => otpInputRef.current?.focus(), 100);
       }
     } catch (err) {
+      playSound("error");
       const msg = err.response?.data?.error || err.response?.data?.Message || "Failed to send OTP. Please try again.";
       setOtpMsg(msg);
       // If it's a provider error, show it clearly
@@ -246,14 +250,17 @@ function Signup() {
         { withCredentials: true, headers: { "x-csrf-token": token } },
       );
       if (res.data?.ok) {
+        playSound("success");
         setIsOtpSent(false); setIsOtpVerified(true);
         setOtpCode(""); setOtpMsg("");
         toast.update(toastId, { render: "✅ OTP verified!", type: "success", isLoading: false, autoClose: 1500 });
       } else {
+        playSound("error");
         setOtpMsg("Invalid or expired OTP.");
         toast.update(toastId, { render: "Invalid or expired OTP. Try again.", type: "error", isLoading: false, autoClose: 1500 });
       }
     } catch {
+      playSound("error");
       setOtpMsg("Verification failed. Please try again.");
       toast.update(toastId, { render: "Verification failed. Please try again.", type: "error", isLoading: false, autoClose: 1500 });
     } finally {
@@ -294,6 +301,7 @@ function Signup() {
     try {
       const res = await axios.post(`${API_URL}/api/signupLoginRouter/registerUser`, { uname, uemail, upassword, avatar });
       if (res.status === 200) {
+        playSound("success");
         toast.update(toastId, { render: "Account created! You can now log in.", type: "success", isLoading: false, autoClose: 1500 });
         setApiStatus({ error: "", success: "Registration successful! You can now log in." });
         setUname(""); setUemail(""); setUpassword(""); setUconfirmPassword("");
@@ -304,6 +312,7 @@ function Signup() {
         setTimeout(() => toggleSignupLogin("signIn"), 2000);
       }
     } catch (err) {
+      playSound("error");
       const msg = err.response?.data?.Message || err.response?.data?.Error || "Registration failed.";
       const isExisting = err.response?.status === 403;
       toast.update(toastId, { render: isExisting ? "This email is already registered. Please login." : msg, type: "error", isLoading: false, autoClose: 1500 });
