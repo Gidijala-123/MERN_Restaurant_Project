@@ -1,19 +1,63 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import * as FaIcons from "react-icons/fa";
 import * as AiIcons from "react-icons/ai";
 import { SidebarData } from "../../../APIs/Sidebar";
 import "./Navbar.css";
 import { IconContext } from "react-icons";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useSound from "../../../hooks/useSound";
+import { Menu, MenuItem, ListItemIcon, Divider, Badge } from "@mui/material";
+import LogoutIcon from "@mui/icons-material/Logout";
+import SettingsIcon from "@mui/icons-material/Settings";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 
 function Navbar() {
 	const [sidebar, setSidebar] = useState(false);
+	const [anchorEl, setAnchorEl] = useState(null);
+	const navigate = useNavigate();
 	const { playSound } = useSound();
+
 	const showSidebar = () => {
 		playSound("click");
 		setSidebar(!sidebar);
 	};
+
+	const handleMenuOpen = (event) => {
+		setAnchorEl(event.currentTarget);
+	};
+
+	const handleMenuClose = () => {
+		setAnchorEl(null);
+	};
+
+	const handleLogout = useCallback(async () => {
+		playSound("click");
+		handleMenuClose();
+
+		try {
+			const base = (
+				import.meta.env.VITE_API_URL ||
+				(window.location.hostname === "localhost" ? "http://localhost:1111" : window.location.origin)
+			).replace(/\/$/, "");
+			const csrf = await fetch(base + "/api/csrf", { credentials: "include" })
+				.then((r) => r.json())
+				.catch(() => ({}));
+			await fetch(base + "/api/auth/logout", {
+				method: "POST",
+				credentials: "include",
+				headers: { "x-csrf-token": csrf?.csrfToken || "" },
+			});
+		} catch { }
+
+		// Clear local storage and redirect
+		["token", "userName", "userRole", "userEmail", "userAvatar", "menuFavorites", "cartItems",
+			"userPhone", "userAddress", "userDeliveryInstructions", "userPaymentMethod",
+			"userFoodType", "userDeliverySpeed", "userSavedAddresses", "userDietaryRestrictions",
+			"userReferralCode", "userOrders"].forEach((k) => localStorage.removeItem(k));
+		
+		playSound("success");
+		window.location.href = "/";
+	}, [playSound]);
 
 	return (
 		<>
@@ -75,7 +119,7 @@ function Navbar() {
 								zIndex: 2
 							}}>1</span>
 						</div>
-						<div className="nav-icon" title="Profile" onClick={() => playSound("click")}>
+						<div className="nav-icon" title="Profile" onClick={handleMenuOpen}>
 							{localStorage.getItem("userAvatar") ? (
 								<img 
 									src={localStorage.getItem("userAvatar")} 
@@ -87,6 +131,49 @@ function Navbar() {
 							)}
 						</div>
 					</div>
+					<Menu
+						anchorEl={anchorEl}
+						open={Boolean(anchorEl)}
+						onClose={handleMenuClose}
+						PaperProps={{
+							elevation: 0,
+							sx: {
+								overflow: "visible",
+								filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+								mt: 1.5,
+								borderRadius: "12px",
+								"& .MuiMenuItem-root": {
+									fontSize: "0.9rem",
+									fontWeight: 600,
+									padding: "10px 20px",
+								},
+							},
+						}}
+						transformOrigin={{ vertical: "top", horizontal: "right" }}
+						anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+					>
+						<MenuItem onClick={() => { handleMenuClose(); navigate("/home/settings"); }}>
+							<ListItemIcon>
+								<ManageAccountsIcon fontSize="small" />
+							</ListItemIcon>
+							Profile
+						</MenuItem>
+						{localStorage.getItem("userRole") === "admin" && (
+							<MenuItem onClick={() => { handleMenuClose(); navigate("/admin"); }}>
+								<ListItemIcon>
+									<SettingsIcon fontSize="small" />
+								</ListItemIcon>
+								Admin Panel
+							</MenuItem>
+						)}
+						<Divider />
+						<MenuItem onClick={handleLogout} sx={{ color: "#d32f2f" }}>
+							<ListItemIcon sx={{ color: "#d32f2f" }}>
+								<LogoutIcon fontSize="small" />
+							</ListItemIcon>
+							Logout
+						</MenuItem>
+					</Menu>
 				</div>
 				{/* Sidebar navigation (optional, can be removed if not needed) */}
 				<nav className={sidebar ? "nav-menu active" : "nav-menu"}>

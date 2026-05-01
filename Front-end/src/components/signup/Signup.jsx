@@ -342,7 +342,7 @@ function Signup() {
 
           {/* ── Signup Form ── */}
           <div className="form-container sign-up-container">
-            <form className="form-div" onSubmit={signupOnSubmit}>
+            <form className="form-div" onSubmit={handleSignUp}>
               <div className="signup-heading">
                 <div className="avatar-uploader">
                   <img src={avatar || "/user-ani.webp"} alt="avatar" className="avatar-img" />
