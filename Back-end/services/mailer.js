@@ -52,10 +52,18 @@ export async function sendMail({ to, subject, html }) {
     const transporter = getTransporter();
 
     const info = await transporter.sendMail({
-      from: `"${process.env.GMAIL_FROM_NAME || "Flavora"}" <${process.env.GMAIL_USER}>`,
+      from: `"${process.env.GMAIL_FROM_NAME || "Flavora Kitchen"}" <${process.env.GMAIL_USER}>`,
       to,
       subject,
       html,
+      // Anti-spam headers
+      headers: {
+        "X-Entity-Ref-ID": Date.now().toString(),
+        "List-Unsubscribe": `<mailto:${process.env.GMAIL_USER}?subject=unsubscribe>`,
+        "X-Priority": "1 (Highest)",
+        "X-Mailer": "Nodemailer",
+      },
+      priority: "high",
     });
 
     console.log(`[Mailer] Sent to ${to} — messageId: ${info.messageId}`);

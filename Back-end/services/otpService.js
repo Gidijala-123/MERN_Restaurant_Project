@@ -5,10 +5,10 @@ async function sendViaBrevo({ to, subject, html }) {
   const apiKey = process.env.BREVO_API_KEY;
   if (!apiKey) return null;
 
-  const fromEmail = process.env.BREVO_FROM_EMAIL || process.env.EMAIL_FROM || "browserlogins@gmail.com";
-  const fromName = process.env.BREVO_FROM_NAME || "Flavora";
+  const fromEmail = process.env.BREVO_FROM_EMAIL || process.env.GMAIL_USER || "browserlogins@gmail.com";
+  const fromName = process.env.BREVO_FROM_NAME || "Flavora Kitchen";
 
-  console.log(`[Brevo] Attempting send from: ${fromEmail}`);
+  console.log(`[OTP-System] Attempting Brevo send via: ${fromEmail}`);
 
    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
@@ -145,51 +145,68 @@ export async function sendEmailOtp({ to, code = "", subject: customSubject, html
   }
 
   // Final mock fallback for local dev
-  console.log(`[Email Mock] To ${to}: ${code}`);
-  return { ok: true, provider: "mock" };
+  console.log(`\n************************************************`);
+  console.log(`[CRITICAL FALLBACK] OTP FOR ${to}: ${code}`);
+  console.log(`************************************************\n`);
+  return { ok: true, provider: "mock", code }; // Return code in response for easier debugging if needed
 }
 
 // ── OTP email HTML template ────────────────────────────────────────────────
 function buildOtpHtml(code) {
   const digits = String(code).split("").map((d) => `
     <td style="padding:0 5px;">
-      <div style="width:45px;height:55px;line-height:55px;background:#fff;border-radius:8px;
-                  text-align:center;font-size:24px;font-weight:700;color:#ff6600;border:1px solid #eee;">
+      <div style="width:45px;height:55px;line-height:55px;background:#ffffff;border-radius:8px;
+                  text-align:center;font-size:24px;font-weight:700;color:#ff6600;border:1px solid #eeeeee;">
         ${d}
       </div>
     </td>`).join("");
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"/></head>
-  <body style="margin:0;padding:0;font-family:Arial,sans-serif;background:#f4f4f4;">
-    <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:20px 0;">
-      <table align="center" width="500" cellpadding="0" cellspacing="0"
-             style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 10px rgba(0,0,0,.05);">
-        <tr><td align="center" style="background:linear-gradient(135deg,#ff6600,#ff8533);padding:40px 0;">
-          <h1 style="margin:0;color:#fff;font-size:24px;font-weight:700;">Flavora</h1>
-        </td></tr>
-        <tr><td style="padding:40px 30px;">
-          <p style="font-size:18px;font-weight:600;margin:0 0 12px;">Verification Code</p>
-          <p style="font-size:15px;color:#666;margin:0 0 24px;">
-            Use the code below to complete your signup. Valid for 5 minutes.
-          </p>
-          <table align="center" cellpadding="0" cellspacing="0">
-            <tr><td align="center" style="background:#fff5eb;padding:24px;border-radius:12px;">
-              <table cellpadding="0" cellspacing="0"><tr>${digits}</tr></table>
-              <p style="margin:16px 0 0;font-size:13px;color:#ff6600;font-weight:600;letter-spacing:1px;">
-                VALID FOR 5 MINUTES
-              </p>
-            </td></tr>
+  <body style="margin:0;padding:0;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background-color:#f4f4f4;color:#333333;">
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+      <tr>
+        <td style="padding:20px 0;" align="center">
+          <table width="500" cellpadding="0" cellspacing="0" role="presentation"
+                 style="background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 10px rgba(0,0,0,0.05);border:1px solid #dddddd;">
+            <tr>
+              <td align="center" style="background:linear-gradient(135deg,#ff6600,#ff8533);padding:40px 0;">
+                <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:700;letter-spacing:1px;">Flavora Kitchen</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:40px 30px;">
+                <h2 style="font-size:20px;font-weight:600;margin:0 0 16px;color:#222222;">Verify Your Account</h2>
+                <p style="font-size:16px;line-height:1.5;color:#555555;margin:0 0 24px;">
+                  Hello, thank you for choosing Flavora! Please use the 6-digit verification code below to complete your registration. This code is unique to your request.
+                </p>
+                <table align="center" cellpadding="0" cellspacing="0" role="presentation">
+                  <tr>
+                    <td align="center" style="background-color:#fff5eb;padding:30px;border-radius:12px;border:1px dashed #ffcc99;">
+                      <table cellpadding="0" cellspacing="0" role="presentation">
+                        <tr>${digits}</tr>
+                      </table>
+                      <p style="margin:20px 0 0;font-size:14px;color:#ff6600;font-weight:700;letter-spacing:2px;text-transform:uppercase;">
+                        Expires in 5 Minutes
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:30px 0 0;font-size:14px;line-height:1.4;color:#888888;text-align:center;">
+                  If you did not request this code, please ignore this email or contact our support team if you have concerns.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="background-color:#fafafa;padding:25px;text-align:center;border-top:1px solid #eeeeee;">
+                <p style="margin:0;font-size:12px;color:#aaaaaa;line-height:1.2;">
+                  &copy; ${new Date().getFullYear()} Flavora Kitchen. All rights reserved.<br/>
+                  123 Gourmet Street, Foodie City, FC 12345
+                </p>
+              </td>
+            </tr>
           </table>
-          <p style="margin:24px 0 0;font-size:13px;color:#999;text-align:center;">
-            If you didn't request this, you can safely ignore this email.
-          </p>
-        </td></tr>
-        <tr><td style="background:#fafafa;padding:20px;text-align:center;border-top:1px solid #eee;">
-          <p style="margin:0;font-size:12px;color:#999;">
-            &copy; ${new Date().getFullYear()} Flavora. All rights reserved.
-          </p>
-        </td></tr>
-      </table>
-    </td></tr></table>
+        </td>
+      </tr>
+    </table>
   </body></html>`;
 }
