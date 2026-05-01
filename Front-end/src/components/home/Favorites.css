@@ -1,9 +1,17 @@
 /* Favorites Component Redesign */
 
 .favorites-container {
-  padding: 1.5rem 1rem;
-  min-height: calc(100vh - 72px);
+  padding: 1.5rem 2rem;
+  min-height: calc(100vh - 4.5rem);
   background-color: var(--bg-light);
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 48rem) {
+  .favorites-container {
+    padding: 1rem 1rem;
+  }
 }
 
 .favorites-header {
@@ -33,25 +41,13 @@
 
 .favorites-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr));
   gap: 1.5rem;
   margin-top: 1.5rem;
   align-items: stretch;
 }
 
-@media (max-width: 900px) {
-  .favorites-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 600px) {
-  .favorites-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.favorites-grid > div {
+.favorites-grid>div {
   display: flex;
   flex-direction: column;
 }
@@ -68,23 +64,23 @@
   flex-direction: column;
   background: var(--white) !important;
   border: 1px solid var(--border-light) !important;
-  border-radius: 20px !important;
+  border-radius: 1.25rem !important;
   overflow: hidden !important;
   transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03) !important;
+  box-shadow: 0 0.25rem 0.9375rem rgba(0, 0, 0, 0.03) !important;
   position: relative;
   width: 100%;
 }
 
 .favorite-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 20px 40px rgba(230, 81, 0, 0.1) !important;
+  transform: translateY(-0.625rem);
+  box-shadow: 0 1.25rem 2.5rem rgba(230, 81, 0, 0.1) !important;
   border-color: var(--primary) !important;
 }
 
 .favorite-image-wrapper {
   position: relative;
-  height: 160px;
+  height: 11.25rem;
   overflow: hidden;
 }
 
@@ -101,33 +97,33 @@
 
 .favorite-badges {
   position: absolute;
-  top: 15px;
-  left: 15px;
+  top: 0.9375rem;
+  left: 0.9375rem;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
   z-index: 2;
 }
 
 .fav-badge {
   background: var(--primary-gradient) !important;
   color: white !important;
-  padding: 4px 12px !important;
-  border-radius: 50px !important;
+  padding: 0.25rem 0.75rem !important;
+  border-radius: 3.125rem !important;
   font-size: 0.7rem !important;
   font-weight: 800 !important;
-  box-shadow: 0 4px 10px rgba(230, 81, 0, 0.3) !important;
+  box-shadow: 0 0.25rem 0.625rem rgba(230, 81, 0, 0.3) !important;
 }
 
 .section-badge {
   background: rgba(255, 255, 255, 0.9) !important;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(0.3125rem);
   color: var(--text-main) !important;
-  padding: 4px 12px !important;
-  border-radius: 50px !important;
+  padding: 0.25rem 0.75rem !important;
+  border-radius: 3.125rem !important;
   font-size: 0.7rem !important;
   font-weight: 700 !important;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.05) !important;
 }
 
 .favorite-content {
@@ -162,16 +158,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .remove-fav-btn {
   background: #fff5f5 !important;
   color: #ff4757 !important;
-  border-radius: 12px !important;
+  border-radius: 0.75rem !important;
   text-transform: none !important;
   font-weight: 700 !important;
-  padding: 7px 10px !important;
+  padding: 0.4375rem 0.625rem !important;
   font-size: 0.78rem !important;
   flex: 1;
   min-width: 0;
@@ -188,16 +184,16 @@
 .add-to-cart-btn {
   background: var(--primary-gradient) !important;
   color: white !important;
-  border-radius: 12px !important;
+  border-radius: 0.75rem !important;
   text-transform: none !important;
   font-weight: 700 !important;
-  padding: 7px 10px !important;
+  padding: 0.4375rem 0.625rem !important;
   font-size: 0.78rem !important;
   flex: 1;
   min-width: 0;
   white-space: nowrap;
   transition: all 0.3s ease !important;
-  box-shadow: 0 4px 12px rgba(230, 81, 0, 0.25) !important;
+  box-shadow: 0 0.25rem 0.75rem rgba(230, 81, 0, 0.25) !important;
 }
 
 .add-to-cart-btn:hover {

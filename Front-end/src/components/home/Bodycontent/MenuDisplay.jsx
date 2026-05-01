@@ -131,8 +131,15 @@ const MenuDisplay = () => {
   const getFallback = useCallback((cat) => FALLBACK_IMAGES[cat] || "/footer-images/food.png", []);
 
   const handleAddToCart = useCallback((item) => {
-    dispatch(addToCart({ cartQuantity: 1, ...item, title: item.name, img: item.imageUrl, price: item.price }));
-  }, [dispatch]);
+    dispatch(addToCart({ 
+      cartQuantity: 1, 
+      ...item, 
+      id: item._id || item.id,
+      title: item.name, 
+      img: item.imageUrl || item.img || item.image || getFallback(item.category), 
+      price: item.price 
+    }));
+  }, [dispatch, getFallback]);
 
   const openAdd = (subCat) => {
     setFieldErrors({});

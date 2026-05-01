@@ -85,10 +85,10 @@ export default function Favorites() {
   const handleAddToCart = (item) => {
     dispatch(
       addToCart({
-        id: item.id,
+        id: item.itemId || item.id || item._id,
         title: item.title || item.name,
         price: item.newPrice || item.price,
-        img: item.img || item.image,
+        img: resolveImageSrc(item),
         cartQuantity: 1,
       })
     );
