@@ -25,7 +25,7 @@ export default function useSound() {
     try {
       if (!audioPool[soundType]) {
         audioPool[soundType] = new Audio(path);
-        audioPool[soundType].volume = 0.7; // Boosted volume for production
+        audioPool[soundType].volume = 1.0; // Maximize volume for better audibility
         audioPool[soundType].preload = 'auto';
       }
       
